@@ -76,10 +76,6 @@ trait Model{//similar to a class but can be inherited by other classes
     
     public function insert($data){
         $keys = array_keys($data);
-        $query = "
-            insert into $this->table (".implode(", ", $keys).") 
-            values  (:".implode(', :', $keys).") "; //impolde is used to concat list to string
-        // echo $query;
         // remove unwanted data from the data array
         if(!empty($this->allowedColumns)){
             foreach($keys as $key){
@@ -88,14 +84,31 @@ trait Model{//similar to a class but can be inherited by other classes
                 }
             }
         }
+
+        $query = "
+            insert into $this->table (".implode(", ", $keys).") 
+            values  (:".implode(', :', $keys).") "; //impolde is used to concat list to string
+        // echo $query;
+        
+        
         $results = $this->query($query, $data);
-        show($results);
+        // show($results);
         return $results ? true : false ;
 
     }
 
     public function update($id, $data, $id_column = 'id'){    
         $keys = array_keys($data);
+
+        // Remove unwanted data from the data array
+        if(!empty($this->allowedColumns)){
+            foreach($keys as $key){
+                if(!in_array($key, $this->allowedColumns)){
+                    unset($data[$key]); #remove key from the data
+                }
+            }
+        }
+        
         $query = "update $this->table set ";
     
         foreach($keys as $key){
