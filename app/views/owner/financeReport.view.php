@@ -1,3 +1,4 @@
+<?php require_once 'ownerHeader.view.php'; ?>
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
@@ -145,3 +146,5 @@
         });
     }
 </script>
+
+<?php require_once 'ownerFooter.view.php'; ?>

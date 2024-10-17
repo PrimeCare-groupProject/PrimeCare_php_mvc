@@ -1,3 +1,5 @@
+<?php require 'serviceproviderHeader.view.php' ?>
+
 <div class="user_view-menu-bar">
     <img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons">
     <h2>ADD Logs</h2>
@@ -47,3 +49,5 @@
 </form>
 
 <script src="scripts.js"></script>
+
+<?php require 'serviceproviderFooter.view.php' ?>

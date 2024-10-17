@@ -1,6 +1,6 @@
 @import url('./variables.css');
 
-.primary-btn{
+.primary-btn {
     /* width: 100%; */
     max-width: 200px;
     min-width: 150px;
@@ -16,58 +16,72 @@
     margin-top: 10px;
 }
 
-.primary-btn:hover{
+.primary-btn:hover {
     background-color: var(--primary-color-hover);
 }
 
-.secondary-btn{
+.secondary-btn {
     /* width: 100%; */
     max-width: 200px;
     min-width: 150px;
-    padding: 10px 20px; 
+    padding: 10px 20px;
     background-color: var(--white-color);
-    color: var(--primary-color); 
+    color: var(--primary-color);
     font-size: 14px;
     font-weight: 500;
     border: 2px solid var(--primary-color);
-    border-radius: 5px; 
-    outline: none; 
+    border-radius: 5px;
+    outline: none;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s; 
+    transition: background-color 0.3s, color 0.3s;
     margin-top: 10px;
 }
 
 .secondary-btn:hover {
-    color: var(--white-color); 
-    background-color: var(--primary-color); 
+    color: var(--white-color);
+    background-color: var(--primary-color);
 }
 
-.btn{
+.btn {
     background-color: var(--white-color);
-    padding: 10px 20px; 
-    border: none; 
-    border-radius: 5px; 
-    font-size: 16px; 
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
-    text-align: center; 
+    text-align: center;
     /* width: 100%; */
     max-width: 200px;
     min-width: 150px;
 }
 
 .btn:hover {
-    background-color: var(--primary-color); 
+    background-color: var(--primary-color);
     color: var(--white-color);
 }
 
-.small-btn{
-    padding: 5px 10px !important; 
-    font-size: 14px; 
+.active {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
-    text-align: center; 
+    text-align: center;
+    /* width: 100%; */
+    max-width: 200px;
+    min-width: 150px;
+    background-color: var(--primary-color);
+    color: var(--white-color);
 }
 
-.border-button{
+.small-btn {
+    padding: 5px 10px !important;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.border-button {
     padding: 10px 20px;
     border-radius: 30px;
     font-size: 0.8rem;
@@ -78,7 +92,7 @@
     min-width: 80px;
 }
 
-.border-button-sm{
+.border-button-sm {
     padding: 5px 10px;
     border-radius: 30px;
     font-size: 0.8rem;
@@ -86,29 +100,29 @@
     min-width: 80px;
 }
 
-.green{
+.green {
     background-color: rgba(var(--green-color-rgb), 0.20);
     color: var(--green-color);
     border: 1px solid var(--green-color);
 }
 
-.red{
+.red {
     background-color: rgba(var(--red-color-rgb), 0.20);
     color: var(--red-color);
     border: 1px solid var(--red-color);
 }
 
-.orange{
+.orange {
     background-color: rgba(var(--primary-color-rgb), 0.20);
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
 }
 
-.more-margin{
+.more-margin {
     margin: 10px;
     padding: 10px;
 }
 
-.blue-color{
+.blue-color {
     color: var(--link-color);
 }

@@ -1,3 +1,4 @@
+<?php require_once 'ownerHeader.view.php'; ?>
 <div class="user_view-menu-bar">
     <h2>dashboard</h2>
 </div>
@@ -85,3 +86,4 @@
         </div>
     </div>
 </div>
+<?php require_once 'ownerFooter.view.php'; ?>

@@ -1,3 +1,5 @@
+<?php require_once 'ownerHeader.view.php'; ?>
+
 <div class="user_view-menu-bar">
     <img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons">
     <h2>ADD PROPERTIES</h2>
@@ -119,3 +121,4 @@
 </form>
 
 <script src="scripts.js"></script>
+<?php require_once 'ownerFooter.view.php'; ?>

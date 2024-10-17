@@ -10,10 +10,11 @@
     margin-right: 10px;
 }
 .user_view-menu-bar h2{
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 500;
     color: #333;
     white-space: nowrap;
+    font-family: 'outfit', sans-serif;
 }
 
 .content-section {

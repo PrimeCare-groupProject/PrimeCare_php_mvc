@@ -1,3 +1,5 @@
+<?php require 'serviceproviderHeader.view.php' ?>
+
 <div class="user_view-menu-bar">
     <h2>dashboard</h2>
 </div>
@@ -73,3 +75,5 @@
         </table>
     </div>
 </div>
+
+<?php require 'serviceproviderFooter.view.php' ?>

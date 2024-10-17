@@ -1,7 +1,9 @@
+<?php require_once 'ownerHeader.view.php'; ?>
+
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons">
+            <a href="<?= ROOT ?>/ownerdashboard/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2>Name of Property</h2>
                 <p><span>Maintained By: </span>Agent's Name</p>
@@ -48,7 +50,7 @@
         <div class="reviews-section">
             <label class="bolder-text">Reviews</label>
             <?php for ($i = 0; $i < 3; $i++): ?>
-                <?php require __DIR__ . './../components/reviewfiled1.php'; ?>
+                <?php require __DIR__ . '/../components/reviewfiled1.php'; ?>
             <?php endfor; ?>
         </div>
     </div>
@@ -63,63 +65,63 @@
         <label class="bolder-text">Property Information</label>
 
         <div class="input-group">
-            <span class="input-label-small"><strong>Name:</strong></span><span class="input-field-small">Own Property</span>
+            <span class="input-label-small">Name:</span><span class="input-field-small">Own Property</span>
         </div>
 
         <div class="input-group">
-            <span class="input-label-small"><strong>Type:</strong></span><span class="input-field-small">Oceanview Retreat</span>
+            <span class="input-label-small">Type:</span><span class="input-field-small">Oceanview Retreat</span>
         </div>
 
         <div class="input-group">
-            <div class="input-group">
-                <span class="input-label-small"><strong>Zip Code:</strong></span><span class="input-field-small">80140</span>
-            </div>
-            <div class="input-group">
-                <span class="input-label-small"><strong>City:</strong></span><span class="input-field-small">Colombo</span>
-            </div>
+            <span class="input-label-small">Address:</span><span class="input-field-small">Oceanview Retreat , Colombo , Sri lanka</span>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small"><strong>State/Province:</strong></span><span class="input-field-small">Western</span>
+                <span class="input-label-small">Zip Code:</span><span class="input-field-small">80140</span>
             </div>
             <div class="input-group">
-                <span class="input-label-small"><strong>Country:</strong></span><span class="input-field-small">Sri Lanka</span>
+                <span class="input-label-small">City:</span><span class="input-field-small">Colombo</span>
             </div>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small"><strong>Year Built:</strong></span><span class="input-field-small">2015</span>
+                <span class="input-label-small">State/Province:</span><span class="input-field-small">Western</span>
             </div>
             <div class="input-group">
-                <span class="input-label-small"><strong>Monthly Rent (LKR):</strong></span><span class="input-field-small">20000</span>
-            </div>
-        </div>
-
-        <div class="input-group">
-            <span class="input-label-small"><strong>Address:</strong></span><span class="input-field-small">Oceanview Retreat , Colombo , Sri lanka</span>
-        </div>
-
-        <div class="input-group">
-            <div class="input-group">
-                <span class="input-label-small"><strong>Units:</strong></span><span class="input-field-small">4</span>
-            </div>
-            <div class="input-group">
-                <span class="input-label-small"><strong>Size(square feet):</strong></span><span class="input-field-small">1000</span>
+                <span class="input-label-small">Country:</span><span class="input-field-small">Sri Lanka</span>
             </div>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small"><strong>Bedrooms:</strong></span><span class="input-field-small">4</span>
+                <span class="input-label-small">Year Built:</span><span class="input-field-small">2015</span>
             </div>
             <div class="input-group">
-                <span class="input-label-small"><strong>Bathrooms:</strong></span><span class="input-field-small">2</span>
+                <span class="input-label-small">Monthly Rent:</span><span class="input-field-small">LKR 20000</span>
             </div>
         </div>
 
-        <span class="input-label-small"><strong>Floor Plan:</strong></span>
+        <div class="input-group">
+            <div class="input-group">
+                <span class="input-label-small">Units:</span><span class="input-field-small">4</span>
+            </div>
+            <div class="input-group">
+                <span class="input-label-small">Size(square feet):</span><span class="input-field-small">1000</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="input-group">
+                <span class="input-label-small">Bedrooms:</span><span class="input-field-small">4</span>
+            </div>
+            <div class="input-group">
+                <span class="input-label-small">Bathrooms:</span><span class="input-field-small">2</span>
+            </div>
+        </div>
+
+        <span class="input-label-small">Floor Plan:</span>
         <p class="input-field-small more-padding">
             Welcome to Oceanview Retreat, an exquisite beachfront property located in the vibrant city of Miami, Florida. Situated along the pristine shores of the Atlantic Ocean, this luxurious estate offers a truly unparalleled coastal living experience.
         </p>
@@ -165,3 +167,5 @@
         showSlide(currentIndex - 1);
     }
 </script>
+
+<?php require_once 'ownerFooter.view.php'; ?>

@@ -4,14 +4,26 @@ class ServiceProviderDashboard {
     use controller;
     
     public function index() {
-        echo "Service Provider Dashboard";
+        $this->view('serviceprovider/dashboard');
     }
 
     public function profile() {
-        echo "User Profile Section";
+        $this->view('serviceprovider/profile');
     }
 
-    public function expenses() {
-        echo "User Expenses Section";
+    public function addLogs(){
+        $this->view('serviceprovider/addLogs');
+    }
+
+    public function repairListing(){
+        $this->view('serviceprovider/repairListing');
+    }
+
+    public function repairRequests(){
+        $this->view('serviceprovider/repairRequests');
+    }
+
+    public function repairs(){
+        $this->view('serviceprovider/repairs');
     }
 }

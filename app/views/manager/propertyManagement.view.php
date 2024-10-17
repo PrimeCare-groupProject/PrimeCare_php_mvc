@@ -1,10 +1,12 @@
+<?php require_once 'managerHeader.view.php'; ?>
+
 <div class="user_view-menu-bar">
     <h2>property managements</h2>
 </div>
 
 <div class="management-cards-container">
     <div class="management-card-container-sub">
-        <a href="">
+        <a href="<?= ROOT ?>/managerdashboard/assignagent">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Assign Agents</h2>
@@ -15,7 +17,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="<?= ROOT ?>/managerdashboard/requestapproval">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Approve Requests</h2>
@@ -27,3 +29,6 @@
         </a>
     </div>
 </div>
+
+
+<?php require_once 'managerFooter.view.php'; ?>

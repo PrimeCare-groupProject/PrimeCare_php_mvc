@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 12, 2024 at 09:27 PM
+-- Generation Time: Oct 17, 2024 at 06:40 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -44,7 +44,10 @@ CREATE TABLE `person` (
 --
 
 INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `password`, `image_url`, `user_lvl`, `pid`) VALUES
-('user1', 'user1', 'user', 'user@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 1, 1);
+('user1', 'user1', 'user', 'user@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 1, 1),
+('agent1', 'agent1', 'agent', 'agent@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 3, 50),
+('manager1', 'manager1', 'manager', 'manager@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 4, 51),
+('serviceprovider1', 'serviceprovider1', 'serviceprovider', 'serviceprovider@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 2, 52);
 
 -- --------------------------------------------------------
 
@@ -77,7 +80,7 @@ ALTER TABLE `person`
 -- AUTO_INCREMENT for table `person`
 --
 ALTER TABLE `person`
-  MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

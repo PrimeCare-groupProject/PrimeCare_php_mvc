@@ -1,16 +1,36 @@
 <?php
+    class OwnerDashboard{
+        use controller;
 
-class OwnerDashboard {
-    use controller;
-    public function index() {
-        echo "Owner Dashboard";
-    }
+        public function index(){
+            $this->view('owner/dashboard');
+        }
 
-    public function profile() {
-        echo "User Profile Section";
-    }
+        public function maintenance(){
+            $this->view('owner/maintenance');
+        }
 
-    public function expenses() {
-        echo "User Expenses Section";
+        public function financeReport(){
+            $this->view('owner/financeReport');
+        }
+
+        public function tenants(){
+            $this->view('owner/tenants');
+        }
+
+        public function addProperty(){
+            $this->view('owner/addProperty');
+        }
+
+        public function propertyListing(){
+            $this->view('owner/propertyListing');
+        }
+
+        public function propertyUnit(){
+            $this->view('owner/propertyUnit');
+        }
+
+        public function profile(){
+            $this->view('owner/profile');
+        }
     }
-}

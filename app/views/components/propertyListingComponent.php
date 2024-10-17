@@ -1,6 +1,6 @@
 <div class="property-card">
     <div class="property-image">
-        <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Oceanview Retreat 2">
+        <a href="<?= ROOT ?>/ownerdashboard/propertyunit"><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Oceanview Retreat 2"></a>
     </div>
     <div class="property-details">
         <div class="profile-details-items">

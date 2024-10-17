@@ -1,3 +1,5 @@
+<?php require_once 'ownerHeader.view.php'; ?>
+
 <div class="user_view-menu-bar">
     <h2>maintenance</h2>
     <div class="flex-bar">
@@ -10,3 +12,5 @@
     <?php require __DIR__ . '/../components/serviceCard.php'; ?>
     <?php require __DIR__ . '/../components/serviceCard.php'; ?>
 </div>
+
+<?php require_once 'ownerFooter.view.php'; ?>

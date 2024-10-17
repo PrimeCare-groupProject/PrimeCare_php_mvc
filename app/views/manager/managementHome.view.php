@@ -1,10 +1,12 @@
+<?php require_once 'managerHeader.view.php'; ?>
+
 <div class="user_view-menu-bar">
     <h2>managements</h2>
 </div>
 
 <div class="management-cards-container">
     <div class="management-card-container-sub">
-        <a href="">
+        <a href="<?= ROOT ?>/managerdashboard/employeemanagement">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Employee Management</h2>
@@ -15,7 +17,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="<?= ROOT ?>/managerdashboard/propertymanagement">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Property Management</h2>
@@ -28,7 +30,7 @@
     </div>
 
     <div class="management-card-container-sub">
-        <a href="">
+        <a href="<?= ROOT ?>/managerdashboard/">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Finance Management</h2>
@@ -39,7 +41,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="<?= ROOT ?>/managerdashboard/agentmanagement">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Agent Management</h2>
@@ -51,3 +53,6 @@
         </a>
     </div>
 </div>
+
+
+<?php require_once 'managerFooter.view.php'; ?>

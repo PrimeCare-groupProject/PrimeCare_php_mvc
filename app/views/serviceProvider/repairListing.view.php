@@ -1,3 +1,5 @@
+<?php require 'serviceproviderHeader.view.php' ?>
+
 <div class="user_view-menu-bar">
     <img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons">
     <h2>Repairs</h2>
@@ -74,3 +76,5 @@
     // Initial page load
     showPage(currentPage);
 </script>
+
+<?php require 'serviceproviderFooter.view.php' ?>

@@ -1,3 +1,5 @@
+<?php require_once 'ownerHeader.view.php'; ?>
+
 <div class="user_view-menu-bar">
     <h2>properties</h2>
     <div class="flex-bar">
@@ -7,7 +9,7 @@
         </div>
         <!-- <button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button> -->
         <div class="tooltip-container">
-            <button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button>
+            <a href='<?= ROOT ?>/ownerdashboard/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Add new property</span>
         </div>
     </div>
@@ -16,6 +18,7 @@
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
+        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
         <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
         <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
         <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
@@ -78,3 +81,5 @@
     // Initial page load
     showPage(currentPage);
 </script>
+
+<?php require_once 'ownerFooter.view.php'; ?>

@@ -1,3 +1,5 @@
+<?php require 'serviceproviderHeader.view.php' ?>
+
 <div class="user_view-menu-bar">
     <h2>repair requests</h2>
 </div>
@@ -166,3 +168,5 @@
         });
     });
 </script>
+
+<?php require 'serviceproviderFooter.view.php' ?>
