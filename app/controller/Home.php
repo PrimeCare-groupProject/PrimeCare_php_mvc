@@ -6,7 +6,7 @@ class Home{
     use controller;
     public function index(){
         
-        $this->view('home');
+        $this->view('homeTest');
     }
 
 }
