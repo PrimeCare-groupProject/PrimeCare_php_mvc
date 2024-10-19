@@ -21,17 +21,16 @@
             <div class="nav-links" id="navlinks">
                 <img src="<?= ROOT ?>/assets/images/close.png" class="close-icon" alt="" onclick="hideMenu()">
                 <ul>
-                    <li><a href="#home">Home</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#team">Team</a></li>
-                    <li><a href="">Logs</a></li>
+                    <li><a href="#logs">Logs</a></li>
                     <li><a href="#contactus">Contact Us</a></li>
+                    <li>
+                        <button class="header__button" onClick="window.location.href = 'login'">
+                            Sign In | Log In
+                        </button>
+                    </li>
                 </ul>
-            </div>
-            <div>
-                <button class="header__button" onClick="window.location.href = 'login'">
-                    Sign In | Log In
-                </button>
             </div>
             <img src="<?= ROOT ?>/assets/images/menu.png" class="menu-icon" onclick="showMenu()" />
         </nav>
@@ -50,7 +49,7 @@
 
         </div>
         <div class="property-listing">
-            
+
         </div>
     </section>
 
@@ -110,7 +109,7 @@
         </div>
     </section>
 
-    <section class="statistics">
+    <section class="statistics" id="logs">
         <div class="statistics-header">
             <h1>PrimeCare By The Numbers</h1>
             <p>Insights about PrimeCare's performance</p>
@@ -138,7 +137,7 @@
         <div class="carousel">
             <div class="list">
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member1.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/nimna.png" alt="">
                     <div class="content">
                         <div class="author">Developer</div>
                         <div class="title">Nimna Pathum</div>
@@ -150,7 +149,7 @@
                     </div>
                 </div>
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member2.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/wendt.png" alt="">
                     <div class="content">
                         <div class="author">Developer</div>
                         <div class="title">Wendt Edmund</div>
@@ -190,13 +189,13 @@
 
             <div class="thumbnail">
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member1.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/nimna.png" alt="">
                     <div class="content">
                         <div class="title">Nimna Pathum</div>
                     </div>
                 </div>
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member2.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/wendt.png" alt="">
                     <div class="content">
                         <div class="title">Wendt Edmund</div>
                     </div>
