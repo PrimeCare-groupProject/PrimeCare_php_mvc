@@ -4,7 +4,7 @@ defined('ROOTPATH') or exit('Access denied');
  
  if($_SERVER['SERVER_NAME'] == 'localhost'){
    // database config local build environment
-   define('DBNAME', 'my_db');
+   define('DBNAME', 'primecaretest');
    define('DBHOST', 'localhost');
    define('DBUSER', 'root');
    define('DBPASS', '');
