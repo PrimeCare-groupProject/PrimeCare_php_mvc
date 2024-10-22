@@ -28,12 +28,14 @@ defined('ROOTPATH') or exit('Access denied');
             $this->view('owner/addProperty');
         }
 
-        public function propertyListing(){
-            if(URL(2) == 'addproperty'){
-                $this->view('owner/addProperty');
+        public function propertyListing($a = '', $b = '', $c = '', $d = ''){
+            if($a == 'addproperty'){
+                $this->addProperty($b = '', $c = '', $d = '');
+                return;
+            }else if($a == 'propertyunit'){
+                $this->propertyUnit($b = '', $c = '', $d = '');
                 return;
             }
-
             $this->view('owner/propertyListing');
         }
 

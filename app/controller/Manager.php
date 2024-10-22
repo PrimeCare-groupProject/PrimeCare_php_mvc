@@ -16,11 +16,13 @@ class Manager {
         $this->view('manager/profile');
     }
 
-    public function managementHome(){
-
-        switch(strtolower(URL(2))){
+    public function managementHome($a = '', $b = '', $c = '', $d = ''){
+        // echo $a . "<br>";
+        // echo $b . "<br>";
+        // echo $c . "<br>";
+        switch($a){
             case 'propertymanagement':
-                $this->propertyManagement();
+                $this->propertyManagement($b,$c,$d);
                 break;
             case 'employeemanagement':
                 $this->employeeManagement();
@@ -37,14 +39,17 @@ class Manager {
         }
     }
 
-    public function propertyManagement(){
+    public function propertyManagement($b = '', $c = '', $d = ''){
+        // echo $b . "<br>";
+        // echo $c . "<br>";
+        // echo $d . "<br>";
         // show(URL(3));
-        switch(strtolower(URL(3))){
+        switch($b){
             case 'assignagents':
-                $this->assignAgents();
+                $this->assignAgents($c, $d);
                 break;
             case 'requestapproval':
-                $this->requestApproval();
+                $this->requestApproval($c, $d);
                 break;
             default:
                 $this->view('manager/propertymanagement');
