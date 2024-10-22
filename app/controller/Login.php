@@ -8,29 +8,40 @@ class Login{
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
         
             $user = new User;
+    
+            // Collect user input
             $arr['email'] = $_POST['email'];
-            $arr['password'] = $_POST['password'];
-            $result = $user->first($arr,[]);
-            show($result);
-            if($result && isset($result->password) && $result->password == $arr['password']){
-                // Remove the password field from the result object
-                unset($result->password);
-                $_SESSION['user'] = $result;//// Store the user data in the session
-                // show("worked");
-                header('Location: home');
-            }else{
-                $this->view('login');
+            $arr['password'] = $_POST['password']; 
+    
+            // Fetch the user from database
+            $result = $user->first(['email' => $arr['email']], []);
+    
+            if($result && isset($result->password)){
+                
+                // Verify the password using password_verify()
+                if(password_verify($arr['password'], $result->password)){
+                    unset($result->password); // Remove the password before storing user data in session
+                    $_SESSION['user'] = $result; 
+                    
+                    // Redirect to home or dashboard
+                    redirect('home');
+                    exit();
+                } else {
+                    // Password doesn't match
+                    $user->errors['auth'] = 'Invalid email or password';
+                    $this->view('login', ['user' => $user]);
+                }
+            } else {
+                $user->errors['auth'] = 'Invalid credentials';
+                $this->view('login', ['user' => $user]);
             }
-        }else{
+        } else {
             $this->view('login');
         }
     }
+    
 
-    // public function hashPw($password) {
-    //     // Use the bcrypt algorithm (default in password_hash) to hash the password
-    //     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    //     return $hashedPassword;
-    // }
+    
     
 }
 

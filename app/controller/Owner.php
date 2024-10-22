@@ -47,3 +47,5 @@ defined('ROOTPATH') or exit('Access denied');
             $this->view('owner/profile');
         }
     }
+
+    
