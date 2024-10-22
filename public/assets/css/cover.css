@@ -1,0 +1,78 @@
+/* cover.css */
+
+/* Basic Body Styling */
+body {
+  background-color: #343a40; /* Dark background color */
+  color: #fff; /* White text color */
+  font-family: Arial, sans-serif; /* Font family */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+  height: 100dvh; /* Full viewport height */
+}
+
+/* Cover Container Styling */
+.cover-container {
+  max-width: 42rem; /* Maximum width of the container */
+  padding: 3rem; /* Padding around the content */
+  margin: 0 auto; /* Center container horizontally */
+  text-align: center; /* Center align text */
+  display: flex; /* Flexbox layout */
+  flex-direction: column; /* Vertical alignment */
+  height: 100vh; /* Full viewport height */
+}
+
+/* Header Styling */
+header {
+  margin-bottom: 3rem; /* Space below header */
+}
+
+header h3 {
+  font-size: 1.5rem; /* Font size for the heading */
+}
+
+/* Navigation Styling */
+.nav {
+  display: flex; /* Flexbox layout for nav */
+  justify-content: center; /* Center align nav items */
+}
+
+.nav-link {
+  color: #fff; /* White color for nav links */
+  margin: 0 0.5rem; /* Horizontal margin for spacing */
+  text-decoration: none; /* Remove underline from links */
+}
+
+.nav-link.active {
+  font-weight: bold; /* Highlight active link */
+}
+
+/* Main Content Styling */
+main {
+  padding: 3rem 1rem; /* Padding around main content */
+}
+
+main h1 {
+  font-size: 2.5rem; /* Font size for main heading */
+  margin-bottom: 1rem; /* Space below heading */
+}
+
+main .lead {
+  font-size: 1.25rem; /* Font size for lead paragraphs */
+}
+
+.btn-secondary {
+  background-color: #6c757d; /* Background color for button */
+  border: 1px solid #6c757d; /* Border color */
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268; /* Darker background on hover */
+  border-color: #545b62; /* Border color on hover */
+}
+
+/* Footer Styling */
+footer {
+  color: rgba(255, 255, 255, 0.5); /* Semi-transparent white text color */
+  margin-top: auto; /* Push footer to the bottom */
+  padding: 1rem 0; /* Padding around footer */
+}
