@@ -11,11 +11,11 @@
         <input type="file" id="profile_picture" class="input-file" name="profile_picture" style="display: none;" hidden>
 
         <!-- Profile picture that will act as input -->
-        <img src="<?=ROOT?>/assets/images/user.png" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
+        <img src="<?= get_img($user->image_url)?>" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
 
         <!-- User details -->
         <h2>Mr. Property Owner</h2>
-        <p class="profile-id">EID - 23545</p>
+        <p class="profile-id">EID - <?= $user->pid ?></p>
     </div>
 
     <!-- Right side: Editable Form -->
@@ -148,11 +148,12 @@
 
 <?php 
 // Display the uploaded file's name
-if (isset($_FILES['profile_picture'])) {
-    show($_FILES['profile_picture']);
-    show( $_POST );
-    show( $user );
-}
+// if (isset($_FILES['profile_picture'])) {
+//     show($_FILES['profile_picture']);
+//     show( $_POST );
+//     show( $user );
+// }
+// show(get_img($user->image_url));
 ?>
 
 <?php require_once 'ownerFooter.view.php'; ?>

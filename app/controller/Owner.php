@@ -64,26 +64,26 @@ defined('ROOTPATH') or exit('Access denied');
                 $profilePicture = $_FILES['profile_picture'];
 
                 // Define the target directory and create it if it doesn't exist
-                $targetDir = ".." .DIRECTORY_SEPARATOR. ".." .DIRECTORY_SEPARATOR. "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR;
+                $targetDir = ".." .DIRECTORY_SEPARATOR. "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR;
+                // $targetDir = ".." ."/.." . "/public" . "/assets" . "/images" . "/uploads" . "/profile_pictures" . "/";
                 if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0777, true);
+                mkdir($targetDir, 0755, true);
                 }
 
                 // Define the target file name using uniqid()
                 $imageFileType = strtolower(pathinfo($profilePicture['name'], PATHINFO_EXTENSION));
                 $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
                 if (in_array($imageFileType, $validExtensions)) {
-                $targetFile = uniqid() . $email. '.' . $imageFileType;
-                
+                $targetFile = uniqid() . "__" .  $email. '.' . $imageFileType;
 
-                // Move the uploaded file
-                if (move_uploaded_file($profilePicture['tmp_name'], $targetDir.$targetFile)) {
-                    $status = "Profile picture uploaded successfully!";
+                    // Move the uploaded file
+                    if (move_uploaded_file($profilePicture['tmp_name'], $targetDir.$targetFile)) {
+                        $status = "Profile picture uploaded successfully!".$targetFile;
+                    } else {
+                        $errors[] = "Error uploading profile picture. Try changing the file name." . $profilePicture['tmp_name'] . $targetFile;
+                    }
                 } else {
-                    $errors[] = "Error uploading profile picture. Try changing the file name." . $profilePicture['tmp_name'] . $targetFile;
-                }
-                } else {
-                $errors[] = "Invalid file type. Please upload an image file.";
+                    $errors[] = "Invalid file type. Please upload an image file.";
                 }
             }
 
@@ -98,16 +98,24 @@ defined('ROOTPATH') or exit('Access denied');
                 'contact' => $contactNumber,
                 'image_url' => $targetFile ?? null
                 ], 'pid');
-
+                
                 if ($updated) {
+
+                // Delete old profile picture if a new one is uploaded
+                if (isset($targetFile) && !empty($_SESSION['user']->image_url)) {
+                    $oldPicPath = $targetDir . $_SESSION['user']->image_url;
+                    if (file_exists($oldPicPath)) {
+                        unlink($oldPicPath);
+                    }
+                }
                 // Update session data
                 $_SESSION['user']->fname = $firstName;
                 $_SESSION['user']->lname = $lastName;
                 $_SESSION['user']->email = $email;
                 $_SESSION['user']->contact = $contactNumber;
-                // if (isset($targetFile)) {
-                //     $_SESSION['user']->image_url = $targetFile;
-                // }
+                if (isset($targetFile)) {
+                    $_SESSION['user']->image_url = $targetFile;
+                }
                 $status = "Profile updated successfully!";
                 } else {
                 $errors[] = "Failed to update profile. Please try again.";
