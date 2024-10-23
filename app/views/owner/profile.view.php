@@ -24,20 +24,20 @@
             <div class="input-group">
                 <div class="input-group-group">
                     <label for="first-name" class="input-label">First name</label>
-                    <input type="text" id="first-name" name="fname" class="input-field" value="Kamrul" disabled>
+                    <input type="text" id="first-name" name="fname" class="input-field" value="<?= esc($user->fname) ?>" disabled>
                 </div>
                 <div class="input-group-group">
                     <label for="last-name" class="input-label">Last name</label>
-                    <input type="text" id="last-name" name="lname" class="input-field" value="Hasan" disabled>
+                    <input type="text" id="last-name" name="lname" class="input-field" value="<?= esc($user->lname) ?>" disabled>
                 </div>
             </div>
             <div class="input-group-group">
                 <label for="email" class="input-label">Email</label>
-                <input type="email" id="email" class="input-field" name="email" value="johndoe@gmail.com" disabled>
+                <input type="email" id="email" class="input-field" name="email" value="<?= esc($user->email) ?>" disabled>
             </div>
             <div class="input-group-group">
                 <label for="contact-number" class="input-label">Contact number</label>
-                <input type="text" id="contact-number" class="input-field" name="contact" value="+94 71 123 4567" disabled>
+                <input type="text" id="contact-number" class="input-field" name="contact" value="<?= esc($user->contact) ?>" disabled>
             </div>
 
             <div class="input-group-aligned">
@@ -46,6 +46,15 @@
                 <button type="submit" class="primary-btn" id="save-button" style="display: none;">Save</button>
             </div>
             <h5 class="editText" id="editText" style="display: none;">click profile picture to edit !</h5>
+            <div class="errors" 
+                style="display: <?= !empty($errors) || !empty($status) ? 'block' : 'none'; ?>; 
+                        background-color: <?= !empty($errors) ? '#f8d7da' : (!empty($status) ? '#b5f9a2' : '#f8d7da'); ?>;">
+                <?php if (!empty($errors)): ?>
+                    <p><?= $errors[0] ?? '' ?></p>
+                <?php elseif (!empty($status)): ?>
+                    <p><?= $status ;  ?></p>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </form>
@@ -61,11 +70,6 @@
     const profilePictureInput = document.getElementById('profile_picture');
     const profilePicturePreview = document.getElementById('profile-picture-preview');
 
-    // Store initial form field values for reset functionality
-    const initialFormValues = {};
-    formFields.forEach(field => {
-        initialFormValues[field.id] = field.value; // Store initial values
-    });
 
     // Enable form fields and profile picture edit when "Edit" button is clicked
     editButton.addEventListener('click', () => {
@@ -77,6 +81,13 @@
         editText.style.display = 'block'; // Show Cancel button
     });
 
+    //handle cancel
+    cancelButton.addEventListener('click', () => {
+        formFields.forEach(field => {
+            field.closest
+        })
+    });
+
     // Handle profile picture click to trigger the file input
     profilePicturePreview.addEventListener('click', () => {
         if (!profilePicturePreview.classList.contains('editable')) return;
@@ -86,24 +97,24 @@
 
     // Handle profile picture change and preview
     profilePictureInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];    
-    if (file) {
-        // Check if the file type is one of the allowed image types (JPEG, PNG, GIF)
-        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        
-        if (!allowedMimeTypes.includes(file.type)) {
-            alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
-            profilePictureInput.value = ''; // Clear the input if file type is invalid
-            profilePicturePreview.src = '<?=ROOT?>/assets/images/user.png'; // Reset the image preview to default
-        } else {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                profilePicturePreview.src = e.target.result; // Update the image preview
-            };
-            reader.readAsDataURL(file); // Read the file as a data URL for image preview
+        const file = event.target.files[0];    
+        if (file) {
+            // Check if the file type is one of the allowed image types (JPEG, PNG, GIF)
+            const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            
+            if (!allowedMimeTypes.includes(file.type)) {
+                alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
+                profilePictureInput.value = ''; // Clear the input if file type is invalid
+                profilePicturePreview.src = '<?=ROOT?>/assets/images/user.png'; // Reset the image preview to default
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    profilePicturePreview.src = e.target.result; // Update the image preview
+                };
+                reader.readAsDataURL(file); // Read the file as a data URL for image preview
+            }
         }
-    }
-});
+    });
 
 
     // Handle form submission
@@ -138,8 +149,9 @@
 <?php 
 // Display the uploaded file's name
 if (isset($_FILES['profile_picture'])) {
-    echo "Uploaded file: " . $_FILES['profile_picture']['name'];
+    show($_FILES['profile_picture']);
     show( $_POST );
+    show( $user );
 }
 ?>
 

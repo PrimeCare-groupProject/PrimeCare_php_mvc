@@ -67,7 +67,7 @@ class Signup {
             
             if ($res) {
                 // Redirect to home if the insertion is successful
-                unset($arr->password);
+                unset($arr['password']);
                 $_SESSION['user'] = (object)$arr; // Store user data in session
                 redirect('home');// Use a full URL or a path as necessary
                 exit; // Good practice to call exit after header

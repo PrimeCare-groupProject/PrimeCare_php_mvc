@@ -83,3 +83,13 @@
     margin-bottom: -10px;
     text-align: center;
 }
+
+.errors {
+    background-color: #f8d7da; /* Light red background color */
+    color: #721c24; /* Dark red text color */
+    border-radius: 8px; /* Curved corners */
+    border: 1px solid #f5c6cb; /* Optional: Light red border */
+    font-size: 14px; /* Text size */
+    margin-top: 15px; /* Space above the div */
+    text-align: center;
+}
