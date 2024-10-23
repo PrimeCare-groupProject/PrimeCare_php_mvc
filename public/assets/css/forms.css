@@ -13,7 +13,8 @@
     color: var(--dark-grey-color);
     display: block;
     text-align: left;
-    margin-bottom: 5px;
+    margin-bottom: -2px;
+    margin-top: 4px;
 }
 
 .input-field {
@@ -72,3 +73,13 @@
     border-radius: 50%;
 }
 
+.editText{
+    font-size: 14px;
+    color: var(--dark-grey-color);
+    display: block;
+    text-align: left;
+    margin-bottom: 0px;
+    margin-top: 8px;
+    margin-bottom: -10px;
+    text-align: center;
+}
