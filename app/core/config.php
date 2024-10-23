@@ -1,4 +1,6 @@
  <?php
+defined('ROOTPATH') or exit('Access denied');
+
  
  if($_SERVER['SERVER_NAME'] == 'localhost'){
    // database config local build environment

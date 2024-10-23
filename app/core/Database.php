@@ -1,4 +1,6 @@
 <?php
+defined('ROOTPATH') or exit('Access denied');
+
 
 use LDAP\Result;
 
@@ -10,18 +12,27 @@ trait Database{
         return $con;
     }
     
-    public function query($query, $data = []){
+    public function query($query, $data = []) {
         $con = $this->connect();
         $stm = $con->prepare($query);
-
         $check = $stm->execute($data);
-        if(($check)){#if the query is successful
+        
+        // For INSERT, UPDATE, DELETE queries, return the boolean execution result
+        if (stripos($query, 'select') === false) {
+            return $check;  // Return true if executed successfully, false otherwise
+        }
+    
+        // For SELECT queries, fetch the result
+        if ($check) {
             $result = $stm->fetchAll(PDO::FETCH_OBJ);
-            if(is_array($result) && count($result)){
+            if (is_array($result) && count($result)) {
                 return $result;
             }
         }
+    
+        return false;  // No results or query failed
     }
+    
 
     public function get_row($query, $data = []){
         $con = $this->connect();

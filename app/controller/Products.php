@@ -1,4 +1,5 @@
 <?php
+defined('ROOTPATH') or exit('Access denied');
 
 class Products{
     use controller;

@@ -1,13 +1,16 @@
 <?php
+defined('ROOTPATH') or exit('Access denied');
+
 trait Model{//similar to a class but can be inherited by other classes
     use Database;
 
-    protected $table = 'users'; //table name which can inherit
+    // protected $table = 'users'; //table name which can inherit
+    // protected $order_column = "id";
     
-    protected $limit = 10;
-    protected $offset = 0;
-    protected $order_type = "desc";
-    protected $order_column = "id";
+    protected $limit        = 10;
+    protected $offset       = 0;
+    protected $order_type   = "desc";
+    public    $errors       = [];
 
     public function findAll(){//search rows depending on the data passed
         $query = "
@@ -88,10 +91,8 @@ trait Model{//similar to a class but can be inherited by other classes
             }
         }
         $results = $this->query($query, $data);
-        if($results){
-            return true;
-        }
-        return false;
+        show($results);
+        return $results ? true : false ;
 
     }
 

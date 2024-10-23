@@ -1,4 +1,6 @@
 <?php
+defined('ROOTPATH') or exit('Access denied');
+
 #load all other controllers in the folder
 #all php files in core will definitly load so all must be called
 spl_autoload_register(function($classname){

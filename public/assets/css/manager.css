@@ -1,0 +1,187 @@
+.filter-container-flex-start {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 90%;
+    align-items: center;
+    justify-content: flex-start;
+    color: var(--dark-grey-color);
+    padding-left: 20px;
+}
+
+.width-100 {
+    width: 150px;
+    gap: 10px;
+}
+
+.input-label-aligend {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--dark-grey-color);
+    display: block;
+    text-align: left;
+    width: 150px;
+}
+
+/* 
+.management-cards-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.management-card-container-sub {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
+    margin: 15px 0;
+}
+
+a .management-card {
+    background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));
+    width: 48%;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    margin: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+a .management-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+a .management-card .management-text h2 {
+    font-size: 1.4em;
+    color: #fff;
+    text-decoration: none;
+}
+
+a .management-card .management-icon img {
+    width: 80px;
+    height: auto;
+}
+
+
+@media (max-width: 768px) {
+    .management-cards-container {
+        flex-direction: column;
+    }
+
+    .management-card-container-sub {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .management-card {
+        width: 90%;
+    }
+}
+ */
+
+ .management-cards-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 90%;
+    padding: 10px;
+    gap: 0;
+}
+
+.management-cards-container a{
+    text-decoration: none;
+}
+
+.management-card-container-sub {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    height: 70%;
+    margin: 10px 0;
+    gap: 0; /* Added gap between cards */
+}
+
+
+a .management-card {
+    background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));
+    width: 450px;
+    height: 150px; /* Adjust height */
+    border-radius: 20px; /* Increase border-radius to match the rounded corners */
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    box-shadow: var(--box-shadow-form); /* Increased shadow for more depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative; /* Allows for absolute positioning if necessary */
+    text-decoration: none;
+}
+
+a .management-card:hover {
+    transform: translateY(-5px); /* Higher hover effect */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+a .management-card .management-text h2 {
+    text-decoration: none;
+    font-size: 1.6em; /* Increase font size */
+    color: var(--white-color);
+    margin: 0;
+}
+
+a .management-card .management-icon img {
+    width: 100px; /* Larger image size */
+    height: auto;
+}
+
+.management-icon {
+    margin-left: 10px; /* Add margin for space between text and image */
+}
+
+/* Media Query for smaller screens */
+@media (max-width: 768px) {
+    .management-cards-container {
+        flex-direction: column;
+    }
+
+    .management-card-container-sub {
+        flex-direction: column;
+        width: 100%;
+        gap: 15px; /* Reduce gap on smaller screens */
+    }
+
+    .management-card {
+        width: 90%;
+        height: 130px; /* Adjust height for mobile */
+        padding: 20px;
+    }
+
+    .management-card .management-text h2 {
+        font-size: 1.4em; /* Adjust text size for mobile */
+    }
+
+    .management-card .management-icon img {
+        width: 80px; /* Adjust image size for mobile */
+    }
+}
+
+.dashboard .border-button-sm{
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    max-width: 100px;
+    min-width: 80px;
+}

@@ -1,0 +1,97 @@
+.listing-table-for-customer-payments {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-family: "Outfit", sans-serif;
+}
+
+.listing-table-for-customer-payments th,
+.listing-table-for-customer-payments td {
+    width: 150px;
+    /* Set the fixed width */
+    padding: 10px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--background-color);
+    border-radius: 10px;
+    word-wrap: break-word;
+    /* Ensures text wraps if it's too long */
+    overflow: hidden;
+    /* Ensures no overflow issues */
+    text-overflow: ellipsis;
+    /* Adds ellipsis (...) for overflowing text */
+    white-space: nowrap;
+    /* Prevents text from wrapping to a new line */
+    font-family: "Outfit", sans-serif;
+}
+
+.listing-table-for-customer-payments th {
+    background-color: var(--background-color);
+    font-weight: 600;
+}
+
+th.sortable {
+    position: relative;
+    cursor: pointer; /* Change the cursor to indicate it's clickable */
+    padding-right: 25px; /* Add space for the image */
+}
+
+th.sortable img {
+    position: absolute;
+    right: 5px; /* Aligns the image to the right inside the <th> */
+    top: 50%;
+    transform: translateY(-50%); /* Vertically center the image */
+    width: 15px; /* Adjust width based on your image size */
+    height: auto; /* Keeps aspect ratio of the image */
+    opacity: 0.7; /* Slightly reduce opacity */
+    transition: opacity 0.3s ease; /* Smooth hover effect */
+}
+
+th.sortable:hover img {
+    opacity: 1; /* Make image fully visible on hover */
+}
+
+
+.listing-table-for-customer-payments th:nth-child(1),
+.listing-table-for-customer-payments td:nth-child(1) {
+    width: 60px;
+}
+
+.listing-table-for-customer-payments th:nth-child(2),
+.listing-table-for-customer-payments td:nth-child(2) {
+    width: 80px;
+}
+
+.listing-table-for-customer-payments th:nth-child(3),
+.listing-table-for-customer-payments td:nth-child(3) {
+    width: 80px;
+}
+
+.listing-table-for-customer-payments th:nth-child(4),
+.listing-table-for-customer-payments td:nth-child(4) {
+    width: 120px;
+}
+
+.listing-table-for-customer-payments th:nth-child(5),
+.listing-table-for-customer-payments td:nth-child(5) {
+    width: 100px;
+}
+
+.listing-table-for-customer-payments th:nth-child(6),
+.listing-table-for-customer-payments td:nth-child(6) {
+    width: 80px;
+    align-content: center;
+}
+
+.listing-table-for-customer-payments th:nth-child(7),
+.listing-table-for-customer-payments td:nth-child(7) {
+    width: 80px;
+}
+
+.listing-table-for-customer-payments tbody tr:hover {
+    background-color: #f0f0f0;
+    transition: background-color 0.3s;
+}
+
+.listing-table-for-customer-payments tbody tr td a{
+    text-decoration: none;
+}

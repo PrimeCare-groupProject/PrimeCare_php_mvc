@@ -1,0 +1,365 @@
+@import url('./variables.css');
+
+
+/** Property Card Css*/
+.property-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--white-color);
+    border-radius: 24px;
+    padding: 10px;
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    max-width: 400px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.property-image img {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.property-details {
+    padding: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.profile-details-items {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.property-info {
+    font-size: 0.9rem;
+    margin: 5px 0;
+    color: var(--dark-grey-color);
+    display: flex;
+    flex-direction: row;
+}
+
+.property-info span {
+    display: flex;
+    align-content: center;
+}
+
+.property-info-img {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+}
+
+.property-details h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+
+.property-info span {
+    margin-right: 10px;
+}
+
+.property-info p {
+    margin: 5px 0;
+}
+
+.property-description {
+    color: var(--dark-grey-color);
+    font-size: 0.9rem;
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.repair-details {
+    padding: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.repair-details-items {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.repair-details h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.repair-description {
+    margin: 0;
+    color: var(--dark-grey-color);
+    font-size: 0.9rem;
+}
+
+.property-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.property-actions a {
+    text-decoration: none;
+    font-size: 0.9rem;
+    /* color: var(--primary-color); */
+    color: var(--green-color);
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+.property-actions .edit-btn,
+.property-actions .delete-btn {
+    font-size: 1.2rem;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.property-actions .edit-btn:hover {
+    color: #4CAF50;
+}
+
+.property-actions .delete-btn:hover {
+    color: #F44336;
+}
+
+
+/* Service Card Css*/
+.service-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--white-color);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    margin: 20px auto;
+    width: 90%;
+    /* max-width: 1000px; */
+}
+
+.service-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+.service-card-header h3 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.service-card-header p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.service-card-content {
+    padding: 0;
+}
+
+.field-group {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.service-card-label {
+    width: 150px;
+    font-size: 14px;
+    color: var(--dark-grey-color);
+    margin: 0;
+}
+
+.service-card-field {
+    flex: 1;
+    padding: 10px;
+    margin: 0;
+    font-size: 14px;
+    color: var(--dark-grey-color);
+    border: 1px solid var(--input-border-color);
+    background-color: var(--background-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+    word-wrap: break-word;
+}
+
+.field-group .service-card-field {
+    margin-left: 0;
+    width: auto;
+    justify-content: flex-start;
+    word-wrap: break-word;
+}
+
+.green-text {
+    color: var(--green-color);
+}
+
+.orange-text {
+    color: var(--primary-color);
+}
+
+.red-text {
+    color: var(--red-color);
+}
+
+/* .flex-bar {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+} */
+
+/* Tenant Card Css*/
+.tenant-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    background-color: var(--white-color);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    margin: 20px auto;
+    /* max-width: 1000px; */
+    width: 90%;
+}
+
+.tenant-card-left {
+    display: flex;
+    flex-direction: column;
+    /* gap: 10px; */
+    width: 70%;
+}
+
+.profile-picture-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    margin-bottom: 20px;
+    width: 20%;
+}
+
+.profile-picture-section img {
+    width: 250px;
+    /* height: 100px; */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--primary-color);
+}
+
+/* Review field Css*/
+.review-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--background-color);
+    border-radius: 20px;
+    margin: 10px 0;
+}
+
+.review-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    border-bottom: 1px solid var(--light-grey-color);
+}
+
+.review-field span {
+    font-size: 0.9rem;
+    color: var(--dark-grey-color);
+}
+
+/* Property assign Card Css*/
+
+.property-assign-container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--white-color);
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin: 10px;
+}
+
+.property-assign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--background-color);
+}
+
+/* Approval Card Css*/
+.approval-container {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--white-color);
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin: 10px;
+    width: 90%;
+}
+
+.approval-left-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80%;
+}
+
+.approval-right-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    gap: 5px;
+    width: 20%;
+    overflow: hidden;
+    box-sizing: border-box;
+    border-left: 1px solid var(--background-color);
+}
+
+.approval-right-content button {
+    margin: 0;
+    width: 100%;
+}
+
+.approval-right-content .secondary-btn:hover {
+    background-color: var(--red-color);
+}
+
+.approval-right-content-img{
+    height: 150px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.rounded-images{
+    height: 180px;
+    width: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+}
