@@ -20,9 +20,15 @@ class Signup {
         return substr($username, 0, $length); // Ensure exactly $length characters
     }
 
+    private function hashPw($password) {
+        // Use the bcrypt algorithm (default in password_hash) to hash the password
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        return $hashedPassword;
+    }
+
     public function index() {
         $user = new User; // Initialize User instance
-
+        
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Check for existing email
             // show($_POST);
@@ -32,7 +38,7 @@ class Signup {
                 $user->errors['email'] = 'Email already exists';
                 // show($user->errors);
                 // echo "if1";
-                $this->view('signup'); // Re-render signup view with error
+                $this->view('signup',['user' => $user]); // Re-render signup view with error
                 return; // Exit if email exists
             }
 
@@ -40,7 +46,7 @@ class Signup {
             if (!$user->validate($_POST)) {
                 // show($user->errors);
                 // echo "if2";
-                $this->view('signup'); // Re-render signup view with errors
+                $this->view('signup',['user' => $user]); // Re-render signup view with errors
                 return; // Exit if validation fails
             }
 
@@ -50,7 +56,7 @@ class Signup {
                 'lname' => $_POST['lname'],
                 'email' => $_POST['email'],
                 'contact' => $_POST['contact'],
-                'password' => $_POST['password'],
+                'password' => $this->hashPw($_POST['password']),
                 'user_lvl' => 1,
                 'username' => $this->generateUsername($_POST['fname']), // Generate username
             ];
@@ -61,8 +67,8 @@ class Signup {
             
             if ($res) {
                 // Redirect to home if the insertion is successful
-                unset($arr->password);
-                $_SESSION['user'] = $arr; // Store user data in session
+                unset($arr['password']);
+                $_SESSION['user'] = (object)$arr; // Store user data in session
                 redirect('home');// Use a full URL or a path as necessary
                 exit; // Good practice to call exit after header
             } else {
@@ -70,10 +76,11 @@ class Signup {
                 // You can add error handling here if needed
                 $user->errors['insert'] = 'Failed to create account. Please try again.';
                 // show($user->errors);
+                $this->view('signup',['user' => $user]);
             }
         }
 
         // Render the signup view if it's a GET request or if there are errors
-        $this->view('signup');
+        $this->view('signup',['user' => $user]);
     }
 }
