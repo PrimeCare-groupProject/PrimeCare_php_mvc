@@ -69,7 +69,11 @@
     const formFields = document.querySelectorAll('.input-field');
     const profilePictureInput = document.getElementById('profile_picture');
     const profilePicturePreview = document.getElementById('profile-picture-preview');
-
+    
+    const initialFormValues = {};
+    formFields.forEach(field => {
+        initialFormValues[field.id] = field.value;
+    });//save form values initaily to reset when cancel button is clicked
 
     // Enable form fields and profile picture edit when "Edit" button is clicked
     editButton.addEventListener('click', () => {
@@ -79,13 +83,6 @@
         saveButton.style.display = 'block';
         cancelButton.style.display = 'block'; // Show Cancel button
         editText.style.display = 'block'; // Show Cancel button
-    });
-
-    //handle cancel
-    cancelButton.addEventListener('click', () => {
-        formFields.forEach(field => {
-            field.closest
-        })
     });
 
     // Handle profile picture click to trigger the file input
@@ -105,7 +102,7 @@
             if (!allowedMimeTypes.includes(file.type)) {
                 alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
                 profilePictureInput.value = ''; // Clear the input if file type is invalid
-                profilePicturePreview.src = '<?=ROOT?>/assets/images/user.png'; // Reset the image preview to default
+                profilePicturePreview.src = '<?= get_img($user->image_url)?>'; // Reset the image preview to default
             } else {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -133,7 +130,7 @@
             field.value = initialFormValues[field.id];
             field.disabled = true; // Disable fields again
         });
-
+        console.log(initialFormValues);
         // Hide Save and Cancel buttons, show Edit button
         saveButton.style.display = 'none';
         cancelButton.style.display = 'none';
