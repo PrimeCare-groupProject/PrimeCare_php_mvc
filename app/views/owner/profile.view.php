@@ -135,6 +135,8 @@
         saveButton.style.display = 'none';
         cancelButton.style.display = 'none';
         editButton.style.display = 'block';
+        editText.style.display = 'none'; // Show Cancel button
+
 
         // Remove editable state from profile picture
         profilePicturePreview.classList.remove('editable');

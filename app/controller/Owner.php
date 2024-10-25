@@ -5,27 +5,51 @@ defined('ROOTPATH') or exit('Access denied');
         use controller;
 
         public function index(){
-            $this->view('owner/dashboard');
+            $this->view('owner/dashboard',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function dashboard(){
-            $this->view('owner/dashboard');
+            $this->view('owner/dashboard',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function maintenance(){
-            $this->view('owner/maintenance');
+            $this->view('owner/maintenance',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function financeReport(){
-            $this->view('owner/financeReport');
+            $this->view('owner/financeReport',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function tenants(){
-            $this->view('owner/tenants');
+            $this->view('owner/tenants',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function addProperty(){
-            $this->view('owner/addProperty');
+            $this->view('owner/addProperty',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function propertyListing($a = '', $b = '', $c = '', $d = ''){
@@ -36,11 +60,19 @@ defined('ROOTPATH') or exit('Access denied');
                 $this->propertyUnit($b = '', $c = '', $d = '');
                 return;
             }
-            $this->view('owner/propertyListing');
+            $this->view('owner/propertyListing',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function propertyUnit(){
-            $this->view('owner/propertyUnit');
+            $this->view('owner/propertyUnit',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
         }
 
         public function profile(){
@@ -131,9 +163,9 @@ defined('ROOTPATH') or exit('Access denied');
             } 
 
             $this->view('owner/profile', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
             ]);
 
             // Clear session data after rendering the view
