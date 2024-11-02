@@ -120,8 +120,8 @@ trait Model{//similar to a class but can be inherited by other classes
             delete from $this->table 
             where $id_column = :$id_column";
         show($query);
-        $this->query($query, $data);
+        $result = $this->query($query, $data);
         
-        return false;
+        return $result !== false;
     }
 }

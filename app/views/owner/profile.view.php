@@ -4,7 +4,7 @@
     <h2>PROFILE</h2>
 </div>
 
-<form id="profile-edit-form" class="profile-container" method="post" enctype="multipart/form-data">
+<form id="profile-edit-form" class="profile-container lur-overlay" method="post" enctype="multipart/form-data">
     <!-- Left side: Profile Picture and User Info -->
     <div class="profile-details">
         <!-- Hidden file input -->
@@ -43,8 +43,10 @@
             <div class="input-group-aligned">
                 <button type="button" class="primary-btn" id="edit-button">Edit</button>
                 <button type="button" class="secondary-btn" id="cancel-button" style="display: none;">Cancel</button>
+                <button type="button" class="secondary-btn red" id="delete-button">Remove Account</button>
                 <button type="submit" class="primary-btn" id="save-button" style="display: none;">Save</button>
             </div>
+
             <h5 class="editText" id="editText" style="display: none;">click profile picture to edit !</h5>
             <div class="errors" 
                 style="display: <?= !empty($errors) || !empty($status) ? 'block' : 'none'; ?>; 
@@ -55,38 +57,48 @@
                     <p><?= $status ;  ?></p>
                 <?php endif; ?>
             </div>
+
         </div>
     </div>
 </form>
-
+<form id="delete-account-form" method="post" >
+    <input type="hidden" name="delete_account" value="1">
+    <div class="dialog-container" style="display:none">
+        <div class="dialog-header">
+            Are you sure you want to delete <strong><?= $user->fname ." ". $user->lname  ?></strong>?
+        </div>
+        <div class="warning-box">
+            <span class="warning-icon">⚠️</span>
+            <div class="warning-text">
+            <strong>Warning</strong><br>
+            By deleting this account, the You won't be able to access the system.
+            </div>
+        </div>
+        <div class="input-group-aligned">
+            <button type="button" class="secondary-btn green" id="cancel-delete-button">No</button>
+            <button type="submit" class="secondary-btn red">Delete</button>
+        </div>
+    </div>
+</form>
 <script>
     // Logic for enabling fields on "Edit", handling "Save" and "Cancel"
 
     const editButton = document.getElementById('edit-button');
     const saveButton = document.getElementById('save-button');
     const cancelButton = document.getElementById('cancel-button');
+    const removeButton = document.getElementById('delete-button');
     const editText = document.getElementById('editText');
     const formFields = document.querySelectorAll('.input-field');
     const profilePictureInput = document.getElementById('profile_picture');
     const profilePicturePreview = document.getElementById('profile-picture-preview');
+    const dialogContainer = document.querySelector('.dialog-container');
+    const cancelDeleteButton = document.getElementById('cancel-delete-button');
+    const blurBackground = document.getElementById('profile-edit-form');
 
-
-    // Enable form fields and profile picture edit when "Edit" button is clicked
-    editButton.addEventListener('click', () => {
-        formFields.forEach(field => field.disabled = false); // Enable input fields
-        profilePicturePreview.classList.add('editable'); // Indicate the picture is editable
-        editButton.style.display = 'none';
-        saveButton.style.display = 'block';
-        cancelButton.style.display = 'block'; // Show Cancel button
-        editText.style.display = 'block'; // Show Cancel button
-    });
-
-    //handle cancel
-    cancelButton.addEventListener('click', () => {
-        formFields.forEach(field => {
-            field.closest
-        })
-    });
+    const initialFormValues = {};
+    formFields.forEach(field => {
+        initialFormValues[field.id] = field.value;
+    });//save form values initaily to reset when cancel button is clicked
 
     // Handle profile picture click to trigger the file input
     profilePicturePreview.addEventListener('click', () => {
@@ -95,7 +107,7 @@
         profilePicturePreview.style.cursor = 'pointer';
     });
 
-    // Handle profile picture change and preview
+        // Handle profile picture change and preview 
     profilePictureInput.addEventListener('change', (event) => {
         const file = event.target.files[0];    
         if (file) {
@@ -105,7 +117,7 @@
             if (!allowedMimeTypes.includes(file.type)) {
                 alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
                 profilePictureInput.value = ''; // Clear the input if file type is invalid
-                profilePicturePreview.src = '<?=ROOT?>/assets/images/user.png'; // Reset the image preview to default
+                profilePicturePreview.src = '<?= get_img($user->image_url)?>'; // Reset the image preview to default
             } else {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -116,8 +128,7 @@
         }
     });
 
-
-    // Handle form submission
+        // Handle form submission
     document.getElementById('profile-edit-form').addEventListener('submit', function (event) {
         // Enable all fields before submitting, as they might be disabled
         formFields.forEach(field => field.disabled = false);
@@ -125,23 +136,48 @@
         // Submit form using the browser's default submission method
         this.submit();
     });
+    
+        // Enable form fields and profile picture edit when "Edit" button is clicked
+    editButton.addEventListener('click', () => {
+        formFields.forEach(field => field.disabled = false); // Enable input fields
+        profilePicturePreview.classList.add('editable'); // Indicate the picture is editable
+        editButton.style.display = 'none';
+        removeButton.style.display = 'none';
+        saveButton.style.display = 'block';
+        cancelButton.style.display = 'block'; // Show Cancel button
+        editText.style.display = 'block'; // Show Cancel button
+    });
 
-    // Add logic for the Cancel button
-    cancelButton.addEventListener('click', () => {
+  
+    
+    cancelButton.addEventListener('click', () => {// Add logic for the Cancel button
         // Reset form fields to their initial values
         formFields.forEach(field => {
             field.value = initialFormValues[field.id];
             field.disabled = true; // Disable fields again
         });
-
+        // console.log(initialFormValues);
         // Hide Save and Cancel buttons, show Edit button
         saveButton.style.display = 'none';
         cancelButton.style.display = 'none';
         editButton.style.display = 'block';
+        removeButton.style.display = 'block';
+        editText.style.display = 'none'; // Show Cancel button
+
 
         // Remove editable state from profile picture
         profilePicturePreview.classList.remove('editable');
         profilePicturePreview.style.cursor = 'default';
+    });
+
+    removeButton.addEventListener('click', () => {
+    dialogContainer.style.display = 'block';
+    blurBackground.classList.add('blurred-background'); // Add blur class
+});
+
+    cancelDeleteButton.addEventListener('click', () => {
+        dialogContainer.style.display = 'none';
+        blurBackground.classList.remove('blurred-background'); // Remove blur class
     });
 
 </script>
@@ -149,9 +185,10 @@
 <?php 
 // Display the uploaded file's name
 // if (isset($_FILES['profile_picture'])) {
-//     show($_FILES['profile_picture']);
-//     show( $_POST );
-//     show( $user );
+    // show($_FILES['profile_picture'] ?? "null");
+    // show( $_POST );
+    // show( $user );
+    // show( $_SESSION);
 // }
 // show(get_img($user->image_url));
 ?>
