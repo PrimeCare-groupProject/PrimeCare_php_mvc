@@ -53,17 +53,28 @@
                 <button type="submit" class="signup-form__submit-button">Register</button>
             </form>
 
-            <div class="social-login">
+            <!-- <div class="social-login">
                 <h4>Or continue with</h4>
                 <button type="button" class="social-login__button">
                     <img src="https://www.pngall.com/wp-content/uploads/13/Google-Logo.png" alt="Google Logo">
                     Google
                 </button>
-            </div>
+            </div> -->
 
             <div class="signup-form__existing-account">
                 <h5>Already have an account? <a class="signup-form__login-link" href="<?= ROOT ?>/login">Login</a></h5>
             </div>
+
+            <div class="errors" style="display: <?= !empty($user->errors) ? 'block' : 'none'; ?>">
+                <p><?= $user->errors['email'] ?? 
+                    $user->errors['contact'] ?? 
+                    $user->errors['password'] ?? 
+                    $user->errors['fname'] ??
+                    $user->errors['lname'] ??
+                    $user->errors['auth']  ?>
+                </p>
+            </div>
+
         </div>
     </div>
 </body>

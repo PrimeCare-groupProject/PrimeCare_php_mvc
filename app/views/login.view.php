@@ -31,17 +31,23 @@
                 <button type="submit" class="login-form__submit-button">Log In</button>
             </form>
 
-            <div class="social-login">
+            <!-- <div class="social-login">
                 <h4>Or continue with</h4>
                 <button type="button" class="social-login__button">
                     <img src="https://www.pngall.com/wp-content/uploads/13/Google-Logo.png" alt="Google Logo">
                     Google
                 </button>
-            </div>
+            </div> -->
+            
 
             <div class="login-form__new-member">
                 <h5>New member here? <a class="login-form__register-link" href="<?= ROOT ?>/signup">Register Now</a></h5>
             </div>
+
+            <div class="errors" style="display: <?= !empty($user->errors) ? 'block' : 'none'; ?>">
+                <p><?= $user->errors['auth'] ?? '' ?></p>
+            </div>
+
         </div>
     </div>
 </body>

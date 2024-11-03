@@ -26,7 +26,7 @@
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
-            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= ROOT ?>/assets/images/user.png" alt="Profile" class="header-profile-picture"></a>
+            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($user->image_url)?>" alt="Profile" class="header-profile-picture"></a>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
