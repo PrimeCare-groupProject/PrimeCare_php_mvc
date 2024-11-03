@@ -134,24 +134,27 @@ function URL($key){
     }
 }
 
+/** 
+*how to use get_img() 
+*<img src="<?php echo get_img('672688e478161__user0@gmail.com.jpg', 'user'); ?>" alt="Profile Picture">
+*or <img src="<?= get_img('672688e478161__user0@gmail.com.jpg', 'user'); ?>" alt="Profile Picture">
+*/
 function get_img($image_url, $type = 'user') {
     // Check if the provided URL is actually a URL
     if (filter_var($image_url, FILTER_VALIDATE_URL)) {
         return $image_url;
     }
-
     // Otherwise, assume it's a file name and construct the path
-    $filePath = ROOT . "/assets/images/uploads/" . ($type == 'property' ? 'property/' : 'profile_pictures/') . $image_url;
-    if (file_exists($filePath)) {
+    $relPath =  "assets/images/uploads/" . ($type == 'property' ? 'property/' : 'profile_pictures/') . $image_url;
+    $filePath =  ROOT .DIRECTORY_SEPARATOR. $relPath;
+    if (file_exists($relPath)) {
         return $filePath;
     }
-    
     // Return a default image if the file doesn't exist
     if($type == 'user'){
-        return $filePath;
-        // return ROOT . "/assets/images/user.png";
+        return ROOT . "/assets/images/user.png";
     }else if ($type == 'property'){
         return ROOT . "/assets/images/property.png";
     }	
-    return ROOT . "/assets/images/user.png";
+    // return ROOT . "/assets/images/user.png";
 }
