@@ -26,16 +26,15 @@
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
-            <a href="<?= ROOT ?>/agent/profile"><img src="<?= ROOT ?>/assets/images/user.png" alt="Profile" class="header-profile-picture"></a>
+            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= ROOT ?>/assets/images/user.png" alt="Profile" class="header-profile-picture"></a>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn">Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/"><button class="btn">Task Management</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn">Manage Booking</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn">Pre Inspection</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome"><button class="btn"><img src="<?= ROOT ?>/assets/images/manage.png" alt="">Managements</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/contacts"><button class="btn"><img src="<?= ROOT ?>/assets/images/contact.png" alt="">Contacts</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
 
                 <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
@@ -54,7 +53,7 @@
                     sidebarLinks.forEach(link => {
                         const button = link.querySelector('button');
                         const href = link.getAttribute('href');
-                        
+                        console.log(href);
                         // Check if the current page matches the link's href
                         if (currentURL.includes(href)) {
                             // Add 'active' class to the button
@@ -92,6 +91,5 @@
                     }
                 });
             </script>
-
 
             <div class="user_view-content_section" id="content-section">
