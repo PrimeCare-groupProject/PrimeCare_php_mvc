@@ -114,7 +114,7 @@ defined('ROOTPATH') or exit('Access denied');
             return;
             }
 
-            $this->view('owner/profile', [
+            $this->view('profile', [
                 'user' => $_SESSION['user'],
                 'errors' => $_SESSION['errors'] ?? [],
                 'status' => $_SESSION['status'] ?? ''
