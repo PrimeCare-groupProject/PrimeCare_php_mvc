@@ -14,8 +14,8 @@
         <img src="<?=ROOT?>/assets/images/user.png" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
 
         <!-- User details -->
-        <h2>Mr. Property Owner</h2>
-        <p class="profile-id">EID - 23545</p>
+        <h2>Mr. Agent</h2>
+        <p class="profile-id">AID- 23545</p>
     </div>
 
     <!-- Right side: Editable Form -->
