@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/serviceProvider.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/requestedTasks.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/repairCard.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/navbar.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
