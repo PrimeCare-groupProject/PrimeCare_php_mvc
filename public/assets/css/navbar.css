@@ -1,0 +1,22 @@
+.user_view-sidemenu ul li a {
+    text-decoration: none;
+    width: 100%;
+    display: block;
+}
+
+.user_view-sidemenu ul li a button {
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.user_view-sidemenu ul li a button:hover {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    transform: translateX(5px);
+}
+
+/* Add active state for current page */
+.user_view-sidemenu ul li a button.active {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
