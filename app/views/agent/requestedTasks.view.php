@@ -37,17 +37,55 @@
 
     <script>
       document.getElementById('sort-time-button').addEventListener('click', function() {
-        let container = document.querySelector('.repair-card');
+        const yearFilter = document.getElementById('year-filter').value;
+        const monthFilter = document.getElementById('month-filter').value;
+        
+        let container = document.querySelector('.repair-cards-container');
         let cards = Array.from(container.children);
-        cards.sort((a, b) => {
-          let dateA = new Date(a.getAttribute('data-date'));
-          let dateB = new Date(b.getAttribute('data-date'));
-          return dateA - dateB;
+        
+        // First, show all cards
+        cards.forEach(card => card.style.display = 'block');
+        
+        // Filter cards
+        cards.forEach(card => {
+          const dateStr = card.getAttribute('data-date');
+          if (!dateStr) return; // Skip if no date attribute
+          
+          const date = new Date(dateStr);
+          let shouldShow = true;
+          
+          // Year filter
+          if (yearFilter !== 'all') {
+            if (date.getFullYear() !== parseInt(yearFilter)) {
+              shouldShow = false;
+            }
+          }
+          
+          // Month filter
+          if (monthFilter !== 'all' && shouldShow) {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            if (monthNames[date.getMonth()] !== monthFilter) {
+              shouldShow = false;
+            }
+          }
+          
+          card.style.display = shouldShow ? 'block' : 'none';
         });
-        cards.forEach(card => container.appendChild(card));
+        
+        // Sort visible cards
+        const visibleCards = cards.filter(card => card.style.display !== 'none');
+        visibleCards.sort((a, b) => {
+          const dateA = new Date(a.getAttribute('data-date'));
+          const dateB = new Date(b.getAttribute('data-date'));
+          return dateB - dateA; // Sort in descending order (newest first)
+        });
+        
+        // Re-append sorted cards
+        visibleCards.forEach(card => container.appendChild(card));
       });
     </script>
-    <div>
+    <div class="repair-cards-container">
         <?php require __DIR__ . '/repairCard.php' ?>
         <?php require __DIR__ . '/repairCard.php' ?>
         <?php require __DIR__ . '/repairCard.php' ?>
