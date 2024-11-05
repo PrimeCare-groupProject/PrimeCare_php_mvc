@@ -1,0 +1,42 @@
+:root {
+    /* Colors */
+    --primary-color: #FCA311;
+    --primary-color-hover: #ffc464;
+
+    --primary-color-rgb: 252, 163, 17;
+
+    --secondary-color: #3498db;
+    --secondary-color-hover: #1d6fa5;
+
+    --link-color: #3498db;
+    --link-color-hover: #1d6fa5;
+
+    --green-color: #2ecc71;
+    --green-color-rgb: 46, 204, 113;
+    --red-color: #e74c3c;
+    --red-color-rgb: 231, 76, 60;
+    
+    --background-color-home: #FFF6E6;
+    /* --background-color: #f5f7fa; */
+    --background-color: #f5f5fa;
+    --white-color: #ffffff;
+    --black-color: #333;
+    --light-grey-color: #f5f5fa;
+    --dark-grey-color: #666;
+    --dark-grey-color-rgb: 102, 102, 102;
+
+    --input-border-color: #ccc;
+    --input-focus-color: #FCA311;
+
+    /* Fonts */
+    --font-family-primary: 'Poppins', Arial, sans-serif;
+
+    /* Spacing */
+    --padding-input: 12px;
+    --margin-input: 10px 0;
+    --border-radius-input: 6px;
+    --border-radius-button: 8px;
+
+    /* Shadows */
+    --box-shadow-form: 0 4px 20px rgba(0, 0, 0, 0.1);
+}

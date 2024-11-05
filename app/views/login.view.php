@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/login.css">
-    <title>Property Management Agency - Login</title>
+    <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
+    <title>PrimeCare</title>
 </head>
 
 <body>
@@ -13,7 +14,7 @@
         <div class="login-form">
             <img class="login-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
             <div class="login-form__welcome-text">
-                <h3>Welcome to our</h3>
+                <h4>Welcome to our</h4>
                 <h2>Property Management Agency</h2>
                 <h4>Please login to your account</h4>
             </div>
@@ -26,12 +27,12 @@
                 <label for="password" class="login-form__label">Password</label>
                 <input type="password" name="password" id="password" class="login-form__input" placeholder="Enter Password" required>
 
-                <a class="login-form__forgot-password" href="<?= ROOT ?>/resetpw">Forgot password?</a>
+                <a class="login-form-link-forgot-password" href="<?= ROOT ?>/resetpw">Forgot password?</a>
                 <button type="submit" class="login-form__submit-button">Log In</button>
             </form>
 
             <div class="social-login">
-                <h3>Or continue with</h3>
+                <h4>Or continue with</h4>
                 <button type="button" class="social-login__button">
                     <img src="https://www.pngall.com/wp-content/uploads/13/Google-Logo.png" alt="Google Logo">
                     Google

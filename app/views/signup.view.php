@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/signup.css">
-    <title>Property Management Agency - Sign Up</title>
+    <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
+    <title>PrimeCare</title>
 </head>
 
 <body>
@@ -13,7 +14,7 @@
         <div class="signup-form">
             <img class="signup-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
             <div class="signup-form__welcome-text">
-                <h3>Welcome to our</h3>
+                <h4>Welcome to our</h4>
                 <h2>Property Management Agency</h2>
                 <h4>Sign up to our platform</h4>
             </div>
@@ -24,17 +25,17 @@
                 <input type="email" name="email" id="email" class="signup-form__input" placeholder="johndoe@gmail.com" required>
 
                 <label for="phoneNo" class="signup-form__label">Contact Number</label>
-                <input type="text" name="phoneNo" id="phoneNo" class="signup-form__input" placeholder="+9476XXXXXXXX" required>
+                <input type="text" name="contact" id="phoneNo" class="signup-form__input" placeholder="076XXXXXXX" required>
 
                 <!-- First and Last Name Fields in Flex Layout -->
                 <div class="signup-form__name-fields">
                     <div class="signup-form__name-field">
                         <label for="fname" class="signup-form__label">First Name</label>
-                        <input type="text" name="fname" id="fname" class="signup-form__input" placeholder="Anura" required>
+                        <input type="text" name="fname" id="fname" class="signup-form__input" placeholder="john" required>
                     </div>
                     <div class="signup-form__name-field">
                         <label for="lname" class="signup-form__label">Last Name</label>
-                        <input type="text" name="lname" id="lname" class="signup-form__input" placeholder="Dissanayaka" required>
+                        <input type="text" name="lname" id="lname" class="signup-form__input" placeholder="doe" required>
                     </div>
                 </div>
 
@@ -49,12 +50,11 @@
                         <input type="password" name="confirmPassword" id="confirmPassword" class="signup-form__input" placeholder="*********" required>
                     </div>
                 </div>
-
                 <button type="submit" class="signup-form__submit-button">Register</button>
             </form>
 
             <div class="social-login">
-                <h3>Or continue with</h3>
+                <h4>Or continue with</h4>
                 <button type="button" class="social-login__button">
                     <img src="https://www.pngall.com/wp-content/uploads/13/Google-Logo.png" alt="Google Logo">
                     Google

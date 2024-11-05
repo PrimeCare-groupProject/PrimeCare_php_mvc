@@ -28,44 +28,59 @@
 
         <!-- Main Content -->
         <div class="user_view-content_section">
-            <div class="user_view-profile-section">
-                <br><br><br>
-                <div class="profile-container">
+            <div class="user_view-profile-section"></div>
+            <div class="user_view-menu-bar">
+                <p>Update Profile</p>
+            </div>
+            <div class="user_view-content-area">
                     <!-- Profile Picture Section -->
                     <div class="profile-picture-container">
                         <div class="profile-image-wrapper">
                             <img src="<?= ROOT ?>/assets/images/Profileimage.png" alt="Default Profile Picture" class="profile-picture">
-                            <label for="profilePicture" class="profile-picture-overlay">Update Profile Picture</label>
+                            <label for="profilePicture" class="profile-picture-overlay"></label>
                         </div>
                         <form action="/manager/updateProfile" method="POST" enctype="multipart/form-data">
-                            <input type="file" name="profilePicture" id="profilePicture" class="file-input">
-                            <button type="submit" class="upload-btn">Upload</button>
+                            <input type="file" name="profilePicture" id="profilePicture" class="file-input" style="display: none;">
                         </form>
+                        <div class="Profile-Indexes">
+                            <h1>Mr.Manager</h1>
+                            <h3>EID - 00001</h3>
+                        </div>
                     </div>
 
                     <!-- Profile Details Section -->
                     <div class="profile-details-container">
                         <div class="user_view-menu-bar">
-                            <h2>Update Profile</h2>
+                            <h2>Edit Profile Details</h2>
                         </div> 
                         <div class="profile-details">
                             <form action="/manager/updateProfile" method="POST" class="profile-details-form">
-                                <input type="text" name="name" placeholder="Full Name" class="input-field">
-                                <input type="email" name="email" placeholder="Email" class="input-field">
-                                <input type="text" name="phone" placeholder="Phone Number" class="input-field">
-                                <input type="text" name="address" placeholder="Address" class="input-field">
-                                <p class="eid-text">EID - </p>
-
-                                <div class="buttons">
-                                    <button type="submit" class="save-btn">Save</button>
-                                    <button type="reset" class="cancel-btn">Cancel</button>
+                            <div class="row">
+                                <div class="input-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" id="first_name" name="first_name" placeholder="First name" class="input-field">
                                 </div>
+                                <div class="input-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" placeholder="Last name" class="input-field">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" placeholder="Email" class="input-field">
+                            </div>
+                            <div class="input-group">
+                                <label for="phone">Contact Number</label>
+                                <input type="text" id="phone" name="phone" placeholder="Contact number" class="input-field">
+                            </div>
+                            <div class="buttons">
+                                <button type="reset" class="cancel-btn">Cancel</button>
+                                <button type="submit" class="save-btn">Save</button>
+                            </div>
                             </form>
                         </div>
                     </div>
-                </div>
             </div>
-
             <!-- Footer or additional content if needed 
             <div class="user_view-footer">
                 <p>PrimeCare © 2024</p>

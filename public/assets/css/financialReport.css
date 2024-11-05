@@ -1,0 +1,127 @@
+@import url('./variables.css');
+
+/* Main container */
+.financial-details-container {
+    width: 95%;
+    margin: 0 auto;
+    padding: 10px;
+    background-color: var(--white-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    font-family: "Outfit", sans-serif;
+}
+
+.financial-details-container h2 {
+    text-align: left;
+    margin-left: 10px;
+    color: var(--dark-grey-color);
+}
+
+
+.financial-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Fixed table layout */
+    font-family: "Outfit", sans-serif;
+}
+
+.financial-table th, .financial-table td {
+    width: 150px; /* Set the fixed width */
+    padding: 10px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--background-color);
+    border-radius: 10px;
+    word-wrap: break-word; /* Ensures text wraps if it's too long */
+    overflow: hidden; /* Ensures no overflow issues */
+    text-overflow: ellipsis; /* Adds ellipsis (...) for overflowing text */
+    white-space: nowrap; /* Prevents text from wrapping to a new line */
+    font-family: "Outfit", sans-serif;
+}
+
+.financial-table th {
+    background-color: var(--background-color);
+    font-weight: 600;
+}
+
+.financial-table th:nth-child(1), 
+.financial-table td:nth-child(1) { width: 40px; } /* Year */
+.financial-table th:nth-child(2), 
+.financial-table td:nth-child(2) { width: 80px; } /* Month */
+.financial-table th:nth-child(3), 
+.financial-table td:nth-child(3) { width: 150px; } /* Tenant */
+.financial-table th:nth-child(4), 
+.financial-table td:nth-child(4) { width: 120px; } /* Income */
+.financial-table th:nth-child(5), 
+.financial-table td:nth-child(5) { width: 120px; } /* Expenses */
+.financial-table th:nth-child(6), 
+.financial-table td:nth-child(6) { width: 120px; } /* Total Income */
+.financial-table th:nth-child(7), 
+.financial-table td:nth-child(7) { width: 80px; } /* Status */
+.financial-table th:nth-child(8), 
+.financial-table td:nth-child(8) { width: 100px; } /* Profit Status */
+
+/* Fixed Width for Filter Inputs and Dropdowns */
+.filter-container select, 
+.filter-container input {
+    width: 150px; /* Fixed width for dropdowns and text input */
+    padding: 5px 10px;
+    border: 1px solid var(--background-color);
+    border-radius: 5px;
+    font-family: "Outfit", sans-serif;
+}
+
+.filter-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+/* Ensure fields don't resize */
+.filter-container select, 
+.filter-container input {
+    min-width: 120px;
+    max-width: 200px;
+}
+.filter-container input:focus{
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+
+.green{
+    background-color: rgba(var(--green-color-rgb), 0.20);
+    color: var(--green-color);
+    border: 1px solid var(--green-color);
+}
+
+.red{
+    background-color: rgba(var(--red-color-rgb), 0.20);
+    color: var(--red-color);
+    border: 1px solid var(--red-color);
+}
+
+.orange{
+    background-color: rgba(var(--primary-color-rgb), 0.20);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+
+/* Dropdown Menu Styling */
+select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--dark-grey-color);
+    background-color: var(--light-grey-color);
+    color: var(--dark-grey-color);
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+select:hover, select:focus {
+    border-color: var(--primary-color);
+    background-color: var(--white-color);
+    outline: none;
+}
