@@ -110,7 +110,7 @@ function get_date(string $date, string $format = 'jS M, Y'):string{
 function URL($key){
     $URL = $_GET['url'] ?? 'home'; // make home default
     $URL = explode('/', trim($URL, '/')); // split based on '/'
-    
+
     switch($key){
         case 'controller':
         case 'page':
@@ -126,7 +126,7 @@ function URL($key){
         case 'action':
         case 2:
             return $URL[2] ?? null;
-        
+
         case 3:
             return $URL[3] ?? null;    
         default:
@@ -134,3 +134,27 @@ function URL($key){
     }
 }
 
+/** 
+*how to use get_img() 
+*<img src="<?php echo get_img('672688e478161__user0@gmail.com.jpg', 'user'); ?>" alt="Profile Picture">
+*or <img src="<?= get_img('672688e478161__user0@gmail.com.jpg', 'user'); ?>" alt="Profile Picture">
+*/
+function get_img($image_url, $type = 'user') {
+    // Check if the provided URL is actually a URL
+    if (filter_var($image_url, FILTER_VALIDATE_URL)) {
+        return $image_url;
+    }
+    // Otherwise, assume it's a file name and construct the path
+    $relPath =  "assets/images/uploads/" . ($type == 'property' ? 'property/' : 'profile_pictures/') . $image_url;
+    $filePath =  ROOT .DIRECTORY_SEPARATOR. $relPath;
+    if (file_exists($relPath)) {
+        return $filePath;
+    }
+    // Return a default image if the file doesn't exist
+    if($type == 'user'){
+        return ROOT . "/assets/images/user.png";
+    }else if ($type == 'property'){
+        return ROOT . "/assets/images/property.png";
+    }	
+    // return ROOT . "/assets/images/user.png";
+}

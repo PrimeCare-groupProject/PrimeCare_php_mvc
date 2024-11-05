@@ -106,10 +106,20 @@
     border: 1px solid var(--green-color);
 }
 
+.green:hover{
+    background-color: rgba(var(--green-color-rgb), 0.80);
+    color: var(--white-color);
+}
+
 .red {
     background-color: rgba(var(--red-color-rgb), 0.20);
     color: var(--red-color);
     border: 1px solid var(--red-color);
+}
+
+.red:hover{
+    color: var(--white-color);
+    background-color: rgba(var(--red-color-rgb), 0.80);
 }
 
 .orange {

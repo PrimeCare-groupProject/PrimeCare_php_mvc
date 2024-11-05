@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 17, 2024 at 06:40 AM
+-- Generation Time: Nov 04, 2024 at 06:19 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -34,7 +34,7 @@ CREATE TABLE `person` (
   `email` varchar(50) NOT NULL,
   `contact` varchar(10) NOT NULL,
   `password` varchar(256) NOT NULL,
-  `image_url` varchar(255) NOT NULL DEFAULT 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html',
+  `image_url` varchar(255) DEFAULT 'user.png',
   `user_lvl` int(2) NOT NULL DEFAULT 1,
   `pid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -44,23 +44,11 @@ CREATE TABLE `person` (
 --
 
 INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `password`, `image_url`, `user_lvl`, `pid`) VALUES
-('user1', 'user1', 'user', 'user@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 1, 1),
-('agent1', 'agent1', 'agent', 'agent@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 3, 50),
-('manager1', 'manager1', 'manager', 'manager@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 4, 51),
-('serviceprovider1', 'serviceprovider1', 'serviceprovider', 'serviceprovider@gmail.com', '0762213874', '123', 'https://nohat.cc/f/male-face-icon-default-profile-image/c3f2c592f9-202301261009.html', 2, 52);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `fname` int(11) NOT NULL,
-  `lname` int(11) NOT NULL,
-  `age` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+('Wendt', 'Edmund', 'Wendt5WV97', 'serviceprovider@gmail.com', '0762213874', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 61),
+('Wendt', 'Edmund', 'WendtR2EQ0', 'agent@gmail.com', '0762213874', '$2y$10$Gt6.mbORgBzZn6cyLS8KMOGTq4/e8WXsDvq7rD4g5kJ4vGo7YLr1.', 'user.png', 3, 62),
+('Wendt', 'Edmund', 'WendtGCSN3', 'manager@gmail.com', '0762213874', '$2y$10$hJU6Sph7fBxjIfEWFF/FveOKgMtm4MFnya98mlHVgn0.2IF/gdyGi', 'user.png', 4, 63),
+('Wendt', 'Edmund', 'Wendt8E6MU', 'wvedmund@gmail.com', '0762213874', '$2y$10$DhI8z4c6aM0suA2cX3.FI.jm4TKFOr95yzqM2vUEq/hi4gZER55VO', 'user.png', 1, 66),
+('Wendt', 'Edmund', 'Wendt32215', 'user0@gmail.com', '0762213874', '$2y$10$GI0f3spkCuWU5AbVQmq9A.U66Ei/jX6fbIvnQs1/XyM5RJD6ytiCu', '672688e478161__user0@gmail.com.jpg', 1, 75);
 
 --
 -- Indexes for dumped tables
@@ -80,7 +68,7 @@ ALTER TABLE `person`
 -- AUTO_INCREMENT for table `person`
 --
 ALTER TABLE `person`
-  MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

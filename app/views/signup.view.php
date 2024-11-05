@@ -71,7 +71,7 @@
                     $user->errors['password'] ?? 
                     $user->errors['fname'] ??
                     $user->errors['lname'] ??
-                    $user->errors['insert']  ?>
+                    $user->errors['auth']  ?>
                 </p>
             </div>
 

@@ -28,7 +28,6 @@ class Signup {
 
     public function index() {
         $user = new User; // Initialize User instance
-        $user->errors['auth'] = 'test'; 
         
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Check for existing email
@@ -65,12 +64,14 @@ class Signup {
 
             // Insert user data into the database
             $res = $user->insert($arr);
-            
+
+                
             if ($res) {
                 // Redirect to home if the insertion is successful
-                unset($arr->password);
-                $_SESSION['user'] = $arr; // Store user data in session
-                redirect('home');// Use a full URL or a path as necessary
+                $updatedUser = $user->first(['email' => $arr['email']], []);
+                unset($updatedUser->password); // Remove password from the user object
+                $_SESSION['user'] = $updatedUser; // Store user data in session
+                redirect('home'); // Use a full URL or a path as necessary
                 exit; // Good practice to call exit after header
             } else {
                 // Handle the error case if insertion fails
