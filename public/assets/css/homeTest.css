@@ -84,6 +84,11 @@ nav img {
     background-color: transparent;
     cursor: pointer;
     z-index: 10;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+
 }
 
 .nav-links ul li .header__button:hover {
@@ -1228,4 +1233,13 @@ h3 {
     justify-content: center;
     gap: 20px;
     background-color: var(--dark-grey-color);
+}
+
+.header-profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: -4px;
+    object-fit: cover;
+    border: 1px solid var(--white-color);
 }
