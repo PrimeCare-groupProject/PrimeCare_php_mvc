@@ -32,9 +32,12 @@
             <div class="user_view-sidemenu">
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/managementhome"><button class="btn"><img src="<?= ROOT ?>/assets/images/manage.png" alt="">Managements</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/contacts"><button class="btn"><img src="<?= ROOT ?>/assets/images/contact.png" alt="">Contacts</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/preInspections" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/preinspection.png " alt="">Pre Inspections</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Requested Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/taskManagement" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/Taskmanagement.png " alt="">TaskManagement</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome"><button class="btn"><img src="<?= ROOT ?>/assets/images/managebookings.png" alt="">Manage Bookings</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/contacts"><button class="btn"><img src="<?= ROOT ?>/assets/images/contact.png" alt="">Contacts</button></a></li>
                 </ul>
 
                 <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
