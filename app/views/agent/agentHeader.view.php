@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/forms.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/serviceProvider.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/repairCard.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,9 +34,9 @@
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/preInspections" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/preinspection.png " alt="">Pre Inspections</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Requested Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/taskManagement" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/Taskmanagement.png " alt="">TaskManagement</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/preInspections"><button class="btn"><img src="<?= ROOT ?>/assets/images/preinspection.png " alt="">Pre Inspections</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Requested Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/taskManagement"><button class="btn"><img src="<?= ROOT ?>/assets/images/Taskmanagement.png " alt="">TaskManagement</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/managementhome"><button class="btn"><img src="<?= ROOT ?>/assets/images/managebookings.png" alt="">Manage Bookings</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/contacts"><button class="btn"><img src="<?= ROOT ?>/assets/images/contact.png" alt="">Contacts</button></a></li>
                 </ul>
