@@ -26,8 +26,18 @@
                     <li><a href="#logs">Logs</a></li>
                     <li><a href="#contactus">Contact Us</a></li>
                     <li>
-                        <button class="header__button" onClick="window.location.href = 'login'">
-                            Sign In | Log In
+                            <?php
+                                if (isset($_SESSION['user'])) {
+                                    echo "<button class='header__button' onClick=\"window.location.href = 'dashboard/profile'\">";
+                                    echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header-profile-picture'>";
+                                    echo "Profile";
+                                } else {
+                                    echo "<button class='header__button' onClick=\"window.location.href = 'login'\">";
+                                    echo "Sign In | Log In";
+                                }
+
+                            ?>
+                            
                         </button>
                     </li>
                 </ul>
