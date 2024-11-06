@@ -46,6 +46,8 @@ class ServiceProvider {
                 $_SESSION['errors'] = $errors;
                 redirect('dashboard/profile');
                 exit;
+            }else if(isset($_POST['logout'])){
+                $this->logout();
             }
         $this->handleProfileSubmission();
         return;
@@ -160,5 +162,12 @@ class ServiceProvider {
 
     public function repairs(){
         $this->view('serviceprovider/repairs');
+    }
+
+    private function logout(){
+        session_unset();
+        session_destroy();
+        redirect('home');
+        exit;
     }
 }

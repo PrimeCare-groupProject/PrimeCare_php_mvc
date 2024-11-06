@@ -37,7 +37,10 @@
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
 
-                <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
+                <form method="post" id="logout">
+                    <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
+                    <input type="text" name="logout" value= "1" hidden>
+                </form>
             </div>
 
             <script>

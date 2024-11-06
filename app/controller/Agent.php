@@ -46,6 +46,8 @@ class Agent{
                 $_SESSION['errors'] = $errors;
                 redirect('dashboard/profile');
                 exit;
+            }else if(isset($_POST['logout'])){
+                $this->logout();
             }
         $this->handleProfileSubmission();
         return;
@@ -173,4 +175,10 @@ class Agent{
         $this->view('agent/payments');
     }
 
+    private function logout(){
+        session_unset();
+        session_destroy();
+        redirect('home');
+        exit;
+    }
 }
