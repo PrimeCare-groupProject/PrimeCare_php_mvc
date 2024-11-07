@@ -128,6 +128,7 @@
 
         <div class="flex-buttons-space-between">
             <button class="secondary-btn">Edit Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?=ROOT?>/dashboard/repairlisting'">Request Repair</button>
             <button class="secondary-btn">Delete Property</button>
         </div>
 
