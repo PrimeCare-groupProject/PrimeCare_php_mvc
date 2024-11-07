@@ -51,6 +51,36 @@ INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `passwor
 ('Wendt', 'Edmund', 'Wendt32215', 'user0@gmail.com', '0762213874', '$2y$10$GI0f3spkCuWU5AbVQmq9A.U66Ei/jX6fbIvnQs1/XyM5RJD6ytiCu', '672688e478161__user0@gmail.com.jpg', 1, 75),
 ('SP', 'User', 'SPUser123', 'sp@gmail.com', '0712345678', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 76);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `services`
+--
+
+CREATE TABLE `services` (
+  `service_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `service_type` varchar(100) NOT NULL,
+  `date` DATE NOT NULL,
+  `property_id` int(10) NOT NULL,
+  `property_name` varchar(255) NOT NULL,
+  `cost_per_hour` decimal(10,2) NOT NULL,
+  `total_hours` int NOT NULL,
+  `status` ENUM('Done', 'Pending', 'Ongoing') NOT NULL,
+  `service_provider_id` int,
+  `total_cost` decimal(10,2) AS (cost_per_hour * total_hours) VIRTUAL,
+  `service_description` TEXT,
+  FOREIGN KEY (`service_provider_id`) REFERENCES `person`(`pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Sample data for services table
+INSERT INTO `services` (`service_type`, `date`, `property_id`, `property_name`, `cost_per_hour`, `total_hours`, `status`, `service_provider_id`, `service_description`) VALUES
+('Plumbing Repair', '2023-10-15', 1, 'Seaside Villa', 75.00, 3, 'Done', 61, 'Fixed leaking pipe in master bathroom'),
+('Electrical Maintenance', '2023-10-16', 2, 'Mountain View Apartment', 85.00, 4, 'Ongoing', 61, 'Rewiring living room and kitchen'),
+('Gardening', '2023-10-17', 3, 'Sunset Manor', 45.00, 5, 'Pending', 76, 'Monthly garden maintenance and lawn mowing'),
+('Door lock Repair', '2023-10-18', 4, 'Downtown Condo', 95.00, 2, 'Done', 76, 'AC unit repair and maintenance'),
+('Pool Maintenance', '2023-10-19', 5, 'Lakeside House', 65.00, 3, 'Ongoing', 61, 'Weekly pool cleaning and chemical balance check');
+
+
 --
 -- Indexes for dumped tables
 --
