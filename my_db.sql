@@ -64,7 +64,7 @@ CREATE TABLE `services` (
   `property_id` int(10) NOT NULL,
   `property_name` varchar(255) NOT NULL,
   `cost_per_hour` decimal(10,2) NOT NULL,
-  `total_hours` int NOT NULL,
+  `total_hours` int(10),
   `status` ENUM('Done', 'Pending', 'Ongoing') NOT NULL,
   `service_provider_id` int,
   `total_cost` decimal(10,2) AS (cost_per_hour * total_hours) VIRTUAL,
