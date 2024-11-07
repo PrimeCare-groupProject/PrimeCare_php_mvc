@@ -155,7 +155,7 @@ class Agent{
         $this->view('agent/preInspection');
     }
 
-    public function requistedTask(){
+    public function requestedTasks(){
         $this->view('agent/requestedTasks');
     }
 
