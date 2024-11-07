@@ -75,6 +75,14 @@ defined('ROOTPATH') or exit('Access denied');
             ]);
         }
 
+        public function repairListing(){
+            $this->view('owner/repairListing',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? ''
+            ]);
+        }
+
         public function profile(){
             $user = new User();
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -209,5 +217,3 @@ defined('ROOTPATH') or exit('Access denied');
             exit;
         }
     }
-
-    
