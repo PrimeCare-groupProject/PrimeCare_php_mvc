@@ -82,6 +82,44 @@ defined('ROOTPATH') or exit('Access denied');
                 'status' => $_SESSION['status'] ?? ''
             ]);
         }
+        public function serviceRequest($type = ''){
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                // Handle form submission here
+                $data = [
+                    'service_type' => $_POST['service_type'],
+                    'date' => $_POST['date'],
+                    'property_id' => $_POST['property_id'], 
+                    'property_name' => $_POST['property_name'],
+                    'status' => $_POST['status'],
+                    'service_description' => $_POST['service_description']
+                ];
+
+                // Add service request to database
+                $service = new Service();
+                if($service->insert($data)) {
+                    $_SESSION['status'] = "Service request submitted successfully";
+                    $_SESSION['success_message'] = "Request sent successfully!";
+                } else {
+                    $_SESSION['errors'][] = "Failed to submit service request";
+                }
+
+                redirect('dashboard/serviceRequest');
+                return;
+            }
+
+            $this->view('owner/serviceRequest',[
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? '',
+                'success_message' => $_SESSION['success_message'] ?? '',
+                'type' => $type
+            ]);
+
+            // Clear session messages after displaying
+            unset($_SESSION['success_message']);
+            unset($_SESSION['errors']);
+            unset($_SESSION['status']);
+        }
 
         public function profile(){
             $user = new User();
