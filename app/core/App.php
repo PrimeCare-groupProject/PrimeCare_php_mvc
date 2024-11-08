@@ -53,6 +53,7 @@ class App
                 }
             } else {
                 // If the user is not logged in, redirect them to the login page
+                redirect('login');
                 $this->controller = 'Login';
             }
         } else {

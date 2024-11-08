@@ -36,20 +36,21 @@ CREATE TABLE `person` (
   `password` varchar(256) NOT NULL,
   `image_url` varchar(255) DEFAULT 'user.png',
   `user_lvl` int(2) NOT NULL DEFAULT 1,
-  `pid` int(11) NOT NULL
+  `pid` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `reset_code` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `person`
 --
 
-INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `password`, `image_url`, `user_lvl`, `pid`) VALUES
-('Wendt', 'Edmund', 'Wendt5WV97', 'serviceprovider@gmail.com', '0762213874', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 61),
-('Wendt', 'Edmund', 'WendtR2EQ0', 'agent@gmail.com', '0762213874', '$2y$10$Gt6.mbORgBzZn6cyLS8KMOGTq4/e8WXsDvq7rD4g5kJ4vGo7YLr1.', 'user.png', 3, 62),
-('Wendt', 'Edmund', 'WendtGCSN3', 'manager@gmail.com', '0762213874', '$2y$10$hJU6Sph7fBxjIfEWFF/FveOKgMtm4MFnya98mlHVgn0.2IF/gdyGi', 'user.png', 4, 63),
-('Wendt', 'Edmund', 'Wendt8E6MU', 'wvedmund@gmail.com', '0762213874', '$2y$10$DhI8z4c6aM0suA2cX3.FI.jm4TKFOr95yzqM2vUEq/hi4gZER55VO', 'user.png', 1, 66),
-('Wendt', 'Edmund', 'Wendt32215', 'user0@gmail.com', '0762213874', '$2y$10$GI0f3spkCuWU5AbVQmq9A.U66Ei/jX6fbIvnQs1/XyM5RJD6ytiCu', '672688e478161__user0@gmail.com.jpg', 1, 75),
-('SP', 'User', 'SPUser123', 'sp@gmail.com', '0712345678', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 76);
+INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `password`, `image_url`, `user_lvl`, `pid`, `reset_code`) VALUES
+('Wendt', 'Edmund', 'Wendt5WV97', 'serviceprovider@gmail.com', '0762213874', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 61, NULL),
+('Wendt', 'Edmund', 'WendtR2EQ0', 'agent@gmail.com', '0762213874', '$2y$10$Gt6.mbORgBzZn6cyLS8KMOGTq4/e8WXsDvq7rD4g5kJ4vGo7YLr1.', 'user.png', 3, 62, NULL),
+('Wendt', 'Edmund', 'WendtGCSN3', 'manager@gmail.com', '0762213874', '$2y$10$hJU6Sph7fBxjIfEWFF/FveOKgMtm4MFnya98mlHVgn0.2IF/gdyGi', 'user.png', 4, 63, NULL),
+('Wendt', 'Edmund', 'Wendt8E6MU', 'wvedmund@gmail.com', '0762213874', '$2y$10$DhI8z4c6aM0suA2cX3.FI.jm4TKFOr95yzqM2vUEq/hi4gZER55VO', 'user.png', 1, 66, NULL),
+('Wendt', 'Edmund', 'Wendt32215', 'user0@gmail.com', '0762213874', '$2y$10$GI0f3spkCuWU5AbVQmq9A.U66Ei/jX6fbIvnQs1/XyM5RJD6ytiCu', '672688e478161__user0@gmail.com.jpg', 1, 75, NULL),
+('SP', 'User', 'SPUser123', 'sp@gmail.com', '0712345678', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 76, NULL);
 
 -- --------------------------------------------------------
 
@@ -72,6 +73,15 @@ CREATE TABLE `services` (
   FOREIGN KEY (`service_provider_id`) REFERENCES `person`(`pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `person`
+--
+
+
 -- Sample data for services table
 INSERT INTO `services` (`service_type`, `date`, `property_id`, `property_name`, `cost_per_hour`, `total_hours`, `status`, `service_provider_id`, `service_description`) VALUES
 ('Plumbing Repair', '2023-10-15', 1, 'Seaside Villa', 75.00, 3, 'Done', 61, 'Fixed leaking pipe in master bathroom'),
@@ -81,26 +91,6 @@ INSERT INTO `services` (`service_type`, `date`, `property_id`, `property_name`, 
 ('Pool Maintenance', '2023-10-19', 5, 'Lakeside House', 65.00, 3, 'Ongoing', 61, 'Weekly pool cleaning and chemical balance check');
 
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `person`
---
-ALTER TABLE `person`
-  ADD PRIMARY KEY (`pid`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `person`
---
-ALTER TABLE `person`
-  MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

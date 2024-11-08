@@ -27,7 +27,7 @@
                 <label for="password" class="login-form__label">Password</label>
                 <input type="password" name="password" id="password" class="login-form__input" placeholder="Enter Password" required>
 
-                <a class="login-form-link-forgot-password" href="<?= ROOT ?>/resetpw">Forgot password?</a>
+                <a class="login-form-link-forgot-password" href="<?= ROOT ?>/resetPassword">Forgot password?</a>
                 <button type="submit" class="login-form__submit-button">Log In</button>
             </form>
 
