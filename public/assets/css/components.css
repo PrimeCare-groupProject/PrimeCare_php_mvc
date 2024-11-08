@@ -450,8 +450,9 @@
     border-radius: 5px;
     transition: all 0.3s ease;
     position: relative;
-    margin-bottom: 10px;
-    margin-top: 5px;
+    margin-bottom: 0;
+    margin-top: auto;
+    align-self: flex-end;
   }
   
   .repair-prop-img:hover {
@@ -522,6 +523,7 @@
   .decline-btn {
     background-color: #dc3545;
     color: white;
+    margin-bottom: 30px;
   }
   
   .decline-btn:hover {
@@ -597,3 +599,4 @@
     margin-right: 10px;
     margin-left: 5px;
   }
+
