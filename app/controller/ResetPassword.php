@@ -63,6 +63,7 @@ class ResetPassword {
 
                     // Clear session data and redirect to login page
                     unset($_SESSION['current_user']);
+                    $_SESSION['success'] = ' Password reset successful. Login with your new password.';
                     redirect('login');
                     exit();
                 } else {

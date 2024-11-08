@@ -47,6 +47,9 @@
             <div class="errors" style="display: <?= !empty($user->errors) ? 'block' : 'none'; ?>">
                 <p><?= $user->errors['auth'] ?? '' ?></p>
             </div>
+            <div class="success" style="display: <?= isset($success) ? 'block' : 'none'; ?>">
+                <p><?= $success ?></p>
+            </div>
 
         </div>
     </div>

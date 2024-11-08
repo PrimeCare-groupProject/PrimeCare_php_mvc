@@ -36,7 +36,12 @@ class Login{
                 $this->view('login', ['user' => $user]);
             }
         } else {
-            $this->view('login');
+            if(isset($_SESSION['success'])){
+                $this->view('login', ['success' => $_SESSION['success']]);
+                unset($_SESSION['success']);
+            }else{
+                $this->view('login');
+            }
         }
     }
     
