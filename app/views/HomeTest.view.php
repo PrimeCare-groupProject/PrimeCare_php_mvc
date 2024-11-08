@@ -29,7 +29,7 @@
                             <?php
                                 if (isset($_SESSION['user'])) {
                                     echo "<button class='header__button' onClick=\"window.location.href = 'dashboard/profile'\">";
-                                    echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header-profile-picture'>";
+                                    echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header_profile_picture'>";
                                     echo "Profile";
                                 } else {
                                     echo "<button class='header__button' onClick=\"window.location.href = 'login'\">";
