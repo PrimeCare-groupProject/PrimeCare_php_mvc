@@ -91,7 +91,8 @@ defined('ROOTPATH') or exit('Access denied');
                     'property_id' => $_POST['property_id'], 
                     'property_name' => $_POST['property_name'],
                     'status' => $_POST['status'],
-                    'service_description' => $_POST['service_description']
+                    'service_description' => $_POST['service_description'],
+                    'cost_per_hour' => $_POST['cost_per_hour']
                 ];
 
                 // Add service request to database
