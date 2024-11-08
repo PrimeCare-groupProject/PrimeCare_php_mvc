@@ -108,8 +108,11 @@
     const dialogContainer = document.querySelector('.dialog-container');
     const cancelDeleteButton = document.getElementById('cancel-delete-button');
     const blurBackground = document.getElementById('profile-edit-form');
+    const errorAlert = document.querySelector('.errors');
 
     const initialFormValues = {};
+    const profilePicture = profilePicturePreview
+
     formFields.forEach(field => {
         initialFormValues[field.id] = field.value;
     });//save form values initaily to reset when cancel button is clicked
@@ -127,11 +130,26 @@
         if (file) {
             // Check if the file type is one of the allowed image types (JPEG, PNG, GIF)
             const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-            
+            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB in bytes
+
             if (!allowedMimeTypes.includes(file.type)) {
                 alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
                 profilePictureInput.value = ''; // Clear the input if file type is invalid
-                profilePicturePreview.src = '<?= get_img($user->image_url)?>'; // Reset the image preview to default
+                const error = document.createElement('p');
+                error.textContent = 'Invalid file type! Please upload an image (JPEG, PNG, or GIF).';
+                errorAlert.innerHTML = ''; // Clear previous errors
+                errorAlert.appendChild(error);
+                errorAlert.style.display = 'block';
+
+            } else if (file.size > maxSizeInBytes) {
+                alert('File size exceeds 2 MB! Please upload a smaller image.');
+                profilePictureInput = profilePicture; // Clear the input if file type is invalid
+                const error = document.createElement('p');
+                error.textContent = 'File size exceeds 2 MB! Please upload a smaller image.';
+                errorAlert.innerHTML = ''; // Clear previous errors
+                errorAlert.appendChild(error);
+                errorAlert.style.display = 'block';
+                
             } else {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -177,7 +195,7 @@
         editButton.style.display = 'block';
         removeButton.style.display = 'block';
         editText.style.display = 'none'; // Show Cancel button
-
+        errorAlert.style.display = 'none';
 
         // Remove editable state from profile picture
         profilePicturePreview.classList.remove('editable');
