@@ -215,6 +215,8 @@ class Agent{
 
                     if($result) {
                         $_SESSION['success'] = "Service request accepted and assigned successfully";
+                        redirect('dashboard/requestedTasks');
+                        exit; // Add exit here to prevent further execution
                     } else {
                         $_SESSION['error'] = "Failed to update service request";
                     }
@@ -223,7 +225,8 @@ class Agent{
                 $_SESSION['error'] = "Please select a service provider";
             }
 
-            redirect('agent/requestedTasks');
+            redirect('dashboard/requestedTasks');
+            exit; // Add exit here to prevent further execution
         }
 
         // Handle service request deletion when decline button is pressed
@@ -235,11 +238,14 @@ class Agent{
 
             if($result) {
                 $_SESSION['success'] = "Service request declined successfully";
+                redirect('dashboard/requestedTasks');
+                exit; // Add exit here to prevent further execution
             } else {
                 $_SESSION['error'] = "Failed to decline service request";
             }
 
-            redirect('agent/requestedTasks');
+            redirect('dashboard/requestedTasks');
+            exit; // Add exit here to prevent further execution
         }
 
         $this->view('agent/requestedTasks', $data);
