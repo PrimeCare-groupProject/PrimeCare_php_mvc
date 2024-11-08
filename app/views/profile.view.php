@@ -137,6 +137,7 @@
                 profilePictureInput.value = ''; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'Invalid file type! Please upload an image (JPEG, PNG, or GIF).';
+                errorAlert.innerHTML = ''; // Clear previous errors
                 errorAlert.appendChild(error);
                 errorAlert.style.display = 'block';
 
@@ -145,6 +146,7 @@
                 profilePictureInput = profilePicture; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'File size exceeds 2 MB! Please upload a smaller image.';
+                errorAlert.innerHTML = ''; // Clear previous errors
                 errorAlert.appendChild(error);
                 errorAlert.style.display = 'block';
                 
@@ -193,7 +195,7 @@
         editButton.style.display = 'block';
         removeButton.style.display = 'block';
         editText.style.display = 'none'; // Show Cancel button
-
+        errorAlert.style.display = 'none';
 
         // Remove editable state from profile picture
         profilePicturePreview.classList.remove('editable');

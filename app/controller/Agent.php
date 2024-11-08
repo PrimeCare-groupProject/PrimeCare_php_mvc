@@ -151,12 +151,106 @@ class Agent{
     public function expenses() {
         echo "User Expenses Section";
     }
+    
     public function preInspection(){
         $this->view('agent/preInspection');
     }
 
     public function requestedTasks(){
-        $this->view('agent/requestedTasks');
+        $service = new Service();
+        $services = $service->where(['status' => 'Pending']);
+
+        // Get available service providers (user_lvl = 2) with their image URLs
+        $user = new User();
+        $service_providers = $user->where(['user_lvl' => 2]);
+
+        // Filter out service providers who already have 4 or more ongoing services
+        $filtered_providers = [];
+        foreach($service_providers as $provider) {
+            $provider->image_url = $provider->image_url ?? 'Agent.png';
+            
+            // Count ongoing services for this provider
+            $ongoing_count = $service->where([
+                'service_provider_id' => $provider->pid,
+                'status' => 'Ongoing'
+            ]);
+            
+            // Convert ongoing_count to array if false (no services)
+            $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
+            
+            // Add provider if they have less than 4 ongoing services
+            if(count($ongoing_count) < 4) {
+                $filtered_providers[] = $provider;
+            }
+        }
+
+        $data = [
+            'services' => $services,
+            'service_providers' => $filtered_providers
+        ];
+
+        // Handle service provider assignment when accept button is pressed
+        if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['service_id'])) {
+            $service_id = $_POST['service_id'];
+            
+            // Get the selected service provider from the dropdown
+            $provider_id = $_POST['service_provider_select'];
+            
+            if($provider_id) {
+                // Check again if provider hasn't exceeded limit
+                $ongoing_services = $service->where([
+                    'service_provider_id' => $provider_id,
+                    'status' => 'Ongoing'
+                ]);
+                
+                // Convert to empty array if false
+                $ongoing_services = $ongoing_services === false ? [] : $ongoing_services;
+
+                if(count($ongoing_services) >= 4) {
+                    $_SESSION['error'] = "This service provider has reached their maximum service limit";
+                } else {
+                    // Update service with assigned provider and change status to Ongoing
+                    $result = $service->update($service_id, [
+                        'service_provider_id' => $provider_id,
+                        'status' => 'Ongoing'
+                    ], 'service_id');
+
+                    if($result) {
+                        $_SESSION['success'] = "Service request accepted and assigned successfully";
+                        redirect('dashboard/requestedTasks');
+                        exit; // Add exit here to prevent further execution
+                    } else {
+                        $_SESSION['error'] = "Failed to update service request";
+                    }
+                }
+            } else {
+                $_SESSION['error'] = "Please select a service provider";
+            }
+
+            redirect('dashboard/requestedTasks');
+            exit; // Add exit here to prevent further execution
+        }
+
+        // Handle service request deletion when decline button is pressed
+        if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
+            $service_id = $_POST['delete_service_id'];
+            
+            // Delete the service request
+            $result = $service->delete($service_id, 'service_id');
+
+            if($result) {
+                $_SESSION['success'] = "Service request declined successfully";
+                redirect('dashboard/requestedTasks');
+                exit; // Add exit here to prevent further execution
+            } else {
+                $_SESSION['error'] = "Failed to decline service request";
+            }
+
+            redirect('dashboard/requestedTasks');
+            exit; // Add exit here to prevent further execution
+        }
+
+        $this->view('agent/requestedTasks', $data);
     }
 
     public function taskManagemnt(){
