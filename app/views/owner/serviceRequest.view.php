@@ -3,7 +3,7 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/dashboard/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/dashboard/repairlisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2>Service Request Form</h2>
             </div>
@@ -58,6 +58,7 @@
             <input type="hidden" name="date" value="<?= date('Y-m-d') ?>">
             <input type="hidden" name="property_id" value="<?= $property_id ?? '' ?>">
             <input type="hidden" name="status" value="Pending">
+            <input type="hidden" name="cost_per_hour" value="<?= $_GET['cost_per_hour'] ?? '' ?>">
 
             <label class="bold-text">Service Details</label>
 

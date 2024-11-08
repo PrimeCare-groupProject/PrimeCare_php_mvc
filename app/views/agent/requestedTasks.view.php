@@ -90,22 +90,105 @@
 
     <div class="repair-cards-container">
         <?php
-        // Assuming you have repair tasks data from database
-        $repairTasks = []; // Replace with actual data fetch
+        // Get services data from controller
+        $services = $data['services'] ?? [];
         
-        if (empty($repairTasks)) {
-            // Sample data for demonstration
-            for ($i = 0; $i < 5; $i++) {
-                $date = date('Y-m-d', strtotime("-$i months"));
-                echo "<div class='repair-card-box' data-date='$date'>";
-                require __DIR__ . '/../components/repairCard.php';
-                echo "</div>";
-            }
+        if (empty($services)) {
+            echo "<p>No service requests found</p>";
         } else {
-            foreach ($repairTasks as $task) {
-                echo "<div class='repair-card-box' data-date='{$task['date']}'>";
-                require __DIR__ . '/../components/repairCard.php';
-                echo "</div>";
+            foreach ($services as $service) {
+                ?>
+                <div class="repair-card-box" data-date="<?= $service->date ?>">
+                    <div class="repair-card">
+                        <div class="repair-left-content">
+                            <h3><?= $service->service_type ?></h3>
+                            <div class="detail-fields">
+                                <div class="detail-fields-aligned">
+                                    <span class="details-labels-aligend"><strong>Property ID:</strong></span>
+                                    <span class="details-field-small"><?= $service->property_id ?></span>
+                                </div>
+                                <div class="detail-fields-aligned">
+                                    <span class="details-labels-aligend"><strong>Service Provider:</strong></span>
+                                    <div class="details-field-small" style="display: flex; align-items: center; gap: 10px;">
+                                        <select name="service_provider" class="details-field-small" style="border: none;" onchange="updateProviderImage(this)">
+                                            <?php foreach($data['service_providers'] as $provider): ?>
+                                                <option value="<?= $provider->pid ?>" 
+                                                    data-image="<?= ROOT ?>/assets/images/<?= $provider->image_url ?>"
+                                                    <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?> 
+                                                    style="padding: 5px; cursor: hand;" 
+                                                    onmouseover="this.style.backgroundColor='#f0f0f0'" 
+                                                    onmouseout="this.style.backgroundColor='transparent'">
+                                                    <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <img id="providerImage" 
+                                             src="<?= ROOT ?>/assets/images/<?= $data['service_providers'][0]->image_url ?>" 
+                                             alt="Service Provider" 
+                                             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+                                    </div>
+                                </div>
+                                <script>
+                                function updateProviderImage(select) {
+                                    const selectedOption = select.options[select.selectedIndex];
+                                    const imageUrl = selectedOption.getAttribute('data-image');
+                                    document.getElementById('providerImage').src = imageUrl;
+                                }
+                                </script>
+                            </div>
+                            <div class="detail-fields">
+                                <div class="detail-fields-aligned">
+                                    <span class="details-labels-aligend"><strong>Date:</strong></span>
+                                    <span class="details-field-small"><?= date('Y/m/d', strtotime($service->date)) ?></span>
+                                </div>
+                            </div>
+                            <div class="detail-fields">
+                                <div class="detail-fields-aligned">
+                                    <span class="details-labels-aligend"><strong>Property Name:</strong></span>
+                                    <span class="details-field-small"><?= $service->property_name ?></span>
+                                </div>
+                            </div>
+                            <div class="detail-fields">
+                                <div class="detail-fields-aligned">
+                                    <span class="details-labels-aligend"><strong>Service Type:</strong></span>
+                                    <span class="details-field-small"><?= $service->service_type ?></span>
+                                </div>
+                            </div>
+                            <div class="detail-fields">
+                                <div class="detail-fields-aligned">
+                                    <span class="details-labels-aligend"><strong>Description:</strong></span>
+                                    <span class="details-field-small"><?= $service->service_description ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="approval-right-content">
+                            <form method="POST" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                                <input type="hidden" name="service_id" value="<?= $service->service_id ?>">
+                                <input type="hidden" name="service_provider_select" value="">
+                                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 10px;">
+                                    <button type="submit" class="accept-btn" onclick="submitForm(this.form)" style="width: 215px;">Accept</button>
+                                </div>
+                            </form>
+
+                            <form method="POST" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                                <input type="hidden" name="delete_service_id" value="<?=$service->service_id?>">
+                                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 10px;">
+                                    <button type="submit" class="decline-btn" style="width: 215px;">Decline</button>
+                                </div>
+                            </form>
+                            <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="repair-prop-img">
+
+                        </div>
+                        <script>
+                            function submitForm(form) {
+                                // Get selected service provider ID from the select element
+                                const providerSelect = document.querySelector('select[name="service_provider"]');
+                                form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
+                            }
+                        </script>
+                    </div>
+                </div>
+                <?php
             }
         }
         ?>
