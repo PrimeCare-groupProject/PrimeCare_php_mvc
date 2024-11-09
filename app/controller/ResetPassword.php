@@ -22,17 +22,28 @@ class ResetPassword {
                     
                     $result->reset_code = $reset_code;
                     $_SESSION['current_user'] = $result; // Store user data in session
-                    show($_SESSION['current_user']);
-                    /*
-                    $to = $arr['email'];
-                    $subject = 'Password Reset Code';
-                    $message = "Your password reset code is: $reset_code";
-                    $headers = 'From: PrimeCare';
-                    mail($to, $subject, $message, $headers);
-                    */
+                    // show($_SESSION['current_user']);
 
-                    unset($user->errors['auth']);
-                    $this->view('resetPassword', ['user' => $user, 'confirmed' => true]);
+                    $status = sendMail($_SESSION['current_user']->email ,'Primecare Password Reset Code', "
+                        <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
+                            <h1 style='color: #4CAF50;'>Password Reset Request</h1>
+                            <p>Hello,</p>
+                            <p>We received a request to reset your password. Please use the following code to reset your password:</p>
+                            <h3 style='color: #4CAF50;'>$reset_code</h3>
+                            <p>If you did not request this, please ignore this email.</p>
+                            <br>
+                            <p>Best regards,<br>PrimeCare Support Team</p>
+                        </div>
+                    ");	
+
+                    
+                    if ($status['error']) {
+                        $user->errors['auth'] = 'An error occurred while sending the reset code. Please try again.';
+                        $this->view('resetPassword', ['user' => $user]);
+                    }else{
+                        unset($user->errors['auth']);
+                        $this->view('resetPassword', ['user' => $user, 'confirmed' => true]);
+                    }
                 } else {
                     $user->errors['auth'] = 'No user found with that email. Try again';
                     $this->view('resetPassword', ['user' => $user]);
@@ -41,7 +52,7 @@ class ResetPassword {
             } elseif (isset($_POST['code_submission'])) {
                 // Handle reset code verification
                 $reset_code_input = $_POST['reset_code'];
-                show($_SESSION['current_user']);
+                // show($_SESSION['current_user']);
                 if (isset($_SESSION['current_user']) && $_SESSION['current_user']->reset_code === $reset_code_input) {
                     $this->view('resetPassword', ['user' => $user, 'confirmed' => true, 'code_verified' => true]);
                 } else {
