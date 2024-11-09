@@ -50,7 +50,7 @@ trait Model{//similar to a class but can be inherited by other classes
         return $this->query($query, $data);
     }
     
-    public function first($data, $data_not){//search row depending on the data passed
+    public function first($data, $data_not = []){//search row depending on the data passed
         $keys = array_keys($data);
         $keys_not = array_keys($data_not);
         $query = "

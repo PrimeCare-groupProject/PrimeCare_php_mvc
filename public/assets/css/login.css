@@ -148,3 +148,12 @@ body {
     font-size: 14px; /* Text size */
     margin-top: 10px; /* Space above the div */
 }
+
+.success {
+    background-color: #cff5cb; /* Light red background color */
+    color: #1c722d; /* Dark red text color */
+    border-radius: 8px; /* Curved corners */
+    border: 1px solid #bbf5cd; /* Optional: Light red border */
+    font-size: 14px; /* Text size */
+    margin-top: 10px; /* Space above the div */
+}

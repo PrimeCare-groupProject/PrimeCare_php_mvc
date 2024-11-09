@@ -158,3 +158,6 @@ function get_img($image_url, $type = 'user') {
     }	
     // return ROOT . "/assets/images/user.png";
 }
+
+// require '../app/libraries/PHPMailer/send.php'; //send email
+require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'send.php';
