@@ -270,8 +270,48 @@ class Agent{
         }
     }
 
-    public function ongoingTask(){
-        $this->view('agent/ongoingtask');
+    public function ongoingTask($c,$d){
+        switch($c){
+            case 'concreterepairing':
+                $_SESSION['repair'] = "concrete repairing"; 
+                $this->repairing();
+                break;
+            case 'bathroomrepairing':
+                $_SESSION['repair'] = "bathroom repairing"; 
+                $this->repairing();
+                break;
+            case 'deckrepairing':
+                $_SESSION['repair'] = "deck repairing"; 
+                $this->repairing();
+                break;
+            case 'doorrepairing':
+                $_SESSION['repair'] = "door repairing"; 
+                $this->repairing();
+                break;
+            case 'electricalrepairing':
+                $_SESSION['repair'] = "electrical repairing"; 
+                $this->repairing();
+                break;
+            case 'furniturerepairing':
+                $_SESSION['repair'] = "furniture repairing"; 
+                $this->repairing();
+                break;
+            case 'painting':
+                $_SESSION['repair'] = "painting"; 
+                $this->repairing();
+                break;
+            case 'plumbing':
+                $_SESSION['repair'] = "plumbing"; 
+                $this->repairing();
+                break;
+            case 'roofrepairing':
+                $_SESSION['repair'] = "roof repairing"; 
+                $this->repairing();
+                break;
+            default:
+            $this->view('agent/ongoingtask');
+                break;
+        }
     }
 
     public function newTask(){
@@ -280,6 +320,10 @@ class Agent{
 
     public function inventoryManagement(){
         $this->view('agent/inventoryManagement');
+    }
+
+    public function repairing(){
+        $this->view('agent/repairing');
     }
 
     public function manageBookings(){
