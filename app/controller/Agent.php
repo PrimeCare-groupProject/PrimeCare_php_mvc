@@ -253,8 +253,33 @@ class Agent{
         $this->view('agent/requestedTasks', $data);
     }
 
-    public function taskManagemnt(){
-        $this->view('agent/taskManagement');
+    public function tasks($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'ongoingtask':
+                $this->ongoingTask($c, $d);
+                break;
+            case 'newtask':
+                $this->newTask($c, $d);
+                break;
+            case 'inventoryManagement':
+                $this->inventoryManagement($c, $d);
+                break;
+            default:
+                $this->view('agent/tasks');
+                break;
+        }
+    }
+
+    public function ongoingTask(){
+        $this->view('agent/ongoingtask');
+    }
+
+    public function newTask(){
+        $this->view('agent/newtask');
+    }
+
+    public function inventoryManagement(){
+        $this->view('agent/inventoryManagement');
     }
 
     public function manageBookings(){

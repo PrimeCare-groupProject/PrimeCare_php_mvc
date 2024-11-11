@@ -101,3 +101,15 @@
     /* margin: 10px; */
 }
 
+.input-group2 {
+    flex: 4;
+}
+
+.management-card-container-sub1 {
+    display: flex;
+    align-items: center;
+    width: 90%;
+    height: 70%;
+    margin-left: 50% ;
+
+}
