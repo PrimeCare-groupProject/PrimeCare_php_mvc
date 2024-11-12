@@ -6,18 +6,16 @@
     <h2><?php echo $_SESSION['repair']?></h2>
 </div>
 <div>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>
-    <?php require __DIR__ . '/../components/preInspectionCard.php'; ?>  
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?> 
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
+    <?php require __DIR__ . '/../components/repairingCard.php'; ?>
 </div>
 
 <?php require_once 'agentFooter.view.php'; ?>

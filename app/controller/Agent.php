@@ -273,40 +273,49 @@ class Agent{
     public function ongoingTask($c,$d){
         switch($c){
             case 'concreterepairing':
-                $_SESSION['repair'] = "concrete repairing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Concrete Repairing"; 
+                $_SESSION['repair1'] = "concreterepairing"; 
+                $this->repairing($d);
                 break;
             case 'bathroomrepairing':
-                $_SESSION['repair'] = "bathroom repairing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Bathroom Repairing"; 
+                $_SESSION['repair1'] = "bathroomrepairing"; 
+                $this->repairing($d);
                 break;
             case 'deckrepairing':
-                $_SESSION['repair'] = "deck repairing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Deck Repairing"; 
+                $_SESSION['repair1'] = "deckrepairing"; 
+                $this->repairing($d);
                 break;
             case 'doorrepairing':
-                $_SESSION['repair'] = "door repairing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Door Repairing"; 
+                $_SESSION['repair1'] = "doorrepairing"; 
+                $this->repairing($d);
                 break;
             case 'electricalrepairing':
-                $_SESSION['repair'] = "electrical repairing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Electrical Repairing";
+                $_SESSION['repair1'] = "electricalrepairing";  
+                $this->repairing($d);
                 break;
             case 'furniturerepairing':
-                $_SESSION['repair'] = "furniture repairing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Furniture Repairing";
+                $_SESSION['repair1'] = "furniturerepairing";  
+                $this->repairing($d);
                 break;
             case 'painting':
-                $_SESSION['repair'] = "painting"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Painting"; 
+                $_SESSION['repair1'] = "painting"; 
+                $this->repairing($d);
                 break;
             case 'plumbing':
-                $_SESSION['repair'] = "plumbing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Plumbing"; 
+                $_SESSION['repair1'] = "plumbing"; 
+                $this->repairing($d);
                 break;
             case 'roofrepairing':
-                $_SESSION['repair'] = "roof repairing"; 
-                $this->repairing();
+                $_SESSION['repair'] = "Roof Repairing";
+                $_SESSION['repair1'] = "roofrepairing";  
+                $this->repairing($d);
                 break;
             default:
             $this->view('agent/ongoingtask');
@@ -322,8 +331,26 @@ class Agent{
         $this->view('agent/inventoryManagement');
     }
 
-    public function repairing(){
-        $this->view('agent/repairing');
+    public function repairing($d){
+        switch($d){
+            case 'taskremoval': 
+                $this->taskremoval();
+                break;
+            case 'spreassign': 
+                $this->spreassign();
+                break;
+            default:
+            $this->view('agent/repairing');
+                break;
+        }
+    }
+
+    public function taskRemoval(){
+        $this->view('agent/taskremoval');
+    }
+
+    public function spreassign(){
+        $this->view('agent/spreassign');
     }
 
     public function manageBookings(){

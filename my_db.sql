@@ -54,6 +54,10 @@ INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `passwor
 -- --------------------------------------------------------
 
 --
+-- Indexes for table `person`
+--
+    ALTER TABLE `person`
+    ADD PRIMARY KEY (`pid`);
 -- Table structure for table `services`
 --
 
@@ -86,10 +90,7 @@ INSERT INTO `services` (`service_type`, `date`, `property_id`, `property_name`, 
 --
 
 --
--- Indexes for table `person`
---
-ALTER TABLE `person`
-  ADD PRIMARY KEY (`pid`);
+
 
 --
 -- AUTO_INCREMENT for dumped tables
