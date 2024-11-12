@@ -67,6 +67,12 @@ class Owner
         } else if ($a == 'propertyunit') {
             $this->propertyUnit($b = '', $c = '', $d = '');
             return;
+        } else if ($a == "repairlisting"){
+            $this->repairListing($b = '', $c = '', $d = '');
+            return;
+        } else if ($a == "servicerequest"){
+            $this->serviceRequest($b = '', $c = '', $d = '');
+            return;
         }
         $this->view('owner/propertyListing', [
             'user' => $_SESSION['user'],
