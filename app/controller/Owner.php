@@ -50,7 +50,7 @@ class Owner
         ]);
     }
 
-    public function addProperty()
+    private function addProperty()
     {
         $this->view('owner/addProperty', [
             'user' => $_SESSION['user'],
@@ -81,7 +81,7 @@ class Owner
         ]);
     }
 
-    public function propertyUnit()
+    private function propertyUnit()
     {
         $this->view('owner/propertyUnit', [
             'user' => $_SESSION['user'],
@@ -90,7 +90,7 @@ class Owner
         ]);
     }
 
-    public function repairListing()
+    private function repairListing()
     {
         $this->view('owner/repairListing', [
             'user' => $_SESSION['user'],

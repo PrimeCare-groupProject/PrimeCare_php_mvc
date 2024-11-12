@@ -12,3 +12,4 @@ require 'Database.php'; #capitals becuz classes
 require 'Model.php';
 require 'Controller.php';
 require 'App.php';
+require 'Pagination.php';

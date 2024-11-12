@@ -189,8 +189,14 @@ class Manager {
         }
     }
 
-    public function employeeManagement(){
-        $this->view('manager/employeeManagement');
+    private function employeeManagement(){
+        $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $totalPages = 100; // For this example, assume 100 total pages
+        // Instantiate the Pagination class with the current page, total pages, and range
+        $pagination = new Pagination($currentPage, $totalPages, 3); 
+        $paginationLinks = $pagination->generateLinks();    // Generate pagination links
+        // Pass pagination links to the view
+        $this->view('manager/employeeManagement',['paginationLinks' => $paginationLinks]);
     }
 
     public function requestApproval(){
