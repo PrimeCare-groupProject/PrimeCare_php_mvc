@@ -30,7 +30,7 @@
     color: #fff;
 }
 
-.pagination-button.active {
+.pagination-button.activebtn {
     background-color: var(--primary-color);
     color: #fff;
     pointer-events: none;

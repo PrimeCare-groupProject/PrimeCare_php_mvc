@@ -35,7 +35,7 @@ class Pagination {
 
         // Generate Page Number Links within the defined range
         for ($i = $startPage; $i <= $endPage; $i++) {
-            $activeClass = ($i == $page) ? 'active' : '';
+            $activeClass = ($i == $page) ? 'activebtn' : '';
             $links[] = $this->createLink($i, $i, $activeClass);
         }
 
