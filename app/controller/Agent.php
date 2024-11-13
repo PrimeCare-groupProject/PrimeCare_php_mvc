@@ -469,10 +469,20 @@ class Agent{
         $this->view('agent/addserviceprovider');
     }
 
-    public function removeserviceprovider(){
-        $this->view('agent/removeserviceprovider');
+    public function removeserviceprovider($c,$d){
+        switch($d){
+            case 'spremove':
+                $this->spremove($c, $d);
+                break;
+            default:
+                $this->view('agent/removeserviceprovider');
+                break;
+            }
     }
 
+    public function spremove(){
+        $this->view('agent/spremove');
+    }
 
     private function logout(){
         session_unset();
