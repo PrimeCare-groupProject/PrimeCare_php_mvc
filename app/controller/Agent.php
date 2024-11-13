@@ -484,6 +484,21 @@ class Agent{
         $this->view('agent/spremove');
     }
 
+    public function bookings($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'bookingaccept':
+                $this->bookingAccept($c, $d);
+                break;
+            default:
+                $this->view('agent/booking');
+                break;
+        }
+    }
+
+    public function bookingAccept(){
+        $this->view('agent/bookingaccept');
+    }
+
     private function logout(){
         session_unset();
         session_destroy();

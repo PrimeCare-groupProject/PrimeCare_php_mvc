@@ -238,3 +238,22 @@
     padding-bottom: 30px;
 }
 
+.bookingimg{
+    width: 100%;
+    border-radius: 5px;
+}
+
+.booking1img{
+    width: 48%;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.bookingcol {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    padding-top: 10px;
+    padding-left: 3px;
+}
