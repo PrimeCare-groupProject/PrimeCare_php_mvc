@@ -15,6 +15,10 @@
     </div>
 </div>
 
+<div class="success-msg-container">
+    <p class="success-msg"><?= $property->success['insert'] ?? '' ?></p>
+</div>
+
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
