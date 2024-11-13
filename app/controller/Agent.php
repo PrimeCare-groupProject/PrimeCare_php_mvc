@@ -261,7 +261,7 @@ class Agent{
             case 'newtask':
                 $this->newTask($c, $d);
                 break;
-            case 'inventoryManagement':
+            case 'inventorymanagement':
                 $this->inventoryManagement($c, $d);
                 break;
             default:
@@ -327,8 +327,27 @@ class Agent{
         $this->view('agent/newtask');
     }
 
-    public function inventoryManagement(){
-        $this->view('agent/inventoryManagement');
+    public function inventoryManagement($c,$d){
+        switch($c){
+            case 'pastinventory': 
+                $this->pastinventory();
+                break;
+            case 'newinventory': 
+                $this->newinventory();
+                break;
+            default:
+            $this->view('agent/inventoryManagement');
+                break;
+        }
+        
+    }
+
+    public function pastinventory(){
+        $this->view('agent/pastinventory');
+    }
+
+    public function newinventory(){
+        $this->view('agent/newinventory');
     }
 
     public function repairing($d){
