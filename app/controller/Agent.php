@@ -433,9 +433,46 @@ class Agent{
         $this->view('agent/problems');
     }
 
+    public function services($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'serviceproviders':
+                $this->serviceProviders($c, $d);
+                break;
+            case 'payments':
+                $this->payments($c, $d);
+                break;
+            default:
+                $this->view('agent/services');
+                break;
+        }
+    }
+
+    public function serviceProviders($c,$d){
+        switch($c){
+            case 'addserviceprovider':
+                $this->addServiceProvider($c, $d);
+                break;
+            case 'removeserviceprovider':
+                $this->removeserviceprovider($c, $d);
+                break;
+            default:
+                $this->view('agent/serviceproviders');
+                break;
+            }
+    }
+
     public function payments(){
         $this->view('agent/payments');
     }
+
+    public function addserviceprovider(){
+        $this->view('agent/addserviceprovider');
+    }
+
+    public function removeserviceprovider(){
+        $this->view('agent/removeserviceprovider');
+    }
+
 
     private function logout(){
         session_unset();
