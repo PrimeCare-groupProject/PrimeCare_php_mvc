@@ -78,7 +78,7 @@
             </div>
         <div class="serPro1">
             <a href='<?= ROOT ?>/dashboard/tasks/ongoingtask/<?php echo $_SESSION['repair1']?>/spreassign'>
-                <button class="primary-btn">Remove</button>
+                <button class="primary-btn">Reassign</button>
             </a>
             <a href='<?= ROOT ?>/dashboard/tasks/ongoingtask/<?php echo $_SESSION['repair1']?>'>
                 <button class="secondary-btn">Cancel</button>

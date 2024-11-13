@@ -323,8 +323,57 @@ class Agent{
         }
     }
 
-    public function newTask(){
-        $this->view('agent/newtask');
+    public function newTask($c,$d){
+        switch($c){
+            case 'concreterepairing1':
+                $_SESSION['repair'] = "Concrete Repairing"; 
+                $_SESSION['repair1'] = "concreterepairing"; 
+                $this->newrepairing($d);
+                break;
+            case 'bathroomrepairing1':
+                $_SESSION['repair'] = "Bathroom Repairing"; 
+                $_SESSION['repair1'] = "bathroomrepairing"; 
+                $this->newrepairing($d);
+                break;
+            case 'deckrepairing1':
+                $_SESSION['repair'] = "Deck Repairing"; 
+                $_SESSION['repair1'] = "deckrepairing"; 
+                $this->newrepairing($d);
+                break;
+            case 'doorrepairing1':
+                $_SESSION['repair'] = "Door Repairing"; 
+                $_SESSION['repair1'] = "doorrepairing"; 
+                $this->newrepairing($d);
+                break;
+            case 'electricalrepairing1':
+                $_SESSION['repair'] = "Electrical Repairing";
+                $_SESSION['repair1'] = "electricalrepairing";  
+                $this->newrepairing($d);
+                break;
+            case 'furniturerepairing1':
+                $_SESSION['repair'] = "Furniture Repairing";
+                $_SESSION['repair1'] = "furniturerepairing";  
+                $this->newrepairing($d);
+                break;
+            case 'painting1':
+                $_SESSION['repair'] = "Painting"; 
+                $_SESSION['repair1'] = "painting"; 
+                $this->newrepairing($d);
+                break;
+            case 'plumbing1':
+                $_SESSION['repair'] = "Plumbing"; 
+                $_SESSION['repair1'] = "plumbing"; 
+                $this->newrepairing($d);
+                break;
+            case 'roofrepairing1':
+                $_SESSION['repair'] = "Roof Repairing";
+                $_SESSION['repair1'] = "roofrepairing";  
+                $this->newrepairing($d);
+                break;
+            default:
+            $this->view('agent/newtask');
+                break;
+        }
     }
 
     public function inventoryManagement($c,$d){
@@ -348,6 +397,10 @@ class Agent{
 
     public function newinventory(){
         $this->view('agent/newinventory');
+    }
+
+    public function newrepairing(){
+        $this->view('agent/newrepairing');
     }
 
     public function repairing($d){
