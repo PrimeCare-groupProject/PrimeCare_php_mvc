@@ -75,5 +75,10 @@
     </div>
 
 </div>
-
+<div class="pagination_conytainer">
+    <div class="pagination">
+            <!-- Render the pagination links -->
+            <?php echo $paginationLinks; ?>
+    </div>
+</div>
 <?php require_once 'managerFooter.view.php'; ?>

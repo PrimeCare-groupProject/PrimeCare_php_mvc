@@ -28,4 +28,12 @@ trait controller
             }
         }
     }
+
+    private function logout()
+    {
+        session_unset();
+        session_destroy();
+        redirect('home');
+        exit;
+    }
 }

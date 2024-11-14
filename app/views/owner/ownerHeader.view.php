@@ -111,9 +111,9 @@
                         logoutBtn.style.display = 'block';
                     }
 
-                    logoutBtn.addEventListener('click', function() {
-                        window.location.href = '<?= ROOT ?>/dashboard/logout';
-                    });
+                    // logoutBtn.addEventListener('click', function() {
+                    //     window.location.href = '<?= ROOT ?>/dashboard/logout';
+                    // });
                 });
             </script>
 
