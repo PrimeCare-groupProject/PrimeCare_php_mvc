@@ -28,17 +28,18 @@
         <div class="slider">
             <div class="slides">
 
+            
                 <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 1">
                 </div>
 
-                <div class="slide">
+                <!-- <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 2">
                 </div>
 
                 <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Slide 3">
-                </div>
+                </div> -->
             </div>
 
 

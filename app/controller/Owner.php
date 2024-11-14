@@ -75,12 +75,18 @@ class Owner
         ]);
     }
 
-    public function propertyUnit()
+    public function propertyUnit($propertyId)
     {
+
+        $property = new PropertyModel; // Initialize Property instance
+
+        
+
         $this->view('owner/propertyUnit', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '' , 
+            $property
         ]);
     }
 
