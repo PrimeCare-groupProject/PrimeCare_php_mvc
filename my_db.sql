@@ -50,7 +50,7 @@ CREATE TABLE `person` (
   `contact` varchar(10) NOT NULL,
   `password` varchar(256) NOT NULL,
   `image_url` varchar(255) DEFAULT 'user.png',
-  `user_lvl` int(2) NOT NULL DEFAULT 1,
+  `user_lvl` int(2) NOT NULL DEFAULT 0,
   `pid` int(11) NOT NULL,
   `reset_code` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

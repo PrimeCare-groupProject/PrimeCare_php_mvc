@@ -59,7 +59,7 @@ class Signup {
                 'email' => $_POST['email'],
                 'contact' => $_POST['contact'],
                 'password' => $this->hashPw($_POST['password']),
-                'user_lvl' => 1,
+                'user_lvl' => 0,
                 'username' => $this->generateUsername($_POST['fname']), // Generate username
             ];
             // show($arr);
