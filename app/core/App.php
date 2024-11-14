@@ -35,7 +35,7 @@ class App
 
                 switch ($lvl) {
                     case 1:
-                        $this->controller = 'Owner'; // regular user dashboard
+                        $this->controller = 'Customer'; // regular user dashboard
                         // echo "case1";
                         break;
                     case 2:
@@ -97,4 +97,5 @@ class App
             require "../app/controller/_404.php";
         }
     }
+    
 }
