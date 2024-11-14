@@ -35,21 +35,26 @@
                     <li><a href="<?= ROOT ?>/dashboard/payments"><button class="btn">Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
                 </ul>
-
-                <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
+                <form method="post" id="logout">
+                    <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
+                    <input type="text" name="logout" value= "1" hidden>
+                </form>
             </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const sidebarLinks = document.querySelectorAll('.user_view-sidemenu ul li a');
                     let isTabActive = false;
-
+                    const currentURL = window.location.href;
+                    const url = new URL(window.location.href);  // Get the current page URL
+                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/');  // Split the URL into an array
+                    const currentPage = path[3] || "dashboard";
+                    console.log(path[3]);
                     // Loop through each sidebar link
                     sidebarLinks.forEach(link => {
                         const button = link.querySelector('button');
                         const href = link.getAttribute('href');
-                        const currentURL = window.location.href;
-
+                        
                         // Check if the current page matches the link's href
                         if (currentURL.includes(href)) {
                             // Add 'active' class to the button
@@ -64,12 +69,19 @@
                     });
 
                     // If no tab is active, set the dashboard as the default active
-                    if (isTabActive) {
-                        const dashboardButton = document.querySelector('a[href*="dashboard"] button');
+                    const dashboardButton = document.querySelector('a[href*="dashboard"] button');
+                    if (isTabActive && !(currentPage == "dashboard")) {
+                        // console.log(" tab is active");
                         if (dashboardButton) {
+                            // console.log(" button available");
                             dashboardButton.classList.add('btn');
                             dashboardButton.classList.remove('active');
                         }
+                    }else{
+                        // console.log(" tab is not active");
+
+                        dashboardButton.classList.add('active');
+                        dashboardButton.classList.remove('btn');
                     }
 
                     const logoutBtn = document.getElementById('logout-btn');
@@ -78,6 +90,10 @@
                     if (window.location.href.includes('profile')) {
                         logoutBtn.style.display = 'block';
                     }
+
+                    // logoutBtn.addEventListener('click', function() {
+                    //     window.location.href = '<?= ROOT ?>/dashboard/logout';
+                    // });
                 });
             </script>
             <div class="user_view-content_section" id="content-section">

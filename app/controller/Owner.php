@@ -290,11 +290,5 @@ class Owner
         exit;
     }
 
-    private function logout()
-    {
-        session_unset();
-        session_destroy();
-        redirect('home');
-        exit;
-    }
+    
 }
