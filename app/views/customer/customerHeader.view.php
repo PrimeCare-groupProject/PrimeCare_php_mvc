@@ -31,10 +31,7 @@
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn">Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/"><button class="btn">Occupied Properties</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/"><button class="btn">Search</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/"><button class="btn">Maintenance Requests</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/search"><button class="btn">Search</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/payments"><button class="btn">Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
                 </ul>

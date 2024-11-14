@@ -1,9 +1,9 @@
-<?php require_once 'ownerHeader.view.php'; ?>
+<?php require_once 'customerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/dashboard/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/dashboard/search"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2>Name of Property</h2>
                 <p><span>Maintained By: </span>Agent's Name</p>
@@ -28,18 +28,17 @@
         <div class="slider">
             <div class="slides">
 
-            
                 <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 1">
                 </div>
 
-                <!-- <div class="slide">
+                <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 2">
                 </div>
 
                 <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Slide 3">
-                </div> -->
+                </div>
             </div>
 
 
@@ -128,10 +127,9 @@
         </p>
 
         <div class="flex-buttons-space-between">
-            <button class="secondary-btn">Edit Property</button>
+            <button class="secondary-btn">Book the property</button>
             <!--Should be fixed later when property table done-->
-            <button class="secondary-btn" onclick="window.location.href='<?=ROOT?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
-            <button class="secondary-btn">Remove Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?=ROOT?>/dashboard/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
         </div>
 
     </div>
@@ -171,4 +169,4 @@
     }
 </script>
 
-<?php require_once 'ownerFooter.view.php'; ?>
+<?php require_once 'customerFooter.view.php'; ?>
