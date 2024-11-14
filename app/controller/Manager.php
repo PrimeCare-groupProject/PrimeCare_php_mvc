@@ -190,13 +190,17 @@ class Manager {
     }
 
     private function employeeManagement(){
+        $user = new User;
         $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $totalPages = 100; // For this example, assume 100 total pages
+        $offset = ($user->getLimit() - 1) * ($currentPage-1 ); #generate offset
+
+        $userlist = $user->findAll();
+        $totalPages =  $user->getTotalCount(); // For this example, assume 100 total pages
         // Instantiate the Pagination class with the current page, total pages, and range
-        $pagination = new Pagination($currentPage, $totalPages, 3); 
+        $pagination = new Pagination($currentPage, $totalPages, 2); 
         $paginationLinks = $pagination->generateLinks();    // Generate pagination links
         // Pass pagination links to the view
-        $this->view('manager/employeeManagement',['paginationLinks' => $paginationLinks]);
+        $this->view('manager/employeeManagement',['paginationLinks' => $paginationLinks, 'userlist' => $userlist, 'tot' => $offset]);
     }
 
     public function requestApproval(){

@@ -52,7 +52,8 @@ CREATE TABLE `person` (
   `image_url` varchar(255) DEFAULT 'user.png',
   `user_lvl` int(2) NOT NULL DEFAULT 0,
   `pid` int(11) NOT NULL,
-  `reset_code` varchar(20) DEFAULT NULL
+  `reset_code` varchar(20) DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

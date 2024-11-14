@@ -15,6 +15,7 @@ class User {
         'image_url',
         'user_lvl',
         'reset_code',
+        'created_date'
     ];
 
     public $errors = [];

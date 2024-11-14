@@ -12,6 +12,14 @@ trait Model{//similar to a class but can be inherited by other classes
     protected $order_type   = "desc";
     public    $errors       = [];
 
+    public function setOffset($new){
+        return $this->offset = $new;
+    }
+
+    public function getLimit (){
+        return $this->limit;
+    }
+
     public function findAll(){//search rows depending on the data passed
         $query = "
             select * 
@@ -22,6 +30,15 @@ trait Model{//similar to a class but can be inherited by other classes
             ";
         // show($query);
         return $this->query($query);
+    }
+    
+    public function getTotalCount() {
+        $query = "SELECT COUNT(*) as total FROM $this->table";
+        $result = $this->query($query);
+        if ($result) {
+            return $result[0]->total;
+        }
+        return 0;
     }
 
     public function where($data, $data_not = []){//search rows depending on the data passed
