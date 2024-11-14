@@ -50,7 +50,7 @@ class Owner
         ]);
     }
 
-    public function addProperty()
+    private function addProperty()
     {
         $this->view('owner/addProperty', [
             'user' => $_SESSION['user'],
@@ -67,6 +67,12 @@ class Owner
         } else if ($a == 'propertyunit') {
             $this->propertyUnit($b = '', $c = '', $d = '');
             return;
+        } else if ($a == "repairlisting"){
+            $this->repairListing($b = '', $c = '', $d = '');
+            return;
+        } else if ($a == "servicerequest"){
+            $this->serviceRequest($b = '', $c = '', $d = '');
+            return;
         }
         $this->view('owner/propertyListing', [
             'user' => $_SESSION['user'],
@@ -75,7 +81,9 @@ class Owner
         ]);
     }
 
+
     public function propertyUnit($propertyId)
+
     {
 
         $property = new PropertyModel; // Initialize Property instance
@@ -90,7 +98,7 @@ class Owner
         ]);
     }
 
-    public function repairListing()
+    private function repairListing()
     {
         $this->view('owner/repairListing', [
             'user' => $_SESSION['user'],

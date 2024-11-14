@@ -34,6 +34,10 @@ class App
                 $lvl = $_SESSION['user']->user_lvl;
 
                 switch ($lvl) {
+                    case 0:
+                        $this->controller = 'Customer'; // regular user dashboard
+                        // echo "case1";
+                        break;
                     case 1:
                         $this->controller = 'Owner'; // regular user dashboard
                         // echo "case1";
@@ -97,4 +101,5 @@ class App
             require "../app/controller/_404.php";
         }
     }
+    
 }

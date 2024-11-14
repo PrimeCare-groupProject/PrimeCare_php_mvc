@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/forms.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/serviceProvider.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/pagination.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
