@@ -30,8 +30,11 @@ trait Database{
             }
         }
     
+    
         return false;  // No results or query failed
     }
+    
+    
     
 
     public function get_row($query, $data = []){

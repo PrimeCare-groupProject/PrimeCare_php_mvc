@@ -20,11 +20,13 @@ class Signup {
         return substr($username, 0, $length); // Ensure exactly $length characters
     }
 
+
     private function hashPw($password) {
         // Use the bcrypt algorithm (default in password_hash) to hash the password
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
         return $hashedPassword;
     }
+    
 
     public function index() {
         $user = new User; // Initialize User instance

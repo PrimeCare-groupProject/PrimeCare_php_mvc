@@ -31,23 +31,32 @@
 
 th.sortable {
     position: relative;
-    cursor: pointer; /* Change the cursor to indicate it's clickable */
-    padding-right: 25px; /* Add space for the image */
+    cursor: pointer;
+    /* Change the cursor to indicate it's clickable */
+    padding-right: 25px;
+    /* Add space for the image */
 }
 
 th.sortable img {
     position: absolute;
-    right: 5px; /* Aligns the image to the right inside the <th> */
+    right: 5px;
+    /* Aligns the image to the right inside the <th> */
     top: 50%;
-    transform: translateY(-50%); /* Vertically center the image */
-    width: 15px; /* Adjust width based on your image size */
-    height: auto; /* Keeps aspect ratio of the image */
-    opacity: 0.7; /* Slightly reduce opacity */
-    transition: opacity 0.3s ease; /* Smooth hover effect */
+    transform: translateY(-50%);
+    /* Vertically center the image */
+    width: 15px;
+    /* Adjust width based on your image size */
+    height: auto;
+    /* Keeps aspect ratio of the image */
+    opacity: 0.7;
+    /* Slightly reduce opacity */
+    transition: opacity 0.3s ease;
+    /* Smooth hover effect */
 }
 
 th.sortable:hover img {
-    opacity: 1; /* Make image fully visible on hover */
+    opacity: 1;
+    /* Make image fully visible on hover */
 }
 
 
@@ -92,6 +101,87 @@ th.sortable:hover img {
     transition: background-color 0.3s;
 }
 
-.listing-table-for-customer-payments tbody tr td a{
+.listing-table-for-customer-payments tbody tr td a {
     text-decoration: none;
+}
+
+
+/** search */
+.filter-menu-container {
+    width: 97%;
+    background-color: var(--white-color);
+    padding: 10px;
+    border-radius: 10px;
+    margin: 0 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-menu{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+    padding: 5px 10px;
+}
+
+.filter-row-instance{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.filter-menu-btn {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.rotate-up {
+    transform: rotateX(180deg);
+}
+
+select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--dark-grey-color);
+    background-color: var(--light-grey-color);
+    color: var(--dark-grey-color);
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.filter-menu input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--dark-grey-color);
+    background-color: var(--light-grey-color);
+    color: var(--dark-grey-color);
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.hide-items{
+    display: none;
+}
+
+.border-button-for-rent {
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    /* background-color: rgba(var(--red-color-rgb), 0.20); */
+    color: var(--red-color);
+    border: 1px solid var(--red-color);
+    max-width: 100px;
+    min-width: 80px;
 }
