@@ -324,10 +324,11 @@ class Agent{
     }
 
     public function newTask($c,$d){
+
         switch($c){
             case 'concreterepairing1':
                 $_SESSION['repair'] = "Concrete Repairing"; 
-                $_SESSION['repair1'] = "concreterepairing"; 
+                $_SESSION['repair1'] = "concreterepairing";
                 $this->newrepairing($d);
                 break;
             case 'bathroomrepairing1':
@@ -400,7 +401,18 @@ class Agent{
     }
 
     public function newrepairing(){
-        $this->view('agent/newrepairing');
+        // Load the PropertyModel
+        $propertyModel = new Property();
+
+        // Get all properties from the database
+        $properties = $propertyModel->findAll();
+
+        $data = [
+            'properties' => $properties
+        ];
+
+        // Load the view and pass data
+        $this->view('agent/newrepairing', $data);
     }
 
     public function repairing($d){

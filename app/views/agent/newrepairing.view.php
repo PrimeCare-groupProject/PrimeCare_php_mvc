@@ -16,11 +16,10 @@
             <label class="input-label-aligned">
                 <label class="input-label">Property</label>
                 <select class="input-field-small" name="serviceProvider" required>
-                <option value="notassign">Select SP</option>
-                <option value="ag1">Property 1</option>
-                <option value="ag2">Property 2</option>
-                <option value="ag3">Property 3</option>
-                <option value="ag4">Property 4</option>
+                    <option value="notassign">Select SP</option>
+                    <?php foreach ($properties as $property): ?>
+                        <option value="<?= $property->id ?>"><?= $property->name ?></option>
+                    <?php endforeach; ?>
                 </select>
             </label>
             
