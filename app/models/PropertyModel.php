@@ -123,7 +123,7 @@ class PropertyModel {
 
         // Validate rent
         if($data['type'] == 'monthly'){
-            if (empty($data['rent_on_basis']) || !filter_var($data['rent_on_basis'], FILTER_VALIDATE_INT) || $data['rent_on_basis'] < 0) {
+            if (empty($data['rent_on_basis']) || $data['rent_on_basis'] < 0) {
                 $this->errors['rent_on_basis'] = 'Rent is not valid';
             }
         }
