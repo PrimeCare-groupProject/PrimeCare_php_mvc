@@ -28,7 +28,7 @@
         <img src="<?= get_img($user->image_url)?>" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
 
         <!-- User details -->
-        <h2>Mr. Property Owner</h2>
+        <h2><?= $user->fname .' '. $user->lname ?></h2>
         <p class="profile-id">EID - <?= $user->pid ?></p>
     </div>
 
