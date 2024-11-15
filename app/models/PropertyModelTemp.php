@@ -1,11 +1,12 @@
 <?php
 // Property class
-class PropertyModel {
+class PropertyModelTemp {
     use Model;
 
-    protected $table = 'property';
+    protected $table = 'property_temp';
     protected $order_column = "property_id";
     protected $allowedColumns = [
+        'property_id',
         'name',
         'type',
         'description',
@@ -25,7 +26,8 @@ class PropertyModel {
         'furnished',
         'status',
         'person_id',
-        'agent_id'
+        'agent_id',
+        'request_type'
     ];
 
     public $errors = [];
