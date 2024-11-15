@@ -64,7 +64,9 @@ CREATE TABLE property (
   floor_plan TEXT NOT NULL,  -- Description of unit arrangement
   status ENUM('active', 'inactive', 'under maintenance', 'sold', 'pending') NOT NULL DEFAULT 'active', -- Status of the property
   person_id INT(11) NOT NULL,  -- Assuming a foreign key reference to person (optional)
-  FOREIGN KEY (person_id) REFERENCES person(pid) ON DELETE CASCADE
+  agent_id INT(11) NOT NULL DEFAULT 0,
+  FOREIGN KEY (person_id) REFERENCES person(pid) ON DELETE CASCADE,
+  FOREIGN KEY (agent_id) REFERENCES person(pid),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Create the 'property_image' table with a foreign key to 'property' (status removed)
@@ -116,3 +118,41 @@ LEFT JOIN
     property_deed_image pdi ON p.property_id = pdi.property_id
 GROUP BY 
     p.property_id;
+
+
+CREATE TABLE property_temp (
+  property_id INT(11) PRIMARY KEY,
+  name VARCHAR(255),
+  type ENUM('short term', 'monthly', 'service only'),
+  address VARCHAR(255),
+  zipcode VARCHAR(20),
+  city VARCHAR(100),
+  description TEXT ,
+  state_province VARCHAR(100),
+  country VARCHAR(100),
+  year_built INT(4),
+  rent_on_basis DECIMAL(10, 2),
+  units INT(11),
+  size_sqr_ft INT(11),
+  bedrooms INT(2),
+  bathrooms INT(2),
+  parking VARCHAR(3),
+  furnished VARCHAR(3),
+  floor_plan TEXT,
+  status ENUM('active', 'inactive', 'under maintenance', 'sold', 'pending'),
+  request_type ENUM('update' , 'removal' , 'acceptance'),
+  person_id INT(11),
+  agent_id INT(11)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE property_image_temp (
+  image_url VARCHAR(255) PRIMARY KEY,
+  property_id INT(11) NOT NULL,
+  FOREIGN KEY (property_id) REFERENCES property(property_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE property_deed_image_temp (
+  image_url VARCHAR(255) PRIMARY KEY,
+  property_id INT(11) NOT NULL,
+  FOREIGN KEY (property_id) REFERENCES property(property_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
