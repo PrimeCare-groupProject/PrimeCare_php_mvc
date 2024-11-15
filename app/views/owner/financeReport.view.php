@@ -55,17 +55,17 @@
     </div>
 
     <!-- Table -->
-    <table class="financial-table">
+    <table class="listing-table-for-customer-payments">
         <thead>
             <tr>
-                <th>Year</th>
+                <th class='first'>Year</th>
                 <th>Month</th>
                 <th>Tenant</th>
                 <th>Income</th>
                 <th>Expenses</th>
                 <th>Total Income</th>
                 <th>Status</th>
-                <th>Profit Status</th>
+                <th class='last'>Profit Status</th>
             </tr>
         </thead>
         <tbody>
@@ -121,7 +121,7 @@
         const monthValue = document.getElementById('month-filter').value.toLowerCase();
         const tenantValue = document.getElementById('tenant-filter').value.toLowerCase();
 
-        const rows = document.querySelectorAll('.financial-table tbody tr');
+        const rows = document.querySelectorAll('.flisting-table-for-customer-payments tbody tr');
 
         rows.forEach(row => {
             const year = row.querySelector('td:nth-child(1)').textContent;

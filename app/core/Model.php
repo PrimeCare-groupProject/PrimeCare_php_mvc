@@ -4,8 +4,8 @@ defined('ROOTPATH') or exit('Access denied');
 trait Model{//similar to a class but can be inherited by other classes
     use Database;
 
-    // protected $table = 'users'; //table name which can inherit
-    // protected $order_column = "id";
+    // public $table = 'users'; //table name which can inherit
+    // public $order_column = "id";
     
     protected $limit        = 10;
     protected $offset       = 0;
@@ -14,6 +14,29 @@ trait Model{//similar to a class but can be inherited by other classes
 
     public function setOffset($new){
         return $this->offset = $new;
+    }
+    public function setLimit($limit) {
+        $this->limit = $limit;
+    }
+
+    public function getOffset() {
+        return $this->offset;
+    }
+
+    public function setOrderType($order_type) {
+        $this->order_type = $order_type;
+    }
+
+    public function getOrderType() {
+        return $this->order_type;
+    }
+
+    public function setErrors($errors) {
+        $this->errors = $errors;
+    }
+
+    public function getErrors() {
+        return $this->errors;
     }
 
     public function getLimit (){

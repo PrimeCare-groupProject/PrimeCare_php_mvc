@@ -1,5 +1,6 @@
 <?php require_once 'managerHeader.view.php'; ?>
 
+
 <div class="user_view-menu-bar">
     <a href='<?= ROOT ?>/dashboard/managementhome'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
@@ -12,52 +13,60 @@
         </div>
     </div>
 </div>
+<div class="content_wrapper">
 
-<div class="financial-details-container">
-    <table class="listing-table-for-customer-payments">
-        <thead>
-            <tr>
-                <th class="extra-space sortable" id="date-header">
-                    Created Date
-                    <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
-                </th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th class="sortable" id="earnings-header">
-                    User Type
-                    <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
-                </th>
-                <th>Image</th>
-                <th hidden>Reset code</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php 
-    
-    if(isset($userlist) && sizeof($userlist) > 0){
-        foreach ($userlist as $user) {
-            echo "<tr>";
-            echo "<td>" . ($user->created_date ?? "-") .$tot. "</td>";
-            echo "<td>{$user->pid}</td>";
-            echo "<td>{$user->fname} {$user->lname}</td>";
-            echo "<td>{$user->email}</td>";
-            echo "<td>{$user->user_lvl}</td>";
-            echo "<td ><img class='header-profile-picture' style='margin:0px' src=".get_img($user->image_url)."></td>";
-            echo "<td hidden>{$user->reset_code}</td>";
-            echo "</tr>";
-        }
-    }
+    <div class="financial-details-container">
+        <table class="listing-table-for-customer-payments">
+            <thead>
+                <tr>
+                    <th class="extra-space sortable first" id="date-header">
+                        Created Date
+                        <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
+                    </th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="sortable" id="earnings-header">
+                        User Type
+                        <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
+                    </th>
+                    <th class="last">Image</th>
+                    <th hidden>Reset code</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php 
         
+                    if(isset($userlist) && count($userlist) > 0){
+                        foreach ($userlist as $user) {
+                            echo "<tr>";
+                            echo "<td class='first'>" . ($user->created_date ?? "-") .$tot. "</td>";
+                            echo "<td>{$user->pid}</td>";
+                            echo "<td>{$user->fname} {$user->lname}</td>";
+                            echo "<td>{$user->email}</td>";
+                            echo "<td>{$user->user_lvl}</td>";
+                            echo "<td class='last' ><img class='header-profile-picture' style='margin:0px' src=".get_img($user->image_url)."></td>";
+                            echo "<td hidden>{$user->reset_code}</td>";
+                            echo "</tr>";
+                        }
+                    }else{
+                        echo "<tr>";
+                        echo "<td class='first'> ---</td>";
+                        echo "<td> ---</td>";
+                        echo "<td> --- </td>";
+                        echo "<td> --- </td>";
+                        echo "<td> --- </td>";
+                        echo "<td class='last' > --- </td>";
+                        echo "<td hidden> --- </td>";
+                        echo "</tr>";
+                    }
+                ?>
+                <!-- Additional rows here -->
+            </tbody>
+        </table>
+    </div>
+    <?php # show($userlist); ?>
 
-?>
-            <!-- Additional rows here -->
-        </tbody>
-    </table>
-</div>
-<?php # show($userlist); ?>
-
-<div class="pagination_conytainer">
     <div class="pagination">
             <!-- Render the pagination links -->
             <?php echo $paginationLinks; ?>

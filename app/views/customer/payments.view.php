@@ -8,7 +8,7 @@
     <table class="listing-table-for-customer-payments">
         <thead>
             <tr>
-                <th class="extra-space sortable" id="date-header">
+                <th class="extra-space sortable first" id="date-header">
                     Date
                     <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                 </th>
@@ -20,7 +20,7 @@
                     <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                 </th>
                 <th>Payment Status</th>
-                <th>Receipt</th>
+                <th class='last'>Receipt</th>
             </tr>
         </thead>
         <tbody>
