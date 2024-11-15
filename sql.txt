@@ -79,3 +79,38 @@ CREATE TABLE property_deed_image (
   property_id INT(11) NOT NULL,
   FOREIGN KEY (property_id) REFERENCES property(property_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE VIEW property_with_images AS
+SELECT 
+    p.property_id,
+    p.name,
+    p.type,
+    p.address,
+    p.zipcode,
+    p.city,
+    p.state_province,
+    p.country,
+    p.year_built,
+    p.rent_on_basis,
+    p.units,
+    p.size_sqr_ft,
+    p.bedrooms,
+    p.bathrooms,
+    p.parking,
+    p.furnished,
+    p.floor_plan,
+    p.status,
+    p.person_id,
+    -- Group property images into a comma-separated string
+    GROUP_CONCAT(DISTINCT pi.image_url ORDER BY pi.image_url ASC) AS property_images,
+    -- Group property deed images into a comma-separated string
+    GROUP_CONCAT(DISTINCT pdi.image_url ORDER BY pdi.image_url ASC) AS property_deed_images
+FROM 
+    property p
+LEFT JOIN 
+    property_image pi ON p.property_id = pi.property_id
+LEFT JOIN 
+    property_deed_image pdi ON p.property_id = pdi.property_id
+GROUP BY 
+    p.property_id;
