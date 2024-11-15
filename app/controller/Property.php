@@ -87,8 +87,82 @@ class Property
         redirect('dashboard/propertyListing');
     }
 
+    // update
+    public function update($propertyId)
+    {
+        $property = new PropertyModel;
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Validate the form data
+            if (!$property->validateProperty($_POST)) {
+                $this->view('owner/editProperty', ['property' => $property]);
+                return;
+            }
+
+            // Prepare property data for update
+            $arr = [
+                'property_id' => $propertyId,
+                'name' => $_POST['name'],
+                'type' => $_POST['type'],
+                'description' => $_POST['description'],
+                'address' => $_POST['address'],
+                'zipcode' => $_POST['zipcode'],
+                'city' => $_POST['city'],
+                'state_province' => $_POST['state_province'],
+                'country' => $_POST['country'],
+                'year_built' => $_POST['year_built'],
+                'rent_on_basis' => $_POST['rent_on_basis'] ?? 0,
+                'units' => $_POST['units'] ?? 0,
+                'size_sqr_ft' => $_POST['size_sqr_ft'],
+                'bedrooms' => $_POST['bedrooms'] ?? 0,
+                'bathrooms' => $_POST['bathrooms'] ?? 0,
+                'floor_plan' => $_POST['floor_plan'],
+                'parking' => $_POST['parking'] ?? 'no',
+                'furnished' => $_POST['furnished'] ?? 'no',
+                'status' => $_POST['status'] ?? 'pending',
+                'person_id' => $_SESSION['user']->pid
+            ];
+
+            // Update property data in the database
+            $res = $property->update($propertyId, $arr , 'property_id');
+
+            if ($res) {
+                $mediaErrors = [];
+
+                if (!empty($_FILES['property_images']['name'][0])) {
+                    $this->deletePropertyImage($propertyId); // Remove old images
+                    $imageErrors = $this->uploadPropertyImages($propertyId);
+                    $mediaErrors = array_merge($mediaErrors, $imageErrors);
+                }
+
+                if (!empty($_FILES['property_documents']['name'][0])) {
+                    $this->deletePropertyDocument($propertyId); // Remove old documents
+                    $documentErrors = $this->uploadPropertyDocuments($propertyId);
+                    $mediaErrors = array_merge($mediaErrors, $documentErrors);
+                }
+
+                // Handle errors
+                if (!empty($mediaErrors)) {
+                    $property->errors['media'] = $mediaErrors;
+                    $this->view('owner/updateProperty', ['property' => $property]);
+                    return;
+                }
+
+                redirect('dashboard/propertylisting/propertyunit/' . $propertyId);
+                //$this->view('owner/propertyUnit', ['property' => $property]);
+            } else {
+                $property->errors['update'] = 'Failed to update Property. Please try again.';
+                $this->view('owner/updateProperty', ['property' => $property]);
+            }
+        } else {
+            $property = $property->where(['property_id' => $propertyId])[0];
+            $this->view('owner/updateProperty', ['property' => $property]);
+        }
+    }
+
     // retrieve for the all the users
-    public function propertyLisingToAllUsers(){
+    public function propertyLisingToAllUsers()
+    {
         $property = new PropertyConcat;
         $properties = $property->where(['status' => 'pending']);
 
@@ -146,19 +220,20 @@ class Property
         $propertyImage = new PropertyImageModel();
         // Fetch all images associated with the property
         $images = $propertyImage->where($propertyId);
-    
+
         foreach ($images as $image) {
             $imagePath = ROOTPATH . "public/assets/images/uploads/property_images/" . $image['image_url'];
-    
+
             // Check if the file exists before attempting to delete
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
         }
     }
-    
+
     // retrieve 
-    public function getPropertyImages($propertyId){
+    public function getPropertyImages($propertyId)
+    {
         $propertyImage = new PropertyImageModel;
         $propertyImages = $propertyImage->where(['property_id' => $propertyId]);
         return $propertyImages;
@@ -206,7 +281,7 @@ class Property
         // Fetch all documents associated with the property
         $docs = $propertyDoc->where(['property_id' => $propertyId]);
         $docPath = ROOTPATH . "public/assets/documents/property_docs/" . $docs[0]['image_url'];
-        if(file_exists($docPath)) {
+        if (file_exists($docPath)) {
             unlink($docPath);
         }
     }
