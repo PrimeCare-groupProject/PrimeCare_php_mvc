@@ -36,8 +36,6 @@ class Customer
     {
         $user = new User();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            echo "<h1> hello world </h1>";
-
             if (isset($_POST['delete_account'])) {
                 $errors = [];
                 $status = '';
