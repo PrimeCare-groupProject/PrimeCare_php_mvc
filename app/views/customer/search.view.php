@@ -67,35 +67,32 @@
 
 <div class="listing-the-property">
     <!-- Property Listings -->
-    <?php $properties = [1, 2, 3, 4, 5] ?>
     <div class="property-listing-grid">
         <?php foreach ($properties as $property): ?>
             <div class="property-card">
                 <div class="property-image">
-                    <a href="<?= ROOT ?>/dashboard/propertyunit"><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Oceanview Retreat 2"></a>
+                    <a href="<?= ROOT ?>/dashboard/propertyunit/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $property->property_images[0] ?>" alt=""></a>
                 </div>
                 <div class="property-details">
                     <div class="profile-details-items">
                         <div>
-                            <h3>Oceanview Retreat 2</h3>
+                            <h3><?= $property->name ?></h3>
                             <div class="property-info">
-                                <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /> 4 Unit</span>
-                                <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /> 20 Rooms</span>
+                                <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /> <?= $property->units ?> Unit</span>
+                                <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /><?= $property->bedrooms ?> Rooms</span>
                             </div>
                         </div>
                         <div>
                             <div class="property-status">
-                                <span class="border-button-for-rent">RS. 20000</span>
+                                <span class="border-button-for-rent">RS.<?= $property->rent_on_basis ?></span>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <p class="property-description"><img src="<?= ROOT ?>/assets/images/location.png" class="property-info-img" /> No 365, lane name, lane name 2, city name</p>
+                        <p class="property-description"><img src="<?= ROOT ?>/assets/images/location.png" class="property-info-img" /><?= $property->address ?></p>
                     </div>
                     <div>
-                        <p class="property-description">
-                        Welcome to Oceanview Retreat, an exquisite beachfront property located in the vibrant city of Miami, Florida. Situated along the pristine shores of the Atlantic Ocean...
-                        </p>
+                        <p class="property-description"><?= $property->description ?></p>
                     </div>
                 </div>
             </div>
