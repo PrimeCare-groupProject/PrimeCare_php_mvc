@@ -90,11 +90,19 @@ class Property
     // retrieve for the all the users
     public function propertyLisingToAllUsers(){
         $property = new PropertyConcat;
-        $properties = $property->where(['status' => 'approved']);
+        $properties = $property->where(['status' => 'pending']);
 
         $this->view('customer/search', ['properties' => $properties]);
     }
 
+    public function propertyUnit($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        //show($propertyUnit);
+
+        $this->view('customer/propertyUnit', ['property' => $propertyUnit]);
+    }
 
     // property images --------------------------------------------------------------------------------------------------------------------
     // create
