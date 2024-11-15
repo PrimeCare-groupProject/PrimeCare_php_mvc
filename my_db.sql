@@ -54,6 +54,7 @@ CREATE TABLE `person` (
   `pid` int(11) NOT NULL,
   `reset_code` varchar(20) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp()
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -197,6 +198,34 @@ ALTER TABLE `booking`
 ALTER TABLE `person`
   ADD PRIMARY KEY (`pid`);
 >>>>>>> dev
+
+--
+-- Indexes for table `property`
+--
+ALTER TABLE `property`
+  ADD PRIMARY KEY (`property_id`),
+  ADD KEY `person_id` (`person_id`);
+
+--
+-- Indexes for table `property_deed_image`
+--
+ALTER TABLE `property_deed_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `property_image`
+--
+ALTER TABLE `property_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `service_provider_id` (`service_provider_id`);
 
 --
 -- Indexes for table `property`
