@@ -178,15 +178,11 @@ INSERT INTO `services` (`service_id`, `service_type`, `date`, `property_id`, `pr
 (4, 'Door lock Repair', '2023-10-18', 4, 'Downtown Condo', 95.00, 2, 'Done', 76, 'AC unit repair and maintenance'),
 (5, 'Pool Maintenance', '2023-10-19', 5, 'Lakeside House', 65.00, 3, 'Ongoing', 61, 'Weekly pool cleaning and chemical balance check');
 
-
 --
 -- Indexes for dumped tables
 --
 
 --
-<<<<<<< agent-crud
-
-=======
 -- Indexes for table `booking`
 --
 ALTER TABLE `booking`
@@ -201,6 +197,34 @@ ALTER TABLE `booking`
 ALTER TABLE `person`
   ADD PRIMARY KEY (`pid`);
 >>>>>>> dev
+
+--
+-- Indexes for table `property`
+--
+ALTER TABLE `property`
+  ADD PRIMARY KEY (`property_id`),
+  ADD KEY `person_id` (`person_id`);
+
+--
+-- Indexes for table `property_deed_image`
+--
+ALTER TABLE `property_deed_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `property_image`
+--
+ALTER TABLE `property_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `service_provider_id` (`service_provider_id`);
 
 --
 -- Indexes for table `property`
@@ -325,15 +349,4 @@ INSERT INTO `services` (`service_type`, `date`, `property_id`, `property_name`, 
 ('Door lock Repair', '2023-10-18', 4, 'Downtown Condo', 95.00, 2, 'Done', 76, 'AC unit repair and maintenance'),
 ('Pool Maintenance', '2023-10-19', 5, 'Lakeside House', 65.00, 3, 'Ongoing', 61, 'Weekly pool cleaning and chemical balance check');
 
-'serpro_id',
-        'first_name',
-        'last_name', 
-        'date_of_birth',
-        'gender',
-        'contact_number1',
-        'contact_number2',
-        'email',
-        'bank_account_No',
-        'address',
-        'marital_status',
-        'NIC_no.'
+
