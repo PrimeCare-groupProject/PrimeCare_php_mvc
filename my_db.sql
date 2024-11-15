@@ -54,7 +54,6 @@ CREATE TABLE `person` (
   `pid` int(11) NOT NULL,
   `reset_code` varchar(20) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp()
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
