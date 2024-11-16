@@ -1,7 +1,7 @@
 <?php require_once 'ownerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/propertylisting'>
+    <a href='<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>'>
         <img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons">
     </a>
     <h2>Update details on <span style="color: var(--green-color);"><?= $property->name ?><span></h2>
