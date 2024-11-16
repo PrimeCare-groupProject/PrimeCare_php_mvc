@@ -59,13 +59,13 @@ class Property
                 }
 
                 // Redirect on success
-                redirect('dashboard/propertyListing');
+                redirect('property/propertyListing');
             } else {
                 $property->errors['insert'] = 'Failed to add Property. Please try again.';
-                $this->view('owner/addProperty', ['property' => $property]);
+                $this->view('property/propertyListing', ['property' => $property]);
             }
         } else {
-            $this->view('owner/propertyListing', ['property' => $property]);
+            $this->view('property/propertyListing', ['property' => $property]);
         }
     }
 
@@ -81,10 +81,10 @@ class Property
         $this->deletePropertyDocument($propertyId);
 
         // Delete the property
-        $property->delete($propertyId);
+        $property->delete($propertyId , 'property_id');
 
         // Redirect to the property listing page
-        redirect('dashboard/propertyListing');
+        redirect('property/propertyListing');
     }
 
     // update
@@ -148,7 +148,7 @@ class Property
                     return;
                 }
 
-                redirect('dashboard/propertylisting/propertyunit/' . $propertyId);
+                redirect('property/propertyUnitOwner/' . $propertyId);
                 //$this->view('owner/propertyUnit', ['property' => $property]);
             } else {
                 $property->errors['update'] = 'Failed to update Property. Please try again.';
@@ -244,6 +244,24 @@ class Property
         $this->view('customer/propertyUnit', ['property' => $propertyUnit]);
     }
 
+    // retrieve for the owner
+    public function propertyListing()
+    {
+        $property = new PropertyConcat;
+        $properties = $property->where(['person_id' => $_SESSION['user']->pid]);
+
+        $this->view('owner/propertyListing', ['properties' => $properties]);
+    }
+
+    public function propertyUnitOwner($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        //show($propertyUnit);
+
+        $this->view('owner/propertyUnit', ['property' => $propertyUnit]);
+    }
+
     // property images --------------------------------------------------------------------------------------------------------------------
     // create
     public function uploadPropertyImages($propertyId)
@@ -317,13 +335,13 @@ class Property
     // delete
     public function deletePropertyImage($propertyId)
     {
-        $propertyImage = new PropertyImageModel();
+        $propertyImage = new PropertyImageModel;
         // Fetch all images associated with the property
-        $images = $propertyImage->where($propertyId);
-
+        $images = $propertyImage->where(['property_id' =>$propertyId]);
+        show($images);
         foreach ($images as $image) {
-            $imagePath = ROOTPATH . "public/assets/images/uploads/property_images/" . $image['image_url'];
-
+            $imagePath = ROOTPATH . "public/assets/images/uploads/property_images/" . $image->image_url;
+            show($imagePath);
             // Check if the file exists before attempting to delete
             if (file_exists($imagePath)) {
                 unlink($imagePath);
@@ -410,10 +428,11 @@ class Property
     // delete
     public function deletePropertyDocument($propertyId)
     {
-        $propertyDoc = new PropertyDocModel();
+        $propertyDoc = new PropertyDocModel;
         // Fetch all documents associated with the property
-        $docs = $propertyDoc->where(['property_id' => $propertyId]);
-        $docPath = ROOTPATH . "public/assets/documents/property_docs/" . $docs[0]['image_url'];
+        $docs = $propertyDoc->where(['property_id' => $propertyId])[0];
+        $docPath = ROOTPATH . "public/assets/documents/property_docs/" . $docs->image_url;
+        show($docPath);
         if (file_exists($docPath)) {
             unlink($docPath);
         }
