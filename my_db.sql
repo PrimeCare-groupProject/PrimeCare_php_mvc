@@ -146,6 +146,10 @@ INSERT INTO `property_image` (`image_url`, `property_id`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Indexes for table `person`
+--
+    ALTER TABLE `person`
+    ADD PRIMARY KEY (`pid`);
 -- Table structure for table `services`
 --
 
@@ -193,6 +197,90 @@ ALTER TABLE `booking`
 ALTER TABLE `person`
   ADD PRIMARY KEY (`pid`);
 
+
+-- Indexes for table `property`
+--
+ALTER TABLE `property`
+  ADD PRIMARY KEY (`property_id`),
+  ADD KEY `person_id` (`person_id`);
+
+--
+-- Indexes for table `property_deed_image`
+--
+ALTER TABLE `property_deed_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `property_image`
+--
+ALTER TABLE `property_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `service_provider_id` (`service_provider_id`);
+
+--
+-- Indexes for table `property`
+--
+ALTER TABLE `property`
+  ADD PRIMARY KEY (`property_id`),
+  ADD KEY `person_id` (`person_id`);
+
+--
+-- Indexes for table `property_deed_image`
+--
+ALTER TABLE `property_deed_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `property_image`
+--
+ALTER TABLE `property_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `service_provider_id` (`service_provider_id`);
+
+--
+-- Indexes for table `property`
+--
+ALTER TABLE `property`
+  ADD PRIMARY KEY (`property_id`),
+  ADD KEY `person_id` (`person_id`);
+
+--
+-- Indexes for table `property_deed_image`
+--
+ALTER TABLE `property_deed_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `property_image`
+--
+ALTER TABLE `property_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `service_provider_id` (`service_provider_id`);
+
 --
 -- Indexes for table `property`
 --
@@ -223,19 +311,18 @@ ALTER TABLE `services`
 
 --
 -- AUTO_INCREMENT for dumped tables
---
-
---
+----
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
   MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT;
+  
 
 --
 -- AUTO_INCREMENT for table `person`
 --
 ALTER TABLE `person`
-  MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT for table `property`
@@ -289,3 +376,31 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- Table structure for table `serpro`
+--
+
+CREATE TABLE `serpro` (
+  `serpro_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `date_of_birth` DATE NOT NULL,
+  `gender` varchar(255) NOT NULL,
+  `contact_no1` int(10) NOT NULL,
+  `contact_no2` int(10) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `bank_account_no` int(100) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `marital_status` varchar(255) NOT NULL,
+  `NIC-no` int(12),
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Sample data for services table
+INSERT INTO `services` (`service_type`, `date`, `property_id`, `property_name`, `cost_per_hour`, `total_hours`, `status`, `service_provider_id`, `service_description`) VALUES
+('Plumbing Repair', '2023-10-15', 1, 'Seaside Villa', 75.00, 3, 'Done', 61, 'Fixed leaking pipe in master bathroom'),
+('Electrical Maintenance', '2023-10-16', 2, 'Mountain View Apartment', 85.00, 4, 'Ongoing', 61, 'Rewiring living room and kitchen'),
+('Gardening', '2023-10-17', 3, 'Sunset Manor', 45.00, 5, 'Pending', 76, 'Monthly garden maintenance and lawn mowing'),
+('Door lock Repair', '2023-10-18', 4, 'Downtown Condo', 95.00, 2, 'Done', 76, 'AC unit repair and maintenance'),
+('Pool Maintenance', '2023-10-19', 5, 'Lakeside House', 65.00, 3, 'Ongoing', 61, 'Weekly pool cleaning and chemical balance check');
+
+

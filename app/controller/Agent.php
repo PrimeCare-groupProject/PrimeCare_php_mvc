@@ -253,8 +253,188 @@ class Agent{
         $this->view('agent/requestedTasks', $data);
     }
 
-    public function taskManagemnt(){
-        $this->view('agent/taskManagement');
+    public function tasks($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'ongoingtask':
+                $this->ongoingTask($c, $d);
+                break;
+            case 'newtask':
+                $this->newTask($c, $d);
+                break;
+            case 'inventorymanagement':
+                $this->inventoryManagement($c, $d);
+                break;
+            default:
+                $this->view('agent/tasks');
+                break;
+        }
+    }
+
+    public function ongoingTask($c,$d){
+        switch($c){
+            case 'concreterepairing':
+                $_SESSION['repair'] = "Concrete Repairing"; 
+                $_SESSION['repair1'] = "concreterepairing"; 
+                $this->repairing($d);
+                break;
+            case 'bathroomrepairing':
+                $_SESSION['repair'] = "Bathroom Repairing"; 
+                $_SESSION['repair1'] = "bathroomrepairing"; 
+                $this->repairing($d);
+                break;
+            case 'deckrepairing':
+                $_SESSION['repair'] = "Deck Repairing"; 
+                $_SESSION['repair1'] = "deckrepairing"; 
+                $this->repairing($d);
+                break;
+            case 'doorrepairing':
+                $_SESSION['repair'] = "Door Repairing"; 
+                $_SESSION['repair1'] = "doorrepairing"; 
+                $this->repairing($d);
+                break;
+            case 'electricalrepairing':
+                $_SESSION['repair'] = "Electrical Repairing";
+                $_SESSION['repair1'] = "electricalrepairing";  
+                $this->repairing($d);
+                break;
+            case 'furniturerepairing':
+                $_SESSION['repair'] = "Furniture Repairing";
+                $_SESSION['repair1'] = "furniturerepairing";  
+                $this->repairing($d);
+                break;
+            case 'painting':
+                $_SESSION['repair'] = "Painting"; 
+                $_SESSION['repair1'] = "painting"; 
+                $this->repairing($d);
+                break;
+            case 'plumbing':
+                $_SESSION['repair'] = "Plumbing"; 
+                $_SESSION['repair1'] = "plumbing"; 
+                $this->repairing($d);
+                break;
+            case 'roofrepairing':
+                $_SESSION['repair'] = "Roof Repairing";
+                $_SESSION['repair1'] = "roofrepairing";  
+                $this->repairing($d);
+                break;
+            default:
+            $this->view('agent/ongoingtask');
+                break;
+        }
+    }
+
+    public function newTask($c,$d){
+
+        switch($c){
+            case 'concreterepairing1':
+                $_SESSION['repair'] = "Concrete Repairing"; 
+                $_SESSION['repair1'] = "concreterepairing";
+                $this->newrepairing($d);
+                break;
+            case 'bathroomrepairing1':
+                $_SESSION['repair'] = "Bathroom Repairing"; 
+                $_SESSION['repair1'] = "bathroomrepairing"; 
+                $this->newrepairing($d);
+                break;
+            case 'deckrepairing1':
+                $_SESSION['repair'] = "Deck Repairing"; 
+                $_SESSION['repair1'] = "deckrepairing"; 
+                $this->newrepairing($d);
+                break;
+            case 'doorrepairing1':
+                $_SESSION['repair'] = "Door Repairing"; 
+                $_SESSION['repair1'] = "doorrepairing"; 
+                $this->newrepairing($d);
+                break;
+            case 'electricalrepairing1':
+                $_SESSION['repair'] = "Electrical Repairing";
+                $_SESSION['repair1'] = "electricalrepairing";  
+                $this->newrepairing($d);
+                break;
+            case 'furniturerepairing1':
+                $_SESSION['repair'] = "Furniture Repairing";
+                $_SESSION['repair1'] = "furniturerepairing";  
+                $this->newrepairing($d);
+                break;
+            case 'painting1':
+                $_SESSION['repair'] = "Painting"; 
+                $_SESSION['repair1'] = "painting"; 
+                $this->newrepairing($d);
+                break;
+            case 'plumbing1':
+                $_SESSION['repair'] = "Plumbing"; 
+                $_SESSION['repair1'] = "plumbing"; 
+                $this->newrepairing($d);
+                break;
+            case 'roofrepairing1':
+                $_SESSION['repair'] = "Roof Repairing";
+                $_SESSION['repair1'] = "roofrepairing";  
+                $this->newrepairing($d);
+                break;
+            default:
+            $this->view('agent/newtask');
+                break;
+        }
+    }
+
+    public function inventoryManagement($c,$d){
+        switch($c){
+            case 'pastinventory': 
+                $this->pastinventory();
+                break;
+            case 'newinventory': 
+                $this->newinventory();
+                break;
+            default:
+            $this->view('agent/inventoryManagement');
+                break;
+        }
+        
+    }
+
+    public function pastinventory(){
+        $this->view('agent/pastinventory');
+    }
+
+    public function newinventory(){
+        $this->view('agent/newinventory');
+    }
+
+    public function newrepairing(){
+        // Load the PropertyModel
+        $propertyModel = new Property();
+
+        // Get all properties from the database
+        $properties = $propertyModel->findAll();
+
+        $data = [
+            'properties' => $properties
+        ];
+
+        // Load the view and pass data
+        $this->view('agent/newrepairing', $data);
+    }
+
+    public function repairing($d){
+        switch($d){
+            case 'taskremoval': 
+                $this->taskremoval();
+                break;
+            case 'spreassign': 
+                $this->spreassign();
+                break;
+            default:
+            $this->view('agent/repairing');
+                break;
+        }
+    }
+
+    public function taskRemoval(){
+        $this->view('agent/taskremoval');
+    }
+
+    public function spreassign(){
+        $this->view('agent/spreassign');
     }
 
     public function manageBookings(){
@@ -265,8 +445,70 @@ class Agent{
         $this->view('agent/problems');
     }
 
+    public function services($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'serviceproviders':
+                $this->serviceProviders($c, $d);
+                break;
+            case 'payments':
+                $this->payments($c, $d);
+                break;
+            default:
+                $this->view('agent/services');
+                break;
+        }
+    }
+
+    public function serviceProviders($c,$d){
+        switch($c){
+            case 'addserviceprovider':
+                $this->addServiceProvider($c, $d);
+                break;
+            case 'removeserviceprovider':
+                $this->removeserviceprovider($c, $d);
+                break;
+            default:
+                $this->view('agent/serviceproviders');
+                break;
+            }
+    }
+
     public function payments(){
         $this->view('agent/payments');
+    }
+
+    public function addserviceprovider(){
+        $this->view('agent/addserviceprovider');
+    }
+
+    public function removeserviceprovider($c,$d){
+        switch($d){
+            case 'spremove':
+                $this->spremove($c, $d);
+                break;
+            default:
+                $this->view('agent/removeserviceprovider');
+                break;
+            }
+    }
+
+    public function spremove(){
+        $this->view('agent/spremove');
+    }
+
+    public function bookings($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'bookingaccept':
+                $this->bookingAccept($c, $d);
+                break;
+            default:
+                $this->view('agent/booking');
+                break;
+        }
+    }
+
+    public function bookingAccept(){
+        $this->view('agent/bookingaccept');
     }
 
     private function logout(){
