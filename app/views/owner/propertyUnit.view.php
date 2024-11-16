@@ -3,9 +3,9 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/dashboard/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/property/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
-                <h2>Name of Property</h2>
+                <h2><?= $property->name ?></h2>
                 <p><span>Maintained By: </span>Agent's Name</p>
             </div>
         </div>
@@ -27,77 +27,74 @@
     <div class="left-container-of-property-unit">
         <div class="slider">
             <div class="slides">
-
-            
-                <div class="slide">
-                    <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 1">
+                <?php $images = explode(',', $property->property_images) ?>
+                <div class="slides">
+                    <?php foreach ($images as $index => $image): ?>
+                        <div class="slide">
+                            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Slide 1">
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
-                <!-- <div class="slide">
-                    <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 2">
-                </div>
 
-                <div class="slide">
-                    <img src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Slide 3">
-                </div> -->
+                <button class="prev" onclick="prevSlide()">&#10094;</button>
+                <button class="next" onclick="nextSlide()">&#10095;</button>
             </div>
 
 
-            <button class="prev" onclick="prevSlide()">&#10094;</button>
-            <button class="next" onclick="nextSlide()">&#10095;</button>
         </div>
-
-
         <div class="reviews-section">
             <label class="bolder-text">Reviews</label>
             <?php for ($i = 0; $i < 3; $i++): ?>
                 <?php require __DIR__ . '/../components/reviewfiled1.php'; ?>
             <?php endfor; ?>
         </div>
+        
+        
+        
     </div>
-
 
     <div class="property-details-section">
         <label class="bolder-text">Description</label>
         <p class="input-field-small more-padding">
-            Welcome to Oceanview Retreat, an exquisite beachfront property located in the vibrant city of Miami, Florida. Situated along the pristine shores of the Atlantic Ocean, this luxurious estate offers a truly unparalleled coastal living experience. With breathtaking panoramic views of the ocean and direct access to a private white sandy beach, Oceanview Retreat is a haven for relaxation and rejuvenation. Immerse yourself in the soothing sounds of the waves and indulge in the serenity of the surroundings.
+            <?= $property->description ?>
         </p>
 
         <label class="bolder-text">Property Information</label>
 
         <div class="input-group">
-            <span class="input-label-small">Name:</span><span class="input-field-small">Own Property</span>
+            <span class="input-label-small">Name:</span><span class="input-field-small"><?= $property->name ?></span>
         </div>
 
         <div class="input-group">
-            <span class="input-label-small">Type:</span><span class="input-field-small">Oceanview Retreat</span>
+            <span class="input-label-small">Type:</span><span class="input-field-small"><?= $property->type ?></span>
         </div>
 
         <div class="input-group">
-            <span class="input-label-small">Address:</span><span class="input-field-small">Oceanview Retreat , Colombo , Sri lanka</span>
+            <span class="input-label-small">Address:</span><span class="input-field-small"><?= $property->address ?></span>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small">Zip Code:</span><span class="input-field-small">80140</span>
+                <span class="input-label-small">Zip Code:</span><span class="input-field-small"><?= $property->zipcode ?></span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">City:</span><span class="input-field-small">Colombo</span>
-            </div>
-        </div>
-
-        <div class="input-group">
-            <div class="input-group">
-                <span class="input-label-small">State/Province:</span><span class="input-field-small">Western</span>
-            </div>
-            <div class="input-group">
-                <span class="input-label-small">Country:</span><span class="input-field-small">Sri Lanka</span>
+                <span class="input-label-small">City:</span><span class="input-field-small"><?= $property->city ?></span>
             </div>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small">Year Built:</span><span class="input-field-small">2015</span>
+                <span class="input-label-small">State/Province:</span><span class="input-field-small"><?= $property->state_province ?></span>
+            </div>
+            <div class="input-group">
+                <span class="input-label-small">Country:</span><span class="input-field-small"><?= $property->country ?></span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="input-group">
+                <span class="input-label-small">Year Built:</span><span class="input-field-small"><?= $property->year_built ?></span>
             </div>
             <div class="input-group">
                 <span class="input-label-small">Monthly Rent:</span><span class="input-field-small">LKR 20000</span>
@@ -109,37 +106,31 @@
                 <span class="input-label-small">Units:</span><span class="input-field-small">4</span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">Size(square feet):</span><span class="input-field-small">1000</span>
+                <span class="input-label-small">Size(square feet):</span><span class="input-field-small">LKR <?= $property->rent_on_basis ?></span>
             </div>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small">Bedrooms:</span><span class="input-field-small">4</span>
+                <span class="input-label-small">Bedrooms:</span><span class="input-field-small"><?= $property->bedrooms ?></span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">Bathrooms:</span><span class="input-field-small">2</span>
+                <span class="input-label-small">Bathrooms:</span><span class="input-field-small"><?= $property->bathrooms ?></span>
             </div>
         </div>
 
         <span class="input-label-small">Floor Plan:</span>
-        <p class="input-field-small more-padding">
-            Welcome to Oceanview Retreat, an exquisite beachfront property located in the vibrant city of Miami, Florida. Situated along the pristine shores of the Atlantic Ocean, this luxurious estate offers a truly unparalleled coastal living experience.
-        </p>
+        <p class="input-field-small more-padding"><?= $property->floor_plan ?></p>
 
         <div class="flex-buttons-space-between">
-            <button class="secondary-btn">Edit Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/updateProperty/<?= $property->property_id ?>'">Edit Property</button>
             <!--Should be fixed later when property table done-->
-            <button class="secondary-btn" onclick="window.location.href='<?=ROOT?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
-            <button class="secondary-btn">Remove Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/delete/<?= $property->property_id ?>'">Remove Property</button>
         </div>
 
     </div>
-
-</div>
-
-
-
+    
 </div>
 
 

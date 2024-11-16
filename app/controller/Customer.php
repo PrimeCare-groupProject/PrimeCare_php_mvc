@@ -23,13 +23,13 @@ class Customer
         ]);
     }
 
-    public function propertyUnit()
+    public function propertyUnit($propertyId)
     {
-        $this->view('customer/propertyUnit', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
-        ]);
+        // $property = new PropertyConcat;
+        // $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        // //show($propertyUnit);
+
+        // $this->view('customer/propertyUnit', ['property' => $propertyUnit]);
     }
 
     public function profile()
@@ -190,7 +190,9 @@ class Customer
 
     public function search()
     {
-        $this->view('customer/search');
+        $property = new PropertyConcat;
+        $properties = $property->where(['status' => 'pending']);
+        $this->view('customer/search', ['properties' => $properties]);
     }
 
     public function maintenanceRequests()

@@ -145,7 +145,7 @@ function get_img($image_url, $type = 'user') {
         return $image_url;
     }
     // Otherwise, assume it's a file name and construct the path
-    $relPath =  "assets/images/uploads/" . ($type == 'property' ? 'property/' : 'profile_pictures/') . $image_url;
+    $relPath =  "assets/images/uploads/" . ($type == 'property' ? 'property_image/' : 'profile_pictures/') . $image_url;
     $filePath =  ROOT .DIRECTORY_SEPARATOR. $relPath;
     if (file_exists($relPath)) {
         return $filePath;
