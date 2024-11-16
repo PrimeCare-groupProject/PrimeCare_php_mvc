@@ -636,7 +636,16 @@ textarea .input-field{
     transition: filter 0.3s ease; /* Smooth transition for the blur effect */
   }
   
+.profile-id{
+    font-size: 20px;
+    color: var(--dark-grey-color);
+    margin-bottom: 5px;
+    margin-top: -10px;
+}
  
+.gap{
+    width: 2vw;
+}
   
 
 

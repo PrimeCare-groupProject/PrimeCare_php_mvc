@@ -19,6 +19,7 @@
     }
 ?>
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>PROFILE</h2>
 </div>
 
@@ -32,7 +33,7 @@
         <img src="<?= get_img($user->image_url)?>" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
 
         <!-- User details -->
-        <h2>Mr. Property Owner</h2>
+        <h2><?= esc($user->fname) . " " .esc($user->lname)?></h2>
         <p class="profile-id">EID - <?= $user->pid ?></p>
     </div>
 
