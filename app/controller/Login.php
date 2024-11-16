@@ -44,9 +44,6 @@ class Login{
             }
         }
     }
-    
 
-    
-    
 }
 
