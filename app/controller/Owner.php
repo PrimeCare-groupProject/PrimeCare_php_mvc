@@ -59,6 +59,18 @@ class Owner
         ]);
     }
 
+    public function updateProperty($propertyId){
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        //show($propertyUnit);
+        $this->view('owner/updateProperty', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '' ,
+            'property' => $propertyUnit
+        ]);
+    }
+
     public function propertyListing($a = '', $b = '', $c = '', $d = '')
     {
         if ($a == 'addproperty') {
@@ -292,3 +304,6 @@ class Owner
 
     
 }
+
+
+
