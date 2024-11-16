@@ -95,6 +95,7 @@ nav img {
     background-color: var(--primary-color);
     border: 1px solid var(--primary-color);
     text-align: center;
+    transition: all 0.3;
 }
 
 .header_profile_picture {

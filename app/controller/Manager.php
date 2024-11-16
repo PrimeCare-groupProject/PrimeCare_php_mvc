@@ -189,8 +189,21 @@ class Manager {
         }
     }
 
-    public function employeeManagement(){
-        $this->view('manager/employeeManagement');
+    private function employeeManagement(){
+        $user = new User;
+        $user->setLimit(6); //set limit before anything
+        $totalPages =  ceil($user->getTotalCount() / $user->getLimit()) ; 
+
+        $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $offset = ($user->getLimit() - 1) * ($currentPage-1 ); #generate offset
+        $user->setOffset($offset); //set offset after limit
+
+        $userlist = $user->findAll();//get the details
+        // Instantiate the Pagination class with the current page, total pages, and range
+        $pagination = new Pagination($currentPage, $totalPages, 2); 
+        $paginationLinks = $pagination->generateLinks();    // Generate pagination links
+        // Pass pagination links to the view
+        $this->view('manager/employeeManagement',['paginationLinks' => $paginationLinks, 'userlist' => $userlist ? $userlist : [], 'tot' => $totalPages]);
     }
 
     public function requestApproval(){

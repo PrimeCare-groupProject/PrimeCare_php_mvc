@@ -196,7 +196,34 @@ ALTER TABLE `booking`
 --
 ALTER TABLE `person`
   ADD PRIMARY KEY (`pid`);
->>>>>>> dev
+
+
+-- Indexes for table `property`
+--
+ALTER TABLE `property`
+  ADD PRIMARY KEY (`property_id`),
+  ADD KEY `person_id` (`person_id`);
+
+--
+-- Indexes for table `property_deed_image`
+--
+ALTER TABLE `property_deed_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `property_image`
+--
+ALTER TABLE `property_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
+
+--
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `service_provider_id` (`service_provider_id`);
 
 --
 -- Indexes for table `property`
@@ -284,19 +311,18 @@ ALTER TABLE `services`
 
 --
 -- AUTO_INCREMENT for dumped tables
---
-
---
+----
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
   MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT;
+  
 
 --
 -- AUTO_INCREMENT for table `person`
 --
 ALTER TABLE `person`
-  MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+MODIFY `pid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT for table `property`

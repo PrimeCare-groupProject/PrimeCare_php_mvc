@@ -1,10 +1,11 @@
 <?php require_once 'managerHeader.view.php'; ?>
 
+
 <div class="user_view-menu-bar">
     <a href='<?= ROOT ?>/dashboard/managementhome'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Agent Management </h2>
+    <h2>Employee Management </h2>
     <div class="flex-bar">
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Employee ID...">
@@ -12,68 +13,117 @@
         </div>
     </div>
 </div>
+<div class="content_wrapper">
 
-<div class="content-section">
-    <div class="agent-list">
-        <?php
-        // Sample agent data (could be pulled from a database)
-        $agents = [
-            [
-                "name" => "Agent1",
-                "date_joined" => "2024/07/26",
-                "agent_id" => "12233",
-                "address" => "66/2 marine drive, Colombo",
-                "property_id" => "11320",
-                "salary" => "55000.00",
-                "image" => "../../../public/assets/images/Agent.png"
-            ],
-            [
-                "name" => "Agent2",
-                "date_joined" => "2024/07/26",
-                "agent_id" => "12233",
-                "address" => "66/2 marine drive, Colombo",
-                "property_id" => "11320",
-                "salary" => "55000.00",
-                "image" => "../../../public/assets/images/Agent.png"
-            ],
-            [
-                "name" => "Agent3",
-                "date_joined" => "2024/07/26",
-                "agent_id" => "12233",
-                "address" => "66/2 marine drive, Colombo",
-                "property_id" => "11320",
-                "salary" => "55000.00",
-                "image" => "../../../public/assets/images/Agent.png"
-            ]
-        ];
-
-        // Loop through each agent and render the details
-        foreach ($agents as $agent) {
-            echo "
-                    <div class='agent-card'>
-                        <div class='agent-details'>
-                            <p><Strong>Name </Strong>: {$agent['name']}</p>
-                            <p><Strong>Date joined </Strong>: {$agent['date_joined']}</p>
-                            <p><Strong>Agent ID </Strong>: {$agent['agent_id']}</p>
-                            <p><Strong>Address </Strong>: {$agent['address']}</p>
-                        </div>
-                        <div class='agent-info'>
-                            <p><Strong>Current assigned property ID </Strong>: {$agent['property_id']}</p>
-                            <p><Strong>Salary (LKR) </Strong>: {$agent['salary']}</p>
-                        </div>
-                        <div class='agent-remove'>
-                            <img src='" . ROOT . "/assets/images/{$agent['image']}' alt='Agent Image' class='agent-img'>
-                            <form action='remove_agent.php' method='POST'>
-                                <input type='hidden' name='agent_id' value='{$agent['agent_id']}' />
-                                <button type='submit' class='remove-btn'>Remove Agent</button>
-                            </form>
-                        </div>
-                    </div>
-                    <hr>";
-        }
-        ?>
+    <div class="financial-details-container">
+        <table class="listing-table-for-customer-payments">
+            <thead>
+                <tr>
+                    <th class="extra-space sortable first" id="date-header">
+                        Created Date
+                        <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
+                    </th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="sortable" id="earnings-header">
+                        User Type
+                        <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
+                    </th>
+                    <th class="last">Image</th>
+                    <th hidden>Reset code</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php 
+        
+                    if(isset($userlist) && count($userlist) > 0){
+                        foreach ($userlist as $user) {
+                            echo "<tr>";
+                            echo "<td class='first'>" . ($user->created_date ?? "-") .$tot. "</td>";
+                            echo "<td>{$user->pid}</td>";
+                            echo "<td>{$user->fname} {$user->lname}</td>";
+                            echo "<td>{$user->email}</td>";
+                            echo "<td>{$user->user_lvl}</td>";
+                            echo "<td class='last' ><img class='header-profile-picture' style='margin:0px' src=".get_img($user->image_url)."></td>";
+                            echo "<td hidden>{$user->reset_code}</td>";
+                            echo "</tr>";
+                        }
+                    }else{
+                        echo "<tr>";
+                        echo "<td class='first'> ---</td>";
+                        echo "<td> ---</td>";
+                        echo "<td> --- </td>";
+                        echo "<td> --- </td>";
+                        echo "<td> --- </td>";
+                        echo "<td class='last' > --- </td>";
+                        echo "<td hidden> --- </td>";
+                        echo "</tr>";
+                    }
+                ?>
+                <!-- Additional rows here -->
+            </tbody>
+        </table>
     </div>
+    <?php # show($userlist); ?>
 
+    <div class="pagination">
+            <!-- Render the pagination links -->
+            <?php echo $paginationLinks; ?>
+    </div>
 </div>
+
+
+<script>
+    let isDateAscending = true;
+    let isEarningsAscending = true;
+
+    document.getElementById('date-header').addEventListener('click', function() {
+        sortTableByDate(isDateAscending);
+        isDateAscending = !isDateAscending; // Toggle sorting order
+    });
+
+    document.getElementById('earnings-header').addEventListener('click', function() {
+        sortTableByEarnings(isEarningsAscending);
+        isEarningsAscending = !isEarningsAscending; // Toggle sorting order
+    });
+
+    function sortTableByDate(isAscending) {
+        const rows = Array.from(document.querySelectorAll('.listing-table-for-customer-payments tbody tr'));
+
+        rows.sort((a, b) => {
+            const dateA = new Date(a.querySelector('td:nth-child(1)').textContent);
+            const dateB = new Date(b.querySelector('td:nth-child(1)').textContent);
+            return isAscending ? dateA - dateB : dateB - dateA;
+        });
+
+        const tbody = document.querySelector('.listing-table-for-customer-payments tbody');
+        rows.forEach(row => tbody.appendChild(row)); // Re-append sorted rows
+    }
+
+    function sortTableByEarnings(isAscending) {
+        const rows = Array.from(document.querySelectorAll('.listing-table-for-customer-payments tbody tr'));
+
+        rows.sort((a, b) => {
+            const earningsA = parseFloat(a.querySelector('td:nth-child(5)').textContent.replace(/[^0-9.-]+/g, ""));
+            const earningsB = parseFloat(b.querySelector('td:nth-child(5)').textContent.replace(/[^0-9.-]+/g, ""));
+            return isAscending ? earningsA - earningsB : earningsB - earningsA;
+        });
+
+        const tbody = document.querySelector('.listing-table-for-customer-payments tbody');
+        rows.forEach(row => tbody.appendChild(row)); // Re-append sorted rows
+    }
+    //hovering effect
+    document.querySelectorAll('.listing-table-for-customer-payments tbody tr').forEach(row => {
+        row.addEventListener('mouseover', function() {
+            this.style.backgroundColor = "#f0f0f0"; // Light gray background on hover
+        });
+
+        row.addEventListener('mouseout', function() {
+            this.style.backgroundColor = ""; // Reset background color when not hovering
+        });
+    });
+</script>
+
 
 <?php require_once 'managerFooter.view.php'; ?>

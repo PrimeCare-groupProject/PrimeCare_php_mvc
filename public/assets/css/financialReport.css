@@ -2,8 +2,8 @@
 
 /* Main container */
 .financial-details-container {
-    width: 95%;
-    margin: 0 auto;
+    width: calc(100% - 30px);
+    margin: 0;
     padding: 10px;
     background-color: var(--white-color);
     border-radius: 10px;

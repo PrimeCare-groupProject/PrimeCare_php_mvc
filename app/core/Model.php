@@ -4,13 +4,44 @@ defined('ROOTPATH') or exit('Access denied');
 trait Model{//similar to a class but can be inherited by other classes
     use Database;
 
-    // protected $table = 'users'; //table name which can inherit
-    // protected $order_column = "id";
+    // public $table = 'users'; //table name which can inherit
+    // public $order_column = "id";
     
     protected $limit        = 10;
     protected $offset       = 0;
     protected $order_type   = "desc";
     public    $errors       = [];
+
+    public function setOffset($new){
+        return $this->offset = $new;
+    }
+    public function setLimit($limit) {
+        $this->limit = $limit;
+    }
+
+    public function getOffset() {
+        return $this->offset;
+    }
+
+    public function setOrderType($order_type) {
+        $this->order_type = $order_type;
+    }
+
+    public function getOrderType() {
+        return $this->order_type;
+    }
+
+    public function setErrors($errors) {
+        $this->errors = $errors;
+    }
+
+    public function getErrors() {
+        return $this->errors;
+    }
+
+    public function getLimit (){
+        return $this->limit;
+    }
 
     public function findAll(){//search rows depending on the data passed
         $query = "
@@ -22,6 +53,15 @@ trait Model{//similar to a class but can be inherited by other classes
             ";
         // show($query);
         return $this->query($query);
+    }
+    
+    public function getTotalCount() {
+        $query = "SELECT COUNT(*) as total FROM $this->table";
+        $result = $this->query($query);
+        if ($result) {
+            return $result[0]->total;
+        }
+        return 0;
     }
 
     public function where($data, $data_not = []){//search rows depending on the data passed
@@ -50,7 +90,7 @@ trait Model{//similar to a class but can be inherited by other classes
         return $this->query($query, $data);
     }
     
-    public function first($data, $data_not){//search row depending on the data passed
+    public function first($data, $data_not = []){//search row depending on the data passed
         $keys = array_keys($data);
         $keys_not = array_keys($data_not);
         $query = "

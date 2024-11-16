@@ -28,17 +28,18 @@
         <div class="slider">
             <div class="slides">
 
+            
                 <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 1">
                 </div>
 
-                <div class="slide">
+                <!-- <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Slide 2">
                 </div>
 
                 <div class="slide">
                     <img src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Slide 3">
-                </div>
+                </div> -->
             </div>
 
 
@@ -129,7 +130,7 @@
         <div class="flex-buttons-space-between">
             <button class="secondary-btn">Edit Property</button>
             <!--Should be fixed later when property table done-->
-            <button class="secondary-btn" onclick="window.location.href='<?=ROOT?>/dashboard/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
+            <button class="secondary-btn" onclick="window.location.href='<?=ROOT?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
             <button class="secondary-btn">Remove Property</button>
         </div>
 

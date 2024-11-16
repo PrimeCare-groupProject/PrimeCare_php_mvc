@@ -1,5 +1,9 @@
 <?php 
     $type = $user->user_lvl;
+    if($type == 0){
+        require_once 'customer/customerHeader.view.php'; 
+
+    }
     if($type == 1){
         require_once 'owner/ownerHeader.view.php'; 
 
@@ -227,6 +231,10 @@
 
 <?php 
     $type = $user->user_lvl;
+    if($type == 0){
+        require_once 'customer/customerFooter.view.php'; 
+
+    }
     if($type == 1){
         require_once 'owner/ownerFooter.view.php'; 
 

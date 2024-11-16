@@ -1,35 +1,13 @@
-/* .user_view-menu-bar {
-    margin-top: 5.4%; 
-    margin-left: 17%;
-    position: sticky;
-    z-index: 1000;
-    background-color: #fff; 
-    padding: 10px 0;
-} */
+
 .search-container{
     margin-right: 10px;
 }
 
-.user_view-menu-bar h2{
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: #333;
-    white-space: nowrap;
-    font-family: 'outfit', sans-serif;
-    margin-left: 20px;
-}
 
-.content-section {
-    flex-grow: 1;
-    margin-left: 240px; 
-    padding: 10px;
-    /*padding-top: 20px; */
-    display: flex;
-    flex-direction: column;
-} 
 
 
 .agent-list {
+    width: 100%;
     overflow-y: auto; 
     max-height: calc(100vh - 40px); 
     padding: 10px; 

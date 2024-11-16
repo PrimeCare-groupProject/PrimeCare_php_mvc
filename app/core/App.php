@@ -19,7 +19,7 @@ class App
         $requestedController = ucfirst($URL[0]);
 
         // Prevent direct access to specific role-based controllers
-        $restrictedControllers = ['Owner', 'ServiceProvider', 'Agent', 'Manager'];
+        $restrictedControllers = ['Owner', 'ServiceProvider', 'Agent', 'Manager' , 'Customer'];
 
         // // Redirect direct access to restricted controllers
         if (in_array($requestedController, $restrictedControllers)) {
@@ -34,6 +34,10 @@ class App
                 $lvl = $_SESSION['user']->user_lvl;
 
                 switch ($lvl) {
+                    case 0:
+                        $this->controller = 'Customer'; // regular user dashboard
+                        // echo "case1";
+                        break;
                     case 1:
                         $this->controller = 'Owner'; // regular user dashboard
                         // echo "case1";
@@ -47,12 +51,16 @@ class App
                     case 4:
                         $this->controller = 'Manager'; // manager dashboard
                         break;
+                    case 5:
+                        $this->controller = 'Customer'; // Customer dashboard
+                        break;
                     default:
                         $this->controller = '_404'; // load 404 page for unknown roles
                         break;
                 }
             } else {
                 // If the user is not logged in, redirect them to the login page
+                redirect('login');
                 $this->controller = 'Login';
             }
         } else {
@@ -93,4 +101,5 @@ class App
             require "../app/controller/_404.php";
         }
     }
+    
 }
