@@ -83,7 +83,7 @@
                             <div>
                                 <h3><?= $property->name ?></h3>
                                 <div class="property-info">
-                                    <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /> <?= $property->units ?> Unit</span>
+                                    <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /><?= $property->units ?> Unit</span>
                                     <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /><?= $property->bedrooms ?> Rooms</span>
                                 </div>
                             </div>
