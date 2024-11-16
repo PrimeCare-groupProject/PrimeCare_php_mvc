@@ -22,18 +22,50 @@
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
-        <?php require __DIR__ . '/../components/propertyListingComponent.php'; ?>
+        <?php if (!empty($properties)): ?>
+            <?php foreach ($properties as $property): ?>
+                <div class="property-card">
+                    <div class="property-image">
+                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt="Property Image"></a> -->
+                        <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt="Property Image"></a>
+                    </div>
+                    <div class="property-details">
+                        <div class="profile-details-items">
+                            <div>
+                                <h3><?= $property->name ?></h3>
+                                <div class="property-info">
+                                    <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /><?= $property->units ?> Unit</span>
+                                    <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /><?= $property->bedrooms ?> Rooms</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="property-status">
+                                    <span class="border-button"><?= $property->status ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="property-description"><img src="<?= ROOT ?>/assets/images/location.png" class="property-info-img" /><?= $property->address ?></p>
+                        </div>
+                        <div>
+                            <p class="property-description">
+                            <?= $property->description ?>
+                            </p>
+                        </div>
+                        <div class="property-actions">
+                            <a href="#" class="change-status">change Pending</a>
+                            <div>
+                                <a href="<?=ROOT?>/dashboard/updateProperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/property/delete/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>No properties found.</p>
+        <?php endif; ?>
     </div>
 
     <!-- Pagination Buttons -->
