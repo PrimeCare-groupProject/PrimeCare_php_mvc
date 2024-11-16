@@ -7,99 +7,104 @@
     </div>
 </div>
 
-<div class="filter-menu-container hide-items" id="hided-menu">
-    <div class="filter-menu">
-        <div class="filter-row-instance">
-            <div class="half-of-the-row">
-                <label>Location:
-                    <input type="text" placeholder="Location">
-                </label>
-            </div>
-            <div class="half-of-the-row">
-                <label>Property Type:
-                    <select>
-                        <option value="">Select Type</option>
-                        <option value="apartment">Apartment</option>
-                        <option value="house">House</option>
-                    </select>
-                </label>
-            </div>
-            <div class="half-of-the-row">
-                <label>Status:
-                    <select>
-                        <option value="available">Available</option>
-                        <option value="occupied">Occupied</option>
-                        <option value="maintenance">Under Maintenance</option>
-                    </select>
-                </label>
-            </div>
-            <div class="half-of-the-row">
-                <label>Sort By:
-                    <select>
-                        <option value="price-asc">Price Low to High</option>
-                        <option value="price-desc">Price High to Low</option>
-                        <option value="newest">Newest</option>
-                    </select>
-                </label>
-            </div>
-        </div>
+<form>
 
-        <div class="filter-row-instance">
-            <div class="half-of-the-row">
-                <label>Price Range:
-                    <input type="number" placeholder="Min Price">
-                    <input type="number" placeholder="Max Price">
-                </label>
+    <div class="filter-menu-container hide-items" id="hided-menu">
+        <div class="filter-menu">
+            <div class="filter-row-instance">
+                <div class="half-of-the-row">
+                    <label>Location:
+                        <input type="text" placeholder="Location">
+                    </label>
+                </div>
+                <div class="half-of-the-row">
+                    <label>Property Type:
+                        <select>
+                            <option value="">Select Type</option>
+                            <option value="apartment">Apartment</option>
+                            <option value="house">House</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="half-of-the-row">
+                    <label>Status:
+                        <select>
+                            <option value="available">Available</option>
+                            <option value="occupied">Occupied</option>
+                            <option value="maintenance">Under Maintenance</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="half-of-the-row">
+                    <label>Sort By:
+                        <select>
+                            <option value="price-asc">Price Low to High</option>
+                            <option value="price-desc">Price High to Low</option>
+                            <option value="newest">Newest</option>
+                        </select>
+                    </label>
+                </div>
             </div>
-            <div class="half-of-the-row">
-                <label>Rooms:
-                    <input type="number" placeholder="Min Rooms">
-                    <input type="number" placeholder="Max Rooms">
-                </label>
+    
+            <div class="filter-row-instance">
+                <div class="half-of-the-row">
+                    <label>Price Range:
+                        <input type="number" placeholder="Min Price">
+                        <input type="number" placeholder="Max Price">
+                    </label>
+                </div>
+                <div class="half-of-the-row">
+                    <label>Rooms:
+                        <input type="number" placeholder="Min Rooms">
+                        <input type="number" placeholder="Max Rooms">
+                    </label>
+                </div>
             </div>
-        </div>
-
-        <div class="filter-row-instance">
-            <button type="button" onclick="applyFilters()" class="primary-btn">Apply Filters</button>
+    
+            <div class="filter-row-instance">
+                <button type="button" onclick="applyFilters()" class="primary-btn">Apply Filters</button>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 <div class="listing-the-property">
     <!-- Property Listings -->
-    <?php $properties = [1, 2, 3, 4, 5] ?>
     <div class="property-listing-grid">
-        <?php foreach ($properties as $property): ?>
-            <div class="property-card">
-                <div class="property-image">
-                    <a href="<?= ROOT ?>/dashboard/propertyunit"><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Oceanview Retreat 2"></a>
-                </div>
-                <div class="property-details">
-                    <div class="profile-details-items">
-                        <div>
-                            <h3>Oceanview Retreat 2</h3>
-                            <div class="property-info">
-                                <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /> 4 Unit</span>
-                                <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /> 20 Rooms</span>
+        <?php if (!empty($properties)): ?>
+            <?php foreach ($properties as $property): ?>
+                <div class="property-card">
+                    <div class="property-image">
+                        <!-- <a href="<?= ROOT ?>/dashboard/propertyunit/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt=""></a> -->
+                        <a href="<?= ROOT ?>/property/propertyUnit/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt=""></a>
+                    </div>
+                    <div class="property-details">
+                        <div class="profile-details-items">
+                            <div>
+                                <h3><?= $property->name ?></h3>
+                                <div class="property-info">
+                                    <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /><?= $property->units ?> Unit</span>
+                                    <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /><?= $property->bedrooms ?> Rooms</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="property-status">
+                                    <span class="border-button-for-rent">RS.<?= $property->rent_on_basis ?></span>
+                                </div>
                             </div>
                         </div>
                         <div>
-                            <div class="property-status">
-                                <span class="border-button-for-rent">RS. 20000</span>
-                            </div>
+                            <p class="property-description"><img src="<?= ROOT ?>/assets/images/location.png" class="property-info-img" /><?= $property->address ?></p>
+                        </div>
+                        <div>
+                            <p class="property-description"><?= $property->description ?></p>
                         </div>
                     </div>
-                    <div>
-                        <p class="property-description"><img src="<?= ROOT ?>/assets/images/location.png" class="property-info-img" /> No 365, lane name, lane name 2, city name</p>
-                    </div>
-                    <div>
-                        <p class="property-description">
-                        Welcome to Oceanview Retreat, an exquisite beachfront property located in the vibrant city of Miami, Florida. Situated along the pristine shores of the Atlantic Ocean...
-                        </p>
-                    </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>No properties found.</p>
+        <?php endif; ?>
     </div>
 
     <!-- Pagination Buttons -->
