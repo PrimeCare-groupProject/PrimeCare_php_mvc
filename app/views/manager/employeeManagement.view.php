@@ -7,10 +7,18 @@
     </a>
     <h2>Employee Management </h2>
     <div class="flex-bar">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search Employee ID...">
-            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons"></button>
-        </div>
+        <form class="search-container" method="GET">
+            <input 
+                type="text" 
+                class="search-input" 
+                name="searchterm" 
+                value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : " " ?>" 
+                placeholder="Search Employee ..."
+            >
+            <button class="search-btn" type="submit">
+                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
+            </button>
+        </form>
     </div>
 </div>
 <div class="content_wrapper">
@@ -44,7 +52,28 @@
                             echo "<td>{$user->pid}</td>";
                             echo "<td>{$user->fname} {$user->lname}</td>";
                             echo "<td>{$user->email}</td>";
-                            echo "<td>{$user->user_lvl}</td>";
+                            echo '<td> <button class=" ';
+                            switch($user->user_lvl) {
+                                case 4:
+                                    echo 'manager_button"> Manager';
+                                    break;
+                                case 3:
+                                    echo 'agent_button"> Agents';
+                                    break;
+                                case 2:
+                                    echo 'serviceprovider_button"> Service Provider';
+                                    break;
+                                case 1:
+                                    echo 'owner_button"> Owner';
+                                    break;
+                                case 0:
+                                    echo 'customer_button"> Customer';
+                                    break;
+                                default:
+                                    echo '_button"> Unknown';
+                                    break;
+                            }
+                            echo "</button></td>";
                             echo "<td class='last' ><img class='header-profile-picture' style='margin:0px' src=".get_img($user->image_url)."></td>";
                             echo "<td hidden>{$user->reset_code}</td>";
                             echo "</tr>";
@@ -105,9 +134,11 @@
         const rows = Array.from(document.querySelectorAll('.listing-table-for-customer-payments tbody tr'));
 
         rows.sort((a, b) => {
-            const earningsA = parseFloat(a.querySelector('td:nth-child(5)').textContent.replace(/[^0-9.-]+/g, ""));
-            const earningsB = parseFloat(b.querySelector('td:nth-child(5)').textContent.replace(/[^0-9.-]+/g, ""));
-            return isAscending ? earningsA - earningsB : earningsB - earningsA;
+            const textA = a.querySelector('td:nth-child(5)').textContent.trim().toUpperCase();
+            const textB = b.querySelector('td:nth-child(5)').textContent.trim().toUpperCase();
+            if (textA < textB) return isAscending ? -1 : 1;
+            if (textA > textB) return isAscending ? 1 : -1;
+            return 0;
         });
 
         const tbody = document.querySelector('.listing-table-for-customer-payments tbody');

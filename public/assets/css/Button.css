@@ -136,3 +136,68 @@
 .blue-color {
     color: var(--link-color);
 }
+
+
+/* Admin Button */
+.manager_button {
+    background-color: var(--admin-color); /* Red */
+}
+
+.manager_button:hover {
+    background-color: var(--admin-color-hover); /* Darker red */
+}
+
+/* Manager Button */
+.serviceprovider_button {
+    background-color: var(--service-provider-color); /* Green */
+}
+
+.serviceprovider_button:hover {
+    background-color: var(--service-provider-color-hover); /* Darker green */
+}
+
+/* Agent Button */
+.agent_button {
+    background-color: var(--agent-color); /* Blue */
+}
+
+.agent_button:hover {
+    background-color: var(--agent-color-hover); /* Darker blue */
+}
+
+/* Owner Button */
+.owner_button {
+    background-color: var(--owner-color); /* Yellow */
+}
+
+.owner_button:hover {
+    background-color: var(--owner-color-hover); /* Yellow */
+}
+
+/* Customer Button */
+.customer_button {
+    background-color: var(--customer-color); /* Light Gray */
+}
+
+.customer_button:hover {
+    background-color: var(--customer-color-hover); /* Light Gray */
+}
+/* Common Button Styles */
+.customer_button, 
+.owner_button,
+.agent_button,
+.manager_button,
+.serviceprovider_button{
+    color: var(--white-color);
+    margin: 0 10px;	
+    padding: 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    width: 140px;
+    min-width: 100px;
+    text-align: center;
+    border: 2px solid transparent;
+}

@@ -17,8 +17,8 @@ trait Database{
         $stm = $con->prepare($query);
         $check = $stm->execute($data);
         
-        // For INSERT, UPDATE, DELETE queries, return the boolean execution result
-        if (stripos($query, 'select') === false) {
+        // For INSERT, UPDATE, DELETE queries, return the boolean execution rerult
+        if ((stripos($query, 'select') === false) and (stripos($query, 'SHOW') === false) ) {
             return $check;  // Return true if executed successfully, false otherwise
         }
     

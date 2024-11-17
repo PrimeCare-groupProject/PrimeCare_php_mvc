@@ -27,7 +27,7 @@
 .listing-table-for-customer-payments td {
     width: 150px;
     /* Set the fixed width */
-    padding: 10px 15px;
+    padding: 9px 15px;
     text-align: left;
     border-bottom: 1px solid var(--background-color);
     word-wrap: break-word;
