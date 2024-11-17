@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 defined('ROOTPATH') or exit('Access denied');
 
 trait Model{//similar to a class but can be inherited by other classes
@@ -43,6 +46,19 @@ trait Model{//similar to a class but can be inherited by other classes
         return $this->limit;
     }
 
+    private function getTableColumns() {
+        $query = "SHOW COLUMNS FROM $this->table";
+        $result = $this->query($query);
+    
+        if ($result) {
+            return array_map(function ($column) {
+                return $column->Field;
+            }, $result);
+
+        }
+    
+        return [];
+    }
     public function findAll(){//search rows depending on the data passed
         $query = "
             select * 
@@ -64,48 +80,20 @@ trait Model{//similar to a class but can be inherited by other classes
         return 0;
     }
 
-    public function getTotalCountWhere($conditions = [], $searchTerm = "") {
-        // Initialize the query
+    public function getCountWithConditions($conditions = []) {
+        // Initialize the query and parameters
         $query = "SELECT COUNT(*) as total FROM $this->table";
         $parameters = [];
     
-        // If search term is provided
-        if (!empty($searchTerm)) {
-            // Add WHERE clause for search term across all columns
-            $query .= " WHERE (";
-            
-            // Dynamically fetch column names for the table
-            $columns = $this->getTableColumns();
-            
-            foreach ($columns as $column) {
-                $query .= "$column LIKE :searchTerm OR ";
+        // If conditions are provided, add them to the query
+        if (!empty($conditions)) {
+            $query .= " WHERE ";
+            foreach ($conditions as $key => $value) {
+                $query .= "$key = :$key AND ";
+                $parameters[$key] = $value;
             }
-    
-            $query = rtrim($query, " OR "); // Remove the last ' OR '
-            $query .= ")";
-            
-            // Bind search term with wildcards
-            $parameters['searchTerm'] = '%' . $searchTerm . '%';
-    
-            // Add conditions with AND if any
-            if (!empty($conditions)) {
-                $query .= " AND ";
-                foreach ($conditions as $key => $value) {
-                    $query .= "$key = :$key AND ";
-                    $parameters[$key] = $value;
-                }
-                $query = rtrim($query, " AND "); // Remove the last ' AND '
-            }
-        } else {
-            // If no search term, process only conditions
-            if (!empty($conditions)) {
-                $query .= " WHERE ";
-                foreach ($conditions as $key => $value) {
-                    $query .= "$key = :$key AND ";
-                    $parameters[$key] = $value;
-                }
-                $query = rtrim($query, " AND "); // Remove the last ' AND '
-            }
+            // Remove the last 'AND'
+            $query = rtrim($query, " AND ");
         }
     
         // Execute the query
@@ -118,45 +106,102 @@ trait Model{//similar to a class but can be inherited by other classes
         return 0;
     }
     
-    // Helper method to dynamically fetch column names of the table
-    private function getTableColumns() {
-        $query = "SHOW COLUMNS FROM $this->table";
-        $result = $this->query($query);
+    public function getCountWithSearchTerm($searchTerm = "") {
+        // Initialize the query and parameters
+        $query = "SELECT COUNT(*) as total FROM $this->table";
+        $parameters = [];
+    
+        // If a search term is provided, add the search condition
+        if (!empty($searchTerm)) {
+            $query .= " WHERE (";
+            // Dynamically fetch column names for the table
+            $columns = $this->getTableColumns();
+            
+            foreach ($columns as $column) {
+                $query .= "$column LIKE :searchTerm OR ";
+            }
+    
+            // Remove the last 'OR'
+            $query = rtrim($query, " OR ");
+            $query .= ")";
+            
+            // Bind search term with wildcards
+            $parameters['searchTerm'] = '%' . $searchTerm . '%';
+        }
+    
+        // Execute the query
+        $result = $this->query($query, $parameters);
     
         if ($result) {
-            return array_map(function ($column) {
-                return $column->Field;
-            }, $result);
+            return $result[0]->total;
         }
     
-        return [];
+        return 0;
     }
     
+    
+    // Helper method to dynamically fetch column names of the table
+    
+    
 
-    public function where($data, $data_not = []){//search rows depending on the data passed
+    public function where($data, $data_not = [], $searchTerm = "") {
         $keys = array_keys($data);
         $keys_not = array_keys($data_not);
-        $query = "
-            select * from $this->table 
-            where 
-            ";
-
-        foreach($keys as $key){
-            $query .= $key.' = :'.$key." && ";	
+        
+        // Initialize the query
+        $query = "SELECT * FROM $this->table WHERE ";
+        $parameters = [];
+    
+        // Add conditions for the data array (exact match)
+        foreach ($keys as $key) {
+            $query .= "$key = :$key AND ";
+            $parameters[$key] = $data[$key];  // Bind the parameter value
         }
-
-        foreach($keys_not as $key){
-            $query .= $key.' != :'.$key." && ";	
+    
+        // Add conditions for the data_not array (not equal)
+        foreach ($keys_not as $key) {
+            $query .= "$key != :$key AND ";
+            $parameters[$key] = $data_not[$key];  // Bind the parameter value
         }
-
-        $query = trim($query, " && "); #remove the last ' && ' from the query
-        $query .= "
-            order by $this->order_column $this->order_type 
-            limit $this->limit 
-            offset $this->offset";
-        $data = array_merge($data, $data_not);
-        // show($query);
-        return $this->query($query, $data);
+    
+        // If a search term is provided, add LIKE conditions for each column
+        if (!empty($searchTerm)) {
+            $searchQuery = $this->searchWithTerm($searchTerm); // Use the searchWithTerm function
+            if ($searchQuery) {
+                $query .= $searchQuery . " AND "; // Append the search condition
+                $parameters['searchTerm'] = '%' . $searchTerm . '%'; // Bind the search term with wildcards
+            }
+        }
+    
+        // Remove the last ' AND ' from the query
+        $query = rtrim($query, " AND ");
+    
+        // Add order, limit, and offset
+        $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
+    
+        // Execute the query and return the result
+        show($query);
+        return $this->query($query, $parameters);
+    }
+    
+    
+    public function searchWithTerm($searchTerm) {
+        if (empty($searchTerm)) {
+            return '';
+        }
+    
+        // Dynamically fetch column names for the table
+        $columns = $this->getTableColumns(); // Assuming this function fetches table columns
+    
+        $searchQuery = "(";
+        foreach ($columns as $column) {
+            $searchQuery .= "$column LIKE :searchTerm OR ";
+        }
+        $searchQuery = rtrim($searchQuery, " OR "); // Remove the last ' OR '
+        $searchQuery .= ")";
+    
+        // Return the search query portion
+        return $searchQuery;
     }
     
     public function first($data, $data_not = []){//search row depending on the data passed

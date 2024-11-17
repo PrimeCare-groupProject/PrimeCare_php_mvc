@@ -8,7 +8,9 @@ class Products{
         $user->setLimit(10);
         $user->setOffset(0);
         $userlist = $user->findAll();
-        show($userlist);	
+        
+        $count = $user->where([],[],"manager");
+        show($count);	
         // sendMail('wvedmund@gmail.com','hello', 'this is a test');
         // $status = sendMail('wvedmund@gmail.com','subject:hello', "
         //                 <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
