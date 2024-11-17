@@ -157,7 +157,7 @@ class Agent{
     }
 
     public function requestedTasks(){
-        $service = new Service();
+        $service = new ServiceLog();
         $services = $service->where(['status' => 'Pending']);
 
         // Get available service providers (user_lvl = 2) with their image URLs

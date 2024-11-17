@@ -153,7 +153,7 @@ INSERT INTO `property_image` (`image_url`, `property_id`) VALUES
 -- Table structure for table `services`
 --
 
-CREATE TABLE `services` (
+CREATE TABLE `serviceLog` (
   `service_id` int(11) NOT NULL,
   `service_type` varchar(100) NOT NULL,
   `date` date NOT NULL,
@@ -168,10 +168,10 @@ CREATE TABLE `services` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `services`
+-- Dumping data for table `serviceLogs`
 --
 
-INSERT INTO `services` (`service_id`, `service_type`, `date`, `property_id`, `property_name`, `cost_per_hour`, `total_hours`, `status`, `service_provider_id`, `service_description`) VALUES
+INSERT INTO `serviceLog` (`service_id`, `service_type`, `date`, `property_id`, `property_name`, `cost_per_hour`, `total_hours`, `status`, `service_provider_id`, `service_description`) VALUES
 (1, 'Plumbing Repair', '2023-10-15', 1, 'Seaside Villa', 75.00, 3, 'Done', 61, 'Fixed leaking pipe in master bathroom'),
 (2, 'Electrical Maintenance', '2023-10-16', 2, 'Mountain View Apartment', 85.00, 4, 'Ongoing', 61, 'Rewiring living room and kitchen'),
 (3, 'Gardening', '2023-10-17', 3, 'Sunset Manor', 45.00, 5, 'Pending', 76, 'Monthly garden maintenance and lawn mowing'),
