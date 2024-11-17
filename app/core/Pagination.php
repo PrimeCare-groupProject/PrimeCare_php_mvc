@@ -57,7 +57,11 @@ class Pagination {
 
     private function createLink($page, $label, $class = '') {
         $classAttr = $class ? " class='pagination-button $class'" : " class='pagination-button'";
-        return "<a href='?page=$page'$classAttr>$label</a>";
+        $queryParams = $_GET;
+        unset($queryParams["url"]);
+        $queryParams['page'] = $page;
+        $queryString = http_build_query($queryParams);
+        return "<a href='?$queryString'$classAttr>$label</a>";
     }
 }
 

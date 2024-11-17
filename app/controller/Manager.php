@@ -199,6 +199,9 @@ class Manager {
         $user->setOffset($offset); //set offset after limit
 
         $userlist = $user->findAll();//get the details
+        foreach($userlist as $user){//filter out pasword
+            unset($user->password);
+        }
         // Instantiate the Pagination class with the current page, total pages, and range
         $pagination = new Pagination($currentPage, $totalPages, 2); 
         $paginationLinks = $pagination->generateLinks();    // Generate pagination links

@@ -14,6 +14,7 @@
     --green-color: #2ecc71;
     --green-color-rgb: 46, 204, 113;
     --red-color: #e74c3c;
+    --red-color-hover: #d43b29;
     --red-color-rgb: 231, 76, 60;
     
     --background-color-home: #FFF6E6;
@@ -39,4 +40,20 @@
 
     /* Shadows */
     --box-shadow-form: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    /* user-specific */
+    --admin-color: #d4a5ff;
+    --admin-color-hover: #b07bff;
+
+    --agent-color: #81c784;
+    --agent-color-hover: #66bb6a;
+
+    --customer-color: #64b5f6;
+    --customer-color-hover: #42a5f5;
+
+    --owner-color: #ffb74d;
+    --owner-color-hover: #ffa726;
+
+    --service-provider-color: #e0e0e0;
+    --service-provider-color-hover: #bdbdbd;
 }

@@ -64,6 +64,75 @@ trait Model{//similar to a class but can be inherited by other classes
         return 0;
     }
 
+    public function getTotalCountWhere($conditions = [], $searchTerm = "") {
+        // Initialize the query
+        $query = "SELECT COUNT(*) as total FROM $this->table";
+        $parameters = [];
+    
+        // If search term is provided
+        if (!empty($searchTerm)) {
+            // Add WHERE clause for search term across all columns
+            $query .= " WHERE (";
+            
+            // Dynamically fetch column names for the table
+            $columns = $this->getTableColumns();
+            
+            foreach ($columns as $column) {
+                $query .= "$column LIKE :searchTerm OR ";
+            }
+    
+            $query = rtrim($query, " OR "); // Remove the last ' OR '
+            $query .= ")";
+            
+            // Bind search term with wildcards
+            $parameters['searchTerm'] = '%' . $searchTerm . '%';
+    
+            // Add conditions with AND if any
+            if (!empty($conditions)) {
+                $query .= " AND ";
+                foreach ($conditions as $key => $value) {
+                    $query .= "$key = :$key AND ";
+                    $parameters[$key] = $value;
+                }
+                $query = rtrim($query, " AND "); // Remove the last ' AND '
+            }
+        } else {
+            // If no search term, process only conditions
+            if (!empty($conditions)) {
+                $query .= " WHERE ";
+                foreach ($conditions as $key => $value) {
+                    $query .= "$key = :$key AND ";
+                    $parameters[$key] = $value;
+                }
+                $query = rtrim($query, " AND "); // Remove the last ' AND '
+            }
+        }
+    
+        // Execute the query
+        $result = $this->query($query, $parameters);
+    
+        if ($result) {
+            return $result[0]->total;
+        }
+    
+        return 0;
+    }
+    
+    // Helper method to dynamically fetch column names of the table
+    private function getTableColumns() {
+        $query = "SHOW COLUMNS FROM $this->table";
+        $result = $this->query($query);
+    
+        if ($result) {
+            return array_map(function ($column) {
+                return $column->Field;
+            }, $result);
+        }
+    
+        return [];
+    }
+    
+
     public function where($data, $data_not = []){//search rows depending on the data passed
         $keys = array_keys($data);
         $keys_not = array_keys($data_not);
