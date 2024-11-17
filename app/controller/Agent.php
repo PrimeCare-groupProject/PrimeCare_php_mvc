@@ -272,19 +272,32 @@ class Agent{
 
     public function repairings($b = '', $c = '', $d = ''){
         switch($b){
-            case 'ongoingtask':
-                $this->ongoingTask($c, $d);
+            case 'editrepairing':
+                $this->editRepairing($c, $d);
                 break;
-            case 'newtask':
-                $this->newTask($c, $d);
+            case 'delete':
+                $service_id = (int)$c;
+                $service = new Services;
+                $service->delete($service_id , 'service_id');
+                redirect('/dashboard/repairings');
                 break;
-            case 'inventorymanagement':
-                $this->inventoryManagement($c, $d);
+            case 'addnewrepair':
+                $this->addnewrepair($c, $d);
                 break;
             default:
-                $this->view('agent/repairings');
+                $service = new Services;
+                $services = $service->findAll();
+                $this->view('agent/repairings', ['services' => $services]);
                 break;
         }
+    }
+
+    public function editRepairing(){
+        $this->view('agent/editrepairing');
+    }
+
+    public function addnewrepair(){
+        $this->view('agent/addnewrepair');
     }
 
     public function ongoingTask($c,$d){
