@@ -1,49 +1,42 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask'>
+    <a href='<?= ROOT ?>/dashboard/repairings'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>New <?php echo $_SESSION['repair']?> Task</h2>
+    <h2>Edit Repair</h2>
 </div>
 
-<form method="POST" action="your_php_file.php" enctype="multipart/form-data">
+<form method="POST" action="<?= ROOT ?>/Serve/update" enctype="multipart/form-data">
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
-            <label class="input-label">Task Type</label>
-            <input type="text" name="reapirType" placeholder="Type of task" class="input-field" required>
+            <!-- Hidden field for service_id -->
+            <input type="hidden" name="service_id" value="<?= isset($service1) ? htmlspecialchars($service1->service_id) : '' ?>">
 
-            <label class="input-label-aligned">
-                <label class="input-label">Property</label>
-                <select class="input-field-small" name="serviceProvider" required>
-                    <option value="notassign">Select SP</option>
-                    <?php foreach ($properties as $property): ?>
-                        <option value="<?= $property->id ?>"><?= $property->name ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
+            <label class="input-label">Repair Name</label>
+            <!-- Populate the input field with the actual name -->
+            <input type="text" name="name" value="<?= isset($service1) ? htmlspecialchars($service1->name) : '' ?>" class="input-field" required>
+
+            <label class="input-label">Cost Of Hour</label>
+            <!-- Populate the cost per hour field (assuming $service1->cost_per_hour exists) -->
+            <input type="text" name="cost_per_hour" value="<?= isset($service1) ? htmlspecialchars($service1->cost_per_hour) : '' ?>" class="input-field" required>
             
-            <label class="input-label">Description about task</label>
-            <textarea name="description" placeholder="Write About task" class="input-field" required></textarea>
+            <label class="input-label">Description About The Repair</label>
+            <!-- Populate the description textarea with the actual description -->
+            <textarea name="description" class="input-field" required><?= isset($service1) ? htmlspecialchars($service1->description) : '' ?></textarea>
 
-            <label class="input-label">Upload Inventory Image*</label>
-            <div class="owner-addProp-file-upload">
-                <input type="file" name="property_image[]" id="property_image" class="input-field" multiple required>
-                <div class="owner-addProp-upload-area">
-                    <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
-                    <p class="upload-area-no-margin">Drop your files here</p>
-                    <button type="button" class="primary-btn" onclick="document.getElementById('property_image').click()">Choose File</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="owner-addProp-form-right">
-            
             <div class="buttons-to-right">
-                <button type="submit" class="primary-btn">Submit</button>
+                <button type="submit" class="primary-btn">Save</button>
             </div>
         </div>
     </div>
 </form>
+
+<?php if (isset($_SESSION['flash_message'])): ?>
+    <div class="flash-message">
+        <?= $_SESSION['flash_message']; ?>
+        <?php unset($_SESSION['flash_message']); ?> <!-- Clear the message after displaying -->
+    </div>
+<?php endif; ?>
 
 <?php require_once 'agentFooter.view.php'; ?>

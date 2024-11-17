@@ -257,3 +257,15 @@
     padding-top: 10px;
     padding-left: 3px;
 }
+
+.flash-message {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 5px;
+    background-color: #f0f4f8; /* Light gray/blue background */
+    color: #333; /* Neutral text color */
+    font-size: 1rem;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}

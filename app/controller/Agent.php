@@ -273,7 +273,7 @@ class Agent{
     public function repairings($b = '', $c = '', $d = ''){
         switch($b){
             case 'editrepairing':
-                $this->editRepairing($c, $d);
+                $this->editRepairing($c);
                 break;
             case 'delete':
                 $service_id = (int)$c;
@@ -292,8 +292,11 @@ class Agent{
         }
     }
 
-    public function editRepairing(){
-        $this->view('agent/editrepairing');
+    public function editRepairing($c){
+        $service_id = $c;
+        $service = new Services;
+        $service1 = $service->where(['service_id' => $service_id])[0];
+        $this->view('agent/editrepairing', ['service1' => $service1]);
     }
 
     public function addnewrepair(){

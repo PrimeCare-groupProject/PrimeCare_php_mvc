@@ -23,37 +23,7 @@
     <div class="property-listing-grid">
         <?php if (!empty($services)): ?>
             <?php foreach ($services as $service): ?>
-                <!--<div class="property-card">
-                    <div class="property-image">
-                        <img src="<?= ROOT ?>/assets/images/repairimages/concreterepairing.png" alt="services">
-                    </div>
-                    <div class="property-details">
-                        <div class="profile-details-items">
-                            <div>
-                                <h3><?= $service->name ?></h3>
-                                <div class="property-info">
-                                    <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /><?= $property->units ?> Unit</span>
-                                    <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /><?= $property->bedrooms ?> Rooms</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="property-description"><img src="<?= ROOT ?>/assets/images/location.png" class="property-info-img" /><?= $property->address ?></p>
-                        </div>
-                        <div>
-                            <p class="property-description">
-                            <?= $property->description ?>
-                            </p>
-                        </div>
-                        <div class="property-actions">
-                            <a href="#" class="change-status">change Pending</a>
-                            <div>
-                                <a href="<?=ROOT?>/dashboard/updateRepairing/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="<?= ROOT ?>/property/delete/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>-->
+                
                 <div class="repair-card">
                     <div class="repair-image">
                         <img src="<?= ROOT ?>/assets/images/repairimages/deckrepairing.png" alt="services">
@@ -70,14 +40,13 @@
                             </p>
                         </div>
                         <div>
-                            <p class="property-description"> Cost Per Hour : 
+                            <p class="change-status"> Cost Per Hour : 
                             <?= $service->cost_per_hour ?>
                             </p>
                         </div>
                         <div class="property-actions">
-                            <a href="#" class="change-status">change Pending</a>
                             <div>
-                                <a href="<?=ROOT?>/dashboard/repairings/editrepairing" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
+                                <a href="<?=ROOT?>/dashboard/repairings/editrepairing/<?= $service->service_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
                                 <a href="<?= ROOT ?>/dashboard/repairings/delete/<?= $service->service_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
                             </div>
                         </div>
