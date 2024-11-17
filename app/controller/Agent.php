@@ -270,6 +270,23 @@ class Agent{
         }
     }
 
+    public function repairings($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'ongoingtask':
+                $this->ongoingTask($c, $d);
+                break;
+            case 'newtask':
+                $this->newTask($c, $d);
+                break;
+            case 'inventorymanagement':
+                $this->inventoryManagement($c, $d);
+                break;
+            default:
+                $this->view('agent/repairings');
+                break;
+        }
+    }
+
     public function ongoingTask($c,$d){
         switch($c){
             case 'concreterepairing':
