@@ -133,7 +133,7 @@ class Owner
             ];
 
             // Add service request to database
-            $service = new Service();
+            $service = new ServiceLog();
             if ($service->insert($data)) {
                 $_SESSION['status'] = "Service request submitted successfully";
                 $_SESSION['success_message'] = "Request sent successfully!";

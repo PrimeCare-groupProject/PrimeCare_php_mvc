@@ -122,10 +122,11 @@
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
+                                        <!-- Provider image thumbnail
                                         <img id="providerImage" 
                                              src="<?= ROOT ?>/assets/images/<?= $data['service_providers'][0]->image_url ?>" 
                                              alt="Service Provider" 
-                                             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+                                             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;"> -->
                                     </div>
                                 </div>
                                 <script>
