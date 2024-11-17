@@ -1,9 +1,9 @@
 <?php
 
-class Service {
+class ServiceLog {
     use Model;
 
-    protected $table = 'services';
+    protected $table = 'serviceLog';
     protected $order_column = "service_id";
     protected $allowedColumns = [
         'service_type',

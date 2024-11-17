@@ -110,29 +110,26 @@
                                 <div class="detail-fields-aligned">
                                     <span class="details-labels-aligend"><strong>Service Provider:</strong></span>
                                     <div class="details-field-small" style="display: flex; align-items: center; gap: 10px;">
-                                        <select name="service_provider" class="details-field-small" style="border: none;" onchange="updateProviderImage(this)">
+                                        <select name="service_provider" class="details-field-small" style="border: none;" onchange="updateProviderImage(this, <?= $service->service_id ?>)">
                                             <?php foreach($data['service_providers'] as $provider): ?>
                                                 <option value="<?= $provider->pid ?>" 
                                                     data-image="<?= ROOT ?>/assets/images/<?= $provider->image_url ?>"
-                                                    <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?> 
-                                                    style="padding: 5px; cursor: hand;" 
-                                                    onmouseover="this.style.backgroundColor='#f0f0f0'" 
-                                                    onmouseout="this.style.backgroundColor='transparent'">
+                                                    <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?>>
                                                     <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <img id="providerImage" 
-                                             src="<?= ROOT ?>/assets/images/<?= $data['service_providers'][0]->image_url ?>" 
+                                        <img id="providerImage_<?= $service->service_id ?>" 
+                                             src="<?= ROOT ?>/assets/images/<?= $service->provider_image ?? $data['service_providers'][0]->image_url ?>" 
                                              alt="Service Provider" 
                                              style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
                                     </div>
                                 </div>
                                 <script>
-                                function updateProviderImage(select) {
-                                    const selectedOption = select.options[select.selectedIndex];
+                                function updateProviderImage(selectElement, serviceId) {
+                                    const selectedOption = selectElement.options[selectElement.selectedIndex];
                                     const imageUrl = selectedOption.getAttribute('data-image');
-                                    document.getElementById('providerImage').src = imageUrl;
+                                    document.getElementById('providerImage_' + serviceId).src = imageUrl;
                                 }
                                 </script>
                             </div>
