@@ -45,7 +45,7 @@ trait Model{//similar to a class but can be inherited by other classes
     public function getLimit (){
         return $this->limit;
     }
-
+    // Helper method to dynamically fetch column names of the table
     private function getTableColumns() {
         $query = "SHOW COLUMNS FROM $this->table";
         $result = $this->query($query);
@@ -79,57 +79,57 @@ trait Model{//similar to a class but can be inherited by other classes
         }
         return 0;
     }
-
-    public function getCountWithConditions($conditions = []) {
+    //with searchterm also included
+    public function getTotalCountWhere($data = [], $data_not = [], $searchTerm = "") {
         // Initialize the query and parameters
         $query = "SELECT COUNT(*) as total FROM $this->table";
         $parameters = [];
     
-        // If conditions are provided, add them to the query
-        if (!empty($conditions)) {
-            $query .= " WHERE ";
-            foreach ($conditions as $key => $value) {
-                $query .= "$key = :$key AND ";
-                $parameters[$key] = $value;
+        // Start building the WHERE clause
+        $whereClauses = [];
+    
+        // Add positive conditions to the WHERE clause
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
+                $whereClauses[] = "$key = :$key";
+                $parameters[$key] = $value; // Bind condition parameters
             }
-            // Remove the last 'AND'
-            $query = rtrim($query, " AND ");
         }
     
-        // Execute the query
-        $result = $this->query($query, $parameters);
-    
-        if ($result) {
-            return $result[0]->total;
+        // Add negative conditions to the WHERE clause
+        if (!empty($data_not)) {
+            foreach ($data_not as $key => $value) {
+                $whereClauses[] = "$key != :not_$key";
+                $parameters["not_$key"] = $value; // Bind negative condition parameters
+            }
         }
     
-        return 0;
-    }
-    
-    public function getCountWithSearchTerm($searchTerm = "") {
-        // Initialize the query and parameters
-        $query = "SELECT COUNT(*) as total FROM $this->table";
-        $parameters = [];
-    
-        // If a search term is provided, add the search condition
+        // Add search term conditions to the WHERE clause
         if (!empty($searchTerm)) {
-            $query .= " WHERE (";
             // Dynamically fetch column names for the table
             $columns = $this->getTableColumns();
-            
+            $searchClauses = [];
+    
             foreach ($columns as $column) {
-                $query .= "$column LIKE :searchTerm OR ";
+                $searchClauses[] = "$column LIKE :searchTerm";
             }
     
-            // Remove the last 'OR'
-            $query = rtrim($query, " OR ");
-            $query .= ")";
-            
+            if (!empty($searchClauses)) {
+                // Combine search clauses with OR
+                $whereClauses[] = "(" . implode(" OR ", $searchClauses) . ")";
+            }
+    
             // Bind search term with wildcards
             $parameters['searchTerm'] = '%' . $searchTerm . '%';
         }
     
+        // Combine all WHERE clauses with AND
+        if (!empty($whereClauses)) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+    
         // Execute the query
+        $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
         $result = $this->query($query, $parameters);
     
         if ($result) {
@@ -140,28 +140,31 @@ trait Model{//similar to a class but can be inherited by other classes
     }
     
     
-    // Helper method to dynamically fetch column names of the table
-    
-    
-
-    public function where($data, $data_not = [], $searchTerm = "") {
+    //with searchterm also included
+    public function where($data , $data_not = [], $searchTerm = "") {
         $keys = array_keys($data);
         $keys_not = array_keys($data_not);
         
         // Initialize the query
-        $query = "SELECT * FROM $this->table WHERE ";
+        $query = "SELECT * FROM $this->table ";
         $parameters = [];
-    
+        if(!empty($keys) || !empty($keys_not) || strlen($searchTerm) > 0){
+            $query .= "WHERE";
+        }
         // Add conditions for the data array (exact match)
-        foreach ($keys as $key) {
-            $query .= "$key = :$key AND ";
-            $parameters[$key] = $data[$key];  // Bind the parameter value
+        if (!empty($keys)) {
+            foreach ($keys as $key) {
+                $query .= "$key = :$key AND ";
+                $parameters[$key] = $data[$key];  // Bind the parameter value
+            }
         }
     
         // Add conditions for the data_not array (not equal)
-        foreach ($keys_not as $key) {
-            $query .= "$key != :$key AND ";
-            $parameters[$key] = $data_not[$key];  // Bind the parameter value
+        if (!empty($keys_not)) {
+            foreach ($keys_not as $key) {
+                $query .= "$key != :$key AND ";
+                $parameters[$key] = $data_not[$key];  // Bind the parameter value
+            }
         }
     
         // If a search term is provided, add LIKE conditions for each column
@@ -172,20 +175,18 @@ trait Model{//similar to a class but can be inherited by other classes
                 $parameters['searchTerm'] = '%' . $searchTerm . '%'; // Bind the search term with wildcards
             }
         }
-    
         // Remove the last ' AND ' from the query
         $query = rtrim($query, " AND ");
     
         // Add order, limit, and offset
         $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
-    
+        
         // Execute the query and return the result
-        show($query);
         return $this->query($query, $parameters);
     }
     
     
-    public function searchWithTerm($searchTerm) {
+    private function searchWithTerm($searchTerm) {
         if (empty($searchTerm)) {
             return '';
         }

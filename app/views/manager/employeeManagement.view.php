@@ -7,9 +7,17 @@
     </a>
     <h2>Employee Management </h2>
     <div class="flex-bar">
-        <form class="search-container">
-            <input type="text" class="search-input" method="GET" name="searchterm" placeholder='<?= isset($_GET['searchterm']) ? $_GET['searchterm'] : "Search Employee ..."  ?>'>
-            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons"></button>
+        <form class="search-container" method="GET">
+            <input 
+                type="text" 
+                class="search-input" 
+                name="searchterm" 
+                value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : " " ?>" 
+                placeholder="Search Employee ..."
+            >
+            <button class="search-btn" type="submit">
+                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
+            </button>
         </form>
     </div>
 </div>

@@ -9,7 +9,9 @@ class Products{
         $user->setOffset(0);
         $userlist = $user->findAll();
         
-        $count = $user->where([],[],"manager");
+        $ggg = $user->getTotalCountWhere([],[],"wen");
+        $count = $user->where([],[],"wen");
+        show($ggg);
         show($count);	
         // sendMail('wvedmund@gmail.com','hello', 'this is a test');
         // $status = sendMail('wvedmund@gmail.com','subject:hello', "
