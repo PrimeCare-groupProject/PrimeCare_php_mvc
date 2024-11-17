@@ -270,6 +270,39 @@ class Agent{
         }
     }
 
+    public function repairings($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'editrepairing':
+                $this->editRepairing($c);
+                break;
+            case 'delete':
+                $service_id = (int)$c;
+                $service = new Services;
+                $service->delete($service_id , 'service_id');
+                redirect('/dashboard/repairings');
+                break;
+            case 'addnewrepair':
+                $this->addnewrepair($c, $d);
+                break;
+            default:
+                $service = new Services;
+                $services = $service->findAll();
+                $this->view('agent/repairings', ['services' => $services]);
+                break;
+        }
+    }
+
+    public function editRepairing($c){
+        $service_id = $c;
+        $service = new Services;
+        $service1 = $service->where(['service_id' => $service_id])[0];
+        $this->view('agent/editrepairing', ['service1' => $service1]);
+    }
+
+    public function addnewrepair(){
+        $this->view('agent/addnewrepair');
+    }
+
     public function ongoingTask($c,$d){
         switch($c){
             case 'concreterepairing':
