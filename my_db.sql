@@ -378,30 +378,22 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
--- Table structure for table `serpro`
+-- Table structure for table `services`
 --
 
-CREATE TABLE `serpro` (
-  `serpro_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `first_name` varchar(100) NOT NULL,
-  `last_name` varchar(100) NOT NULL,
-  `date_of_birth` DATE NOT NULL,
-  `gender` varchar(255) NOT NULL,
-  `contact_no1` int(10) NOT NULL,
-  `contact_no2` int(10) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `bank_account_no` int(100) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  `marital_status` varchar(255) NOT NULL,
-  `NIC-no` int(12),
+CREATE TABLE `services` (
+  `service_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(100) NOT NULL,
+  `cost_per_hour` DOUBLE NOT NULL,
+  `description` TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Sample data for services table
-INSERT INTO `services` (`service_type`, `date`, `property_id`, `property_name`, `cost_per_hour`, `total_hours`, `status`, `service_provider_id`, `service_description`) VALUES
-('Plumbing Repair', '2023-10-15', 1, 'Seaside Villa', 75.00, 3, 'Done', 61, 'Fixed leaking pipe in master bathroom'),
-('Electrical Maintenance', '2023-10-16', 2, 'Mountain View Apartment', 85.00, 4, 'Ongoing', 61, 'Rewiring living room and kitchen'),
-('Gardening', '2023-10-17', 3, 'Sunset Manor', 45.00, 5, 'Pending', 76, 'Monthly garden maintenance and lawn mowing'),
-('Door lock Repair', '2023-10-18', 4, 'Downtown Condo', 95.00, 2, 'Done', 76, 'AC unit repair and maintenance'),
-('Pool Maintenance', '2023-10-19', 5, 'Lakeside House', 65.00, 3, 'Ongoing', 61, 'Weekly pool cleaning and chemical balance check');
+INSERT INTO `services` (`service_id`, `name`, `cost_per_hour`, `description`) VALUES
+(1, 'Door Repairing', 1000, 'This is door repairing'),
+(2, 'Deck Repairing', 1000, 'This is deck repairing'),
+(3, 'Roof Repairing', 1000, 'This is roof repairing'),
+(4, 'Plumbing', 1000, 'This is plumbing'),
+(5, 'Concrete Repairing', 1000, 'This is concrete repairing');
 
 
