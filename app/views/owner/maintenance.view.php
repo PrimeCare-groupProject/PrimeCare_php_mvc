@@ -1,6 +1,7 @@
 <?php require_once 'ownerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>maintenance</h2>
     <div class="flex-bar">
         <span style="color: var(--dark-grey-color)">Total Expenses:</span>

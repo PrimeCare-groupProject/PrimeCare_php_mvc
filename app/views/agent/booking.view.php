@@ -1,6 +1,7 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>Bookings</h2>
 </div>
 <div>

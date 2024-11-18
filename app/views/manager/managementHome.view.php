@@ -1,11 +1,11 @@
 <?php require_once 'managerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>managements</h2>
 </div>
 
 <div class="management-cards-container">
-    <div class="management-card-container-sub">
         <a href="<?= ROOT ?>/dashboard/managementhome/employeemanagement">
             <div class="management-card">
                 <div class="management-text">
@@ -27,9 +27,7 @@
                 </div>
             </div>
         </a>
-    </div>
 
-    <div class="management-card-container-sub">
         <a href="<?= ROOT ?>/dashboard/managementhome">
             <div class="management-card">
                 <div class="management-text">
@@ -51,7 +49,6 @@
                 </div>
             </div>
         </a>
-    </div>
 </div>
 
 

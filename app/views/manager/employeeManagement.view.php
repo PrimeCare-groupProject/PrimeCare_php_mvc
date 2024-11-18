@@ -12,7 +12,7 @@
                 type="text" 
                 class="search-input" 
                 name="searchterm" 
-                value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : " " ?>" 
+                value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : "" ?>" 
                 placeholder="Search Employee ..."
             >
             <button class="search-btn" type="submit">
@@ -27,18 +27,18 @@
         <table class="listing-table-for-customer-payments">
             <thead>
                 <tr>
-                    <th class="extra-space sortable first" id="date-header">
+                    <th style='max-width: 15%;' class="extra-space sortable first" id="date-header">
                         Created Date
                         <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                     </th>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th class="sortable" id="earnings-header">
+                    <th style='max-width: 30px;'>ID</th>
+                    <th style='max-width: 20%;'>Name</th>
+                    <th style='max-width: 25%;'>Email</th>
+                    <th style='min-width: 80px;' class="sortable" id="earnings-header">
                         User Type
                         <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                     </th>
-                    <th class="last">Image</th>
+                    <th style='width: 5%;'class="last">Image</th>
                     <th hidden>Reset code</th>
                 </tr>
             </thead>

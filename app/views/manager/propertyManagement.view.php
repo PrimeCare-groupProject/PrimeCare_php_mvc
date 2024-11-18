@@ -7,8 +7,7 @@
     <h2>property managements</h2>
 </div>
 
-<div class="management-cards-container">
-    <div class="management-card-container-sub">
+<div class="management-cards-container" style='height: 40%; margin-top: 10px;' >
         <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement/assignagents">
             <div class="management-card">
                 <div class="management-text">
@@ -30,7 +29,6 @@
                 </div>
             </div>
         </a>
-    </div>
 </div>
 
 

@@ -1,9 +1,10 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard'>
+    <!-- <a href='<?= ROOT ?>/dashboard'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
-    </a>
+    </a> -->
+    <div class="gap"></div>
     <h2>preinspection</h2>
 </div>
 <div>

@@ -26,12 +26,12 @@
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
-            <a href="<?= ROOT ?>/dashboard/profile"><img src="<img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile" class="header-profile-picture"></a>
+            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile" class="header-profile-picture"></a>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/property/propertyLisingToAllUsers"><button class="btn">Search</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers"><button class="btn">Search</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/payments"><button class="btn">Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
                 </ul>

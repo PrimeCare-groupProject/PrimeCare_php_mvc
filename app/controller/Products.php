@@ -8,7 +8,9 @@ class Products{
         $user->setLimit(10);
         $user->setOffset(0);
         $userlist = $user->findAll();
-        
+        show($_SESSION);
+        show("<img src=".  get_img($_SESSION['user']->image_url) . ' alt="Profile" class="header-profile-picture">');
+        echo get_img($_SESSION['user']->image_url);
         $ggg = $user->getTotalCountWhere([],[],"wen");
         $count = $user->where([],[],"wen");
         show($ggg);
