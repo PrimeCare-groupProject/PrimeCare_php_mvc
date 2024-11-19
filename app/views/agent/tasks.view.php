@@ -5,9 +5,8 @@
     <h2>Tasks</h2>
 </div>
 
-<div class="management-cards-container">
-    <div class="management-card-container-sub">
-        <a href="<?= ROOT ?>/dashboard/tasks/ongoingtask">
+<div class="management-cards-container" style="height: 50%; ">
+        <a href="<?= ROOT ?>/dashboard/tasks/ongoingtask" style="margin-top: 3px;">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Ongoing Task</h2>
@@ -28,9 +27,7 @@
                 </div>
             </div>
         </a>
-    </div>
 
-    <div class="management-card-container-sub1">
         <a href="<?= ROOT ?>/dashboard/tasks/inventorymanagement">
             <div class="management-card">
                 <div class="management-text">
@@ -41,7 +38,6 @@
                 </div>
             </div>
         </a>
-    </div>
 </div>
 
 <?php require_once 'agentFooter.view.php'; ?>
