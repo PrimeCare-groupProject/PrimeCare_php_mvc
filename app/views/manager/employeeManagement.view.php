@@ -48,7 +48,7 @@
                     if(isset($userlist) && count($userlist) > 0){
                         foreach ($userlist as $user) {
                             echo "<tr>";
-                            echo "<td class='first'>" . ($user->created_date ?? "-") .$tot. "</td>";
+                            echo "<td class='first'>" . ($user->created_date ? date('Y-m-d H:i:s', strtotime($user->created_date)) : "-") . "</td>";
                             echo "<td>{$user->pid}</td>";
                             echo "<td>{$user->fname} {$user->lname}</td>";
                             echo "<td>{$user->email}</td>";
