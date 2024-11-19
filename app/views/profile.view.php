@@ -34,7 +34,7 @@
 
         <!-- User details -->
         <h2><?= $user->fname .' '. $user->lname ?></h2>
-        <p class="profile-id">EID - <?= $user->pid ?></p>
+        <p class="profile-id">PID - <?= $user->pid ?></p>
     </div>
 
     <!-- Right side: Editable Form -->

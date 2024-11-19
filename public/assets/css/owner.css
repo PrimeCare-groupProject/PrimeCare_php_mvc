@@ -8,8 +8,8 @@
     flex-direction: row;
     /* width: 1200px; */
     /* width: 90%; */
-    padding: 10px 20px;
-    gap: 5px;
+    padding: 5px;
+    gap: 10px;
 }
 
 .owner-addProp-container p {
