@@ -204,6 +204,7 @@ class Manager {
         $user->setOffset($offset); //set offset after limit
 
         $userlist = $user->where([], [], $searchterm);//get the details
+        
         if (isset($userlist) && is_array($userlist) && count($userlist) > 0) {
             foreach($userlist as $user){//filter out pasword
                 unset($user->password);

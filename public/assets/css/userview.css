@@ -170,12 +170,15 @@ hr {
 
 .user_view-sidemenu ul li a{
     text-decoration: none;
+
 }
 
 .user_view-sidemenu ul li a button {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    transition: all 0.3s;
+
 }
 
 
@@ -576,6 +579,7 @@ textarea .input-field{
     font-size: 16px;
     cursor: pointer;
     text-align: center;
+    transition: all 0.3s;
     /* width: 100%; */
     max-width: 200px;
     min-width: 150px;

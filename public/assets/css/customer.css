@@ -25,6 +25,7 @@
 }
 .listing-table-for-customer-payments th,
 .listing-table-for-customer-payments td {
+    text-align: center;
     width: 150px;
     /* Set the fixed width */
     padding: 9px 15px;
@@ -56,7 +57,7 @@ th.sortable {
 
 th.sortable img {
     position: absolute;
-    right: 5px;
+    right: 10%;
     /* Aligns the image to the right inside the <th> */
     top: 50%;
     transform: translateY(-50%);

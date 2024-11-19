@@ -282,6 +282,9 @@
                         <label for="email">Your Email:</label>
                         <input type="text" name="email" id="email" placeholder="Email">
 
+                        <label for="phone">Your Phone Number:</label>
+                        <input type="text" name="phone" id="phone" placeholder="Phone Number">
+
                         <label for="message">Your Message:</label>
                         <textarea type="text" name="message" id="message" cols="20" rows="5" placeholder="Message"></textarea>
                     </div>

@@ -1,6 +1,7 @@
 <?php require_once 'managerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>dashboard</h2>
 </div>
 
