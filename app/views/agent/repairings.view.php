@@ -17,7 +17,7 @@
 <div class="success-msg-container">
     <p class="success-msg"><?= $property->success['insert'] ?? '' ?></p>
 </div> -->
-
+<div class="blur-container">
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
@@ -47,7 +47,9 @@
                         <div class="property-actions">
                             <div>
                                 <a href="<?=ROOT?>/dashboard/repairings/editrepairing/<?= $service->service_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="<?= ROOT ?>/dashboard/repairings/delete/<?= $service->service_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
+                                <a href="javascript:void(0);" class="edit-btn" onclick="confirmDelete(<?= $service->service_id ?>)">
+                                    <img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" />
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -65,6 +67,19 @@
         <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
     </div>
 </div>
+</div>
+
+<div id="deletePopup" class="popup-overlay" style="display: none;">
+    <div class="popup-content">
+        <h3>Are you sure you want to delete this item?</h3>
+        <p>This action cannot be undone. Please confirm.</p>
+        <div class="popup-buttons">
+            <button id="confirmDelete" class="confirm-btn">Delete</button>
+            <button onclick="closePopup()" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+</div>
+
 
 <script>
     let currentPage = 1;
@@ -106,6 +121,28 @@
 
     // Initial page load
     showPage(currentPage);
+
+    let deleteServiceId = null;
+
+function confirmDelete(serviceId) {
+    deleteServiceId = serviceId; // Store the ID to delete later
+    document.getElementById('deletePopup').style.display = 'flex'; // Show the popup
+    document.body.classList.add('popup-active'); // Apply the active class
+}
+
+function closePopup() {
+    deleteServiceId = null; // Reset the stored ID
+    document.getElementById('deletePopup').style.display = 'none'; // Hide the popup
+    document.body.classList.remove('popup-active'); // Remove the active class
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function () {
+    if (deleteServiceId !== null) {
+        // Redirect to the delete route
+        window.location.href = "<?= ROOT ?>/dashboard/repairings/delete/" + deleteServiceId;
+    }
+});
+
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>

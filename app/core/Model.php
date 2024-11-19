@@ -149,7 +149,7 @@ trait Model{//similar to a class but can be inherited by other classes
         $query = "SELECT * FROM $this->table ";
         $parameters = [];
         if(!empty($keys) || !empty($keys_not) || strlen($searchTerm) > 0){
-            $query .= "WHERE";
+            $query .= "WHERE ";
         }
         // Add conditions for the data array (exact match)
         if (!empty($keys)) {
@@ -177,6 +177,7 @@ trait Model{//similar to a class but can be inherited by other classes
         }
         // Remove the last ' AND ' from the query
         $query = rtrim($query, " AND ");
+        echo "Executed Query: " . $query . "<br>";
     
         // Add order, limit, and offset
         $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
@@ -184,7 +185,7 @@ trait Model{//similar to a class but can be inherited by other classes
         // Execute the query and return the result
         return $this->query($query, $parameters);
     }
-    
+
     
     private function searchWithTerm($searchTerm) {
         if (empty($searchTerm)) {
