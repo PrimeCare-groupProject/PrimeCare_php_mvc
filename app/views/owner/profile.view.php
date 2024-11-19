@@ -173,7 +173,7 @@
     removeButton.addEventListener('click', () => {
     dialogContainer.style.display = 'block';
     blurBackground.classList.add('blurred-background'); // Add blur class
-});
+    });
 
     cancelDeleteButton.addEventListener('click', () => {
         dialogContainer.style.display = 'none';
