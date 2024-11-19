@@ -177,7 +177,6 @@ trait Model{//similar to a class but can be inherited by other classes
         }
         // Remove the last ' AND ' from the query
         $query = rtrim($query, " AND ");
-        echo "Executed Query: " . $query . "<br>";
     
         // Add order, limit, and offset
         $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
