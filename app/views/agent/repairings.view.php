@@ -24,7 +24,7 @@
         <?php if (!empty($services)): ?>
             <?php foreach ($services as $service): ?>
                 
-                <div class="repair-card">
+                <!--<div class="repair-card">
                     <div class="repair-image">
                         <img src="<?= ROOT ?>/assets/images/repairimages/deckrepairing.png" alt="services">
                     </div>
@@ -53,7 +53,33 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
+                    <div id="specific-page">
+                        <div class="container">
+                            <div class="card1">
+                                <div class="card1-header">
+                                    <img src="<?= ROOT ?>/assets/images/repairimages/deckrepairing.png" alt="services">
+                                </div>
+                                <div class="card1-body">
+                                    <h2>
+                                        <?= $service->name ?>
+                                    </h2>
+                                    <p class="limited-paragraph">
+                                        <?= $service->description ?>
+                                    </p>
+                                    <div class="repair-actions">
+                                        <span class="tag tag-teal"><?= $service->cost_per_hour ?> LKR</span>
+                                            <div>
+                                                <a href="<?=ROOT?>/dashboard/repairings/editrepairing/<?= $service->service_id ?>" class="delete1-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
+                                                <a href="javascript:void(0);" class="edit-btn" onclick="confirmDelete(<?= $service->service_id ?>)">
+                                                    <img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" />
+                                                </a>
+                                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
             <?php endforeach; ?> 
         <?php else: ?>
             <p>No Repairings found.</p>
@@ -83,7 +109,7 @@
 
 <script>
     let currentPage = 1;
-    const listingsPerPage = 9;
+    const listingsPerPage = 6;
     const listings = document.querySelectorAll('.property-listing-grid .property-component');
     const totalPages = Math.ceil(listings.length / listingsPerPage);
 

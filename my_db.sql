@@ -275,10 +275,10 @@ CREATE TABLE `services` (
 
 -- Sample data for services table
 INSERT INTO `services` (`service_id`, `name`, `cost_per_hour`, `description`) VALUES
-(1, 'Door Repairing', 1000, 'This is door repairing'),
-(2, 'Deck Repairing', 1000, 'This is deck repairing'),
-(3, 'Roof Repairing', 1000, 'This is roof repairing'),
-(4, 'Plumbing', 1000, 'This is plumbing'),
+(1, 'Door Repairing', 1000, 'This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. '),
+(2, 'Deck Repairing', 1000, 'This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. '),
+(3, 'Roof Repairing', 1000, 'This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. '),
+(4, 'Plumbing', 1000, 'This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing.'),
 (5, 'Concrete Repairing', 1000, 'This is concrete repairing');
 
 -- Table structure for table `property_image_temp`
