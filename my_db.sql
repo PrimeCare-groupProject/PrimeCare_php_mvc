@@ -72,6 +72,8 @@ INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `passwor
 ('customer', 'customer', 'customerAA', 'customer@gmail.com', '0703954041', '$2y$10$KqSBpyTz66zpuGizPLZnGu36wWIUYrX.sw5m/qs4Bm8m0m/1d1dKy', 'user.png', 5, 78, NULL),
 ('owner', 'owner', 'ownerPU57Z', 'owner@gmail.com', '0703954031', '$2y$10$q47/xA7KQisQH5XwrMRLAOL5fAgEWy5iKu1eD1Rcoi09yTkDnXaCO', '673637be5492e__owner@gmail.com.jpg', 1, 79, NULL);
 
+
+
 -- --------------------------------------------------------
 
 --
