@@ -69,21 +69,6 @@ INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `passwor
 ('nimna', 'pathum', 'nimnaM4J27', 'pathum@gmail.com', '0715417980', '$2y$10$3IGS8q1/luZSsXBpZz3ReeIzNE9BEyripN1LIFh3wmiZ4PJcV6xwm', 'user.png', 2, 80, NULL, '2024-11-19 18:32:12'),
 ('customer', 'customer', 'customer92', 'forcustomer@gmail.com', '0715417980', '$2y$10$iKyFlX3r6YKchdoIkVec9.pq3Ej9cIsQXX/VD.H37p.yips/geK1G', 'user.png', 1, 81, NULL, '2024-11-19 18:32:12'),
 ('password', 'provider', 'password5Y', 'sprovider@gmail.com', '0715417980', '$2y$10$yKQzcal5reWf0FR48WO32eR4YpMU7cdYpN0advapp2rcpe4JOi2oS', 'user.png', 2, 82, NULL, '2024-11-19 18:32:12');
-INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `password`, `image_url`, `user_lvl`, `pid`, `reset_code`) VALUES
-('Wendt', 'Edmund', 'Wendt5WV97', 'serviceprovider@gmail.com', '0762213874', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 61, NULL),
-('Wendt', 'Edmund', 'WendtR2EQ0', 'agent@gmail.com', '0762213874', '$2y$10$Gt6.mbORgBzZn6cyLS8KMOGTq4/e8WXsDvq7rD4g5kJ4vGo7YLr1.', 'user.png', 3, 62, NULL),
-('Wendt', 'Edmund', 'WendtGCSN3', 'manager@gmail.com', '0762213874', '$2y$10$hJU6Sph7fBxjIfEWFF/FveOKgMtm4MFnya98mlHVgn0.2IF/gdyGi', 'user.png', 4, 63, NULL),
-('Wendt', 'Edmund', 'Wendt8E6MU', 'wvedmund@gmail.com', '0762213874', '$2y$10$DhI8z4c6aM0suA2cX3.FI.jm4TKFOr95yzqM2vUEq/hi4gZER55VO', 'user.png', 1, 66, NULL),
-('Wendt', 'Edmund', 'Wendt32215', 'user0@gmail.com', '0762213874', '$2y$10$GI0f3spkCuWU5AbVQmq9A.U66Ei/jX6fbIvnQs1/XyM5RJD6ytiCu', '672688e478161__user0@gmail.com.jpg', 1, 75, NULL),
-('SP', 'User', 'SPUser123', 'sp@gmail.com', '0712345678', '$2y$10$dD38iRpTqFYLK154ahuKS.fp/dTMnhqj/xrkA0R/DQeKGhrONcubO', 'user.png', 2, 76, NULL),
-('Nimna', 'Pathum', 'Nimna2603S', 'nimna@gmail.com', '0703954041', '$2y$10$FiASLnzEf.OayXV4gTsyYOdCaoLbxdu/MYwbOWz53lOKvEm4kaDyC', '673051d1f4182__nimna@gmail.com.jpg', 1, 77, NULL),
-('customer', 'customer', 'customerAA', 'customer@gmail.com', '0703954041', '$2y$10$KqSBpyTz66zpuGizPLZnGu36wWIUYrX.sw5m/qs4Bm8m0m/1d1dKy', 'user.png', 0, 78, NULL),
-('owner', 'owner', 'ownerPU57Z', 'owner@gmail.com', '0703954031', '$2y$10$q47/xA7KQisQH5XwrMRLAOL5fAgEWy5iKu1eD1Rcoi09yTkDnXaCO', '673637be5492e__owner@gmail.com.jpg', 1, 79, NULL),
-('nimna', 'pathum', 'nimnaM4J27', 'pathum@gmail.com', '0715417980', '$2y$10$3IGS8q1/luZSsXBpZz3ReeIzNE9BEyripN1LIFh3wmiZ4PJcV6xwm', 'user.png', 2, 80, NULL),
-('customer', 'customer', 'customer92', 'forcustomer@gmail.com', '0715417980', '$2y$10$iKyFlX3r6YKchdoIkVec9.pq3Ej9cIsQXX/VD.H37p.yips/geK1G', 'user.png', 1, 81, NULL),
-('password', 'provider', 'password5Y', 'sprovider@gmail.com', '0715417980', '$2y$10$yKQzcal5reWf0FR48WO32eR4YpMU7cdYpN0advapp2rcpe4JOi2oS', 'user.png', 2, 82, NULL);
-
-
 
 -- --------------------------------------------------------
 
@@ -123,10 +108,6 @@ INSERT INTO `property` (`property_id`, `name`, `type`, `description`, `address`,
 (25, 'test', 'shortTerm', 'test', 'test', '23356', 'test', 'test', 'india', 2022, 0.00, 1, 1, 1, 1, 'yes', 'yes', 'test', 'pending', 79, 0),
 (26, 'Heaven resort', 'shortTerm', 'This is the best place to live without disturbing', 'No 99  Nugagahahena  Bandaramulla', '81740', 'Matara', 'Southern', 'Sri Lanka', 2002, 20000.00, 4, 1200, 2, 1, 'yes', 'yes', 'Living area and two bedrooms with one bathroom', 'pending', 79, 0),
 (28, 'Meka delete krnne na ehem', 'shortTerm', 'test', 'test', '23356', 'test', 'test', 'india', 2022, 0.00, 1, 1, 1, 1, 'yes', 'yes', 'test for delete', 'pending', 79, 0);
-INSERT INTO `property` (`property_id`, `name`, `type`, `description`, `address`, `zipcode`, `city`, `state_province`, `country`, `year_built`, `rent_on_basis`, `units`, `size_sqr_ft`, `bedrooms`, `bathrooms`, `parking`, `furnished`, `floor_plan`, `status`, `person_id`, `agent_id`) VALUES
-(25, 'test', 'shortTerm', 'test', 'test', '23356', 'test', 'test', 'india', 2022, 0.00, 1, 1, 1, 1, 'yes', 'yes', 'test', 'pending', 79, 62),
-(26, 'Heaven resort', 'shortTerm', 'This is the best place to live without disturbing', 'No 99  Nugagahahena  Bandaramulla', '81740', 'Matara', 'Southern', 'Sri Lanka', 2002, 20000.00, 4, 1200, 2, 1, 'yes', 'yes', 'Living area and two bedrooms with one bathroom', 'pending', 79, 62),
-(28, 'test for delete', 'shortTerm', 'test', 'test', '23356', 'test', 'test', 'india', 2022, 0.00, 1, 1, 1, 1, 'yes', 'yes', 'test for delete', 'pending', 79, 62);
 
 -- --------------------------------------------------------
 
@@ -144,7 +125,19 @@ CREATE TABLE `property_deed_image` (
 --
 
 INSERT INTO `property_deed_image` (`image_url`, `property_id`) VALUES
-('6735f3a42d5cb_doc_24.pdf', 24);
+('673744387aec7_doc_25.pdf', 25),
+('67376473e20a4_doc_26.pdf', 26),
+('67382b8e10e67_doc_28.pdf', 28);
+
+
+--
+-- Table structure for table `property_deed_image_temp`
+--
+
+CREATE TABLE `property_deed_image_temp` (
+  `image_url` varchar(255) NOT NULL,
+  `property_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -492,30 +485,8 @@ ALTER TABLE `property_image_temp`
 --
 -- Constraints for table `services`
 --
-ALTER TABLE `services`
-  ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`service_provider_id`) REFERENCES `person` (`pid`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
--- Table structure for table `services`
---
-
-CREATE TABLE `services` (
-  `service_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(100) NOT NULL,
-  `cost_per_hour` DOUBLE NOT NULL,
-  `description` TEXT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Sample data for services table
-INSERT INTO `services` (`service_id`, `name`, `cost_per_hour`, `description`) VALUES
-(1, 'Door Repairing', 1000, 'This is door repairing'),
-(2, 'Deck Repairing', 1000, 'This is deck repairing'),
-(3, 'Roof Repairing', 1000, 'This is roof repairing'),
-(4, 'Plumbing', 1000, 'This is plumbing'),
-(5, 'Concrete Repairing', 1000, 'This is concrete repairing');
-
 
