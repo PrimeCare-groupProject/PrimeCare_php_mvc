@@ -298,7 +298,7 @@
     background-color: var(--white-color);
     border-radius: 20px;
     padding: 10px 20px;
-    margin: 10px;
+    margin: 10px 5px;
 }
 
 .property-assign-header {
@@ -317,9 +317,10 @@
     background-color: var(--white-color);
     border-radius: 20px;
     padding: 10px 20px;
-    margin: 10px;
+    margin: 10px 5px;
     width: calc(95% );
 }
+
 
 .approval-left-content {
     display: flex;

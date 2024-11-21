@@ -23,7 +23,7 @@
 </div>
 <div class="content_wrapper">
 
-    <div class="financial-details-container">
+    <div class="employee-details-container">
         <table class="listing-table-for-customer-payments">
             <thead>
                 <tr>

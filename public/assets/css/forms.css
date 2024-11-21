@@ -27,7 +27,7 @@
     border-radius: 5px;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
-    font-family: 'outfit', sans-serif;
+    font-family: 'Poppins', Arial, sans-serif;
 }
 
 .input-field:focus {

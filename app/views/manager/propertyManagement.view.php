@@ -22,7 +22,7 @@
         <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement/requestapproval">
             <div class="management-card">
                 <div class="management-text">
-                    <h2>Approve Requests</h2>
+                    <h2>Approve Change Requests</h2>
                 </div>
                 <div class="management-icon">
                     <img src="<?= ROOT ?>/assets/images/email.png" alt="Property Management">
