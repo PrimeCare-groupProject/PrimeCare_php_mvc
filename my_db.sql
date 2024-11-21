@@ -4,6 +4,7 @@
 --
 -- Host: 127.0.0.1
 -- Generation Time: Nov 21, 2024 at 06:20 PM
+-- Generation Time: Nov 21, 2024 at 06:20 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -25,7 +26,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `booking` (
-  `booking_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `booking_id` int(11) NOT NULL,
   `property_id` int(11) DEFAULT NULL,
   `tenant_id` int(11) DEFAULT NULL,
   `agent_id` int(11) DEFAULT NULL,
@@ -46,7 +47,7 @@ CREATE TABLE `person` (
   `password` varchar(256) NOT NULL,
   `image_url` varchar(255) DEFAULT 'user.png',
   `user_lvl` int(2) NOT NULL DEFAULT 0,
-  `pid` int(11) NOT NULL PRIMARY KEY,
+  `pid` int(11) NOT NULL,
   `reset_code` varchar(20) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -77,33 +78,29 @@ INSERT INTO `person` (`fname`, `lname`, `username`, `email`, `contact`, `passwor
 --
 
 CREATE TABLE `property` (
-  `property_id` INT(11) NOT NULL PRIMARY KEY,
-  `name` VARCHAR(255) NOT NULL,
-  `type` ENUM('shortTerm', 'monthly', 'serviceOnly') NOT NULL,
-  `description` TEXT NOT NULL,
-  `address` VARCHAR(255) NOT NULL,
-  `zipcode` VARCHAR(20) NOT NULL,
-  `city` VARCHAR(100) NOT NULL,
-  `state_province` VARCHAR(100) NOT NULL,
-  `country` VARCHAR(100) NOT NULL,
-  `year_built` INT(4) NOT NULL,
-  `rent_on_basis` DECIMAL(10,2) NOT NULL,
-  `units` INT(11) NOT NULL,
-  `size_sqr_ft` INT(11) NOT NULL,
-  `bedrooms` INT(2) NOT NULL,
-  `bathrooms` INT(2) NOT NULL,
-  `parking` VARCHAR(3) NOT NULL,
-  `furnished` VARCHAR(3) NOT NULL,
-  `floor_plan` TEXT NOT NULL,
-  `status` ENUM('active', 'inactive', 'under maintenance', 'sold', 'pending') NOT NULL DEFAULT 'active',
-  `person_id` INT(11) NOT NULL,
-  `agent_id` INT(11) DEFAULT 0,
-  FOREIGN KEY (`person_id`) REFERENCES `person`(`pid`) ON DELETE CASCADE,
-  FOREIGN KEY (`agent_id`) REFERENCES `person`(`pid`)
+  `property_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `type` enum('shortTerm','monthly','serviceOnly') NOT NULL,
+  `description` text NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `zipcode` varchar(20) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `state_province` varchar(100) NOT NULL,
+  `country` varchar(100) NOT NULL,
+  `year_built` int(4) NOT NULL,
+  `rent_on_basis` decimal(10,2) NOT NULL,
+  `units` int(11) NOT NULL,
+  `size_sqr_ft` int(11) NOT NULL,
+  `bedrooms` int(2) NOT NULL,
+  `bathrooms` int(2) NOT NULL,
+  `parking` varchar(3) NOT NULL,
+  `furnished` varchar(3) NOT NULL,
+  `floor_plan` text NOT NULL,
+  `status` enum('active','inactive','under maintenance','sold','pending') NOT NULL DEFAULT 'active',
+  `person_id` int(11) NOT NULL,
+  `agent_id` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
--- --------------------------------------------------------
 --
 -- Dumping data for table `property`
 --
@@ -114,16 +111,16 @@ INSERT INTO `property` (`property_id`, `name`, `type`, `description`, `address`,
 (28, 'Meka delete krnne na ehem', 'shortTerm', 'test', 'test', '23356', 'test', 'test', 'india', 2022, 0.00, 1, 1, 1, 1, 'yes', 'yes', 'test for delete', 'pending', 79, 0);
 
 -- --------------------------------------------------------
+
 --
 -- Table structure for table `property_deed_image`
 --
 
 CREATE TABLE `property_deed_image` (
-  `image_url` varchar(255) NOT NULL PRIMARY KEY,
+  `image_url` varchar(255) NOT NULL,
   `property_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
 --
 -- Dumping data for table `property_deed_image`
 --
@@ -147,6 +144,7 @@ CREATE TABLE `property_deed_image_temp` (
 ('67382b8e10e67_doc_28.pdf', 28);
 
 -- --------------------------------------------------------
+
 --
 -- Table structure for table `property_image`
 --
@@ -156,7 +154,6 @@ CREATE TABLE `property_image` (
   `property_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
 --
 -- Dumping data for table `property_image`
 --
@@ -171,19 +168,6 @@ INSERT INTO `property_image` (`image_url`, `property_id`) VALUES
 ('67382b8e0a73b_property_28.jpg', 28);
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `property_image_temp`
---
-
-
-CREATE TABLE `property_image_temp` (
-  `image_url` varchar(255) NOT NULL,
-  `property_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
 --
 -- Table structure for table `property_temp`
 --
@@ -212,15 +196,59 @@ CREATE TABLE `property_temp` (
   `agent_id` int(11) DEFAULT NULL,
   `request_type` enum('update','removal','acceptance','') NOT NULL DEFAULT 'acceptance'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-('67374438771d3_property_25.jpg', 25),
-('673744387852a_property_25.png', 25),
-('6737443879788_property_25.jpg', 25),
-('67376473db170_property_26.jpg', 26),
-('67376473dc125_property_26.jpg', 26),
-('67376473e1223_property_26.jpg', 26),
-('67382b8e0a73b_property_28.jpg', 28);
 
 -- --------------------------------------------------------
+--
+-- Stand-in structure for view `property_with_images`
+-- (See below for the actual view)
+--
+CREATE TABLE `property_with_images` (
+`property_id` int(11)
+,`name` varchar(255)
+,`description` text
+,`type` enum('shortTerm','monthly','serviceOnly')
+,`address` varchar(255)
+,`zipcode` varchar(20)
+,`city` varchar(100)
+,`state_province` varchar(100)
+,`country` varchar(100)
+,`year_built` int(4)
+,`rent_on_basis` decimal(10,2)
+,`units` int(11)
+,`size_sqr_ft` int(11)
+,`bedrooms` int(2)
+,`bathrooms` int(2)
+,`parking` varchar(3)
+,`furnished` varchar(3)
+,`floor_plan` text
+,`status` enum('active','inactive','under maintenance','sold','pending')
+,`person_id` int(11)
+,`property_images` mediumtext
+,`property_deed_images` mediumtext
+);
+
+--
+<<<<<<<<< Temporary merge branch 1
+-- Structure for view `property_with_images`
+--
+DROP TABLE IF EXISTS `property_with_images`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
+
+-- --------------------------------------------------------
+-- Table structure for table `serviceLogs`
+=========
+-- Table structure for table `property_image_temp`
+--
+
+
+CREATE TABLE `property_image_temp` (
+  `image_url` varchar(255) NOT NULL,
+  `property_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `property_temp`
 --
@@ -337,7 +365,6 @@ CREATE TABLE `serviceLog` (
   `service_description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
 --
 -- Dumping data for table `serviceLog`
 --
@@ -504,6 +531,9 @@ CREATE TABLE property_image_temp (
 
 -- Table structure for table `property_deed_image_temp`
 --
+ALTER TABLE `property`
+  ADD PRIMARY KEY (`property_id`),
+  ADD KEY `person_id` (`person_id`);
 CREATE TABLE property_deed_image_temp (
   `image_url` VARCHAR(255) ,
   `property_id` INT(11) NOT NULL
@@ -557,7 +587,7 @@ ALTER TABLE `services`
 --
 ALTER TABLE `booking`
   MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT;
-  
+>>>>>>>>> Temporary merge branch 2
 
 --
 -- AUTO_INCREMENT for table `person`
@@ -607,6 +637,14 @@ ALTER TABLE `booking`
   ADD CONSTRAINT `booking_ibfk_2` FOREIGN KEY (`tenant_id`) REFERENCES `person` (`pid`) ON DELETE CASCADE,
   ADD CONSTRAINT `booking_ibfk_3` FOREIGN KEY (`agent_id`) REFERENCES `person` (`pid`) ON DELETE CASCADE;
 
+<<<<<<<<< Temporary merge branch 1
+=========
+--
+-- Constraints for table `property`
+--
+ALTER TABLE `property`
+  ADD CONSTRAINT `property_ibfk_1` FOREIGN KEY (`person_id`) REFERENCES `person` (`pid`) ON DELETE CASCADE;
+>>>>>>>>> Temporary merge branch 2
 
 --
 -- Constraints for table `property_deed_image`
@@ -640,4 +678,9 @@ ALTER TABLE `property_image_temp`
 --
 ALTER TABLE `property_image_temp`
   ADD CONSTRAINT `property_image_temp_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `property` (`property_id`) ON DELETE CASCADE;
+
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
