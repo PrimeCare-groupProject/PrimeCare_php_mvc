@@ -10,7 +10,7 @@ defined('ROOTPATH') or exit('Access denied');
   //  define('DBUSER', 'root');
   //  define('DBPASS', '');
   // database config remote dev environment
-   define('DBNAME', 'primecare_db');
+   define('DBNAME', 'primecare_all');
    define('DBHOST', 'mysql-primecare.alwaysdata.net');
    define('DBUSER', 'primecare');
    define('DBPASS', 'Primecare@123');
