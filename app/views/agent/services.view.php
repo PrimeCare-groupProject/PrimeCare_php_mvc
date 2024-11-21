@@ -5,8 +5,7 @@
     <h2>Services</h2>
 </div>
 
-<div class="management-cards-container">
-    <div class="management-card-container-sub1">
+<div class="management-cards-container" style="height: 30%; margin-top: 10px;">
         <a href="<?= ROOT ?>/dashboard/services/serviceproviders">
             <div class="management-card">
                 <div class="management-text">
@@ -17,9 +16,7 @@
                 </div>
             </div>
         </a>
-    </div>
 
-    <div class="management-card-container-sub1">
         <a href="<?= ROOT ?>/dashboard/services/payments">
             <div class="management-card">
                 <div class="management-text">
@@ -30,7 +27,6 @@
                 </div>
             </div>
         </a>
-    </div>
 </div>
 
 <?php require_once 'agentFooter.view.php'; ?>

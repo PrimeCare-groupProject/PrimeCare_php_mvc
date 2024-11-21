@@ -233,6 +233,10 @@ class Manager {
         $this->view('manager/agentManagement');
     }
 
+    public function contacts(){
+        $this->view('manager/contacts');
+    }
+    
     private function logout(){
         session_unset();
         session_destroy();

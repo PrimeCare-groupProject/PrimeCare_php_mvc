@@ -62,6 +62,7 @@
             <div class="input-group-aligned">
                 <button type="button" class="primary-btn" id="edit-button">Edit</button>
                 <button type="button" class="secondary-btn" id="cancel-button" style="display: none;">Cancel</button>
+                    
                 <button type="button" class="secondary-btn red" id="delete-button">Remove Account</button>
                 <button type="submit" class="primary-btn" id="save-button" style="display: none;">Save</button>
             </div>
