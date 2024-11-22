@@ -434,18 +434,10 @@ class Agent{
     }
 
     public function newrepairing(){
-        // Load the PropertyModel
-        $propertyModel = new Property();
 
-        // Get all properties from the database
-        $properties = $propertyModel->findAll();
-
-        $data = [
-            'properties' => $properties
-        ];
 
         // Load the view and pass data
-        $this->view('agent/newrepairing', $data);
+        $this->view('agent/newrepairing');
     }
 
     public function repairing($d){
