@@ -30,7 +30,7 @@
         </a>
     </div>
 
-    <div class="management-card-container-sub1">
+    <div class="management-card-container-sub">
         <a href="<?= ROOT ?>/dashboard/tasks/inventorymanagement">
             <div class="management-card">
                 <div class="management-text">

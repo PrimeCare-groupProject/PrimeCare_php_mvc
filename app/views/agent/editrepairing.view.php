@@ -23,7 +23,7 @@
             
             <label class="input-label">Description About The Repair</label>
             <!-- Populate the description textarea with the actual description -->
-            <textarea name="description" class="input-field" required><?= isset($service1) ? htmlspecialchars($service1->description) : '' ?></textarea>
+            <textarea name="description" class="input-field1" required><?= isset($service1) ? htmlspecialchars($service1->description) : '' ?></textarea>
 
             <div class="buttons-to-right">
                 <button type="submit" class="primary-btn">Save</button>

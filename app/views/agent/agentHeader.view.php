@@ -100,4 +100,4 @@
                 });
             </script>
 
-            <div class="user_view-content_section" id="content-section">
+<div class="user_view-content_section" id="content-section">

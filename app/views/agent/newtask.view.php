@@ -9,7 +9,7 @@
 <!-- RepairListingComponent -->
 <div class="property-listing-grid">
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/doorrepairing1'>
-        <div class="repair-card">
+        <div class="repair-card1">
             <div class="repair-image">
                 <img src="<?= ROOT ?>/assets/images/repairimages/doorrepairing.png" alt="services">
             </div>
@@ -23,7 +23,7 @@
         </div>
     </a>
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/bathroomrepairing1'>
-        <div class="repair-card">
+        <div class="repair-card1">
             <div class="repair-image">
                 <img src="<?= ROOT ?>/assets/images/repairimages/bathroomRepairing.png" alt="services">
             </div>
@@ -37,7 +37,7 @@
         </div>
     </a>   
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/roofrepairing1'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/roofRepairing.png" alt="services">
         </div>
@@ -51,7 +51,7 @@
     </div>
     </a>
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/plumbing1'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/plumbing.png" alt="services">
         </div>
@@ -65,7 +65,7 @@
     </div>
     </a>
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/deckrepairing1'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/deckrepairing.png" alt="services">
         </div>
@@ -79,7 +79,7 @@
     </div>
     </a>
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/electricalrepairing1'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/electricrepairing.png" alt="services">
         </div>
@@ -93,7 +93,7 @@
     </div>
     </a>
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/painting1'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/painting.png" alt="services">
         </div>
@@ -107,7 +107,7 @@
     </div>
     </a>
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/furniturerepairing1'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/furniturerepairing.png" alt="services">
         </div>
@@ -121,7 +121,7 @@
     </div>
     </a>
     <a href='<?= ROOT ?>/dashboard/tasks/newtask/concreterepairing1'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/concreterepairing.png" alt="services">
         </div>

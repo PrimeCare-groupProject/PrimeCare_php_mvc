@@ -270,7 +270,8 @@ CREATE TABLE `services` (
   `service_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
   `cost_per_hour` DOUBLE NOT NULL,
-  `description` TEXT NOT NULL
+  `description` TEXT NOT NULL,
+  `service_images` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Sample data for services table
