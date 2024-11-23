@@ -58,7 +58,7 @@
                         <div class="container">
                             <div class="card1">
                                 <div class="card1-header">
-                                    <img src="<?= ROOT ?>/assets/images/repairimages/deckrepairing.png" alt="services">
+                                    <img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="services">
                                 </div>
                                 <div class="card1-body">
                                     <h2>

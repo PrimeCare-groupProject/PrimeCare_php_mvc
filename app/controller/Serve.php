@@ -35,12 +35,10 @@ class Serve{
 
                 // Save the file paths to the database (as JSON for multiple files)
                 if (!empty($uploadedFiles)) {
-                    $arr['service_images'] = implode(',', $uploadedFiles);
+                    $arr['service_img'] = implode(',', $uploadedFiles);
                 }
             }
-            echo '<pre>';
-    print_r($arr);
-    echo '</pre>';
+
             // Insert repair data into the database
             $res = $service->insert($arr);
             

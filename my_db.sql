@@ -271,7 +271,7 @@ CREATE TABLE `services` (
   `name` VARCHAR(100) NOT NULL,
   `cost_per_hour` DOUBLE NOT NULL,
   `description` TEXT NOT NULL,
-  `service_images` TEXT
+  `service_img` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Sample data for services table
