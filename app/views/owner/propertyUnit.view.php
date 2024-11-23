@@ -11,11 +11,11 @@
         </div>
         <div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right">
+                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/financialReportUnit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Financial Report</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right"  onclick="window.location.href='<?= ROOT ?>/dashboard/reportProblem/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/reportProblem/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Report a Problem</span>
             </div>
         </div>

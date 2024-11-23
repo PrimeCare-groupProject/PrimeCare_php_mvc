@@ -126,4 +126,298 @@ select:hover, select:focus {
     outline: none;
 }
 
+/** owner financial report for unit css */
 
+.container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1440px;
+    margin: 0 auto;
+    font-family: 'outfit', sans-serif;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.menu-card {
+    background: var(--white-color);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.menu-card p{
+    font-size: 16px;
+    color: var(--gray-500);
+    margin: 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    width: 60%;
+    text-decoration: none;
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    border-radius: 12px;
+    gap: 12px;
+}
+
+.menu-item:hover {
+    background-color: var(--primary-blue);
+    color: var(--white-color);
+}
+
+.badge {
+    background: var(--red);
+    color: var(--white-color);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-left: auto;
+}
+
+/* Savings Card Styles */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 16px;
+}
+
+.savings-amount {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.amount {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.percentage {
+    font-size: 14px;
+}
+
+.positive {
+    color: var(--green);
+}
+
+.negative {
+    color: var(--red);
+}
+
+.change-text {
+    color: var(--green);
+    font-size: 14px;
+    display: block;
+    margin-bottom: 24px;
+}
+
+.savings-goals {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Main Content Styles */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 10px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.stat-amount {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.stat-change {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--dark-grey-color);
+}
+
+.statistics-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 450px;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.legend {
+    display: flex;
+    gap: 16px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.dot.earnings {
+    background: var(--primary-color);
+}
+
+.dot.spendings {
+    background: var(--primary-color-hover);
+}
+
+.period-selector {
+    padding: 8px 16px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: white;
+    color: var(--gray-700);
+    font-size: 14px;
+}
+
+#statisticsChart {
+    max-height: 350px; /* Set maximum height for the chart */
+}
+
+/* Tenant List Styles */
+.tenants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tenant {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.tenant:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.tenant-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.tenant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tenant-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.tenant-main h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.tenant-details {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tenant {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tenant-avatar {
+        margin-bottom: 12px;
+    }
+
+    .tenant-details {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tenant-financial {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .tenant-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 16px;
+    }
+}

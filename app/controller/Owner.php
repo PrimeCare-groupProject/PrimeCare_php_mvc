@@ -310,6 +310,14 @@ class Owner
             'status' => $_SESSION['status'] ?? ''
         ]);
     }
+
+    public function financialReportUnit(){
+        $this->view('owner/financialReportUnit', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
 }
 
 
