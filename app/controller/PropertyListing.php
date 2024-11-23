@@ -7,4 +7,8 @@ class propertyListing{
     public function showListing(){
         $this->view('propertyListing');
     }
+
+    public function showListingDetail(){
+        $this->view('propertyUnit');
+    }
 }

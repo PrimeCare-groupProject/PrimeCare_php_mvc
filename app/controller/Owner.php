@@ -300,15 +300,6 @@ class Owner
         redirect('dashboard/profile');
         exit;
     }
-
-    public function listing(){
-        $this->view('owner/propertyListingNew', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
-        ]);
-    }
-
     
 }
 
