@@ -283,6 +283,7 @@ button.delete-btn {
     overflow: hidden;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .slides {
@@ -320,6 +321,7 @@ button.delete-btn {
     padding: 10px;
     cursor: pointer;
     font-size: 18px;
+    z-index: 10;
 }
 
 .prev {
