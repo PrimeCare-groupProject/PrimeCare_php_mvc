@@ -42,3 +42,4 @@ function removeImage(index) {
     fileInput.files = dataTransfer.files; // Update file input with modified files list
     handleFileSelect({ target: fileInput }); // Refresh preview
 }
+

@@ -17,7 +17,7 @@
         <img src="<?= ROOT ?>/assets/images/reportform.jpg" alt="Report about property">
     </div>
     <div class="RP_side-containers">
-        <form action="" method="post">
+        <form action="" method="post" enctype="multipart/form-data">
             <div>
                 <label for="problem">What is the problem?</label>
                 <textarea name="problem" id="problem" cols="30" rows="3" class="input-field" required></textarea>
@@ -33,10 +33,10 @@
                 <label for="location">Where is the problem?</label>
                 <input type="text" name="location" id="location" class="input-field" required>
             </div>
+            <label>Upload Reports (Max 6)*</label>
             <div class="owner-addProp-file-upload">
-                <!-- <label for="image">Upload an image</label>
-                <input type="file" name="image" id="image" class="input-field" required> -->
-                <input type="file" name="reports_images" id="reports_images" data-max-files="3" onchange="handleFileSelectForDocs(event)" required>
+                <input type="file" name="reports_images[]" id="reports_images" class="input-field" multiple
+                    accept=".png, .jpg, .jpeg" data-max-files="6" onchange="handleFileSelect(event)" required>
                 <div class="owner-addProp-upload-area">
                     <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
                     <p class="upload-area-no-margin">Drop your files here</p>
@@ -53,5 +53,8 @@
     </div>
 </div>
 
-<script src="<?= ROOT ?>/assets/js/property/addreports.js"></script>
+<script>
+    const ROOT = '<?= ROOT ?>';
+</script>
+<script src="<?= ROOT ?>/assets/js/reports/addreports.js"></script>
 <?php require_once 'ownerFooter.view.php'; ?>
