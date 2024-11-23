@@ -377,9 +377,9 @@ button.delete-btn {
     margin: 10px 0;
     font-size: 1.5rem; 
     font-weight: 600; 
-    color: var(--dark-grey-color);
-    background-color: var(--background-color);
-    border: var(--red-color) 1px solid;
+    color: var(--green-color);
+    background-color: var(--secondary-color);
+    border: none;
     border-radius: 5px;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
@@ -387,8 +387,8 @@ button.delete-btn {
 }
 
 .input-field-small-for-rent:hover {
-    background-color: rgba(var(--red-color-rgb), 0.1);
-    color: var(--red-color);
+    background-color: var(--primary-color);
+    color: var(--white-color);
 }
 
 .more-padding {

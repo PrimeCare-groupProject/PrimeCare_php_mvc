@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/forms.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/serviceProvider.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/formSet.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +27,7 @@
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
-            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile" class="header-profile-picture"></a>
+            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile" class="header-profile-picture"></a>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
@@ -37,7 +38,7 @@
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
-                    <input type="text" name="logout" value= "1" hidden>
+                    <input type="text" name="logout" value="1" hidden>
                 </form>
             </div>
 
@@ -46,21 +47,21 @@
                     const sidebarLinks = document.querySelectorAll('.user_view-sidemenu ul li a');
                     let isTabActive = false;
                     const currentURL = window.location.href;
-                    const url = new URL(window.location.href);  // Get the current page URL
-                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/');  // Split the URL into an array
+                    const url = new URL(window.location.href); // Get the current page URL
+                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/'); // Split the URL into an array
                     const currentPage = path[3] || "dashboard";
                     console.log(path[3]);
                     // Loop through each sidebar link
                     sidebarLinks.forEach(link => {
                         const button = link.querySelector('button');
                         const href = link.getAttribute('href');
-                        
+
                         // Check if the current page matches the link's href
                         if (currentURL.includes(href)) {
                             // Add 'active' class to the button
                             button.classList.add('active');
                             button.classList.remove('btn');
-                            isTabActive = true;  // Mark that a tab is active
+                            isTabActive = true; // Mark that a tab is active
                         } else {
                             // Remove 'active' class from the button
                             button.classList.remove('active');
@@ -77,7 +78,7 @@
                             dashboardButton.classList.add('btn');
                             dashboardButton.classList.remove('active');
                         }
-                    }else{
+                    } else {
                         // console.log(" tab is not active");
 
                         dashboardButton.classList.add('active');

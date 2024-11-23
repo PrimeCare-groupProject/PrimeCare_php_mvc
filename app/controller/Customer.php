@@ -204,4 +204,13 @@ class Customer
     {
         $this->view('customer/payments');
     }
+
+    public function reportProblem()
+    {
+        $this->view('customer/reportProblem', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
 }
