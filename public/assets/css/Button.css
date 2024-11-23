@@ -106,6 +106,16 @@
     border: 1px solid var(--green-color);
 }
 
+.green-solid{
+    background-color: var(--green-color);
+    color: var(--white-color);
+    border: 1px solid var(--green-color);
+}
+
+.green-solid:hover{
+    background-color: rgba(var(--green-color-rgb) , 0.80);
+}
+
 .green:hover{
     background-color: rgba(var(--green-color-rgb), 0.80);
     color: var(--white-color);
@@ -115,6 +125,16 @@
     background-color: rgba(var(--red-color-rgb), 0.20);
     color: var(--red-color);
     border: 1px solid var(--red-color);
+}
+
+.red-solid{
+    background-color: var(--red-color);
+    color: var(--white-color);
+    border: 1px solid var(--red-color);
+}
+
+.red-solid:hover{
+    background-color: rgba(var(--red-color-rgb) , 0.80);
 }
 
 .red:hover{

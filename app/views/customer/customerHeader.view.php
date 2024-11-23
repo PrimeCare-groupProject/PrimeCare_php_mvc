@@ -34,6 +34,7 @@
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers"><button class="btn">Search</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/payments"><button class="btn">Payments</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/occupiedProperties"><button class="btn">Occupied Properties</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">

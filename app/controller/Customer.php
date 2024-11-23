@@ -185,7 +185,11 @@ class Customer
 
     public function occupiedProperties()
     {
-        $this->view('customer/occupiedProperties');
+        $this->view('customer/occupiedProperties', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
     }
 
     public function search()
