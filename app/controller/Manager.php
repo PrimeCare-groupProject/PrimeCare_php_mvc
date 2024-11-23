@@ -12,6 +12,9 @@ class Manager {
         $this->view('manager/dashboard');
     }
 
+    private function addAgent(){
+        $this->view('manager/addAgent');
+    }
     public function profile(){
         $user = new User();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -160,7 +163,7 @@ class Manager {
                 $this->employeeManagement();
                 break;
             case 'agentmanagement':
-                $this->agentManagement();
+                $this->agentManagement($b,$c,$d);
                 break;
             case 'financialmanagement':
                 $this->financialManagement();
@@ -229,8 +232,13 @@ class Manager {
         $this->view('manager/assignagents');
     }
 
-    public function agentManagement(){
-        $this->view('manager/agentManagement');
+    public function agentManagement($b = ''){
+        if($b == 'addagent'){
+            $this->view('manager/addAgent');
+            // $this->addAgent();
+        }else{
+            $this->view('manager/agentManagement');
+        }
     }
 
     public function contacts(){

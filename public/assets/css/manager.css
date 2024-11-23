@@ -218,3 +218,41 @@ a .management-card .management-icon img {
     max-width: 100px;
     min-width: 80px;
 }
+
+.tooltip-text {
+    visibility: hidden;
+    /* Hide the tooltip by default */
+    width: 100px;
+    /* Width of the tooltip */
+    background-color: var(--dark-grey-color);
+    /* Dark background for the tooltip */
+    color: var(--background-color);
+    /* White text color */
+    text-align: center;
+    /* Center text */
+    border-radius: 5px;
+    /* Rounded corners */
+    padding: 5px;
+    /* Padding around the text */
+    position: absolute;
+    /* Position tooltip relative to the container */
+    z-index: 1;
+    /* Ensure it appears on top */
+    top: 125%;
+    /* Position above the image */
+    left: 50%;
+    /* Center horizontally */
+    margin-left: -75px;
+    /* Adjust horizontal positioning */
+    opacity: 0;
+    /* Initially invisible */
+    transition: opacity 0.3s;
+    /* Smooth fade-in effect */
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    /* Show tooltip on hover */
+    opacity: 1;
+    /* Make it fully visible */
+}

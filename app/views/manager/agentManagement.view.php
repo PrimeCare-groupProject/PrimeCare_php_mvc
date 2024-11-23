@@ -17,6 +17,10 @@
                 <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
             </button>
         </form>
+        <div class="tooltip-container">
+            <a href='<?= ROOT ?>/dashboard/managementhome/agentmanagement/addagent'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
+            <span class="tooltip-text">Add New Agent</span>
+        </div>
     </div>
 </div>
 <div>
