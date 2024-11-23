@@ -117,6 +117,7 @@ class Owner
             'status' => $_SESSION['status'] ?? ''
         ]);
     }
+
     public function serviceRequest($type = '')
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -301,6 +302,22 @@ class Owner
         exit;
     }
     
+    public function reportProblem()
+    {
+        $this->view('owner/reportProblem', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
+
+    public function financialReportUnit(){
+        $this->view('owner/financialReportUnit', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
 }
 
 
