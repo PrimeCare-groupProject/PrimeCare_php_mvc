@@ -5,6 +5,18 @@
         </div>
         <div class="service-card-content">
             <div class="field-group">
+                <label class="service-card-label">Name:</label>
+                <span class="service-card-field">Tenant 1</span>
+            </div>
+            <div class="field-group">
+                <label class="service-card-label">Email:</label>
+                <span class="service-card-field">tenant@gmail.com</span>
+            </div>
+            <div class="field-group">
+                <label class="service-card-label">Contact Number:</label>
+                <span class="service-card-field">0703954031</span>
+            </div>
+            <div class="field-group">
                 <div class="field-group">
                     <label class="service-card-label">Tenant_ID:</label>
                     <span class="service-card-field">11320</span>
@@ -12,16 +24,6 @@
                 <div class="field-group">
                     <label class="service-card-label">Price:</label>
                     <span class="service-card-field">2000 LKR</span>
-                </div>
-            </div>
-            <div class="field-group">
-                <div class="field-group">
-                    <label class="service-card-label">Booking:</label>
-                    <span class="service-card-field">2024/07/26</span>
-                </div>
-                <div class="field-group">
-                    <label class="service-card-label">property ID:</label>
-                    <span class="service-card-field">12345</span>
                 </div>
             </div>
             <div class="field-group">
@@ -44,23 +46,10 @@
                     <span class="service-card-field">5</span>
                 </div>
             </div>
-            <div class="field-group">
-                <label class="service-card-label">Name:</label>
-                <span class="service-card-field">Tenant 1</span>
-            </div>
-            <div class="field-group">
-                <label class="service-card-label">Email:</label>
-                <span class="service-card-field">tenant@gmail.com</span>
-            </div>
-            <div class="field-group">
-                <label class="service-card-label">Contact Number:</label>
-                <span class="service-card-field">0703954031</span>
-            </div>
         </div>
     </div>
 
     <div class="profile-picture-section">
         <img src="<?= ROOT ?>/assets/images/user.png" alt="Profile Picture">
-        <h2>Tenant Name</h2>
     </div>
 </div>
