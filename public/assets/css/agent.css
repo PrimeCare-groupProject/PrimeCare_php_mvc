@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
 .double-section {
     display: flex;
     flex-wrap: wrap;
@@ -331,7 +333,6 @@ body.popup-active .blur-container {
     background: #bbb;
 }
 
-@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 #specific-page * {
   box-sizing: border-box;
 }

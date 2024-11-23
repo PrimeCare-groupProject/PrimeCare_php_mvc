@@ -4,6 +4,7 @@
 --
 -- Host: 127.0.0.1
 -- Generation Time: Nov 21, 2024 at 06:20 PM
+-- Generation Time: Nov 21, 2024 at 06:20 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -138,6 +139,9 @@ CREATE TABLE `property_deed_image_temp` (
   `image_url` varchar(255) NOT NULL,
   `property_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+('673744387aec7_doc_25.pdf', 25),
+('67376473e20a4_doc_26.pdf', 26),
+('67382b8e10e67_doc_28.pdf', 28);
 
 -- --------------------------------------------------------
 
@@ -164,8 +168,76 @@ INSERT INTO `property_image` (`image_url`, `property_id`) VALUES
 ('67382b8e0a73b_property_28.jpg', 28);
 
 -- --------------------------------------------------------
+--
+-- Table structure for table `property_temp`
+--
+
+CREATE TABLE `property_temp` (
+  `property_id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `type` enum('short term','monthly','service only') DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `zipcode` varchar(20) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `state_province` varchar(100) DEFAULT NULL,
+  `country` varchar(100) DEFAULT NULL,
+  `year_built` int(4) DEFAULT NULL,
+  `rent_on_basis` decimal(10,2) DEFAULT NULL,
+  `units` int(11) DEFAULT NULL,
+  `size_sqr_ft` int(11) DEFAULT NULL,
+  `bedrooms` int(2) DEFAULT NULL,
+  `bathrooms` int(2) DEFAULT NULL,
+  `parking` varchar(3) DEFAULT NULL,
+  `furnished` varchar(3) DEFAULT NULL,
+  `floor_plan` text DEFAULT NULL,
+  `status` enum('active','inactive','under maintenance','sold','pending') DEFAULT NULL,
+  `person_id` int(11) DEFAULT NULL,
+  `agent_id` int(11) DEFAULT NULL,
+  `request_type` enum('update','removal','acceptance','') NOT NULL DEFAULT 'acceptance'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+--
+-- Stand-in structure for view `property_with_images`
+-- (See below for the actual view)
+--
+CREATE TABLE `property_with_images` (
+`property_id` int(11)
+,`name` varchar(255)
+,`description` text
+,`type` enum('shortTerm','monthly','serviceOnly')
+,`address` varchar(255)
+,`zipcode` varchar(20)
+,`city` varchar(100)
+,`state_province` varchar(100)
+,`country` varchar(100)
+,`year_built` int(4)
+,`rent_on_basis` decimal(10,2)
+,`units` int(11)
+,`size_sqr_ft` int(11)
+,`bedrooms` int(2)
+,`bathrooms` int(2)
+,`parking` varchar(3)
+,`furnished` varchar(3)
+,`floor_plan` text
+,`status` enum('active','inactive','under maintenance','sold','pending')
+,`person_id` int(11)
+,`property_images` mediumtext
+,`property_deed_images` mediumtext
+);
 
 --
+<<<<<<<<< Temporary merge branch 1
+-- Structure for view `property_with_images`
+--
+DROP TABLE IF EXISTS `property_with_images`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
+
+-- --------------------------------------------------------
+-- Table structure for table `serviceLogs`
+=========
 -- Table structure for table `property_image_temp`
 --
 
@@ -239,6 +311,44 @@ CREATE TABLE `property_with_images` (
 
 -- --------------------------------------------------------
 -- Table structure for table `serviceLog`
+--
+-- Stand-in structure for view `property_with_images`
+-- (See below for the actual view)
+--
+CREATE TABLE `property_with_images` (
+`property_id` int(11)
+,`name` varchar(255)
+,`description` text
+,`type` enum('shortTerm','monthly','serviceOnly')
+,`address` varchar(255)
+,`zipcode` varchar(20)
+,`city` varchar(100)
+,`state_province` varchar(100)
+,`country` varchar(100)
+,`year_built` int(4)
+,`rent_on_basis` decimal(10,2)
+,`units` int(11)
+,`size_sqr_ft` int(11)
+,`bedrooms` int(2)
+,`bathrooms` int(2)
+,`parking` varchar(3)
+,`furnished` varchar(3)
+,`floor_plan` text
+,`status` enum('active','inactive','under maintenance','sold','pending')
+,`person_id` int(11)
+,`property_images` mediumtext
+,`property_deed_images` mediumtext
+);
+
+--
+-- Structure for view `property_with_images`
+--
+DROP TABLE IF EXISTS `property_with_images`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
+
+-- --------------------------------------------------------
+-- Table structure for table `serviceLogs`
 --
 
 CREATE TABLE `serviceLog` (
@@ -330,37 +440,109 @@ GROUP BY
 -- CREATE ALGORITHM=UNDEFINED DEFINER=`primecare`@`mysql-primecare.alwaysdata.net` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
 -- CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
 
---
--- Indexes for dumped tables
---
 
 --
--- Indexes for table `booking`
+-- Table structure for table `services`
 --
-ALTER TABLE `booking`
-  ADD PRIMARY KEY (`booking_id`),
-  ADD KEY `property_id` (`property_id`),
-  ADD KEY `tenant_id` (`tenant_id`),
-  ADD KEY `agent_id` (`agent_id`);
+
+CREATE TABLE `services` (
+  `service_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(100) NOT NULL,
+  `cost_per_hour` DOUBLE NOT NULL,
+  `description` TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for table `person`
+-- Dumping data for table `services`
 --
-ALTER TABLE `person`
-  ADD PRIMARY KEY (`pid`);
 
+INSERT INTO `services` (`service_id`, `name`, `cost_per_hour`, `description`) VALUES
+(1, 'Door Repairing', 1000, 'This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. '),
+(2, 'Deck Repairing', 1000, 'This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. '),
+(3, 'Roof Repairing', 1000, 'This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. '),
+(4, 'Plumbing', 1000, 'This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing.'),
+(5, 'Concrete Repairing', 1000, 'This is concrete repairing');
+
+-- --------------------------------------------------------
+
+-- Structure for view `property_with_images`
 --
--- Indexes for table `property`
+DROP TABLE IF EXISTS `property_with_images`;
+CREATE OR REPLACE VIEW property_with_images AS
+SELECT 
+    p.property_id AS property_id, 
+    p.name AS name,
+    p.description AS description,
+    p.type AS type,
+    p.address AS address,
+    p.zipcode AS zipcode,
+    p.city AS city,
+    p.state_province AS state_province,
+    p.country AS country,
+    p.year_built AS year_built,
+    p.rent_on_basis AS rent_on_basis,
+    p.units AS units,
+    p.size_sqr_ft AS size_sqr_ft,
+    p.bedrooms AS bedrooms,
+    p.bathrooms AS bathrooms,
+    p.parking AS parking,
+    p.furnished AS furnished,
+    p.floor_plan AS floor_plan,
+    p.status AS status,
+    p.person_id AS person_id,
+    GROUP_CONCAT(DISTINCT pi.image_url ORDER BY pi.image_url ASC SEPARATOR ',') AS property_images,
+    GROUP_CONCAT(DISTINCT pdi.image_url ORDER BY pdi.image_url ASC SEPARATOR ',') AS property_deed_images
+FROM 
+    property p
+LEFT JOIN 
+    property_image pi ON p.property_id = pi.property_id
+LEFT JOIN 
+    property_deed_image pdi ON p.property_id = pdi.property_id
+GROUP BY 
+    p.property_id;
+
+-- CREATE ALGORITHM=UNDEFINED DEFINER=`primecare`@`mysql-primecare.alwaysdata.net` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
+-- CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
+
+-- Table structure for table `services`
+--
+
+CREATE TABLE `services` (
+  `service_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(100) NOT NULL,
+  `cost_per_hour` DOUBLE NOT NULL,
+  `description` TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Sample data for services table
+INSERT INTO `services` (`service_id`, `name`, `cost_per_hour`, `description`) VALUES
+(1, 'Door Repairing', 1000, 'This is door repairing'),
+(2, 'Deck Repairing', 1000, 'This is deck repairing'),
+(3, 'Roof Repairing', 1000, 'This is roof repairing'),
+(4, 'Plumbing', 1000, 'This is plumbing'),
+(5, 'Concrete Repairing', 1000, 'This is concrete repairing');
+
+-- Table structure for table `property_image_temp`
+--
+CREATE TABLE property_image_temp (
+  `image_url` VARCHAR(255) ,
+  `property_id` INT(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table structure for table `property_deed_image_temp`
 --
 ALTER TABLE `property`
   ADD PRIMARY KEY (`property_id`),
   ADD KEY `person_id` (`person_id`);
+CREATE TABLE property_deed_image_temp (
+  `image_url` VARCHAR(255) ,
+  `property_id` INT(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for table `property_deed_image`
 --
 ALTER TABLE `property_deed_image`
-  ADD PRIMARY KEY (`image_url`),
   ADD KEY `property_id` (`property_id`);
 
 --
@@ -387,19 +569,25 @@ ALTER TABLE `property_image_temp`
 --
 -- Indexes for table `property_temp`
 --
-ALTER TABLE `property_temp`
-  ADD PRIMARY KEY (`property_id`);
+ALTER TABLE `property_image`
+  ADD PRIMARY KEY (`image_url`),
+  ADD KEY `property_id` (`property_id`);
 
 --
 -- Indexes for table `services`
 --
---
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `service_provider_id` (`service_provider_id`);
 
 --
+-- AUTO_INCREMENT for dumped tables
+----
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
   MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT;
+>>>>>>>>> Temporary merge branch 2
 
 --
 -- AUTO_INCREMENT for table `person`
@@ -449,11 +637,14 @@ ALTER TABLE `booking`
   ADD CONSTRAINT `booking_ibfk_2` FOREIGN KEY (`tenant_id`) REFERENCES `person` (`pid`) ON DELETE CASCADE,
   ADD CONSTRAINT `booking_ibfk_3` FOREIGN KEY (`agent_id`) REFERENCES `person` (`pid`) ON DELETE CASCADE;
 
+<<<<<<<<< Temporary merge branch 1
+=========
 --
 -- Constraints for table `property`
 --
 ALTER TABLE `property`
   ADD CONSTRAINT `property_ibfk_1` FOREIGN KEY (`person_id`) REFERENCES `person` (`pid`) ON DELETE CASCADE;
+>>>>>>>>> Temporary merge branch 2
 
 --
 -- Constraints for table `property_deed_image`
@@ -483,8 +674,11 @@ ALTER TABLE `property_image_temp`
 
 
 --
--- Constraints for table `services`
+-- Constraints for table `property_image_temp`
 --
+ALTER TABLE `property_image_temp`
+  ADD CONSTRAINT `property_image_temp_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `property` (`property_id`) ON DELETE CASCADE;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
