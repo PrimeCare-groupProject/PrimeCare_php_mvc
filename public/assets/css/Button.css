@@ -201,3 +201,15 @@
     text-align: center;
     border: 2px solid transparent;
 }
+
+.close_btn { 
+    border: none; 
+    background-color: var(--white-color); 
+    display: flex; 
+    justify-content: flex-end;  /* Aligns content to the right */
+    margin-left: auto; 
+    margin-top: -10px;
+    margin-right: -10px;         /* Pushes button to the right */
+    cursor: pointer;           /* Shows pointer cursor on hover */
+    color: var(--dark-grey-color)
+}
