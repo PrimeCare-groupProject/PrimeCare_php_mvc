@@ -56,6 +56,18 @@
                         </div>
 
                         <div class="PL__property-details">
+                            <div class="PL__contacts-section">
+                                <div class="PL__contact">
+                                    <div class="rating-big">
+                                        <span class="rating-score-big">4.0</span>
+                                        <span class="stars-big">★★★★☆</span>
+                                    </div>
+                                </div>
+                                <div class="PL__pricing">
+                                    <span>225,000.00 LKR</span>
+                                    <small>PER MONTH</small>
+                                </div>
+                            </div>
                             <h2>Description</h2>
                             <p>
                                 Welcome to Oceanview Retreat, an exquisite beachfront property located in the vibrant city of Miami, Florida. Situated along the pristine shores of the Atlantic Ocean, this luxurious estate offers a truly unparalleled coastal living experience. With breathtaking panoramic views of the ocean and direct access to a private white sandy beach, Oceanview Retreat is a haven for relaxation and rejuvenation. Immerse yourself in the soothing sounds of the waves and indulge in the serenity of the surroundings.
@@ -102,11 +114,11 @@
                                 <tr>
                                     <td>Size (sq. ft):</td>
                                     <td>6000</td>
-                                </tr> -->
+                                </tr> 
                                 <tr>
                                     <td>Monthly Rent (LKR):</td>
                                     <td>20000</td>
-                                </tr>
+                                </tr> -->
                                 <tr>
                                     <td>Floor Plan:</td>
                                     <td>The house contains 7 units, 4 rooms, kitchen, washroom, and dining area</td>

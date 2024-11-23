@@ -43,7 +43,53 @@
                         </div>
                     </div>
                     <div class="PL_form_filters" id="PL_form_filters" style="display: none;">
-
+                        <div class="filter-menu">
+                            <div class="filter-row-instance">
+                                <div class="half-of-the-row">
+                                    <label>Type:
+                                        <select>
+                                            <option value="">Select Type</option>
+                                            <option value="apartment">Apartment</option>
+                                            <option value="house">House</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="half-of-the-row">
+                                    <label>Status:
+                                        <select>
+                                            <option value="available">Available</option>
+                                            <option value="occupied">Occupied</option>
+                                            <option value="maintenance">Under Maintenance</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="half-of-the-row">
+                                    <label>Sort By:
+                                        <select>
+                                            <option value="price-asc">Price Low to High</option>
+                                            <option value="price-desc">Price High to Low</option>
+                                            <option value="newest">Newest</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="half-of-the-row">
+                                    <label>Price Range:
+                                        <div class="inline-block-inputs">
+                                            <input type="number" placeholder="Min" class="short-box">
+                                            <input type="number" placeholder="Max" class="short-box">
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="half-of-the-row">
+                                    <label>Rooms:
+                                        <input type="number" placeholder="Rooms">
+                                    </label>
+                                </div>
+                                <div class="half-of-the-row" style="display: none;">
+                                    <button type="button" onclick="applyFilters()" class="primary-btn">Apply Filters</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -52,7 +98,7 @@
             <div class="listing-items">
                 <?php for ($i = 0; $i < 5; $i++): ?>
                     <div class="PL_property-card">
-                        <a href=""><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="property-card-image"></a>
+                        <a href="<?= ROOT ?>/propertyListing/showListingDetail"><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="property-card-image"></a>
                         <div class="content-section-of-card">
                             <div class="address">
                                 Marine Drive , bambalapitiya , Colombo
@@ -87,7 +133,7 @@
                             </div>
                             <div class="unit-display__item">
                                 <div class="unit-display__item__icon">
-                                    <img src="<?= ROOT ?>/assets/images/floor.png" alt="area" class="unit-display__item__icon__image">
+                                    <img src="<?= ROOT ?>/assets/images/size.png" alt="area" class="unit-display__item__icon__image">
                                 </div>
                                 <div class="unit-display__item__text">
                                     <div class="unit-display__item__text__number">
