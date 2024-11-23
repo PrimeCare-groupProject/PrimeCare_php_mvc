@@ -9,5 +9,9 @@ class Home{
         $this->view('hometest');
     }
 
+    public function serviceListing(){
+        $this->view('serviceListing');
+    }
+
 }
 

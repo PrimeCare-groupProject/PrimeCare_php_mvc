@@ -250,8 +250,25 @@ body {
     box-shadow: var(--box-shadow-form);    
 }
 
-.PL_property-card:hover{
-    transform: scale(1.01);
+.PL_property-card-home{
+    display: flex;
+    flex-direction: column;
+    background-color: var(--white-color);
+    border-radius: 15px;
+    /* padding: 10px; */
+    /* box-shadow: var(--box-shadow); */
+    overflow: hidden;
+    width: 350px;
+    /* height: 420px; */
+    margin: 10px;
+    cursor: pointer;
+    box-shadow: var(--box-shadow-form);    
+}
+
+.PL_property-card:hover,
+.PL_property-card-home:hover
+{
+    box-shadow: 0px 0px 10px 0px rgba(var(--primary-color-rgb) , 0.3);
     transition: all 0.3s;
 }
 
@@ -278,14 +295,24 @@ body {
     box-sizing: border-box;
 }
 
+.property-card-image-home{
+    width: 350px;
+    height: auto;
+    overflow: hidden;
+    /* border-radius: 15px; */
+    object-fit:contain;
+    box-sizing: border-box;
+}
+
 .content-section-of-card{
     padding: 10px 15px;
     display: flex;
     flex-direction: column;
     gap: 5px;
+    overflow: hidden;
 }
 
-.address{
+.address-home{
     font-size: 18px;
     font-weight: 700;
     color: var(--black-color);
