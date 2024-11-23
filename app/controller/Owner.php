@@ -95,7 +95,6 @@ class Owner
 
 
     public function propertyUnit($propertyId)
-
     {
 
         $property = new PropertyModel; // Initialize Property instance
@@ -301,7 +300,6 @@ class Owner
         redirect('dashboard/profile');
         exit;
     }
-
     
 }
 
