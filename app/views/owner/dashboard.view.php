@@ -86,5 +86,59 @@
             </div>
         </div>
     </div>
+
+    <div class="RS__reviews-container">
+    <div class="RS__stats-container">
+        <div class="RS__stat-box">
+            <div class="RS__total-number">10</div>
+            <div class="RS__stat-label">Reviews on this year</div>
+        </div>
+
+        <div class="RS__stat-box">
+            <div class="RS__total-number">4.0</div>
+            <div class="RS__rating-stars">★★★★☆</div>
+            <div class="RS__stat-label">Average rating on this year</div>
+        </div>
+
+        <div class="RS__stat-box">
+            <div class="RS__rating-distribution">
+                <span>5</span>
+                <div class="RS__rating-bar">
+                    <div class="RS__rating-bar-fill" style="width: 80%"></div>
+                </div>
+                <span class="RS__rating-count">2.0k</span>
+            </div>
+            <div class="RS__rating-distribution">
+                <span>4</span>
+                <div class="RS__rating-bar">
+                    <div class="RS__rating-bar-fill" style="width: 60%"></div>
+                </div>
+                <span class="RS__rating-count">2.0k</span>
+            </div>
+            <div class="RS__rating-distribution">
+                <span>3</span>
+                <div class="RS__rating-bar">
+                    <div class="RS__rating-bar-fill" style="width: 50%"></div>
+                </div>
+                <span class="RS__rating-count">2.0k</span>
+            </div>
+            <div class="RS__rating-distribution">
+                <span>2</span>
+                <div class="RS__rating-bar">
+                    <div class="RS__rating-bar-fill" style="width: 40%"></div>
+                </div>
+                <span class="RS__rating-count">2.0k</span>
+            </div>
+            <div class="RS__rating-distribution">
+                <span>1</span>
+                <div class="RS__rating-bar">
+                    <div class="RS__rating-bar-fill" style="width: 20%"></div>
+                </div>
+                <span class="RS__rating-count">2.0k</span>
+            </div>
+            <!-- Repeat for other ratings -->
+        </div>
+    </div>
+    </div>
 </div>
 <?php require_once 'ownerFooter.view.php'; ?>

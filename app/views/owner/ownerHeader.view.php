@@ -38,6 +38,7 @@
                     <li><a href="<?= ROOT ?>/dashboard/maintenance"><button class="btn"><img src="<?= ROOT ?>/assets/images/maintenance.png" alt="">Maintenance</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/financereport"><button class="btn"><img src="<?= ROOT ?>/assets/images/finance.png" alt="">Finance Report</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/tenants"><button class="btn"><img src="<?= ROOT ?>/assets/images/tenants.png" alt="">Tenants</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/showReviews"><button class="btn"><img src="<?= ROOT ?>/assets/images/review.png" alt="">Reviews</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">
