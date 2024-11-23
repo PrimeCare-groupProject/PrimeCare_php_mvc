@@ -93,7 +93,7 @@
 </div>
 
 <!-- floating search box-->
-<div id="searchUserForm" style="display: none;">
+<div id="searchUserForm" style="display: none; height: 600px;">
     <form id="find-user" method="post" >
         <input type="hidden" name="find_user" value="1">
         <div class="SearchBox" >
@@ -133,22 +133,30 @@
                         <?php 
                             if(isset($userlist) && count($userlist) > 0){
                                 foreach ($userlist as $user) {
-                                    echo "<tr>";
-                                    echo "<td class='first'>" . ($user->created_date ? date('Y-m-d H:i:s', strtotime($user->created_date)) : "-") . "</td>";
-                                    echo "<td>{$user->pid}</td>";
-                                    echo "<td>{$user->fname} {$user->lname}</td>";
-                                    echo "<td>{$user->email}</td>";
-                                    echo "<td class='last' ><img class='header-profile-picture' style='margin:0px' src=".get_img($user->image_url)."></td>";
-                                    echo "</tr>";
+                                    // echo "<tr>";
+                                    // echo "<td class='first'>" . ($user->created_date ? date('Y-m-d H:i:s', strtotime($user->created_date)) : "-") . "</td>";
+                                    // echo "<td>{$user->pid}</td>";
+                                    // echo "<td>{$user->fname} {$user->lname}</td>";
+                                    // echo "<td>{$user->email}</td>";
+                                    // echo "<td class='last' ><img class='header-profile-picture' style='margin:0px' src=".get_img($user->image_url)."></td>";
+                                    // echo "</tr>";
+                                    
                                 }
                             }else{
+                                // echo "<tr>";
+                                // echo "<td class='first'> ---</td>";
+                                // echo "<td> ---</td>";
+                                // echo "<td> --- </td>";
+                                // echo "<td> --- </td>";
+                                // echo "<td class='last' > --- </td>";
+                                // echo "<td hidden> --- </td>";
+                                // echo "</tr>";
                                 echo "<tr>";
-                                echo "<td class='first'> ---</td>";
-                                echo "<td> ---</td>";
-                                echo "<td> --- </td>";
-                                echo "<td> --- </td>";
-                                echo "<td class='last' > --- </td>";
-                                echo "<td hidden> --- </td>";
+                                echo "<td class='first'>12.12.2025</td>";
+                                echo "<td>000</td>";
+                                echo "<td>test test</td>";
+                                echo "<td>test@gmail.com</td>";
+                                echo "<td class='last' ><img class='header-profile-picture' style='margin:0px' src=".get_img()."></td>";
                                 echo "</tr>";
                             }
                         ?>
