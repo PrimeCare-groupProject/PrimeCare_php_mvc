@@ -318,6 +318,14 @@ class Owner
             'status' => $_SESSION['status'] ?? ''
         ]);
     }
+
+    public function showReviews(){
+        $this->view('owner/showReviews', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
 }
 
 
