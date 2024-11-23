@@ -217,4 +217,11 @@ class Customer
             'status' => $_SESSION['status'] ?? ''
         ]);
     }
+
+    public function leaveProperty($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        $this->view('customer/leaveProperty', ['property' => $propertyUnit]);
+    }
 }

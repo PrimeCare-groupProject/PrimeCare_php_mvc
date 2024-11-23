@@ -56,7 +56,7 @@
             <div class="button-group">
                 <button class="primary-btn green-solid">Proceed to pay</button>
                 <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/reportProblem/'">Repairs</button>
-                <button class="primary-btn red-solid">Leave</button>
+                <button class="primary-btn red-solid" onclick="window.location.href='<?= ROOT ?>/dashboard/leaveProperty/28'">Leave</button>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@
             <div class="button-group">
                 <button class="primary-btn green-solid">Proceed to pay</button>
                 <button class="primary-btn">Repairs</button>
-                <button class="primary-btn red-solid">Leave</button>
+                <button class="primary-btn red-solid" onclick="window.location.href='<?= ROOT ?>/dashboard/leaveProperty'">Leave</button>
             </div>
         </div>
     </div>
