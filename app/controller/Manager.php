@@ -13,8 +13,13 @@ class Manager {
     }
 
     private function addAgent(){
+        $user = new User();
+        $payment_details = new PaymentDetails();
+
+        
         $this->view('manager/addAgent');
     }
+
     public function profile(){
         $user = new User();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

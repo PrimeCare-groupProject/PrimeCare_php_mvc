@@ -139,7 +139,7 @@ function URL($key){
 *<img src="<?php echo get_img('672688e478161__user0@gmail.com.jpg', 'user'); ?>" alt="Profile Picture">
 *or <img src="<?= get_img('672688e478161__user0@gmail.com.jpg', 'user'); ?>" alt="Profile Picture">
 */
-function get_img($image_url, $type = 'user') {
+function get_img($image_url = "", $type = 'user') {
     // Check if the provided URL is actually a URL
     if (filter_var($image_url, FILTER_VALIDATE_URL)) {
         return $image_url;

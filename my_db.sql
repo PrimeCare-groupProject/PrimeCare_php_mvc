@@ -685,3 +685,13 @@ ALTER TABLE `property_image_temp`
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
+CREATE TABLE payment_details (
+    name_on_card VARCHAR(30) NOT NULL, -- Cardholder's name; cannot be null.
+    card_no CHAR(12) PRIMARY KEY,      -- Card number; fixed length of 12; primary key ensures uniqueness.
+    bank INT(20) NOT NULL,         -- Bank name; cannot be null.
+    branch INT(2) NOT NULL,       -- Branch name; cannot be null.
+    pid INT NOT NULL,                  -- Foreign key reference; cannot be null.
+    FOREIGN KEY (pid) REFERENCES person(pid) 
+        ON DELETE CASCADE              -- Ensures related entries are removed when a person is deleted.
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
