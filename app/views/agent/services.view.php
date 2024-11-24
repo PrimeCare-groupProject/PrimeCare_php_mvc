@@ -16,7 +16,6 @@
                 </div>
             </div>
         </a>
-    </div>
 
     <div class="management-card-container-sub">
         <a href="<?= ROOT ?>/dashboard/tasks/inventorymanagement">
@@ -29,7 +28,6 @@
                 </div>
             </div>
         </a>
-    </div>
 </div>
 
 <?php require_once 'agentFooter.view.php'; ?>

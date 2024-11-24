@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/HomeTest.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,18 +27,18 @@
                     <li><a href="#logs">Logs</a></li>
                     <li><a href="#contactus">Contact Us</a></li>
                     <li>
-                            <?php
-                                if (isset($_SESSION['user'])) {
-                                    echo "<button class='header__button' onClick=\"window.location.href = 'dashboard/profile'\">";
-                                    echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header_profile_picture'>";
-                                    echo "Profile";
-                                } else {
-                                    echo "<button class='header__button' onClick=\"window.location.href = 'login'\">";
-                                    echo "Sign In | Log In";
-                                }
+                        <?php
+                        if (isset($_SESSION['user'])) {
+                            echo "<button class='header__button' onClick=\"window.location.href = 'dashboard/profile'\">";
+                            echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header_profile_picture'>";
+                            echo "Profile";
+                        } else {
+                            echo "<button class='header__button' onClick=\"window.location.href = 'login'\">";
+                            echo "Sign In | Log In";
+                        }
 
-                            ?>
-                            
+                        ?>
+
                         </button>
                     </li>
                 </ul>
@@ -55,14 +56,112 @@
     </section>
 
     <section class="home-property-listing">
-        <div class="search-box">
-
+        <div class="search-box" style="align-self: flex-start; border-radius: 0 40px 40px 0;">
+            <p>Properties</p>
+            <a href="<?= ROOT ?>/propertylisting/showlisting">Explore</a>
         </div>
         <div class="property-listing">
-
+            <div class="listing-items">
+                <?php for ($i = 0; $i < 3; $i++): ?>
+                    <div class="PL_property-card-home">
+                        <a href="<?= ROOT ?>/propertyListing/showListingDetail"><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="property-card-image"></a>
+                        <div class="content-section-of-card">
+                            <div class="address-home">
+                                Marine Drive , bambalapitiya , Colombo
+                            </div>
+                            <div class="name">
+                                OceanVilla Guest
+                            </div>
+                            <div class="price">
+                                Rs. 27000 /Month
+                            </div>
+                        </div>
+                        <div class="units-diplays">
+                            <div class="unit-display__item">
+                                <div class="unit-display__item__icon">
+                                    <img src="<?= ROOT ?>/assets/images/bed.png" alt="beds" class="unit-display__item__icon__image">
+                                </div>
+                                <div class="unit-display__item__text">
+                                    <div class="unit-display__item__text__number">
+                                        2
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="unit-display__item">
+                                <div class="unit-display__item__icon">
+                                    <img src="<?= ROOT ?>/assets/images/bathroom.png" alt="baths" class="unit-display__item__icon__image">
+                                </div>
+                                <div class="unit-display__item__text">
+                                    <div class="unit-display__item__text__number">
+                                        2
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="unit-display__item">
+                                <div class="unit-display__item__icon">
+                                    <img src="<?= ROOT ?>/assets/images/size.png" alt="area" class="unit-display__item__icon__image">
+                                </div>
+                                <div class="unit-display__item__text">
+                                    <div class="unit-display__item__text__number">
+                                        1000
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endfor; ?>
+            </div>
         </div>
     </section>
 
+    <section class="home-property-listing">
+        <div class="search-box" style="align-self: flex-end; border-radius: 40px 0 0 40px;">
+            <a href="<?= ROOT ?>/Home/serviceListing">Pick a Service</a>
+            <p>Services</p>
+        </div>
+        <div class="service-listing-slider">
+            <div class="listing-items-slides">
+                <?php for ($i = 0; $i < 6; $i++): ?>
+                    <div class="service-slide">
+                        <div class="PL_property-card-home">
+                            <a href="<?= ROOT ?>/"><img src="<?= ROOT ?>/assets/images/pool.jpg" alt="property" class="property-card-image"></a>
+                            <div class="content-section-of-card">
+                                <div class="address-home">
+                                    Plumbing Services
+                                </div>
+                                <div class="name">
+                                    All kinds of plumbing services
+                                </div>
+                                <div class="price" style="color: var(--green-color);">
+                                    Rs. 500 /Hour
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endfor; ?>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const slider = document.querySelector(".listing-items-slides");
+            const slides = document.querySelectorAll(".service-slide");
+            const slideWidth = slides[0].offsetWidth + 20; // Slide width + margin
+            const slideCount = slides.length;
+
+            // Duplicate slides for infinite effect
+            slider.innerHTML += slider.innerHTML;
+
+            // Set the width of the slider
+            const totalSlides = slider.querySelectorAll(".service-slide").length;
+            slider.style.width = `${totalSlides * slideWidth}px`;
+
+            // Adjust animation duration based on total width
+            const duration = totalSlides * 5; // Adjust speed (4 seconds per slide)
+            slider.style.animationDuration = `${duration}s`;
+        });
+    </script>
     <!-- Features Section -->
     <section class="services" id="about">
         <h1>Our Services</h1>

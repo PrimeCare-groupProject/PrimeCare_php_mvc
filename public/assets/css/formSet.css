@@ -1,0 +1,102 @@
+/** dual side form template */
+
+.RP__container{
+    width: 95%;
+    display: flex;
+    flex-direction: row;
+    background-color: var(--white-color);
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin: 10px;
+    /* overflow: hidden; */
+}
+
+@media screen and (max-width: 768px){
+    .RP__container{
+        flex-direction: column;
+    }
+}
+
+.RP_side-containers{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+    width: 100%;
+    margin-right: 10px;
+    padding: 20px;
+}
+
+.RP__container img{
+    width: 400px;
+    height: auto;
+    border-radius: 10px;
+}
+
+.RP__container h2{
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: var(--black-color);
+    margin: 10px 0;
+}
+
+.to-flex-end{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.owner-addProp-upload-logo {
+    height: 60px!important;
+    width: 60px!important;
+    margin: -15px;
+    padding: 0;
+    opacity: 0.5;
+}
+
+.owner-addProp-uploaded-files {
+    display: flex;
+    gap: 10px;
+}
+
+.owner-addProp-uploaded-file {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+/** image upload section */
+.img-preview{
+    display: flex;
+    width: 60px;
+    height: 60px;
+    background-color: var(--background-color);
+    border-radius: 10px;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 10px;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+.img-preview img{
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+}
+
+.img-preview .remove-img {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    height: 20px;
+    width: 20px;
+    filter: invert(18%) sepia(100%) saturate(7496%) hue-rotate(346deg) brightness(97%) contrast(104%) opacity(70%);
+    cursor: pointer;
+    z-index: 1; /* Ensures it stays in front of the image */
+}
+
+ 

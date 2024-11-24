@@ -185,7 +185,11 @@ class Customer
 
     public function occupiedProperties()
     {
-        $this->view('customer/occupiedProperties');
+        $this->view('customer/occupiedProperties', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
     }
 
     public function search()
@@ -203,5 +207,21 @@ class Customer
     public function payments()
     {
         $this->view('customer/payments');
+    }
+
+    public function reportProblem()
+    {
+        $this->view('customer/reportProblem', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
+
+    public function leaveProperty($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        $this->view('customer/leaveProperty', ['property' => $propertyUnit]);
     }
 }

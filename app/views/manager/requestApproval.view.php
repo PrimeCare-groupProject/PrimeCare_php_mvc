@@ -5,6 +5,19 @@
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
     <h2>request Approval</h2>
+    <div class="flex-bar">
+        <form class="search-container" method="GET">
+            <input 
+                type="text" 
+                class="search-input" 
+                name="searchterm" 
+                placeholder="find request ..."
+            >
+            <button class="search-btn" type="submit">
+                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
+            </button>
+        </form>
+    </div>
 </div>
 <div>
     <div class="filter-container-flex-start">

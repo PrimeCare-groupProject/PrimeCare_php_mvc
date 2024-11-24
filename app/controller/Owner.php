@@ -95,7 +95,6 @@ class Owner
 
 
     public function propertyUnit($propertyId)
-
     {
 
         $property = new PropertyModel; // Initialize Property instance
@@ -118,6 +117,7 @@ class Owner
             'status' => $_SESSION['status'] ?? ''
         ]);
     }
+
     public function serviceRequest($type = '')
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -301,8 +301,31 @@ class Owner
         redirect('dashboard/profile');
         exit;
     }
-
     
+    public function reportProblem()
+    {
+        $this->view('owner/reportProblem', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
+
+    public function financialReportUnit(){
+        $this->view('owner/financialReportUnit', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
+
+    public function showReviews(){
+        $this->view('owner/showReviews', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
 }
 
 
