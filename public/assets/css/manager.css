@@ -46,6 +46,22 @@
     font-family: "Outfit", sans-serif;
 }
 
+.employee-details-container .listing-table-for-customer-payments tr input{
+    width: 90%;
+    height: 100%;
+    border: none;
+    background-color: var(--grey-color);
+    /* background-color: var(--white-color); */
+    font-family: "Outfit", sans-serif;
+    font-size: 17px;
+}
+/* 
+.employee-details-container .listing-table-for-customer-payments tr input{
+    border: none;
+    background-color: var(--grey-color);
+    font-family: "Outfit", sans-serif;
+} */
+
 .replyBoxLabel,
 .replyBoxSpan {
     transition:.3s ease;
@@ -275,4 +291,37 @@ a .management-card .management-icon img {
     border-radius: 10px;
     box-shadow: var(--box-shadow);
     font-family: "Outfit", sans-serif;
+}
+
+.SearchBox .user-details  {
+    width: 90%;
+}
+.SearchBox .user-details  .input-group-aligned{
+    gap:30px;
+}
+
+.searchUserForm{
+    display: none; 
+    height: 600px;
+}
+
+.profile_pic_large{
+    width: 250px; /* Avatar size */
+    height: 250px; 
+    border-radius: 50%; /* Circular avatar */
+    object-fit: cover; /* Fit avatar inside circle */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Avatar shadow */
+}
+
+.input-group .left_details{
+    flex: 3;
+}
+.input-group .right_details {
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    padding: 2vh 2px ;
+    
 }

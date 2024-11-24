@@ -27,6 +27,7 @@
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
+            <!-- toggle button -->
             <div class="toggle_wrapper"> 
                 <div class="toggle-button tooltip-container">
                     <span class="tooltip-text">Change To Customer Mood</span>
