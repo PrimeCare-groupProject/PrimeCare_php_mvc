@@ -686,9 +686,9 @@ ALTER TABLE `property_image_temp`
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 CREATE TABLE payment_details (
-    name_on_card VARCHAR(30) NOT NULL, -- Cardholder's name; cannot be null.
-    card_no CHAR(12) PRIMARY KEY,      -- Card number; fixed length of 12; primary key ensures uniqueness.
-    bank INT(20) NOT NULL,         -- Bank name; cannot be null.
+    card_name VARCHAR(30) NOT NULL, -- Cardholder's name; cannot be null.
+    account_no CHAR(12) PRIMARY KEY,      -- Card number; fixed length of 12; primary key ensures uniqueness.
+    bank INT(2) NOT NULL,         -- Bank name; cannot be null.
     branch INT(2) NOT NULL,       -- Branch name; cannot be null.
     pid INT NOT NULL,                  -- Foreign key reference; cannot be null.
     FOREIGN KEY (pid) REFERENCES person(pid) 

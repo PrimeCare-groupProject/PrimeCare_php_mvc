@@ -12,13 +12,92 @@ class Manager {
         $this->view('manager/dashboard');
     }
 
-    private function addAgent(){
+    private function addAgent() {
         $user = new User();
         $payment_details = new PaymentDetails();
 
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $errors = [];
+            $success = '';
+
+            // Validate and sanitize personal details
+            $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
+            $contact = esc($_POST['contact'] ?? null);
+            $fname = esc($_POST['fname'] ?? null);
+            $lname = esc($_POST['lname'] ?? null);
+
+            if (!$email) {
+                $errors['email'] = "Invalid email format.";
+            }
+
+            // Validate and sanitize bank details
+            $cardName = esc($_POST['cardName'] ?? null);
+            $accountNo = esc($_POST['accountNo'] ?? null);
+            $branch = esc($_POST['branch'] ?? null);
+            $bankName = esc($_POST['bankName'] ?? null);
+
+            if (empty($errors)) {
+                // Save user details
+                $password = bin2hex(random_bytes(4)); // Generates an 8-character password
+
+                $userStatus = $user->insert([
+                    'email' => $email,
+                    'contact' => $contact,
+                    'fname' => $fname,
+                    'lname' => $lname,
+                    'password' => password_hash($password, PASSWORD_DEFAULT), // Hash the password before saving
+
+                ]);
+                $userDetails = $user->where(['email' => $email]);
+                $userId = $userDetails[0]->pid;
+                
+                if ($userStatus) {
+                    // Save payment details
+                    $paymentDetailStatus = $payment_details->insert([
+                        'pid' => $userId,
+                        'card_name' => $cardName,
+                        'account_no' => $accountNo,
+                        'branch' => $branch,
+                        'bank' => $bankName,
+                    ]);
+
+                    if($paymentDetailStatus){
+                        $success = "Agent added successfully!";
+                        $status = sendMail($email ,'Primecare Agent Registration', "
+                            <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
+                                <h1 style='color: #4CAF50;'>Agent Registration</h1>
+                                <p>Hello,$fname"." "."$lname</p>
+                                <p>Your account has been created successfully. Your temporary password is:</p>
+                                <h3 style='color: #4CAF50;'>$password</h3>
+                                <p>If you did not request this, please ignore this email.</p>
+                                <br>
+                                <p>Best regards,<br>PrimeCare Support Team</p>
+                            </div>
+                        ");	
+                        if($status['error']){
+                            $errors['auth'] = "Agent added successfully!. Password has been sent to email";
+                        }else{
+                            $errors['auth'] = "Agent added successfully!. Failed to send email. Contact Agent";
+                        }
+                    } else {
+                        $errors['auth'] = "Failed to add Agent Payement Details. Please try again.";
+                    }
+                } else {
+                    $errors['auth'] = "Failed to add agent. Please try again.";
+                }
+            }
+
+            $this->view('manager/addAgent', [
+                'user' => (object) ['errors' => $errors],
+                'success' => $success,
+            ]);
+            return;
+        }
         
+
         $this->view('manager/addAgent');
     }
+    
 
     public function profile(){
         $user = new User();

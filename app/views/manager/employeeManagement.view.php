@@ -196,8 +196,8 @@
     function makeEditable() {
         // Save the initial data for all fields
         initialData = {
-            createdDate: document.getElementById('popup-created-date').value,
-            id: document.getElementById('popup-id').value,
+            // createdDate: document.getElementById('popup-created-date').value,
+            // id: document.getElementById('popup-id').value,
             fname: document.getElementById('popup-fname').value,
             lname: document.getElementById('popup-lname').value,
             email: document.getElementById('popup-email').value,
