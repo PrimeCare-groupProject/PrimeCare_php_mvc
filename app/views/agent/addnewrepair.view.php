@@ -4,22 +4,22 @@
     <a href='<?= ROOT ?>/dashboard/repairings'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>New Repair</h2>
+    <h2>New Service</h2>
 </div>
 
 <form method="POST" action="<?= ROOT ?>/Serve/create" enctype="multipart/form-data">
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
-            <label class="input-label">Repair Name</label>
+            <label class="input-label">Service Name</label>
             <input type="text" name="name" placeholder="Enter repair name" class="input-field" required>
 
-            <label class="input-label">Cost Of Hour</label>
-            <input type="text" name="cost_per_hour" placeholder="Enter repair name" class="input-field" required>
+            <label class="input-label">Cost Per Hour</label>
+            <input type="text" name="cost_per_hour" placeholder="Cost Per Hour" class="input-field" required>
             
-            <label class="input-label">Description About The Repair</label>
+            <label class="input-label">Description About The Service</label>
             <textarea name="description" placeholder="description" class="input-field1" required></textarea>
 
-            <label class="input-label">Upload Service Images (Max 6)*</label>
+            <label class="input-label">Upload Service Image</label>
                 <div class="owner-addProp-file-upload">
                     <input type="file" name="service_images[]" id="service_images" class="input-field" multiple accept=".png, .jpg, .jpeg" data-max-files="6" onchange="previewImages(event)" required>
                     <div class="owner-addProp-upload-area">

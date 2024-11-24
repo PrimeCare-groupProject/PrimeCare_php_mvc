@@ -1,7 +1,7 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <h2>repairings</h2>
+    <h2>services</h2>
     <div class="flex-bar">
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Anything...">
@@ -9,7 +9,7 @@
         </div>
         <div class="tooltip-container">
             <a href='<?= ROOT ?>/dashboard/repairings/addnewrepair'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
-            <span class="tooltip-text">Add new property</span>
+            <span class="tooltip-text">Add new service</span>
         </div>
     </div>
 </div>
