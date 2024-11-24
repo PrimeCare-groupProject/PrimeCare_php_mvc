@@ -4,137 +4,55 @@
     <a href='<?= ROOT ?>/dashboard/tasks'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>new task</h2>
+    <h2>New Task</h2>
 </div>
-<!-- RepairListingComponent -->
-<div class="property-listing-grid">
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/doorrepairing1'>
-        <div class="repair-card1">
-            <div class="repair-image">
-                <img src="<?= ROOT ?>/assets/images/repairimages/doorrepairing.png" alt="services">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <span class="no-underline"><h3>Door Repairing</h3></span>
-                    </div>
+
+<form method="POST" action="your_php_file.php" enctype="multipart/form-data">
+    <div class="owner-addProp-container">
+        <div class="owner-addProp-form-left">
+            <label class="input-label">Task Type</label>
+            <input type="text" name="repairType" placeholder="Type of task" class="input-field" required>
+
+            <label class="input-label-aligned">
+                <label class="input-label">Property</label>
+                <select class="input-field-small" name="serviceProvider" required>
+                    <option value="notassign">Select SP</option>
+                    <?php foreach ($properties as $property): ?>
+                        <option value="<?= $property->id ?>"><?= $property->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            
+            <label class="input-label">Description about task</label>
+            <textarea name="description" placeholder="Write About task" class="input-field" required></textarea>
+
+            <label class="input-label">Upload Inventory Image*</label>
+            <div class="owner-addProp-file-upload">
+                <input type="file" name="property_image[]" id="property_image" class="input-field" multiple required>
+                <div class="owner-addProp-upload-area">
+                    <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
+                    <p class="upload-area-no-margin">Drop your files here</p>
+                    <button type="button" class="primary-btn" onclick="document.getElementById('property_image').click()">Choose File</button>
                 </div>
             </div>
         </div>
-    </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/bathroomrepairing1'>
-        <div class="repair-card1">
-            <div class="repair-image">
-                <img src="<?= ROOT ?>/assets/images/repairimages/bathroomRepairing.png" alt="services">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <span class="no-underline"><h3>Bathroom Repairing</h3></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </a>   
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/roofrepairing1'>
-    <div class="repair-card1">
-        <div class="repair-image">
-            <img src="<?= ROOT ?>/assets/images/repairimages/roofRepairing.png" alt="services">
-        </div>
-        <div class="property-details">
-            <div class="profile-details-items">
-                <div>
-                    <span class="no-underline"><h3>roof Repairing</h3></span>
-                </div>
+
+        <div class="owner-addProp-form-right">
+            <label class="input-label-aligned">
+                <label class="input-label">Service Provider</label>
+                <select class="input-field-small" name="serviceProvider" required>
+                <option value="notassign">Select SP</option>
+                <option value="ag1">Service Provider 1</option>
+                <option value="ag2">Service Provider 2</option>
+                <option value="ag3">Service Provider 3</option>
+                <option value="ag4">Service Provider 4</option>
+                </select>
+            </label>
+            <div class="buttons-to-right">
+                <button type="submit" class="primary-btn">Submit</button>
             </div>
         </div>
     </div>
-    </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/plumbing1'>
-    <div class="repair-card1">
-        <div class="repair-image">
-            <img src="<?= ROOT ?>/assets/images/repairimages/plumbing.png" alt="services">
-        </div>
-        <div class="property-details">
-            <div class="profile-details-items">
-                <div>
-                    <span class="no-underline"><h3>plumbing</h3></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/deckrepairing1'>
-    <div class="repair-card1">
-        <div class="repair-image">
-            <img src="<?= ROOT ?>/assets/images/repairimages/deckrepairing.png" alt="services">
-        </div>
-        <div class="property-details">
-            <div class="profile-details-items">
-                <div>
-                    <span class="no-underline"><h3>deck Repairing</h3></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/electricalrepairing1'>
-    <div class="repair-card1">
-        <div class="repair-image">
-            <img src="<?= ROOT ?>/assets/images/repairimages/electricrepairing.png" alt="services">
-        </div>
-        <div class="property-details">
-            <div class="profile-details-items">
-                <div>
-                    <span class="no-underline"><h3>Electrical Repairing</h3></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/painting1'>
-    <div class="repair-card1">
-        <div class="repair-image">
-            <img src="<?= ROOT ?>/assets/images/repairimages/painting.png" alt="services">
-        </div>
-        <div class="property-details">
-            <div class="profile-details-items">
-                <div>
-                    <span class="no-underline"><h3>painting</h3></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/furniturerepairing1'>
-    <div class="repair-card1">
-        <div class="repair-image">
-            <img src="<?= ROOT ?>/assets/images/repairimages/furniturerepairing.png" alt="services">
-        </div>
-        <div class="property-details">
-            <div class="profile-details-items">
-                <div>
-                    <span class="no-underline"><h3>Furniture Repairing</h3></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/newtask/concreterepairing1'>
-    <div class="repair-card1">
-        <div class="repair-image">
-            <img src="<?= ROOT ?>/assets/images/repairimages/concreterepairing.png" alt="services">
-        </div>
-        <div class="property-details">
-            <div class="profile-details-items">
-                <div>
-                    <span class="no-underline"><h3>Concrete Repairing</h3></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    </a>   
-    
-</div>
+</form>
 
 <?php require_once 'agentFooter.view.php'; ?>

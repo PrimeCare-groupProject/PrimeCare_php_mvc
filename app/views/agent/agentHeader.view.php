@@ -39,6 +39,7 @@
                     <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Requested Tasks</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Services</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><img src="<?= ROOT ?>/assets/images/Taskmanagement.png " alt="">Bookings</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Inventory</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><img src="<?= ROOT ?>/assets/images/managebookings.png" alt="">ServiceProviders</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
