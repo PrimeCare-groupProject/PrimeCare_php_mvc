@@ -4,9 +4,9 @@
     <div class="gap"></div>
     <h2>Services</h2>
 </div>
-
-<div class="management-cards-container" style="height: 30%; margin-top: 10px;">
-        <a href="<?= ROOT ?>/dashboard/services/serviceproviders">
+<div class="management-cards-container">
+    <div class="management-card-container-sub">
+        <a href="<?= ROOT ?>/dashboard/tasks/ongoingtask">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Services</h2>
@@ -17,7 +17,8 @@
             </div>
         </a>
 
-        <a href="<?= ROOT ?>/dashboard/services/payments">
+    <div class="management-card-container-sub">
+        <a href="<?= ROOT ?>/dashboard/tasks/inventorymanagement">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Payments</h2>

@@ -228,7 +228,6 @@ CREATE TABLE `property_with_images` (
 );
 
 --
-<<<<<<<<< Temporary merge branch 1
 -- Structure for view `property_with_images`
 --
 DROP TABLE IF EXISTS `property_with_images`;
@@ -504,6 +503,8 @@ GROUP BY
 -- CREATE ALGORITHM=UNDEFINED DEFINER=`primecare`@`mysql-primecare.alwaysdata.net` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
 -- CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
 
+
+--
 -- Table structure for table `services`
 --
 
@@ -515,12 +516,12 @@ CREATE TABLE `services` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Sample data for services table
-INSERT INTO `services` (`service_id`, `name`, `cost_per_hour`, `description`) VALUES
-(1, 'Door Repairing', 1000, 'This is door repairing'),
-(2, 'Deck Repairing', 1000, 'This is deck repairing'),
-(3, 'Roof Repairing', 1000, 'This is roof repairing'),
-(4, 'Plumbing', 1000, 'This is plumbing'),
-(5, 'Concrete Repairing', 1000, 'This is concrete repairing');
+INSERT INTO `services` (`service_id`, `name`, `cost_per_hour`, `description`,`service_img`) VALUES
+(1, 'Concrete Repairing', 1000, 'This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. This is concrete repairing. ','assets/images/repairimages/concreterepairing.png'),
+(2, 'Deck Repairing', 1000, 'This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. This is deck repairing. ','assets/images/repairimages/deckrepairing.png'),
+(3, 'Roof Repairing', 1000, 'This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. This is roof repairing. ','assets/images/repairimages/roofrepairing.png'),
+(4, 'Plumbing', 1000, 'This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing. This is plumbing.','assets/images/repairimages/plumbing.png'),
+(5, 'Electric Repairing', 1000, 'This is electric repairing','assets/images/repairimages/electricrepairing.png');
 
 -- Table structure for table `property_image_temp`
 --

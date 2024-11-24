@@ -433,10 +433,7 @@ class Agent{
         $this->view('agent/newinventory');
     }
 
-    public function newrepairing(){
-
-
-        // Load the view and pass data
+    public function newrepairing(){       // Load the view and pass data
         $this->view('agent/newrepairing');
     }
 

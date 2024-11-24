@@ -122,7 +122,7 @@
     border-radius: 14px;
 }
 
-.repair-card {
+.repair-card1 {
     display: flex;
     flex-direction: column;
     background-color: var(--white-color);
@@ -136,7 +136,7 @@
     transition: background-color 0.3s ease;
 }
 
-.repair-card:hover {
+.repair-card1:hover {
     background-color: rgba(0, 0, 0, 0.1); /* Light black hover effect */
 }
 
@@ -422,3 +422,106 @@ body.popup-active .blur-container {
     text-overflow: ellipsis;
 }
 
+.booking-container {
+    display: flex;
+    background-color: white;
+    width: 95%;
+    min-width: 100px;
+    height: 360px;
+    flex-direction: column;
+    border-radius: 20px;
+    margin: 10px;
+}
+
+.booking-img {
+    padding-top: 15px;
+    display: flex;
+}
+
+.book-img {
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    margin-right: 0px;
+}
+
+.booking-con {
+    padding-left: 15px;
+    margin-right: 15px;
+}
+
+.booking-container p {
+    
+    margin: 10px 0; 
+    line-height: 1; 
+    font-size: smaller;
+    white-space: normal; 
+    word-wrap: break-word; 
+}
+
+.booking-container h2 {
+    color: #c0392b;
+    margin: 10px 0;
+    margin-top: 10px;
+}
+
+.book-img1 {
+    margin-top: 17px;
+    height: 25px;
+    width: 100;
+}
+
+.booking1 {
+    display: flex;
+    flex-direction: row;
+}
+
+.booking2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.limited-paragraph1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.primary-btn1 {
+    /* width: 100%; */
+    max-width: 150px;
+    min-width: 100px;
+    padding: 10px 20px;
+    background-color: rgb(80, 80, 238);
+    color: lightblue;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid rgb(80, 80, 238);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.primary-btn1:hover {
+    background-color: lightblue;
+    color: #10182f;
+}
+
+.input-field1 {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+    border: 1px solid var(--input-border-color);
+    background-color: var(--background-color);
+    border-radius: 5px;
+    min-height: 150px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+    font-family: 'outfit', sans-serif;
+}
