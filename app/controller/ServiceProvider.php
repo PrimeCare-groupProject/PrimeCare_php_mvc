@@ -152,6 +152,10 @@ class ServiceProvider {
         $this->view('serviceprovider/addLogs');
     }
 
+    public function serviceSummery(){
+        $this->view('serviceprovider/serviceSummery');
+    }
+
     public function repairListing(){
         $this->view('serviceprovider/repairListing');
     }
