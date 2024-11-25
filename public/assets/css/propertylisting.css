@@ -229,7 +229,7 @@ body {
 /** property card */
 .listing-items {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     /* 3 columns */
     gap: -10px;
     padding: 5px;
@@ -307,6 +307,7 @@ body {
 .content-section-of-card{
     padding: 10px 15px;
     display: flex;
+    height: 130px;
     flex-direction: column;
     gap: 5px;
     overflow: hidden;

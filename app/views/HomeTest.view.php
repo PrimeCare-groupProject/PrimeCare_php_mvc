@@ -62,7 +62,7 @@
         </div>
         <div class="property-listing">
             <div class="listing-items">
-                <?php for ($i = 0; $i < 3; $i++): ?>
+                <?php for ($i = 0; $i < 4; $i++): ?>
                     <div class="PL_property-card-home">
                         <a href="<?= ROOT ?>/propertyListing/showListingDetail"><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="property-card-image"></a>
                         <div class="content-section-of-card">
