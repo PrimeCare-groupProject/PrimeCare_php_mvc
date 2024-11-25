@@ -44,7 +44,8 @@
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/repairlisting"><button class="btn"><img src="<?= ROOT ?>/assets/images/services.png" alt="">Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/addlogs"><button class="btn"><img src="<?= ROOT ?>/assets/images/logs.png" alt="">Logs</button></a></li>
+                    <!--<li><a href="<?= ROOT ?>/dashboard/addlogs"><button class="btn"><img src="<?= ROOT ?>/assets/images/logs.png" alt="">Logs</button></a></li>-->
+                    <li><a href="<?= ROOT ?>/dashboard/repairRequests"><button class="btn"><img src="<?= ROOT ?>/assets/images/service.png" alt="">Repair Requests</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">
