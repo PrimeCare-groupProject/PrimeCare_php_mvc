@@ -4,16 +4,14 @@
     <h2>repair requests</h2>
 </div>
 
-
 <div class="financial-details-container">
     <div class="filter-container">
         <div>
             <label for="status-filter">Status:</label>
             <select id="status-filter">
-                <option value="all">All</option>
-                <option value="done">Done</option>
-                <option value="pending">Pending</option>
-                <option value="pending">Ongoing</option>
+                <option value="all" <?= $selected_status === 'all' ? 'selected' : '' ?>>All</option>
+                <option value="Done" <?= $selected_status === 'Done' ? 'selected' : '' ?>>Done</option>
+                <option value="Ongoing" <?= $selected_status === 'Ongoing' ? 'selected' : '' ?>>Ongoing</option>
             </select>
         </div>
     </div>
@@ -38,134 +36,60 @@
             </tr>
         </thead>
         <tbody>
-            <tr data-href="">
-                <td>2024/09/2</td>
-                <td>RT001</td>
-                <td>P123</td>
-                <td>Oceanvilla</td>
-                <td>10000.95 LKR</td>
-                <td><span class="border-button-sm green">Done</span></td>
-                <td>-</td>
-            </tr>
-            <tr data-href="">
-                <td>2024/09/11</td>
-                <td>RT001</td>
-                <td>P123</td>
-                <td>Oceanvilla</td>
-                <td>1000.95 LKR</td>
-                <td><span class="border-button-sm orange">pending</span></td>
-                <td>36 hr</td>
-            </tr>
-            <tr data-href="">
-                <td>2024/09/3</td>
-                <td>RT001</td>
-                <td>P123</td>
-                <td>Oceanvilla</td>
-                <td>100040.95 LKR</td>
-                <td><span class="border-button-sm green">Done</span></td>
-                <td>-</td>
-            </tr>
-            <tr data-href="">
-                <td>2024/09/30</td>
-                <td>RT001</td>
-                <td>P123</td>
-                <td>Oceanvilla</td>
-                <td>1000.95 LKR</td>
-                <td><span class="border-button-sm green">Done</span></td>
-                <td>-</td>
-            </tr>
-            <tr data-href="">
-                <td>2024/09/4</td>
-                <td>RT001</td>
-                <td>P123</td>
-                <td>Oceanvilla</td>
-                <td>103400.95 LKR</td>
-                <td><span class="border-button-sm orange">pending</span></td>
-                <td>36 hr</td>
-            </tr>
-            <tr data-href="">
-                <td>2024/10/23</td>
-                <td>RT001</td>
-                <td>P123</td>
-                <td>Oceanvilla</td>
-                <td>10.95 LKR</td>
-                <td><span class="border-button-sm green">Done</span></td>
-                <td>-</td>
-            </tr>
+            <?php if (!empty($services)) : ?>
+                <?php foreach ($services as $service) : ?>
+                    <tr data-href="<?= ROOT ?>/serviceprovider/viewService/<?= $service->service_id ?>">
+                        <td><?= date('Y/m/d', strtotime($service->date)) ?></td>
+                        <td><?= esc($service->service_type) ?></td>
+                        <td><?= esc($service->property_id) ?></td>
+                        <td><?= esc($service->property_name) ?></td>
+                        <td><?= number_format($service->earnings, 2) ?> LKR</td>
+                        <td><span class="border-button-sm <?= strtolower($service->status) === 'done' ? 'green' : 'orange' ?>"><?= esc($service->status) ?></span></td>
+                        <td><?= $service->time_left ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <tr>
+                    <td colspan="7" class="text-center">No service requests found</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 
     <!-- Pagination -->
+    <?php if ($total_pages > 1) : ?>
     <div class="pagination">
-        <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
-        <span class="current-page">1</span>
-        <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
+        <button class="prev-page" <?= $current_page <= 1 ? 'disabled' : '' ?> onclick="changePage(<?= $current_page - 1 ?>)">
+            <img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous">
+        </button>
+        <span class="current-page"><?= $current_page ?></span>
+        <button class="next-page" <?= $current_page >= $total_pages ? 'disabled' : '' ?> onclick="changePage(<?= $current_page + 1 ?>)">
+            <img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next">
+        </button>
     </div>
+    <?php endif; ?>
 </div>
 
 <script>
-    document.getElementById('status-filter').addEventListener('change', filterTable);
-
-    let isDateAscending = true;
-    let isEarningsAscending = true;
-
-    document.getElementById('date-header').addEventListener('click', function() {
-        sortTableByDate(isDateAscending);
-        isDateAscending = !isDateAscending; // Toggle sorting order
+    document.getElementById('status-filter').addEventListener('change', function() {
+        const status = this.value;
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('status', status);
+        currentUrl.searchParams.set('page', '1'); // Reset to first page on filter change
+        window.location.href = currentUrl.toString();
     });
 
-    document.getElementById('earnings-header').addEventListener('click', function() {
-        sortTableByEarnings(isEarningsAscending);
-        isEarningsAscending = !isEarningsAscending; // Toggle sorting order
-    });
-
-    function filterTable() {
-        const statusValue = document.getElementById('status-filter').value.toLowerCase();
-
-        const rows = document.querySelectorAll('.listing-table tbody tr');
-
-        rows.forEach(row => {
-            const status = row.querySelector('td:nth-child(6) span').textContent.toLowerCase();
-
-            let isVisible = true;
-
-            if (statusValue !== 'all' && status !== statusValue) {
-                isVisible = false;
-            }
-
-            row.style.display = isVisible ? '' : 'none';
-        });
-    }
-
-    function sortTableByDate(ascending) {
-        const rows = Array.from(document.querySelectorAll('.listing-table tbody tr'));
-
-        rows.sort((a, b) => {
-            const dateA = new Date(a.querySelector('td:nth-child(1)').textContent);
-            const dateB = new Date(b.querySelector('td:nth-child(1)').textContent);
-            return ascending ? dateA - dateB : dateB - dateA;
-        });
-
-        const tbody = document.querySelector('.listing-table tbody');
-        rows.forEach(row => tbody.appendChild(row)); // Re-append sorted rows
-    }
-
-    function sortTableByEarnings(ascending) {
-        const rows = Array.from(document.querySelectorAll('.listing-table tbody tr'));
-
-        rows.sort((a, b) => {
-            const earningsA = parseFloat(a.querySelector('td:nth-child(5)').textContent.replace(/[^0-9.-]+/g, ""));
-            const earningsB = parseFloat(b.querySelector('td:nth-child(5)').textContent.replace(/[^0-9.-]+/g, ""));
-            return ascending ? earningsA - earningsB : earningsB - earningsA;
-        });
-
-        const tbody = document.querySelector('.listing-table tbody');
-        rows.forEach(row => tbody.appendChild(row)); // Re-append sorted rows
+    function changePage(page) {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('page', page);
+        window.location.href = currentUrl.toString();
     }
 
     document.querySelectorAll('.listing-table tbody tr').forEach(row => {
         row.addEventListener('click', function() {
-            window.location.href = this.dataset.href; // Redirect to the URL in the data-href attribute
+            if (this.dataset.href) {
+                window.location.href = this.dataset.href;
+            }
         });
     });
 </script>
