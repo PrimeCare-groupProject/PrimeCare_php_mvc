@@ -28,17 +28,4 @@
             </div>
         </a>
 
-    <div class="management-card-container-sub">
-        <a href="<?= ROOT ?>/dashboard/tasks/inventorymanagement">
-            <div class="management-card">
-                <div class="management-text">
-                    <h2>Inventory Management</h2>
-                </div>
-                <div class="management-icon">
-                    <img src="<?= ROOT ?>/assets/images/folder.png" alt="Inventory Management">
-                </div>
-            </div>
-        </a>
-</div>
-
 <?php require_once 'agentFooter.view.php'; ?>

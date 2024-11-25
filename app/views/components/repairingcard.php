@@ -28,10 +28,10 @@
         </div>
     </div>
     <div class="approval-right-content">
-    <a href='<?= ROOT ?>/dashboard/tasks/ongoingtask/<?php echo $_SESSION['repair1']?>/taskremoval'>
+    <a href='<?= ROOT ?>/dashboard/tasks/taskremoval'>
         <button class="primary-btn">Remove</button>
     </a>
-    <a href='<?= ROOT ?>/dashboard/tasks/ongoingtask/<?php echo $_SESSION['repair1']?>/spreassign'>
+    <a href='<?= ROOT ?>/dashboard/tasks/spreassign'>
         <button class="secondary-btn">Reassign</button>
     </a>
         <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="approval-right-content-img">

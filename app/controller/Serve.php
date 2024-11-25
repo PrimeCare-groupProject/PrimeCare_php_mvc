@@ -38,7 +38,6 @@ class Serve{
                     $arr['service_img'] = implode(',', $uploadedFiles);
                 }
             }
-
             // Insert repair data into the database
             $res = $service->insert($arr);
             
