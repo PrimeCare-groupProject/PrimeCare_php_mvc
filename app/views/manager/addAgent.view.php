@@ -1,4 +1,4 @@
-<?php #require_once 'managerHeader.view.php'; 
+<?php require_once 'managerHeader.view.php'; 
 ?>
 
 <div class="user_view-menu-bar">
@@ -42,7 +42,14 @@
 
             <div class="input-group-aligned">
                 <button type="button" class="green btn" onclick="showSearchBox()">Add existing User</button>
-                <button type="button" class="primary-btn" onclick="showBankDetails()">Next</button>
+                <button type="button" class="primary-btn" onclick="validateAndProceed()">Next</button>
+            </div>
+
+            <div class="errors" style="display: <?= !empty($user->errors) ? 'block' : 'none'; ?>">
+                <p><?= $user->errors['auth'] ?? '' ?></p>
+            </div>
+            <div class="success" style="display: <?= isset($success) ? 'block' : 'none'; ?>">
+                <p><?= $success ?></p>
             </div>
         </div>
 
@@ -51,6 +58,7 @@
             <div class="input-group-group">
                 <label for="cardName" class="input-label">Name on Card</label>
                 <input type="text" name="cardName" id="cardName" class="input-field" 
+                    placeholder="John Doe" value="John Doe" required>
                     placeholder="John Doe" value="John Doe" required>
             </div>
             <div class="input-group-group">
@@ -67,6 +75,7 @@
                 <label for="bankName" class="input-label">Bank Name</label>
                 <input type="text" name="bankName" id="bankName" class="input-field" 
                     placeholder="ABC Bank" value="1" required>
+                    placeholder="ABC Bank" value="1" required>
             </div>
 
             <div class="input-group-aligned">
@@ -81,6 +90,10 @@
 <div id="searchUserForm" style="display: none; height: 600px;">
     <form id="find-user" method="post">
         <input type="hidden" name="find_user" value="1">
+        <div class="SearchBox">
+            <button class="close_btn" id="close-btn" onclick="removeSearchBox(event)">X</button>
+            <div class="flex-bar">
+                <div name="search-bar" class="search-container">
         <div class="SearchBox">
             <button class="close_btn" id="close-btn" onclick="removeSearchBox(event)">X</button>
             <div class="flex-bar">

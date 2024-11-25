@@ -62,18 +62,20 @@
         </div>
         <div class="property-listing">
             <div class="listing-items">
-                <?php for ($i = 0; $i < 3; $i++): ?>
-                    <div class="PL_property-card-home">
-                        <a href="<?= ROOT ?>/propertyListing/showListingDetail"><img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="property-card-image"></a>
+            <?php if (!empty($properties)): ?>
+                <?php $properties = array_slice($properties, 0, 4); ?>
+                <?php foreach($properties as $property): ?>
+                    <div class="PL_property-card" style="height: auto;">
+                        <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
                         <div class="content-section-of-card">
-                            <div class="address-home">
-                                Marine Drive , bambalapitiya , Colombo
+                            <div class="address" style="padding: 0;">
+                            <?= $property->address ?>
                             </div>
                             <div class="name">
-                                OceanVilla Guest
+                            <?= $property->name ?>
                             </div>
                             <div class="price">
-                                Rs. 27000 /Month
+                            <?= $property->rent_on_basis ?> /Month
                             </div>
                         </div>
                         <div class="units-diplays">
@@ -83,7 +85,7 @@
                                 </div>
                                 <div class="unit-display__item__text">
                                     <div class="unit-display__item__text__number">
-                                        2
+                                    <?= $property->bedrooms ?>
                                     </div>
                                 </div>
                             </div>
@@ -93,7 +95,7 @@
                                 </div>
                                 <div class="unit-display__item__text">
                                     <div class="unit-display__item__text__number">
-                                        2
+                                    <?= $property->bathrooms ?>
                                     </div>
                                 </div>
                             </div>
@@ -103,13 +105,16 @@
                                 </div>
                                 <div class="unit-display__item__text">
                                     <div class="unit-display__item__text__number">
-                                        1000
+                                    <?= $property->size_sqr_ft ?>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                <?php endfor; ?>
+                <?php endforeach; ?>
+                <?php else: ?>
+            <p>No properties found.</p>
+        <?php endif; ?>
             </div>
         </div>
     </section>

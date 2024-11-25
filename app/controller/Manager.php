@@ -31,21 +31,21 @@ class Manager {
     private function addAgent() {
         $user = new User();
         $payment_details = new PaymentDetails();
-        show($_POST);
+        $errors = [];
+        // show($_POST);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors = [];
-            $success = '';
 
             // Validate and sanitize personal details
             $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
             if (!$email) {
                 $user->errors['email'] = "Invalid email format.";
             }
-            echo "checking if user exist <br>";
+            // echo "checking if user exist <br>";
             $resultUser = $user->first(['email' => $email], []);
             if (($resultUser && !empty($resultUser->email))) {
                 $errors['email'] = 'Email already exists';
-
+                //update user class errors
                 $user->errors['email'] = 'Email already exists';
                 $this->view('manager/addAgent',[
                     'user' => $resultUser, 
@@ -71,7 +71,7 @@ class Manager {
                 'user_lvl' => 2,
                 'username' => $this->generateUsername($_POST['fname']),
             ];
-            echo "validating user details<br>";
+            // echo "validating user details<br>";
 
             // Validate the form data
             if (!$user->validate($personalDetails)) {
@@ -83,16 +83,16 @@ class Manager {
                     'message' => '']); // Re-render signup view with errors
                 return; // Exit if validation fails
             }
-            echo "user details validated:<br>";
-            show($user->errors);
+            // echo "user details validated:<br>";
+            // show($user->errors);
 
             unset($personalDetails['confirmPassword']);
             $personalDetails['password'] = $hashedPassword;//set hashed password
-            echo "inserting user details<br>";
+            // echo "inserting user details<br>";
             $userStatus = $user->insert($personalDetails);
 
             if (!$userStatus) {
-                echo "user details insertion failed<br>"; 
+                // echo "user details insertion failed<br>"; 
                 $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('manager/addAgent', [
                     'user' => $resultUser, 
@@ -100,7 +100,7 @@ class Manager {
                     'message' => '']);
                 return;
             }else{
-                echo "user details inserted<br>"; 
+                // echo "user details inserted<br>"; 
             }
 
             // Validate and sanitize bank details
@@ -113,48 +113,59 @@ class Manager {
 
                 $userDetails = $user->where(['email' => $email]);
                 $userId = $userDetails[0]->pid;
-                
-                // if ($userStatus) {
-                //     // Save payment details
-                //     $paymentDetailStatus = $payment_details->insert([
-                //         'pid' => $userId,
-                //         'card_name' => $cardName,
-                //         'account_no' => $accountNo,
-                //         'branch' => $branch,
-                //         'bank' => $bankName,
-                //     ]);
+                // var_dump($userId);
+                if ($userStatus) {
+                    // Save payment details
+                    // echo "inserting payment details<br>";
+                    $paymentDetailStatus = $payment_details->insert([
+                        'card_name' => $cardName,
+                        'account_no' => $accountNo,
+                        'bank' => $bankName,
+                        'branch' => $branch,
+                        'pid' => $userId,
+                    ]);
+                    // var_dump($paymentDetailStatus);
+                    // echo "payment details inserted<br>";
 
-                //     if($paymentDetailStatus){
-                //         $success = "Agent added successfully!";
-                //         $status = sendMail($email ,'Primecare Agent Registration', "
-                //             <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
-                //                 <h1 style='color: #4CAF50;'>Agent Registration</h1>
-                //                 <p>Hello,$fname"." "."$lname</p>
-                //                 <p>Your account has been created successfully. Your temporary password is:</p>
-                //                 <h3 style='color: #4CAF50;'>$password</h3>
-                //                 <p>If you did not request this, please ignore this email.</p>
-                //                 <br>
-                //                 <p>Best regards,<br>PrimeCare Support Team</p>
-                //             </div>
-                //         ");	
-                //         if($status['error']){
-                //             $errors['auth'] = "Agent added successfully!. Password has been sent to email";
-                //         }else{
-                //             $errors['auth'] = "Agent added successfully!. Failed to send email. Contact Agent";
-                //         }
-                //     } else {
-                //         $errors['auth'] = "Failed to add Agent Payement Details. Please try again.";
-                //     }
-                // } else {
-                //     $errors['auth'] = "Failed to add agent. Please try again.";
-                //     $this->view('manager/addAgent', [
-                //         'user' => $resultUser, 
-                //         'errors' => $user->errors, 
-                //         'message' => '']);
-                //     return;
-                // }
+                    if($paymentDetailStatus){
+                        // echo "payment done, now sending mail<br>";
+                        $status = sendMail(
+                            $email ,
+                            'Primecare Agent Registration', "
+                            <div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px;\">
+                                <h1 style=\"color: #4CAF50;\">Agent Registration</h1>
+                                <p>Hello, $fname $lname</p>
+                                <p>Your account has been created successfully. Your temporary password is:</p>
+                                <h3 style=\"color: #4CAF50;\">$password</h3>
+                                <p>If you did not request this, please ignore this email.</p>
+                                <br>
+                                <p>Best regards,<br>PrimeCare Support Team</p>
+                            </div>
+                        ");
+                        if(!$status['error']){
+                            $message = "Agent added successfully!. Password has been sent to email";
+                        }else{
+                            $message = "Agent added successfully!. Failed to send email. Contact Agent at {$contact}";
+                        }
+                    } else {
+                        $message = "Failed to add Agent Payement Details. Please try again.";
+                    }
+
+                    $this->view('manager/addAgent', [
+                        'user' => $resultUser, 
+                        'errors' => $user->errors, 
+                        'message' => $message]);
+                    return;
+                } else {
+                    $errors['auth'] = "Failed to add agent. Please try again.";
+                    $this->view('manager/addAgent', [
+                        'user' => $resultUser, 
+                        'errors' => $user->errors, 
+                        'message' => '']);
+                    return;
+                }
             }
-
+            $errors['auth'] = "Failed to add agent. Please try again.";
             $this->view('manager/addAgent', [
                 'user' => $resultUser, 
                 'errors' => $user->errors, 

@@ -325,3 +325,7 @@ a .management-card .management-icon img {
     padding: 2vh 2px ;
     
 }
+
+.manager_form_wrapper{
+    margin: 10px 5px;
+}
