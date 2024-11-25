@@ -27,8 +27,19 @@
     <div class="user_view-container">
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
-            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile" class="header-profile-picture"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
+            <!-- toggle button -->
+            <div class="toggle_wrapper"> 
+                <div class="toggle-button tooltip-container">
+                    <span class="tooltip-text">Change To Customer Mood</span>
+                    <!-- Outer track -->
+                    <div class="toggle-track" id="toggleTrack">
+                    <!-- Inner knob -->
+                    <input type="button" name="toggle_btn" class="toggle-knob"></input>
+                    </div>
+                </div>
+                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile Picture" class="header-profile-picture"></a>
+            </div>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
@@ -38,9 +49,10 @@
                     <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Tasks</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Requested Tasks</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Services</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Services</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><img src="<?= ROOT ?>/assets/images/Taskmanagement.png " alt="">Bookings</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Inventory</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><img src="<?= ROOT ?>/assets/images/managebookings.png" alt="">ServiceProviders</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><img src="<?= ROOT ?>/assets/images/managebookings.png" alt="">Manage Providers</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">

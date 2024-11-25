@@ -26,7 +26,18 @@
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
-            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile Picture" class="header-profile-picture"></a>
+            <!-- toggle button -->
+            <div class="toggle_wrapper"> 
+                <div class="toggle-button tooltip-container">
+                    <span class="tooltip-text">Change To Customer Mood</span>
+                    <!-- Outer track -->
+                    <div class="toggle-track" id="toggleTrack">
+                    <!-- Inner knob -->
+                    <input type="button" name="toggle_btn" class="toggle-knob"></input>
+                    </div>
+                </div>
+                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile Picture" class="header-profile-picture"></a>
+            </div>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
