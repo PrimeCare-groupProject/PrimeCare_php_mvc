@@ -114,7 +114,7 @@
         <p class="input-field-small more-padding"><?= $property->floor_plan ?></p>
 
         <div class="flex-buttons-space-between">
-            <button class="secondary-btn">Book the property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/bookProperty/<?= $property->property_id ?>'">Book the property</button>
             <!--Should be fixed later when property table done-->
             <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
         </div>

@@ -224,4 +224,11 @@ class Customer
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         $this->view('customer/leaveProperty', ['property' => $propertyUnit]);
     }
+
+    public function bookProperty($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        $this->view('customer/bookProperty', ['property' => $propertyUnit]);
+    }
 }

@@ -1,4 +1,5 @@
 <?php require_once 'ownerHeader.view.php'; ?>
+<?php !empty($_SESSION['status']) ? $status = $_SESSION['status'] : "" ?>
 
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
@@ -21,6 +22,14 @@
         </div>
     </div>
 </div>
+
+<div class="errors" style="display: <?= !empty($status) ? 'block' : 'none'; ?>; background-color: #b5f9a2;">
+    <?php if (!empty($status)): ?>
+        <p><?= $status;  ?></p>
+    <?php endif; ?>
+    <?php $_SESSION['status'] = '' ?>
+</div>
+
 
 <div class="property-unit-container">
 
@@ -49,9 +58,9 @@
                 <?php require __DIR__ . '/../components/reviewfiled1.php'; ?>
             <?php endfor; ?>
         </div>
-        
-        
-        
+
+
+
     </div>
 
     <div class="property-details-section">
@@ -130,7 +139,7 @@
         </div>
 
     </div>
-    
+
 </div>
 
 
