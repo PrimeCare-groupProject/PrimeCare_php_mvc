@@ -69,7 +69,7 @@
 
             <h5 class="editText" id="editText" style="display: none;">click profile picture to edit !</h5>
             <div class="errors" 
-                style="display: <?= !empty($errors) || !empty($status) ? 'block' : 'none'; ?>; 
+                style="display: <?= !empty($errors) || !empty($message) ? 'block' : 'none'; ?>; 
                         background-color: <?= !empty($errors) ? '#f8d7da' : (!empty($status) ? '#b5f9a2' : '#f8d7da'); ?>;">
                 <?php if (!empty($errors)): ?>
                     <p><?= $errors[0] ?? '' ?></p>
