@@ -36,24 +36,35 @@
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($services)) : ?>
-                <?php foreach ($services as $service) : ?>
-                    <tr data-href="<?= ROOT ?>/serviceprovider/viewService/<?= $service->service_id ?>">
-                        <td><?= date('Y/m/d', strtotime($service->date)) ?></td>
-                        <td><?= esc($service->service_type) ?></td>
-                        <td><?= esc($service->property_id) ?></td>
-                        <td><?= esc($service->property_name) ?></td>
-                        <td><?= number_format($service->earnings, 2) ?> LKR</td>
-                        <td><span class="border-button-sm <?= strtolower($service->status) === 'done' ? 'green' : 'orange' ?>"><?= esc($service->status) ?></span></td>
-                        <td><?= $service->time_left ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else : ?>
-                <tr>
-                    <td colspan="7" class="text-center">No service requests found</td>
+        <?php if (!empty($services)) : ?>
+            <?php foreach ($services as $service) : ?>
+                <tr 
+                data-href="<?= strtolower($service->status) === 'ongoing' 
+                            ? ROOT . '/serviceprovider/addLogs/' . $service->service_id 
+                            : ROOT . '/serviceprovider/serviceSummery/' . $service->service_id ?>"
+                            >
+                    <td><?= date('Y/m/d', strtotime($service->date)) ?></td>
+                    <td><?= esc($service->service_type) ?></td>
+                    <td><?= esc($service->property_id) ?></td>
+                    <td><?= esc($service->property_name) ?></td>
+                    <td><?= number_format($service->earnings, 2) ?> LKR</td>
+                    <td>
+                        <span 
+                            class="border-button-sm <?= strtolower($service->status) === 'done' ? 'green' : 'orange' ?>"
+                        >
+                            <?= esc($service->status) ?>
+                        </span>
+                    </td>
+                    <td><?= $service->time_left ?></td>
                 </tr>
-            <?php endif; ?>
-        </tbody>
+            <?php endforeach; ?>
+        <?php else : ?>
+            <tr>
+                <td colspan="6" class="text-center">No service requests found</td>
+            </tr>
+        <?php endif; ?>
+    </tbody>
+
     </table>
 
     <!-- Pagination -->
