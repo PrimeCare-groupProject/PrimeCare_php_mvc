@@ -6,7 +6,7 @@
 </div>
 <div class="management-cards-container">
     <div class="management-card-container-sub">
-        <a href="<?= ROOT ?>/dashboard/tasks/ongoingtask">
+        <a href="<?= ROOT ?>/dashboard/services/serviceproviders">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Services</h2>
@@ -18,7 +18,7 @@
         </a>
 
     <div class="management-card-container-sub">
-        <a href="<?= ROOT ?>/dashboard/tasks/inventorymanagement">
+        <a href="<?= ROOT ?>/dashboard/services/payments">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Payments</h2>
