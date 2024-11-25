@@ -11,8 +11,10 @@ class Booking
         'tenant_id',
         'agent_id',
         'booked_date',
+        'start_date',
         'renting_period'
     ];
 
     public $errors = [];
+
 }
