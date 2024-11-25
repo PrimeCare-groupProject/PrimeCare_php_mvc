@@ -685,13 +685,14 @@ ALTER TABLE `property_image_temp`
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-CREATE TABLE payment_details (
-    name_on_card VARCHAR(30) NOT NULL, -- Cardholder's name; cannot be null.
-    card_no INT(12) PRIMARY KEY,      -- Card number; fixed length of 12; primary key ensures uniqueness.
-    bank INT(2) NOT NULL,         -- Bank name; cannot be null.
-    branch INT(3) NOT NULL,       -- Branch name; cannot be null.
-    pid INT NOT NULL,                  -- Foreign key reference; cannot be null.
-    FOREIGN KEY (pid) REFERENCES person(pid) 
-        ON DELETE CASCADE              -- Ensures related entries are removed when a person is deleted.
+CREATE TABLE payment_details ( 
+    card_id INT AUTO_INCREMENT PRIMARY KEY, -- New auto-incrementing primary key
+    card_name VARCHAR(30) NOT NULL, 
+    account_no VARCHAR(20) NOT NULL UNIQUE, -- Changed to VARCHAR for flexibility, added UNIQUE constraint
+    bank VARCHAR(50) NOT NULL,         -- Changed to VARCHAR to store bank name 
+    branch VARCHAR(50) NOT NULL,       -- Changed to VARCHAR to store branch name 
+    pid INT NOT NULL,                  -- Foreign key reference 
+    FOREIGN KEY (pid) REFERENCES person(pid)  
+        ON DELETE CASCADE,
+    CONSTRAINT unique_account_per_person UNIQUE (pid, account_no) -- Ensure no duplicate accounts per person
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-

@@ -1,10 +1,10 @@
-<?php #require_once 'managerHeader.view.php'; 
+<?php require_once 'managerHeader.view.php'; 
 ?>
 
 <div class="user_view-menu-bar">
     <a href='<?= ROOT ?>/dashboard/managementhome/agentmanagement'>
         <button class="back-btn">
-            <!-- <img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"> -->
+            <img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons">
         </button>
     </a>
     <h2>Add Agent</h2>
@@ -12,8 +12,9 @@
 
 <div id="formContainer">
     <!-- Consolidated Form -->
-    <form id="addAgentForm" method="post" action="<?= ROOT ?>/dashboard/managementhome/agentmanagement/addagent" class="form_wrapper">
+    <form id="addAgentForm" method="post" action="<?= ROOT ?>/dashboard/managementhome/agentmanagement/addagent" class="form_wrapper manager_form_wrapper">
         <!-- Personal Details View -->
+        <input type="hidden" name="add_agent" value="1">
         <div id="personalDetailsView" class="AddnewAgentform">
             <div class="input-group-group">
                 <label for="email" class="input-label">Email Address</label>
@@ -62,6 +63,7 @@
 
         <!-- Bank Details View -->
         <div id="bankDetailsView" class="AddnewAgentform" style="display: none;">
+            <input type="hidden" name="find_agent" value="1">
             <div class="input-group-group">
                 <label for="cardName" class="input-label">Name on Card</label>
                 <input type="text" name="cardName" id="cardName" class="input-field" 

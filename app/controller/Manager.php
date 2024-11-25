@@ -32,7 +32,7 @@ class Manager {
         $user = new User();
         $payment_details = new PaymentDetails();
         $errors = [];
-        show($_POST);
+        // show($_POST);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors = [];
 
@@ -41,7 +41,7 @@ class Manager {
             if (!$email) {
                 $user->errors['email'] = "Invalid email format.";
             }
-            echo "checking if user exist <br>";
+            // echo "checking if user exist <br>";
             $resultUser = $user->first(['email' => $email], []);
             if (($resultUser && !empty($resultUser->email))) {
                 $errors['email'] = 'Email already exists';
@@ -71,7 +71,7 @@ class Manager {
                 'user_lvl' => 2,
                 'username' => $this->generateUsername($_POST['fname']),
             ];
-            echo "validating user details<br>";
+            // echo "validating user details<br>";
 
             // Validate the form data
             if (!$user->validate($personalDetails)) {
@@ -83,16 +83,16 @@ class Manager {
                     'message' => '']); // Re-render signup view with errors
                 return; // Exit if validation fails
             }
-            echo "user details validated:<br>";
-            show($user->errors);
+            // echo "user details validated:<br>";
+            // show($user->errors);
 
             unset($personalDetails['confirmPassword']);
             $personalDetails['password'] = $hashedPassword;//set hashed password
-            echo "inserting user details<br>";
+            // echo "inserting user details<br>";
             $userStatus = $user->insert($personalDetails);
 
             if (!$userStatus) {
-                echo "user details insertion failed<br>"; 
+                // echo "user details insertion failed<br>"; 
                 $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('manager/addAgent', [
                     'user' => $resultUser, 
@@ -100,7 +100,7 @@ class Manager {
                     'message' => '']);
                 return;
             }else{
-                echo "user details inserted<br>"; 
+                // echo "user details inserted<br>"; 
             }
 
             // Validate and sanitize bank details
@@ -113,22 +113,22 @@ class Manager {
 
                 $userDetails = $user->where(['email' => $email]);
                 $userId = $userDetails[0]->pid;
-                var_dump($userId);
+                // var_dump($userId);
                 if ($userStatus) {
                     // Save payment details
-                    echo "inserting payment details<br>";
+                    // echo "inserting payment details<br>";
                     $paymentDetailStatus = $payment_details->insert([
-                        'pid' => $userId,
                         'card_name' => $cardName,
                         'account_no' => $accountNo,
-                        'branch' => $branch,
                         'bank' => $bankName,
+                        'branch' => $branch,
+                        'pid' => $userId,
                     ]);
-                    var_dump($paymentDetailStatus);
-                    echo "payment details inserted<br>";
+                    // var_dump($paymentDetailStatus);
+                    // echo "payment details inserted<br>";
 
                     if($paymentDetailStatus){
-                        echo "payment done, now sending mail<br>";
+                        // echo "payment done, now sending mail<br>";
                         $status = sendMail(
                             $email ,
                             'Primecare Agent Registration', "
