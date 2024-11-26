@@ -389,7 +389,7 @@ class Manager {
     }
 
     public function financialManagement(){
-        $this->view('manager/financialManagement');
+        $this->view('manager/financeManagement');
     }
 
     public function assignAgents(){
