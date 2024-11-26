@@ -7,10 +7,11 @@ class PaymentDetails
     protected $table = 'payment_details';
     protected $order_column = "card_no";
     protected $allowedColumns = [
-        'name_on_card',
-        'card_no',
+        'card_name',
+        'account_no',
         'bank',//10
         'branch',//20
+        'pid'
     ];
 
     public $errors = [];

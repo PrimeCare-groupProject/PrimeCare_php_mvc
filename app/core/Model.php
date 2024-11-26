@@ -236,7 +236,7 @@ trait Model{//similar to a class but can be inherited by other classes
         $query = "
             insert into $this->table (".implode(", ", $keys).") 
             values  (:".implode(', :', $keys).") "; //impolde is used to concat list to string
-        echo $query;
+        // echo $query;
         // remove unwanted data from the data array
         if(!empty($this->allowedColumns)){
             foreach($keys as $key){
@@ -246,7 +246,7 @@ trait Model{//similar to a class but can be inherited by other classes
             }
         }
         $results = $this->query($query, $data);
-        show($results);
+        // show($results);
         return $results ? true : false ;
 
     }
@@ -274,7 +274,7 @@ trait Model{//similar to a class but can be inherited by other classes
         $query = "
             delete from $this->table 
             where $id_column = :$id_column";
-        show($query);
+        // show($query);
         $result = $this->query($query, $data);
         
         return $result !== false;

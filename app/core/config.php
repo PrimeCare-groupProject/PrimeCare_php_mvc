@@ -4,11 +4,6 @@ defined('ROOTPATH') or exit('Access denied');
  
  if($_SERVER['SERVER_NAME'] == 'localhost'){
    define('ROOT', 'http://localhost/php_mvc_backend/public');
-   // database config local dev environment
-    //define('DBNAME', 'my_db');
-    //define('DBHOST', 'localhost');
-    //define('DBUSER', 'root');
-    //define('DBPASS', '');
   // database config remote dev environment
    define('DBNAME', 'primecare_all');
    define('DBHOST', 'mysql-primecare.alwaysdata.net');

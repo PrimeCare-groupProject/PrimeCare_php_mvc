@@ -152,13 +152,77 @@ class ServiceProvider {
         $this->view('serviceprovider/addLogs');
     }
 
+    public function serviceSummery(){
+        $this->view('serviceprovider/serviceSummery');
+    }
+
     public function repairListing(){
         $this->view('serviceprovider/repairListing');
     }
 
-    public function repairRequests(){
-        $this->view('serviceprovider/repairRequests');
+    public function repairRequests() {
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+    
+        $serviceLog = new ServiceLog();
+        $provider_id = $_SESSION['user']->pid;
+    
+        // Get current page for pagination
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $items_per_page = 10;
+        $offset = ($page - 1) * $items_per_page;
+    
+        // Construct the query conditions
+        $conditions = [
+            'service_provider_id' => $provider_id
+        ];
+    
+        // Add status filter if provided
+        if (isset($_GET['status']) && $_GET['status'] !== 'all') {
+            $conditions['status'] = $_GET['status'];
+        }
+    
+        // Get total count for pagination
+        $allServices = $serviceLog->where($conditions); // Fetch all matching records
+        $total_records = count($allServices); // Count the array
+        $total_pages = ceil($total_records / $items_per_page);
+    
+        // Paginate the records
+        $services = array_slice($allServices, $offset, $items_per_page); // Paginate manually
+    
+        // Calculate time left for pending services
+        foreach ($services as &$service) {
+            $service->earnings = $service->cost_per_hour * $service->total_hours;
+    
+            if ($service->status === 'Ongoing') {
+                // Calculate hours left (assuming 48-hour SLA from service date)
+                $service_date = new DateTime($service->date);
+                $current_date = new DateTime();
+                $time_diff = $service_date->diff($current_date);
+                $hours_passed = ($time_diff->days * 24) + $time_diff->h;
+                $days_left = floor($hours_passed / 24);
+                $hours_left = $hours_passed % 24;
+                $service->time_left = $hours_left > 0 ? $days_left . 'd ' . $hours_left . 'hr' : ($days_left > 0 ? $days_left . 'd' : 'Overdue');
+            } else {
+                $service->time_left = '-';
+            }
+        }
+    
+        // Prepare data for the view
+        $data = [
+            'services' => $services,
+            'current_page' => $page,
+            'total_pages' => $total_pages,
+            'selected_status' => $_GET['status'] ?? 'all'
+        ];
+    
+        // Load the view with data
+        $this->view('serviceprovider/repairRequests', $data);
     }
+    
 
     public function repairs(){
         $this->view('serviceprovider/repairs');

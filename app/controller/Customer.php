@@ -224,4 +224,20 @@ class Customer
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         $this->view('customer/leaveProperty', ['property' => $propertyUnit]);
     }
+
+    public function bookProperty($propertyId)
+    {
+        $property = new PropertyConcat;
+        $owner = new User();
+        $agent = new User();
+
+        $owner = $owner->where(['pid' => $property->where(['property_id' => $propertyId])[0]->person_id])[0];
+        //$agent = $agent->where(['pid' => $property->where(['property_id' => $propertyId])[0]->agent_id])[0];
+        $agent = $agent->where(['pid' => 62])[0];
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        // show($propertyUnit);
+        // show($owner);
+        // show($agent);
+        $this->view('customer/bookProperty', ['property' => $propertyUnit , 'owner' => $owner, 'agent' => $agent]);
+    }
 }

@@ -19,7 +19,7 @@
                 <li><a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a></li>
                 <li><?php
                     if (isset($_SESSION['user'])) {
-                        echo "<button class='header__button' onClick=\"window.location.href = 'dashboard/profile'\">";
+                        echo "<button class='header__button' onClick=\"window.location.href = 'dashboard'\">";
                         echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header_profile_picture'>";
                         echo "Profile";
                     } else {
@@ -35,23 +35,26 @@
                 <div class="PL_form_main-filters">
                     <div class="flex-bar2">
                         <a href="<?= ROOT ?>/propertyListing/showListing"><img src="<?= ROOT ?>/assets/images/backButton.png" class="back-button" alt="back"></a>
-                        <p>OceanVilla Resort</p>
+                        <p><?= $property->name ?></p>
                     </div>
                 </div>
                 <div class="content-section low-padding" id="content-section">
                     <div class="property-container">
                         <!-- Left Section: Image Slider -->
+                        <?php $images = explode(',', $property->property_images) ?>
                         <div class="image-slider">
                             <div class="main-image">
-                                <img id="main-image" src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Property Image">
+                                <img id="main-image" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $images[0] ?>" alt="Property Image">
                             </div>
                             <div class="thumbnails">
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Thumbnail 1">
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Thumbnail 2">
+                            <?php foreach ($images as $index => $image): ?>
+                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Thumbnail 1">
+                                <?php endforeach; ?>
+                                <!-- <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Thumbnail 2">
                                 <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/booking1.png" alt="Thumbnail 3">
                                 <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Thumbnail 1">
                                 <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Thumbnail 2">
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/booking1.png" alt="Thumbnail 3">
+                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/booking1.png" alt="Thumbnail 3"> -->
                             </div>
                         </div>
 
@@ -64,44 +67,48 @@
                                     </div>
                                 </div>
                                 <div class="PL__pricing">
-                                    <span>225,000.00 LKR</span>
+                                    <span><?= $property->rent_on_basis ?> LKR</span>
                                     <small>PER MONTH</small>
                                 </div>
                             </div>
                             <h2>Description</h2>
                             <p>
-                                Welcome to Oceanview Retreat, an exquisite beachfront property located in the vibrant city of Miami, Florida. Situated along the pristine shores of the Atlantic Ocean, this luxurious estate offers a truly unparalleled coastal living experience. With breathtaking panoramic views of the ocean and direct access to a private white sandy beach, Oceanview Retreat is a haven for relaxation and rejuvenation. Immerse yourself in the soothing sounds of the waves and indulge in the serenity of the surroundings.
+                            <?= $property->description ?>
                             </p>
 
                             <h2>Property Information</h2>
                             <table>
                                 <tr>
                                     <td>Name:</td>
-                                    <td>Oceanview Retreat</td>
+                                    <td><?= $property->name ?></td>
                                 </tr>
                                 <tr>
                                     <td>Type:</td>
-                                    <td>Residence</td>
+                                    <td><?= $property->type ?></td>
                                 </tr>
                                 <tr>
                                     <td>Zip Code:</td>
-                                    <td>11320</td>
+                                    <td><?= $property->zipcode ?></td>
                                 </tr>
                                 <tr>
                                     <td>City:</td>
-                                    <td>Colombo</td>
+                                    <td><?= $property->city ?></td>
                                 </tr>
                                 <tr>
                                     <td>State/Province:</td>
-                                    <td>Florida</td>
+                                    <td><?= $property->state_province ?></td>
                                 </tr>
                                 <tr>
                                     <td>Country:</td>
-                                    <td>America</td>
+                                    <td><?= $property->country ?></td>
                                 </tr>
                                 <tr>
+                                    <td>Address:</td>
+                                    <td><?= $property->address ?></td>
+                                </tr> 
+                                <tr>
                                     <td>Year Built:</td>
-                                    <td>2015</td>
+                                    <td><?= $property->year_built ?></td>
                                 </tr>
                                 <!-- <tr>
                                     <td>Units:</td>
@@ -115,13 +122,10 @@
                                     <td>Size (sq. ft):</td>
                                     <td>6000</td>
                                 </tr> 
-                                <tr>
-                                    <td>Monthly Rent (LKR):</td>
-                                    <td>20000</td>
-                                </tr> -->
+                            -->
                                 <tr>
                                     <td>Floor Plan:</td>
-                                    <td>The house contains 7 units, 4 rooms, kitchen, washroom, and dining area</td>
+                                    <td><?= $property->floor_plan ?></td>
                                 </tr>
                             </table>
 
@@ -130,27 +134,27 @@
                                 <div class="overview-grid">
                                     <div class="overview-item">
                                         <img src="<?= ROOT ?>/assets/images/bed.png" alt="Bed Icon">
-                                        <span>3 Bedroom</span>
+                                        <span><?= $property->bedrooms ?> Bedroom</span>
                                     </div>
                                     <div class="overview-item">
                                         <img src="<?= ROOT ?>/assets/images/bathroom.png" alt="Bathroom Icon">
-                                        <span>7 Bathroom</span>
+                                        <span><?= $property->bathrooms ?> Bathroom</span>
                                     </div>
                                     <div class="overview-item">
                                         <img src="<?= ROOT ?>/assets/images/floor.png" alt="Unit Icon">
-                                        <span>7 Units</span>
+                                        <span><?= $property->units ?> Units</span>
                                     </div>
                                     <div class="overview-item">
                                         <img src="<?= ROOT ?>/assets/images/size.png" alt="Area Icon">
-                                        <span>3,943 ft</span>
+                                        <span><?= $property->size_sqr_ft ?> ft</span>
                                     </div>
                                     <div class="overview-item">
                                         <img src="<?= ROOT ?>/assets/images/furniture.png" alt="Furniture Icon">
-                                        <span>All Furniture</span>
+                                        <span><?= $property->furnished ?></span>
                                     </div>
                                     <div class="overview-item">
                                         <img src="<?= ROOT ?>/assets/images/garage.png" alt="Garage Icon">
-                                        <span>1 Car Garage</span>
+                                        <span><?= $property->parking ?></span>
                                     </div>
                                 </div>
                             </div>
