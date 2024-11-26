@@ -1305,7 +1305,7 @@ h3 {
     align-items: center; 
     padding: 20px;
     transition: 0.5s;
-    /* perspective: 100px; */
+    perspective: 100px;
 }
 
 .service-slide:hover {
