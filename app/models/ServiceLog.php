@@ -14,7 +14,9 @@ class ServiceLog {
         'total_hours',
         'status',
         'service_provider_id',
-        'service_description'
+        'service_description',
+        'service_provider_description', 
+        'service_images' 
     ];
 
     public $errors = [];
@@ -61,6 +63,23 @@ class ServiceLog {
         // Service provider ID can be null, but if provided must be numeric
         if (!empty($data['service_provider_id']) && !is_numeric($data['service_provider_id'])) {
             $this->errors['service_provider_id'] = 'Service provider ID must be a valid number';
+        }
+        
+        // Service provider description can be null, but if provided must be a string
+        if (!empty($data['service_provider_description']) && !is_string($data['service_provider_description'])) {
+            $this->errors['service_provider_description'] = 'Service provider description must be a valid string';
+        }
+
+        // Service images can be null, but if provided must be an array of strings
+        if (!empty($data['service_images']) && !is_array($data['service_images'])) {
+            $this->errors['service_images'] = 'Service images must be an array of image URLs';
+        } else if (!empty($data['service_images'])) {
+            foreach ($data['service_images'] as $image) {
+                if (!is_string($image)) {
+                    $this->errors['service_images'] = 'Service images must be an array of image URLs';
+                    break;
+                }
+            }
         }
 
         return empty($this->errors);
