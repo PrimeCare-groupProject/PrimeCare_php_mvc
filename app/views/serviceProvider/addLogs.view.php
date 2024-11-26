@@ -9,10 +9,10 @@
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
             <label class="input-label">Repair Type</label>
-            <input type="text" name="reapirType" placeholder="Type of the Repair" class="input-field" required>
+            <input type="text" name="reapirType" placeholder="Type of the Repair" class="input-field" value="<?= $service_type ?>" required>
 
             <label class="input-label">Name of Property</label>
-            <input type="text" name="name" placeholder="Enter Property Name" class="input-field" required>
+            <input type="text" name="name" placeholder="Enter Property Name" class="input-field" value="<?= $property_name ?>" required>
 
             <label class="input-label">Description about Repair</label>
             <textarea name="description" placeholder="Write About Repair" class="input-field" required></textarea>
@@ -33,13 +33,13 @@
 
         <div class="owner-addProp-form-right">
             <label class="input-label">Address</label>
-            <input type="text" name="address" placeholder="Enter the Address" class="input-field" required>
+            <input type="text" name="address" placeholder="Enter the Address" class="input-field" value="<?= $property_id ?>" required>
 
             <label class="input-label">Date</label>
-            <input type="date" name="date" placeholder="Repair Date" class="input-field" required>
+            <input type="date" name="date" placeholder="Repair Date" class="input-field" value="<?= date('Y-m-d') ?>" required>
 
             <label class="input-label">Service ID</label>
-            <input type="text" name="serviceID" placeholder="Enter the service ID" class="input-field" required>
+            <input type="text" name="serviceID" placeholder="Enter the service ID" class="input-field" value="<?= $service_id ?>" required>
 
             <div class="buttons-to-right">
                 <button type="submit" class="primary-btn">Submit</button>
