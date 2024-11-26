@@ -148,45 +148,135 @@ class ServiceProvider {
         exit;
     }
 
-    public function addLogs(){
+    public function addLogs() {
+        // Ensure user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
             redirect('login');
             return;
         }
-
-        // Assuming $service_id is passed as a parameter or retrieved from the request
+    
+        $serviceLog = new ServiceLog();
+    
+        // Handle POST request for form submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = [];
+            $uploaded_images = [];
+    
+            // Validate required POST data
+            $service_id = $_POST['service_id'] ?? null;
+            $total_hours = $_POST['total_hours'] ?? null;
+            $provider_description = $_POST['description'] ?? null;
+    
+            // Basic validation
+            if (empty($service_id) || empty($total_hours) || empty($provider_description)) {
+                $_SESSION['error'] = 'All fields are required.';
+                redirect("serviceprovider/addLogs?service_id=$service_id");
+                return;
+            }
+    
+            // Handle image uploads
+            if (isset($_FILES['property_image'])) {
+                $imageDir = ROOTPATH . "public/assets/images/uploads/service_logs/";
+                
+                // Create directory if it doesn't exist
+                if (!is_dir($imageDir)) {
+                    mkdir($imageDir, 0755, true);
+                }
+    
+                // Process each uploaded image
+                foreach ($_FILES['property_image']['name'] as $key => $imageName) {
+                    if ($_FILES['property_image']['error'][$key] === 0) {
+                        $imageTmp = $_FILES['property_image']['tmp_name'][$key];
+                        $imageFileType = strtolower(pathinfo($imageName, PATHINFO_EXTENSION));
+                        
+                        // Validate image type
+                        if (in_array($imageFileType, ['jpg', 'jpeg', 'png'])) {
+                            $uniqueImageName = uniqid() . "_service_" . $service_id . "." . $imageFileType;
+                            
+                            if (move_uploaded_file($imageTmp, $imageDir . $uniqueImageName)) {
+                                $uploaded_images[] = $uniqueImageName;
+                            } else {
+                                $errors[] = "Failed to upload image: $imageName";
+                            }
+                        } else {
+                            $errors[] = "Invalid file type for: $imageName. Only JPG, JPEG, and PNG are allowed.";
+                        }
+                    }
+                }
+            }
+    
+            // Check for upload errors
+            if (!empty($errors)) {
+                $_SESSION['error'] = implode("<br>", $errors);
+                redirect("serviceprovider/addLogs?service_id=$service_id");
+                return;
+            }
+    
+            // Get existing service log
+            $existing_log = $serviceLog->first(['service_id' => $service_id]);
+            if (!$existing_log) {
+                $_SESSION['error'] = 'Service log not found';
+                redirect("serviceprovider/addLogs?service_id=$service_id");
+                return;
+            }
+    
+            // Prepare update data
+            $update_data = [
+                'total_hours' => $total_hours,
+                'status' => 'Done',
+                'service_provider_description' => $provider_description
+            ];
+    
+            // Add images if any were uploaded
+            if (!empty($uploaded_images)) {
+                $update_data['service_images'] = json_encode($uploaded_images);
+            }
+    
+            // Update the service log
+            $update_result = $serviceLog->update($service_id, $update_data, 'service_id');
+    
+            if ($update_result) {
+                $_SESSION['success'] = 'Service log updated successfully.';
+                redirect('serviceprovider/repairRequests');
+                return;
+            } else {
+                $_SESSION['error'] = 'Failed to update service log. Please try again.';
+                error_log('Service Log Update Failed - Data: ' . print_r($update_data, true));
+                redirect("serviceprovider/addLogs?service_id=$service_id");
+                return;
+            }
+        }
+    
+        // Handle GET request - Display the form
         $service_id = $_GET['service_id'] ?? null;
-        $property_id = $_GET['property_id'] ?? null;
-        $property_name = $_GET['property_name'] ?? null;
-        $service_type = $_GET['service_type'] ?? null;
-        $status = $_GET['status'] ?? null;
-        $earnings = $_GET['earnings'] ?? null;
-
         if (!$service_id) {
             redirect('serviceprovider/repairRequests');
             return;
         }
-
-        // Fetch property address using property_id
-        $property_address = null;
-        if ($property_id) {
-            $property = new Property(); 
-            //$property_data = $property->find($property_id);
-            //$property_address = $property_data ? $property_data->address : null;
+    
+        // Get service details
+        $current_service = $serviceLog->first(['service_id' => $service_id]);
+        if (!$current_service) {
+            $_SESSION['error'] = 'Service not found';
+            redirect('serviceprovider/repairRequests');
+            return;
         }
-   
-        // Render the addLogs view for the specific service
-        $this->view('serviceprovider/addLogs', [
+    
+        // Prepare view data
+        $view_data = [
             'service_id' => $service_id,
-            'property_id' => $property_id,
-            'property_name' => $property_name,
-            'property_address' => $property_address,
-            'service_type' => $service_type,
-            'status' => $status,
-            'earnings' => $earnings
-        ]);
+            'property_id' => $current_service->property_id ?? null,
+            'property_name' => $current_service->property_name ?? null,
+            'service_type' => $current_service->service_type ?? null,
+            'status' => $current_service->status ?? null,
+            'earnings' => $current_service->cost_per_hour * ($current_service->total_hours ?? 0),
+            'current_service' => $current_service
+        ];
+    
+        // Load view with data
+        $this->view('serviceprovider/addLogs', $view_data);
     }
-
+    
     public function serviceSummery(){
         $this->view('serviceprovider/serviceSummery');
     }
