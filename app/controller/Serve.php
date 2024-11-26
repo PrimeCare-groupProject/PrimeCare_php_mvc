@@ -127,4 +127,12 @@ class Serve{
 
     }
 
+
+    // service unit retrieve for customer
+    public function serviceUnit($service_id) {
+        $service = new Services;
+        $service = $service->where(['service_id' => $service_id])[0];
+        $this->view('customer/repairUnit', ['service' => $service]);
+    }
+
 }

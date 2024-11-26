@@ -6,9 +6,12 @@ class Home{
     use controller;
     public function index(){
         $property = new PropertyConcat;
+        $services = new Services;
+
+        $services = $services->findAll();
         $properties = $property->where(['status' => 'pending']);
 
-        $this->view('hometest' , ['properties' => $properties]);
+        $this->view('hometest' , ['properties' => $properties , 'services' => $services]);
     }
 
     public function serviceListing(){
