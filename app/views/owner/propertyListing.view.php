@@ -2,6 +2,7 @@
 <?php !empty($_SESSION['status']) ? $status = $_SESSION['status'] : "" ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>properties</h2>
     <div class="flex-bar">
         <div class="search-container">
@@ -32,7 +33,8 @@
                 <div class="property-card">
                     <div class="property-image">
                         <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
-                        <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a>
+                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
+                        <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a>
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
@@ -60,8 +62,8 @@
                         <div class="property-actions">
                             <a href="#" class="change-status">change Pending</a>
                             <div>
-                                <a href="<?= ROOT ?>/dashboard/updateProperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="<?= ROOT ?>/property/delete/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/dashboard/delete/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
                             </div>
                         </div>
                     </div>

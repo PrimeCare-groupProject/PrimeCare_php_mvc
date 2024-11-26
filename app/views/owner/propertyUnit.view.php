@@ -4,7 +4,7 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/property/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/dashboard/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2><?= $property->name ?></h2>
                 <p><span>Maintained By: </span>Agent's Name</p>
@@ -12,11 +12,11 @@
         </div>
         <div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/financialReportUnit/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Financial Report</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/reportProblem/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Report a Problem</span>
             </div>
         </div>
@@ -132,10 +132,10 @@
         <p class="input-field-small more-padding"><?= $property->floor_plan ?></p>
 
         <div class="flex-buttons-space-between">
-            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/updateProperty/<?= $property->property_id ?>'">Edit Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>'">Edit Property</button>
             <!--Should be fixed later when property table done-->
             <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
-            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/delete/<?= $property->property_id ?>'">Remove Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/delete/<?= $property->property_id ?>'">Remove Property</button>
         </div>
 
     </div>

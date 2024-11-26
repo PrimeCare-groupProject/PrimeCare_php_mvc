@@ -5,6 +5,15 @@ class Owner
 {
     use controller;
 
+    private function propertyUnitOwner($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        //show($propertyUnit);
+
+        $this->view('owner/propertyUnit', ['property' => $propertyUnit]);
+    }
+
     public function index()
     {
         $this->view('owner/dashboard', [
@@ -59,7 +68,55 @@ class Owner
         ]);
     }
 
-    public function updateProperty($propertyId){
+    private function deletePropertyImage($propertyId)
+    {
+        $propertyImage = new PropertyImageModel;
+        // Fetch all images associated with the property
+        $images = $propertyImage->where(['property_id' =>$propertyId]);
+        show($images);
+        foreach ($images as $image) {
+            $imagePath = ROOTPATH . "public/assets/images/uploads/property_images/" . $image->image_url;
+            show($imagePath);
+            // Check if the file exists before attempting to delete
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+    }
+
+    // delete
+    private function deletePropertyDocument($propertyId)
+    {
+        $propertyDoc = new PropertyDocModel;
+        // Fetch all documents associated with the property
+        $docs = $propertyDoc->where(['property_id' => $propertyId])[0];
+        $docPath = ROOTPATH . "public/assets/documents/property_docs/" . $docs->image_url;
+        show($docPath);
+        if (file_exists($docPath)) {
+            unlink($docPath);
+        }
+    }
+
+    public function delete($propertyId)
+    {
+        $property = new PropertyModel;
+
+        // Delete the property images
+        $this->deletePropertyImage($propertyId);
+
+        // Delete the property documents
+        $this->deletePropertyDocument($propertyId);
+
+        // Delete the property
+        $property->delete($propertyId , 'property_id');
+
+        $_SESSION['status'] = 'Property deleted successfully!';
+
+        // Redirect to the property listing page
+        redirect('dashboard/propertyListing');
+    }
+
+    private function updateProperty($propertyId){
         $property = new PropertyConcat;
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         //show($propertyUnit);
@@ -76,21 +133,34 @@ class Owner
         if ($a == 'addproperty') {
             $this->addProperty($b = '', $c = '', $d = '');
             return;
-        } else if ($a == 'propertyunit') {
-            $this->propertyUnit($b = '', $c = '', $d = '');
-            return;
+        // } else if ($a == 'propertyunit') {
+        //     $this->propertyUnit($b = '', $c = '', $d = '');
+        //     return;
         } else if ($a == "repairlisting"){
             $this->repairListing($b = '', $c = '', $d = '');
             return;
-        } else if ($a == "servicerequest"){
-            $this->serviceRequest($b = '', $c = '', $d = '');
+        // } else if ($a == "servicerequest"){
+        //     $this->serviceRequest($b = '', $c = '', $d = '');
+        //     return;
+        } else if ($a == "updateproperty"){
+            $this->updateProperty($propertyId=$b);
+            return;
+        } else if ($a == "propertyunitowner"){
+            $this->propertyUnitOwner($propertyId=$b);
+            return;
+        } else if ($a == "financialreportunit"){
+            $this->financialReportUnit($propertyId=$b);
+            return;
+        } else if ($a == "reportproblem"){
+            $this->reportProblem($propertyId=$b);
             return;
         }
-        $this->view('owner/propertyListing', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
-        ]);
+
+        //if property listing is being called
+        $property = new PropertyConcat;
+        $properties = $property->where(['person_id' => $_SESSION['user']->pid]);
+
+        $this->view('owner/propertyListing', ['properties' => $properties]);
     }
 
 
@@ -302,7 +372,7 @@ class Owner
         exit;
     }
     
-    public function reportProblem()
+    private function reportProblem()
     {
         $this->view('owner/reportProblem', [
             'user' => $_SESSION['user'],
@@ -311,7 +381,7 @@ class Owner
         ]);
     }
 
-    public function financialReportUnit(){
+    private function financialReportUnit(){
         $this->view('owner/financialReportUnit', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
