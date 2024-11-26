@@ -149,7 +149,42 @@ class ServiceProvider {
     }
 
     public function addLogs(){
-        $this->view('serviceprovider/addLogs');
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+
+        // Assuming $service_id is passed as a parameter or retrieved from the request
+        $service_id = $_GET['service_id'] ?? null;
+        $property_id = $_GET['property_id'] ?? null;
+        $property_name = $_GET['property_name'] ?? null;
+        $service_type = $_GET['service_type'] ?? null;
+        $status = $_GET['status'] ?? null;
+        $earnings = $_GET['earnings'] ?? null;
+
+        if (!$service_id) {
+            redirect('serviceprovider/repairRequests');
+            return;
+        }
+
+        // Fetch property address using property_id
+        $property_address = null;
+        if ($property_id) {
+            $property = new Property(); 
+            //$property_data = $property->find($property_id);
+            //$property_address = $property_data ? $property_data->address : null;
+        }
+   
+        // Render the addLogs view for the specific service
+        $this->view('serviceprovider/addLogs', [
+            'service_id' => $service_id,
+            'property_id' => $property_id,
+            'property_name' => $property_name,
+            'property_address' => $property_address,
+            'service_type' => $service_type,
+            'status' => $status,
+            'earnings' => $earnings
+        ]);
     }
 
     public function serviceSummery(){
