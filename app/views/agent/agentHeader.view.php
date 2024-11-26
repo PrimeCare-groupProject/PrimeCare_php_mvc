@@ -47,11 +47,11 @@
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/preInspection"><button class="btn"><img src="<?= ROOT ?>/assets/images/preinspection.png " alt="">Pre Inspections</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Requested Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><img src="<?= ROOT ?>/assets/images/Taskmanagement.png " alt="">Bookings</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Inventory</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><img src="<?= ROOT ?>/assets/images/managebookings.png" alt="">Manage Providers</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/review.png " alt="">Requested Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/services.png " alt="">Services</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><img src="<?= ROOT ?>/assets/images/renting.png " alt="">Bookings</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><img src="<?= ROOT ?>/assets/images/addproperty.png " alt="">Inventory</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><img src="<?= ROOT ?>/assets/images/manage.png" alt="">Manage Providers</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">

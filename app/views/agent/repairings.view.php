@@ -13,49 +13,14 @@
         </div>
     </div>
 </div>
-<!-- 
-<div class="success-msg-container">
-    <p class="success-msg"><?= $property->success['insert'] ?? '' ?></p>
-</div> -->
 <div class="blur-container">
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
         <?php if (!empty($services)): ?>
             <?php foreach ($services as $service): ?>
-                
-                <!--<div class="repair-card">
-                    <div class="repair-image">
-                        <img src="<?= ROOT ?>/assets/images/repairimages/deckrepairing.png" alt="services">
-                    </div>
-                    <div class="property-details">
-                        <div class="profile-details-items">
-                            <div>
-                                <span class="no-underline"><h3><?= $service->name ?></h3></span>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="property-description">
-                            <?= $service->description ?>
-                            </p>
-                        </div>
-                        <div>
-                            <p class="change-status"> Cost Per Hour : 
-                            <?= $service->cost_per_hour ?>
-                            </p>
-                        </div>
-                        <div class="property-actions">
-                            <div>
-                                <a href="<?=ROOT?>/dashboard/repairings/editrepairing/<?= $service->service_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="javascript:void(0);" class="edit-btn" onclick="confirmDelete(<?= $service->service_id ?>)">
-                                    <img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
                     <div id="specific-page">
-                        <div class="container">
+                        <div class="container1">
                             <div class="card1">
                                 <div class="card1-header">
                                     <img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="services">

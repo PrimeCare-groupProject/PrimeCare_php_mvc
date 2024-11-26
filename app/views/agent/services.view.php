@@ -9,13 +9,14 @@
         <a href="<?= ROOT ?>/dashboard/services/serviceproviders">
             <div class="management-card">
                 <div class="management-text">
-                    <h2>Services</h2>
+                    <h2>Service Providers</h2>
                 </div>
                 <div class="management-icon">
                     <img src="<?= ROOT ?>/assets/images/manager.png" alt="Ongoing Task">
                 </div>
             </div>
         </a>
+    </div>
 
     <div class="management-card-container-sub">
         <a href="<?= ROOT ?>/dashboard/services/payments">
@@ -28,6 +29,7 @@
                 </div>
             </div>
         </a>
+    </div>
 </div>
 
 <?php require_once 'agentFooter.view.php'; ?>

@@ -7,30 +7,25 @@
         <div class="input-group2">
             <div class="input-group">
                 <div class="input-group-aligned">
-                    <span class="input-label-aligend"><strong>Inventory ID:</strong></span><span class="input-field-small">P2022</span>
+                    <span class="input-label-aligend1"><strong>Inventory ID:</strong></span><span class="input-field2">P2022</span>
                 </div>
                 <div class="input-group-aligned">
-                    <span class="input-label-aligend"><strong>Inventory Name:</strong></span><span class="input-field-small">C2023</span>
-                </div>
-            </div>
-            <div class="input-group">
-                <div class="input-group-aligned">
-                    <span class="input-label-aligend"><strong>Property ID:</strong></span><span class="input-field-small">House</span>
+                    <span class="input-label-aligend1"><strong>Inventory Name:</strong></span><span class="input-field2">C2023</span>
                 </div>
             </div>
             <div class="input-group">
                 <div class="input-group-aligned">
-                    <span class="input-label-aligend"><strong>Date:</strong></span><span class="input-field-small">No 90 , Colombo , Sri Lanka</span>
+                    <span class="input-label-aligend1"><strong>Property ID:</strong></span><span class="input-field2">House</span>
                 </div>
             </div>
             <div class="input-group">
                 <div class="input-group-aligned">
-                    <span class="input-label-aligend"><strong>Property Name:</strong></span><span class="input-field-small">Anything about the property assigning and other details</span>
+                    <span class="input-label-aligend1"><strong>Property Name:</strong></span><span class="input-field2">Anything about the property assigning and other details</span>
                 </div>
             </div>
             <div class="input-group">
                 <div class="input-group-aligned">
-                    <span class="input-label-aligend"><strong>Description:</strong></span><span class="input-field-small">Anything about the property assigning and other details</span>
+                    <span class="input-label-aligend1"><strong>Description:</strong></span><span class="input-field2">Anything about the property assigning and other details</span>
                 </div>
             </div>
         </div>
