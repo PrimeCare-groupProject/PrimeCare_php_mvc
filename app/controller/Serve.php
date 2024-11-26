@@ -123,8 +123,6 @@ class Serve{
         }
     }
     
-    
-
     public function delete() {
 
     }
