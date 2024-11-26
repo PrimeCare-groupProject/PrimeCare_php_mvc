@@ -1,5 +1,5 @@
 <a href='<?= ROOT ?>/dashboard/tasks/ongoingtask/painting'>
-    <div class="repair-card">
+    <div class="repair-card1">
         <div class="repair-image">
             <img src="<?= ROOT ?>/assets/images/repairimages/painting.png" alt="services">
         </div>

@@ -5,31 +5,32 @@
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
     <h2>Service Providers</h2>
-</div>
-<div class="management-cards-container">
-    <div class="management-card-container-sub">
-        <a href="<?= ROOT ?>/dashboard/services/serviceproviders/addserviceprovider">
-            <div class="management-card">
-                <div class="management-text">
-                    <h2>Add Service Provider</h2>
-                </div>
-                <div class="management-icon">
-                    <img src="<?= ROOT ?>/assets/images/selection.png" alt="Employee Management">
-                </div>
-            </div>
-        </a>
-
-        <a href="<?= ROOT ?>/dashboard/services/serviceproviders/removeserviceprovider">
-            <div class="management-card">
-                <div class="management-text">
-                    <h2>Remove Service Provider</h2>
-                </div>
-                <div class="management-icon">
-                    <img src="<?= ROOT ?>/assets/images/email.png" alt="Property Management">
-                </div>
-            </div>
-        </a>
+    <div class="flex-bar">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search Anything...">
+            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
+        </div>
+        <div class="tooltip-container">
+            <a href='<?= ROOT ?>/dashboard/services/serviceproviders/addserviceprovider'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
+            <span class="tooltip-text">Add new service Provider</span>
+        </div>
     </div>
 </div>
+<div>
+    <div>
+        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
+        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
+        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
+        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
+        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
+        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
+    </div>
+</div>
+<!-- Pagination Buttons -->
+<div class="pagination">
+        <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
+        <span class="current-page">1</span>
+        <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
+    </div>
 
 <?php require_once 'agentFooter.view.php'; ?>

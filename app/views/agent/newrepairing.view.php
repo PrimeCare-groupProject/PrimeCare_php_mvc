@@ -11,7 +11,7 @@
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
             <label class="input-label">Task Type</label>
-            <input type="text" name="reapirType" placeholder="Type of task" class="input-field" required>
+            <input type="text" name="repairType" placeholder="Type of task" class="input-field" required>
 
             <label class="input-label-aligned">
                 <label class="input-label">Property</label>

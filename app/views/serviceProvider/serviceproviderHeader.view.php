@@ -26,14 +26,26 @@
         <div class="header-line">
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
-            <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile Picture" class="header-profile-picture"></a>
+            <!-- toggle button -->
+            <div class="toggle_wrapper"> 
+                <div class="toggle-button tooltip-container">
+                    <span class="tooltip-text">Change To Customer Mood</span>
+                    <!-- Outer track -->
+                    <div class="toggle-track" id="toggleTrack">
+                    <!-- Inner knob -->
+                    <input type="button" name="toggle_btn" class="toggle-knob"></input>
+                    </div>
+                </div>
+                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile Picture" class="header-profile-picture"></a>
+            </div>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/repairlisting"><button class="btn"><img src="<?= ROOT ?>/assets/images/services.png" alt="">Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/addlogs"><button class="btn"><img src="<?= ROOT ?>/assets/images/logs.png" alt="">Logs</button></a></li>
+                    <!--<li><a href="<?= ROOT ?>/dashboard/addlogs"><button class="btn"><img src="<?= ROOT ?>/assets/images/logs.png" alt="">Logs</button></a></li>-->
+                    <li><a href="<?= ROOT ?>/dashboard/repairRequests"><button class="btn"><img src="<?= ROOT ?>/assets/images/service.png" alt="">Repair Requests</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">

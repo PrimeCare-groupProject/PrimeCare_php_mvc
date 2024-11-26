@@ -11,11 +11,7 @@
         </div>
         <div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right">
-                <span class="tooltip-text">Financial Report</span>
-            </div>
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right">
+                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/reportProblem/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Report a Problem</span>
             </div>
         </div>
@@ -118,7 +114,7 @@
         <p class="input-field-small more-padding"><?= $property->floor_plan ?></p>
 
         <div class="flex-buttons-space-between">
-            <button class="secondary-btn">Book the property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/bookProperty/<?= $property->property_id ?>'">Book the property</button>
             <!--Should be fixed later when property table done-->
             <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
         </div>

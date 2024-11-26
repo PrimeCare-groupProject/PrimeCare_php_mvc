@@ -1,9 +1,9 @@
 <?php require_once 'agentHeader.view.php'; ?>
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/tasks/ongoingtask/<?php echo $_SESSION['repair1']?>'>
+    <a href='<?= ROOT ?>/dashboard/tasks'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2><?php echo $_SESSION['repair']?> Removal</h2>
+    <h2>Task Removal</h2>
 </div>
 <div class="repair-container">
     <div>

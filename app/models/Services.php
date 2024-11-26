@@ -9,7 +9,8 @@ class Services {
         'service_id',
         'name',
         'cost_per_hour',
-        'description' 
+        'description' ,
+        'service_img'
     ];
 
     public $errors = [];

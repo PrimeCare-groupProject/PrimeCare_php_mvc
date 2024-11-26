@@ -5,8 +5,14 @@ class Home{
     
     use controller;
     public function index(){
-        
-        $this->view('hometest');
+        $property = new PropertyConcat;
+        $properties = $property->where(['status' => 'pending']);
+
+        $this->view('hometest' , ['properties' => $properties]);
+    }
+
+    public function serviceListing(){
+        $this->view('serviceListing');
     }
 
 }

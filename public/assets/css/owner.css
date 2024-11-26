@@ -283,6 +283,7 @@ button.delete-btn {
     overflow: hidden;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .slides {
@@ -320,6 +321,7 @@ button.delete-btn {
     padding: 10px;
     cursor: pointer;
     font-size: 18px;
+    z-index: 10;
 }
 
 .prev {
@@ -375,9 +377,9 @@ button.delete-btn {
     margin: 10px 0;
     font-size: 1.5rem; 
     font-weight: 600; 
-    color: var(--dark-grey-color);
-    background-color: var(--background-color);
-    border: var(--red-color) 1px solid;
+    color: var(--green-color);
+    background-color: var(--secondary-color);
+    border: none;
     border-radius: 5px;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
@@ -385,8 +387,8 @@ button.delete-btn {
 }
 
 .input-field-small-for-rent:hover {
-    background-color: rgba(var(--red-color-rgb), 0.1);
-    color: var(--red-color);
+    background-color: var(--primary-color);
+    color: var(--white-color);
 }
 
 .more-padding {
@@ -656,4 +658,114 @@ td.green-color {
 
 .orange-link:hover {
     color: var(--green-color);
+}
+
+
+/** review section for dashboard */
+.RS__reviews-container {
+    font-family: 'outfit';
+    padding: 20px;
+}
+
+.RS__date-range {
+    color: #666;
+    font-size: 14px;
+}
+
+.RS__stats-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.RS__stat-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    flex: 1;
+}
+
+.RS__total-number {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.RS__rating-stars {
+    color: var(--green-color);
+    font-size: 20px;
+}
+
+.RS__rating-distribution {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.RS__rating-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.RS__rating-bar-fill {
+    height: 100%;
+    background: var(--primary-color);
+}
+
+.RS__rating-count {
+    min-width: 50px;
+    text-align: right;
+    font-size: 14px;
+    color: var(--dark-grey-color);
+}
+
+.RS__review-card {
+    background: var(--white-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.RS__reviewer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.RS__reviewer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.RS__reviewer-info {
+    flex-grow: 1;
+}
+
+.RS__reviewer-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.RS__reviewer-stats {
+    font-size: 14px;
+    color: #666;
+}
+
+.RS__review-content {
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.RS__reviewer-property {
+    font-size: 16px;
+    color: var(--secondary-color);
 }

@@ -46,6 +46,22 @@
     font-family: "Outfit", sans-serif;
 }
 
+.employee-details-container .listing-table-for-customer-payments tr input{
+    width: 90%;
+    height: 100%;
+    border: none;
+    background-color: var(--grey-color);
+    /* background-color: var(--white-color); */
+    font-family: "Outfit", sans-serif;
+    font-size: 17px;
+}
+/* 
+.employee-details-container .listing-table-for-customer-payments tr input{
+    border: none;
+    background-color: var(--grey-color);
+    font-family: "Outfit", sans-serif;
+} */
+
 .replyBoxLabel,
 .replyBoxSpan {
     transition:.3s ease;
@@ -217,4 +233,99 @@ a .management-card .management-icon img {
     font-size: 0.8rem;
     max-width: 100px;
     min-width: 80px;
+}
+
+.AddnewAgentform{
+    padding: 5px;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    /* Hide the tooltip by default */
+    width: 100px;
+    /* Width of the tooltip */
+    background-color: var(--dark-grey-color);
+    /* Dark background for the tooltip */
+    color: var(--background-color);
+    /* White text color */
+    text-align: center;
+    /* Center text */
+    border-radius: 5px;
+    /* Rounded corners */
+    padding: 5px;
+    /* Padding around the text */
+    position: absolute;
+    /* Position tooltip relative to the container */
+    z-index: 1;
+    /* Ensure it appears on top */
+    top: 125%;
+    /* Position above the image */
+    left: 50%;
+    /* Center horizontally */
+    margin-left: -75px;
+    /* Adjust horizontal positioning */
+    opacity: 0;
+    /* Initially invisible */
+    transition: opacity 0.3s;
+    /* Smooth fade-in effect */
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    /* Show tooltip on hover */
+    opacity: 1;
+    /* Make it fully visible */
+}
+
+.SearchBox{
+    position: absolute;
+    left: 25%;
+    top: 27%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 65%;
+    height: 60%;
+    padding: 20px;
+    background-color: var(--white-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    font-family: "Outfit", sans-serif;
+}
+
+.SearchBox .user-details  {
+    width: 90%;
+}
+.SearchBox .user-details  .input-group-aligned{
+    gap:30px;
+}
+
+.searchUserForm{
+    display: none; 
+    height: 600px;
+}
+
+.profile_pic_large{
+    width: 250px; /* Avatar size */
+    height: 250px; 
+    border-radius: 50%; /* Circular avatar */
+    object-fit: cover; /* Fit avatar inside circle */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Avatar shadow */
+}
+
+.input-group .left_details{
+    flex: 3;
+}
+.input-group .right_details {
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    padding: 2vh 2px ;
+    
+}
+
+.manager_form_wrapper{
+    margin: 10px 5px;
 }

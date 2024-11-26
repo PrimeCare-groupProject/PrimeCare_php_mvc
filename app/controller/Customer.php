@@ -185,7 +185,11 @@ class Customer
 
     public function occupiedProperties()
     {
-        $this->view('customer/occupiedProperties');
+        $this->view('customer/occupiedProperties', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
     }
 
     public function search()
@@ -203,5 +207,37 @@ class Customer
     public function payments()
     {
         $this->view('customer/payments');
+    }
+
+    public function reportProblem()
+    {
+        $this->view('customer/reportProblem', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
+        ]);
+    }
+
+    public function leaveProperty($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        $this->view('customer/leaveProperty', ['property' => $propertyUnit]);
+    }
+
+    public function bookProperty($propertyId)
+    {
+        $property = new PropertyConcat;
+        $owner = new User();
+        $agent = new User();
+
+        $owner = $owner->where(['pid' => $property->where(['property_id' => $propertyId])[0]->person_id])[0];
+        //$agent = $agent->where(['pid' => $property->where(['property_id' => $propertyId])[0]->agent_id])[0];
+        $agent = $agent->where(['pid' => 62])[0];
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        // show($propertyUnit);
+        // show($owner);
+        // show($agent);
+        $this->view('customer/bookProperty', ['property' => $propertyUnit , 'owner' => $owner, 'agent' => $agent]);
     }
 }

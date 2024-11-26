@@ -59,6 +59,8 @@ class Property
                 }
 
                 // Redirect on success
+                $_SESSION['status'] = 'Property added successfully.';
+                //$this->view('property/propertyListing', ['property' => $property]);
                 redirect('property/propertyListing');
             } else {
                 $property->errors['insert'] = 'Failed to add Property. Please try again.';
@@ -82,6 +84,8 @@ class Property
 
         // Delete the property
         $property->delete($propertyId , 'property_id');
+
+        $_SESSION['status'] = 'Property deleted successfully!';
 
         // Redirect to the property listing page
         redirect('property/propertyListing');
@@ -148,6 +152,7 @@ class Property
                     return;
                 }
 
+                $_SESSION['status'] = 'Property updated successfully!';
                 redirect('property/propertyUnitOwner/' . $propertyId);
                 //$this->view('owner/propertyUnit', ['property' => $property]);
             } else {
