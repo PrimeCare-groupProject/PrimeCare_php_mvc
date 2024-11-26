@@ -47,8 +47,8 @@
             <!-- Input for uploading a new image -->
             <input 
                 type="file" 
-                name="service_img" 
-                id="service_img" 
+                name="service_images" 
+                id="service_images" 
                 class="input-field" 
                 accept=".png, .jpg, .jpeg" 
                 onchange="previewNewImage(event)"
