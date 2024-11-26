@@ -35,7 +35,9 @@
                     <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers" data-section="propertyLisingToAllUsers"><button class="btn">Search</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/payments" data-section="payments"><button class="btn">Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/occupiedProperties" data-section="occupiedProperties"><button class="btn">Occupied Properties</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/repairListing" data-section="repairListing"><button class="btn">Services</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/updateRole" data-section="updateRole"><button class="btn">Update Role</button></a></li>
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>

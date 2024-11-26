@@ -376,3 +376,95 @@ select {
     border-radius: 0!important;
     filter: invert(27%) sepia(98%) saturate(748%) hue-rotate(82deg) brightness(165%) contrast(92%);
 }
+
+/** update role */
+.UR__container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    font-family: 'outfit', sans-serif;
+}
+
+.UR__side_containers{
+    display: flex;
+    /* width: 50%; */
+    width: 450px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 10px;
+    background-color: var(--white-color);
+    border-radius: 16px;
+    box-shadow: var(--box-shadow-form);
+}
+
+.UR__side_containers img{
+    width: 400px;
+    height: auto;
+    object-fit: cover;
+}
+
+.hidden_msg_owner,
+.hidden_msg_serpro{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 320px;
+    background-color: var(--white-color);
+    border-radius: 16px;
+    box-shadow: var(--box-shadow-form);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.hidden_msg_serpro h3,
+.hidden_msg_owner h3{
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--dark-grey-color);
+    text-align: center;
+}
+
+.hidden_msg_serpro p,
+.hidden_msg_owner p{
+    text-align: center;
+}
+
+.instructions{
+    font-size: 16px;
+    background-color: rgba(var(--green-color-rgb), 0.1);
+    color: var(--green-color)!important;
+    padding: 10px 20px;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.UR__form{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+}
+
+.close-btn img {
+    width: 15px;
+    height: 15px;
+    object-fit: cover;
+}

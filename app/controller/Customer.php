@@ -249,6 +249,26 @@ class Customer
     }
 
     public function updateRole(){
-        $this->view('customer/updateRole');
+        $services = new Services;
+        $services = $services->findAll();
+        $this->view('customer/updateRole', ['services' => $services]);
+    }
+
+    public function updateToOwner(){
+        $user = new User();
+        if($user->update($_SESSION['user']->pid, ['user_lvl' => '1'], 'pid')){
+            $_SESSION['user']->user_lvl = '1';
+            echo "Role updated successfully";
+            redirect('dashboard');
+            exit;
+        }else{
+            $_SESSION['errors'] = ['Failed to update role. Please try again.'];
+            echo "Failed to update role. Please try again.";
+            redirect('dashboard/updateRole');
+            exit;
+        }
+    }
+
+    public function updateToSerPro(){
     }
 }
