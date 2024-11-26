@@ -3,7 +3,7 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/dashboard/search"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/dashboard/occupiedproperties"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2><?= $property->name ?></h2>
                 <p><span>Maintained By: </span>Agent's Name</p>
@@ -34,6 +34,7 @@
             <button class="prev" onclick="prevSlide()">&#10094;</button>
             <button class="next" onclick="nextSlide()">&#10095;</button>
         </div>
+       
     </div>
 
     <div class="property-details-section">
@@ -41,7 +42,6 @@
             <span class="input-field-small-for-rent">Monthly Rent: LKR <?= $property->rent_on_basis ?></span>
         </div>
 
-        <label class="bolder-text">Description</label>
         <p class="input-field-small more-padding">
             <?= $property->description ?>
         </p>
@@ -59,9 +59,6 @@
         <div class="input-group">
             <span class="input-label-small">Address:</span><span class="input-field-small"><?= $property->address ?></span>
         </div>
-
-        <span class="input-label-small">Floor Plan:</span>
-        <p class="input-field-small more-padding"><?= $property->floor_plan ?></p>
 
         <div class="flex-buttons-space-between">
             <button class="primary-btn red-solid">Confirm Cancellation</button>
