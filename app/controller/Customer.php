@@ -240,4 +240,15 @@ class Customer
         // show($agent);
         $this->view('customer/bookProperty', ['property' => $propertyUnit , 'owner' => $owner, 'agent' => $agent]);
     }
+
+    public function repairListing(){
+        $service = new Services;
+        $services = $service->findAll();
+
+        $this->view('customer/repairListing' , ['services' => $services]);
+    }
+
+    public function updateRole(){
+        $this->view('customer/updateRole');
+    }
 }
