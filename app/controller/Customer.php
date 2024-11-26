@@ -249,7 +249,9 @@ class Customer
     }
 
     public function updateRole(){
-        $this->view('customer/updateRole');
+        $services = new Services;
+        $services = $services->findAll();
+        $this->view('customer/updateRole', ['services' => $services]);
     }
 
     public function updateToOwner(){
@@ -265,5 +267,8 @@ class Customer
             redirect('dashboard/updateRole');
             exit;
         }
+    }
+
+    public function updateToSerPro(){
     }
 }
