@@ -20,9 +20,8 @@
         <?php if (!empty($services)): ?>
             <?php foreach ($services as $service): ?>
                     <div id="specific-page">
-                        <div class="container1">
-                            <div class="card1">
-                                <div class="card1-header">
+                        <div style="height: 96%;" class="property-card">
+                                <div class="property-image">
                                     <img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="services">
                                 </div>
                                 <div class="card1-body">
@@ -42,7 +41,6 @@
                                             </div>
                                     </div>
                                 </div>
-                            </div>
                         </div>
                     </div>
             <?php endforeach; ?> 
