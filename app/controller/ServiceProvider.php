@@ -64,7 +64,8 @@ class ServiceProvider {
         unset($_SESSION['status']);
     }
 
-    private function handleProfileSubmission() {
+    private function handleProfileSubmission()
+    {
         $errors = [];
         $status = '';
 
@@ -76,68 +77,97 @@ class ServiceProvider {
 
         // Validate email
         if (!$email) {
-        $errors[] = "Invalid email format.";
-        }
+            $errors[] = "Invalid email format.";
+            $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
 
+            redirect('dashboard/profile');
+            exit;
+
+        }else{
+            $user = new User();
+            $availableUser = $user->first(['email' => $email]);
+            if(isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid){
+                $errors[] = "Email already exists.";
+                $_SESSION['errors'] = $errors;
+                $_SESSION['status'] = $status;
+
+                redirect('dashboard/profile');
+                exit;
+            }
+        }
+        if(!$user->validate($_POST)){
+            $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
+            $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
+
+            redirect('dashboard/profile');
+            exit;
+        }
         // Check if profile picture is uploaded
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
-        $profilePicture = $_FILES['profile_picture'];
+            $profilePicture = $_FILES['profile_picture'];
 
-        // Define the target directory and create it if it doesn't exist
-        $targetDir = ".." .DIRECTORY_SEPARATOR. "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR;
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
-        }
-
-        // Define the target file name using uniqid()
-        $imageFileType = strtolower(pathinfo($profilePicture['name'], PATHINFO_EXTENSION));
-        $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-        if (in_array($imageFileType, $validExtensions)) {
-            $targetFile = uniqid() . "__" .  $email. '.' . $imageFileType;
-
-            // Move the uploaded file
-            if (move_uploaded_file($profilePicture['tmp_name'], $targetDir.$targetFile)) {
-            $status = "Profile picture uploaded successfully!".$targetFile;
-            } else {
-            $errors[] = "Error uploading profile picture. Try changing the file name." . $profilePicture['tmp_name'] . $targetFile;
+            // if profilepicsize is larger than 4 mb set error
+            if ($profilePicture['size'] > 2 *  1024 * 1024) {
+                $errors[] = "Profile picture size must be less than 2MB.";
             }
-        } else {
-            $errors[] = "Invalid file type. Please upload an image file.";
-        }
+
+            // Define the target directory and create it if it doesn't exist
+            $targetDir = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR;
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+
+            // Define the target file name using uniqid()
+            $imageFileType = strtolower(pathinfo($profilePicture['name'], PATHINFO_EXTENSION));
+            $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+            if (in_array($imageFileType, $validExtensions)) {
+                $targetFile = uniqid() . "__" .  $email . '.' . $imageFileType;
+
+                // Move the uploaded file
+                if (move_uploaded_file($profilePicture['tmp_name'], $targetDir . $targetFile)) {
+                    $status = "Profile picture uploaded successfully!" . $targetFile;
+                } else {
+                    $errors[] = "Error uploading profile picture. Try changing the file name." . $profilePicture['tmp_name'] . $targetFile;
+                }
+            } else {
+                $errors[] = "Invalid file type. Please upload an image file.";
+            }
         }
 
         // Update user profile in the database
         if (empty($errors) && $_SESSION['user']->pid) {
-        $userId = $_SESSION['user']->pid; // Replace with actual user ID from session or context
-        $user = new User();
-        $updated = $user->update($userId, [
-            'fname' => $firstName,
-            'lname' => $lastName,
-            'email' => $email,
-            'contact' => $contactNumber,
-            'image_url' => $targetFile ?? null
-        ], 'pid');
-        
-        if ($updated) {
-            // Delete old profile picture if a new one is uploaded
-            if (isset($targetFile) && !empty($_SESSION['user']->image_url)) {
-            $oldPicPath = $targetDir . $_SESSION['user']->image_url;
-            if (file_exists($oldPicPath)) {
-                unlink($oldPicPath);
+            $userId = $_SESSION['user']->pid; // Replace with actual user ID from session or context
+            $user = new User();
+            $updated = $user->update($userId, [
+                'fname' => $firstName,
+                'lname' => $lastName,
+                'email' => $email,
+                'contact' => $contactNumber,
+                'image_url' => $targetFile ?? null
+            ], 'pid');
+
+            if ($updated) {
+                // Delete old profile picture if a new one is uploaded
+                if (isset($targetFile) && !empty($_SESSION['user']->image_url)) {
+                    $oldPicPath = $targetDir . $_SESSION['user']->image_url;
+                    if (file_exists($oldPicPath)) {
+                        unlink($oldPicPath);
+                    }
+                }
+                // Update session data
+                $_SESSION['user']->fname = $firstName;
+                $_SESSION['user']->lname = $lastName;
+                $_SESSION['user']->email = $email;
+                $_SESSION['user']->contact = $contactNumber;
+                if (isset($targetFile)) {
+                    $_SESSION['user']->image_url = $targetFile;
+                }
+                $status = "Profile updated successfully!";
+            } else {
+                $errors[] = "Failed to update profile. Please try again.";
             }
-            }
-            // Update session data
-            $_SESSION['user']->fname = $firstName;
-            $_SESSION['user']->lname = $lastName;
-            $_SESSION['user']->email = $email;
-            $_SESSION['user']->contact = $contactNumber;
-            if (isset($targetFile)) {
-            $_SESSION['user']->image_url = $targetFile;
-            }
-            $status = "Profile updated successfully!";
-        } else {
-            $errors[] = "Failed to update profile. Please try again.";
-        }
         }
 
         // Store errors or success in session and redirect

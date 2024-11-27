@@ -52,12 +52,14 @@ class User {
         }
         
         // Validate password (e.g., minimum 5 characters)
-        if (empty($data['password']) || strlen($data['password']) < 5) {
+        if (!empty($data['password'])) {
+            if (strlen($data['password']) < 5) {
             $this->errors['password'] = 'Password should be at least 5 characters long';
-        }
-        // if confirmation is correct
-        if($data['password'] != $data['confirmPassword']){
+            }
+            // if confirmation is correct
+            if ($data['password'] != $data['confirmPassword']) {
             $this->errors['password'] = 'Passwords do not match';
+            }
         }
 
         // Optionally validate image_URL (if needed)
