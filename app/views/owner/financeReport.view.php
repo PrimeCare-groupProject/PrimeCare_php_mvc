@@ -71,34 +71,34 @@
         </thead>
         <tbody>
             <tr>
-                <td>2024</td>
+                <td class="first">2024</td>
                 <td>October</td>
                 <td>Matt Dickerson</td>
                 <td>400000.95 LKR</td>
                 <td>100000.95 LKR</td>
                 <td>300000.00 LKR</td>
                 <td><span class="border-button-sm green">Occupied</span></td>
-                <td><span class="border-button-sm green">Profit</span></td>
+                <td class="last"><span class="border-button-sm green">Profit</span></td>
             </tr>
             <tr>
-                <td>2024</td>
+                <td class="first">2024</td>
                 <td>September</td>
                 <td>Matt Dickerson</td>
                 <td>400000.95 LKR</td>
                 <td>100000.95 LKR</td>
                 <td>300.00 LKR</td>
                 <td><span class="border-button-sm red">Occupied</span></td>
-                <td><span class="border-button-sm red">Profit</span></td>
+                <td class="last"><span class="border-button-sm red">Profit</span></td>
             </tr>
             <tr>
-                <td>2024</td>
+                <td class="first">2024</td>
                 <td>August</td>
                 <td>Matt Dickerson</td>
                 <td>400000.95 LKR</td>
                 <td>100000.95 LKR</td>
                 <td>300000.00 LKR</td>
                 <td><span class="border-button-sm orange">Occupied</span></td>
-                <td><span class="border-button-sm orange">Profit</span></td>
+                <td class="last"><span class="border-button-sm orange">Profit</span></td>
             </tr>
             <!-- Add more rows as needed -->
         </tbody>
