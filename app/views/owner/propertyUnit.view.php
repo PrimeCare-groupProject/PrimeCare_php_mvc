@@ -135,7 +135,8 @@
             <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/updateProperty/<?= $property->property_id ?>'">Edit Property</button>
             <!--Should be fixed later when property table done-->
             <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
-            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/delete/<?= $property->property_id ?>'">Remove Property</button>
+            <!-- <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/delete/<?= $property->property_id ?>'">Remove Property</button> -->
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/dropProperty/<?= $property->property_id ?>'">Remove Property</button>
         </div>
 
     </div>
