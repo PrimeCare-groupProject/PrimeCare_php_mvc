@@ -496,3 +496,23 @@ a .management-card .management-icon img {
 .blurred {
     filter: blur(10px);
 }
+
+
+/** compare update */
+.not-equal{
+    background-color: rgba(var(--primary-blue-rgb), 0.2)!important;
+    color: var(--primary-blue);
+}
+
+.CP__button_container{
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+}
+
+.CP__buttons{
+    display: inline-flex;
+    justify-content: flex-end;
+    padding: 0 40px;
+    gap: 20px;
+}
