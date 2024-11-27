@@ -306,6 +306,32 @@ class ServiceProvider {
         // Load view with data
         $this->view('serviceprovider/addLogs', $view_data);
     }
+
+    public function earnings() {
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+    
+        $serviceLog = new ServiceLog();
+        $provider_id = $_SESSION['user']->pid;
+    
+        // Fetch earnings from the serviceLog table
+        $conditions = ['service_provider_id' => $provider_id];
+        $earnings = $serviceLog->where($conditions);
+    
+        // Prepare chart data
+        $chartData = [];
+        foreach ($earnings as $service) {
+            $chartData[] = [
+                'name' => $service->service_type ?? 'Unknown', // Default if name is missing
+                'totalEarnings' => $service->cost_per_hour * $service->total_hours
+            ];
+        }
+    
+        // Pass data to the view
+        $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
+    }    
     
     public function serviceSummery(){
         $service_id = $_GET['service_id'] ?? null;
