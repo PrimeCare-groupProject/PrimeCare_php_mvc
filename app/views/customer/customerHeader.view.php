@@ -29,23 +29,25 @@
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
             <!-- toggle button -->
             <form method="post" class="toggle_wrapper" action="<?= ROOT ?>/dashboard/switchUser">
-                <div class="toggle-button tooltip-container">
-                    <span class="tooltip-text">Change To Original Mood</span>
-                    <!-- Outer track -->
-                    <div class="toggle-track activeToggle" id="toggleTrack" onclick="submitToggleForm()">
-                        <!-- Inner knob -->
-                        <div class="toggle-knob"></div>
-                        <input type="hidden" name="toggle_state" id="toggleState" value="<?= isset($_SESSION['toggle_state']) ? $_SESSION['toggle_state'] : '0' ?>">
-                        <input type="submit" name="toggle_btn" value="1" hidden>
+                <?php if(isset($_SESSION['user']) && $_SESSION['user']->user_lvl != 0): ?>
+                    <div class="toggle-button tooltip-container">
+                        <span class="tooltip-text">Change To Original Mood</span>
+                        <!-- Outer track -->
+                        <div class="toggle-track activeToggle" id="toggleTrack" onclick="submitToggleForm()">
+                            <!-- Inner knob -->
+                            <div class="toggle-knob"></div>
+                            <input type="hidden" name="toggle_state" id="toggleState" value="<?= isset($_SESSION['toggle_state']) ? $_SESSION['toggle_state'] : '0' ?>">
+                            <input type="submit" name="toggle_btn" value="1" hidden>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
                 <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile Picture" class="header-profile-picture"></a>
             </form>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers"><button class="btn">Search</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/search/property/propertyListingToAllUsers"><button class="btn">Search</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/payments"><button class="btn">Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/occupiedProperties"><button class="btn">Occupied Properties</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
@@ -64,15 +66,15 @@
                     const url = new URL(window.location.href); // Get the current page URL
                     const path = url.pathname.replace(/^\/|\/$/g, '').split('/'); // Split the URL into an array
                     const currentPage = path[3] || "dashboard";
-                    console.log(path[3]);
+                    console.log("current page is" + path[3]);
                     // Loop through each sidebar link
                     sidebarLinks.forEach(link => {
                         const button = link.querySelector('button');
                         const href = link.getAttribute('href');
-
                         // Check if the current page matches the link's href
                         if (currentURL.includes(href)) {
                             // Add 'active' class to the button
+                            console.log("href is" + href);
                             button.classList.add('active');
                             button.classList.remove('btn');
                             isTabActive = true; // Mark that a tab is active
@@ -85,18 +87,14 @@
 
                     // If no tab is active, set the dashboard as the default active
                     const dashboardButton = document.querySelector('a[href*="dashboard"] button');
-                    if (isTabActive && !(currentPage == "dashboard")) {
-                        // console.log(" tab is active");
-                        if (dashboardButton) {
-                            // console.log(" button available");
+                    if (!isTabActive) {
+                        if (currentPage == "dashboard") {
+                            dashboardButton.classList.add('active');
+                            dashboardButton.classList.remove('btn');
+                        } else {
                             dashboardButton.classList.add('btn');
                             dashboardButton.classList.remove('active');
                         }
-                    } else {
-                        // console.log(" tab is not active");
-
-                        dashboardButton.classList.add('active');
-                        dashboardButton.classList.remove('btn');
                     }
 
                     const logoutBtn = document.getElementById('logout-btn');
