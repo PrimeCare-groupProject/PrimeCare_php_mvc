@@ -3,17 +3,11 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/dashboard/propertylisting/repairlisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/dashboard/repairRequests"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <h2>Service Summary</h2>
         </div>
     </div>
 </div>
-
-<?php if (isset($_SESSION['success_message'])): ?>
-    <div class="success-message">
-        <?= $_SESSION['success_message'] ?>
-    </div>
-<?php endif; ?>
 
 <?php if (isset($_SESSION['errors'])): ?>
     <div class="error-message">
@@ -95,7 +89,12 @@ setInterval(nextSlide, 5000);
 
 <style>
     
-    .property-details-section {
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the slide area without distortion */
+}
+.property-details-section {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -129,22 +128,27 @@ setInterval(nextSlide, 5000);
 .slider {
     position: relative;
     width: 100%;
+    max-width: 800px; /* Set a maximum width for the slider */
+    height: 450px; /* Adjust to match image height */
+    margin: 20px auto; /* Center the slider on the page */
     overflow: hidden;
-    margin: 20px 0;
+    border-radius: 10px; /* Optional: Adds rounded corners */
 }
 
 .slides {
     display: flex;
     transition: transform 0.5s ease-in-out;
+    height: 100%;
 }
 
 .slide {
     min-width: 100%;
+    height: 100%; /* Matches slider height */
 }
 
 .slide img {
     width: 100%;
-    height: auto;
+    height: 100%; /* Ensure the image covers the slide area */
     object-fit: cover;
 }
 
@@ -158,6 +162,9 @@ setInterval(nextSlide, 5000);
     padding: 10px;
     cursor: pointer;
     z-index: 10;
+}
+.slider-btn:hover {
+    background: rgba(0, 0, 0, 0.8); /* Darker background on hover */
 }
 
 .prev {
