@@ -29,17 +29,19 @@
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
             <!-- toggle button -->
-            <div class="toggle_wrapper"> 
+            <form method="post" class="toggle_wrapper" action="<?= ROOT ?>/dashboard/switchUser">
                 <div class="toggle-button tooltip-container">
-                    <span class="tooltip-text">Change To Customer Mood</span>
+                    <span class="tooltip-text">Change To Original Mood</span>
                     <!-- Outer track -->
-                    <div class="toggle-track" id="toggleTrack">
-                    <!-- Inner knob -->
-                    <input type="button" name="toggle_btn" class="toggle-knob"></input>
+                    <div class="toggle-track" id="toggleTrack" onclick="submitToggleForm()">
+                        <!-- Inner knob -->
+                        <div class="toggle-knob"></div>
+                        <input type="hidden" name="toggle_state" id="toggleState" value="<?= isset($_SESSION['toggle_state']) ? $_SESSION['toggle_state'] : '0' ?>">
+                        <input type="submit" name="toggle_btn" value="1" hidden>
                     </div>
                 </div>
-                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile Picture" class="header-profile-picture"></a>
-            </div>
+                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile Picture" class="header-profile-picture"></a>
+            </form>
             </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
@@ -111,6 +113,9 @@
                 toggleTrack.addEventListener('click', () => {
                 toggleTrack.classList.toggle('activeToggle');
                 });
+                function submitToggleForm() {
+                    document.querySelector('.toggle_wrapper').submit();
+                }
             </script>
 
             <div class="user_view-content_section" id="content-section">

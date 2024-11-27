@@ -7,11 +7,12 @@ class Customer
 
     public function index()
     {
-        $this->view('profile', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
-        ]);
+        redirect('dashboard/profile');
+        // $this->view('profile', [
+        //     'user' => $_SESSION['user'],
+        //     'errors' => $_SESSION['errors'] ?? [],
+        //     'status' => $_SESSION['status'] ?? ''
+        // ]);
     }
 
     public function dashboard()

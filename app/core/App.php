@@ -29,40 +29,48 @@ class App
 
         // Check if user is trying to access the dashboard
         if ($requestedController === 'Dashboard' || stripos($URL[0], 'dashboard') !== false) {
-            if (isset($_SESSION['user']) && isset($_SESSION['user']->user_lvl)) {
-                // Assign the appropriate dashboard based on user role
-                $lvl = $_SESSION['user']->user_lvl;
-
-                switch ($lvl) {
-                    case 0:
-                        $this->controller = 'Customer'; // regular user dashboard
-                        // echo "case1";
-                        break;
-                    case 1:
-                        $this->controller = 'Owner'; // regular user dashboard
-                        // echo "case1";
-                        break;
-                    case 2:
-                        $this->controller = 'ServiceProvider'; // manager dashboard
-                        break;
-                    case 3:
-                        $this->controller = 'Agent'; // admin dashboard
-                        break;
-                    case 4:
-                        $this->controller = 'Manager'; // manager dashboard
-                        break;
-                    case 5:
-                        $this->controller = 'Customer'; // Customer dashboard
-                        break;
-                    default:
-                        $this->controller = '_404'; // load 404 page for unknown roles
-                        break;
+            
+            if (isset($_SESSION['customerView']) && $_SESSION['customerView'] == true ){
+                $this->controller = 'Customer'; // regular user dashboard
+            }else{
+                
+                if (isset($_SESSION['user']) && isset($_SESSION['user']->user_lvl)) {
+                    // Assign the appropriate dashboard based on user role
+                    $lvl = $_SESSION['user']->user_lvl;
+    
+                    switch ($lvl) {
+                        case 0:
+                            $this->controller = 'Customer'; // regular user dashboard
+                            // echo "case1";
+                            break;
+                        case 1:
+                            $this->controller = 'Owner'; // regular user dashboard
+                            // echo "case1";
+                            break;
+                        case 2:
+                            $this->controller = 'ServiceProvider'; // manager dashboard
+                            break;
+                        case 3:
+                            $this->controller = 'Agent'; // admin dashboard
+                            break;
+                        case 4:
+                            $this->controller = 'Manager'; // manager dashboard
+                            break;
+                        case 5:
+                            $this->controller = 'Customer'; // Customer dashboard
+                            break;
+                        default:
+                            $this->controller = '_404'; // load 404 page for unknown roles
+                            break;
+                    }
+                } else {
+                    // If the user is not logged in, redirect them to the login page
+                    redirect('login');
+                    $this->controller = 'Login';
                 }
-            } else {
-                // If the user is not logged in, redirect them to the login page
-                redirect('login');
-                $this->controller = 'Login';
             }
+
+            
         } else {
             // If not dashboard, use the provided controller or default to 'home'
             $this->controller = $requestedController ?? 'home'; // make home default
