@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/pagination.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
@@ -43,10 +44,10 @@
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/managementhome"><button class="btn"><img src="<?= ROOT ?>/assets/images/manage.png" alt="">Managements</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/contacts"><button class="btn"><img src="<?= ROOT ?>/assets/images/contact.png" alt="">Contacts</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"> <i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome"><button class="btn"><i class="fa-solid fa-list-check"></i> Managements</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/contacts"><button class="btn"><i class="fa-solid fa-address-book"></i>Contacts</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i> Profile</button></a></li>
                 </ul>
 
                 <form method="post" id="logout">

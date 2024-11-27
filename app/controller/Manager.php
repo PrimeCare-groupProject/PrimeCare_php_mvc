@@ -359,7 +359,7 @@ class Manager {
             case 'agentmanagement':
                 $this->agentManagement($b,$c,$d);
                 break;
-            case 'financialmanagement':
+            case 'financemanagement':
                 $this->financialManagement();
                 break;
             default:
@@ -422,7 +422,7 @@ class Manager {
     }
 
     public function financialManagement(){
-        $this->view('manager/financeManagement');
+        $this->view('manager/financemanagement');
     }
 
     public function assignAgents(){

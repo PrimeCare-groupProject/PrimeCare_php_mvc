@@ -70,8 +70,9 @@
     /* width: 100%; */
     max-width: 200px;
     min-width: 150px;
-    background-color: var(--primary-color);
-    color: var(--white-color);
+    background-color: transparent;
+    color: var(--primary-color);
+    border-right: 5px solid var(--primary-color);
 }
 
 .small-btn {
