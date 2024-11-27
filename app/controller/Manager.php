@@ -415,7 +415,10 @@ class Manager {
     }
 
     public function requestApproval(){
-        $this->view('manager/requestApproval');
+        $property = new PropertyModelTemp;
+        $requests = $property->where(['request_type' => 'update']);
+        $this->view('manager/requestApproval', ['requests' => $requests]);
+        // $this->view('manager/requestApproval');
     }
 
     public function financialManagement(){
@@ -423,7 +426,10 @@ class Manager {
     }
 
     public function assignAgents(){
-        $this->view('manager/assignagents');
+        $property = new PropertyModel;
+        $properties = $property->where(['status' => 'pending']);
+
+        $this->view('manager/assignagents' , ['properties' => $properties]);
     }
 
     public function agentManagement($b = ''){
@@ -444,6 +450,14 @@ class Manager {
         session_destroy();
         redirect('home');
         exit;
+    }
+
+    public function comparePropertyUpdate($propertyID){
+        $property = new PropertyConcat;
+        $propertyUpdate = new PropertyConcatTemp;
+        $property = $property->first(['property_id' => $propertyID]);
+        $propertyUpdate = $propertyUpdate->first(['property_id' => $propertyID]);
+        $this->view('manager/comparePropertyUpdate' , ['property' => $property , 'propertyUpdate' => $propertyUpdate]);
     }
     
 }

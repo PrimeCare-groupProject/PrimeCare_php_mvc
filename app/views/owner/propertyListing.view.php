@@ -61,7 +61,7 @@
                             <a href="#" class="change-status">change Pending</a>
                             <div>
                                 <a href="<?= ROOT ?>/dashboard/updateProperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="<?= ROOT ?>/property/delete/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/property/dropProperty/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
                             </div>
                         </div>
                     </div>

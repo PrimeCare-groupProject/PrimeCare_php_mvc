@@ -49,16 +49,16 @@
         </div>
     </div>
     <div>
-        <?php for ($i = 0; $i < 5; $i++): ?>
+        <?php foreach($requests as $request): ?>
             <div class="approval-container">
                 <div class="approval-left-content">
-                    <h3>Approval Request 1</h3>
+                    <h3>Update Request 1</h3>
                     <div class="input-group">
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Property ID:</strong></span><span class="input-field small_margin">P1236</span>
+                            <span class="input-label fixed_width_for_label"><strong>Property ID:</strong></span><span class="input-field small_margin"><?= $request->property_id ?></span>
                         </div>
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Price(LKR):</strong></span><span class="input-field small_margin">200000</span>
+                            <span class="input-label fixed_width_for_label"><strong>Price(LKR):</strong></span><span class="input-field small_margin"><?= $request->rent_on_basis ?></span>
                         </div>
                     </div>
                     <div class="input-group">
@@ -66,27 +66,27 @@
                             <span class="input-label fixed_width_for_label"><strong>Date:</strong></span><span class="input-field small_margin">2024/08/23</span>
                         </div>
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Agent ID:</strong></span><span class="input-field small_margin">A3546</span>
+                            <span class="input-label fixed_width_for_label"><strong>Agent ID:</strong></span><span class="input-field small_margin"><?= $request->agent_id ?></span>
                         </div>
                     </div>
                     <div class="input-group">
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Address:</strong></span><span class="input-field small_margin">No 90 , Colombo , Sri Lanka</span>
+                            <span class="input-label fixed_width_for_label"><strong>Address:</strong></span><span class="input-field small_margin"><?= $request->address ?></span>
                         </div>
                     </div>
-                    <div class="input-group">
+                    <!-- <div class="input-group">
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Description:</strong></span><span class="input-field small_margin">Anything about the property assigning and other details</span>
+                            <span class="input-label fixed_width_for_label"><strong>Description:</strong></span><span class="input-field small_margin"><?= $request->description ?></span>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="approval-right-content">
-                    <button class="primary-btn">Accept</button>
-                    <button class="secondary-btn">Decline</button>
+                    <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
+                    <!-- <button class="secondary-btn">Decline</button> -->
                     <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="approval-right-content-img">
                 </div>
             </div>
-        <?php endfor; ?>
+        <?php endforeach; ?>
     </div>
 </div>
 
