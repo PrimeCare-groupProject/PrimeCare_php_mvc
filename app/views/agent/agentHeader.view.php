@@ -19,6 +19,7 @@
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <title>PrimeCare</title>
 </head>
@@ -44,15 +45,15 @@
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/preInspection"><button class="btn"><img src="<?= ROOT ?>/assets/images/preinspection.png " alt="">Pre Inspections</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/review.png " alt="">Requested Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/services.png " alt="">Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><img src="<?= ROOT ?>/assets/images/renting.png " alt="">Bookings</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><img src="<?= ROOT ?>/assets/images/addproperty.png " alt="">Inventory</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><img src="<?= ROOT ?>/assets/images/manage.png" alt="">Manage Providers</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/preInspection"><button class="btn"><i class="fa-solid fa-file-contract"></i>Pre Inspections</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><i class="fa-solid fa-list-check"></i>Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><i class="fa-solid fa-inbox"></i>Requested Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><i class="fa-solid fa-house"></i>Bookings</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><i class="fa-solid fa-warehouse"></i>Inventory</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn" style="padding-right:0px;"><i class="fa-solid fa-users-gear"></i>Manage Providers</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>

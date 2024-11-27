@@ -1,6 +1,7 @@
 <?php require 'serviceproviderHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>repair requests</h2>
 </div>
 
@@ -20,7 +21,7 @@
     <table class="listing-table">
         <thead>
             <tr>
-                <th class="extra-space sortable" id="date-header">
+                <th class="extra-space sortable first" id="date-header">
                     Date
                     <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                 </th>
@@ -32,7 +33,7 @@
                     <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                 </th>
                 <th>Status</th>
-                <th>Time left</th>
+                <th class="last">Time left</th>
             </tr>
         </thead>
         <tbody>
@@ -42,7 +43,7 @@
             onclick="window.location.href='<?= strtolower($service->status) === 'ongoing' 
                 ? ROOT . '/serviceprovider/addLogs?service_id=' . $service->service_id . '&property_id=' . $service->property_id . '&property_name=' . urlencode($service->property_name) . '&service_type=' . urlencode($service->service_type) . '&status=' . urlencode($service->status) . '&earnings=' . $service->earnings : 
                 ROOT . '/serviceprovider/serviceSummery?service_id=' . $service->service_id . '&status=' . urlencode($service->status) ?>'">
-                    <td><?= date('Y/m/d', strtotime($service->date)) ?></td>
+                    <td class="first"><?= date('Y/m/d', strtotime($service->date)) ?></td>
                     <td><?= esc($service->service_type) ?></td>
                     <td><?= esc($service->property_id) ?></td>
                     <td><?= esc($service->property_name) ?></td>
@@ -54,7 +55,7 @@
                             <?= esc($service->status) ?>
                         </span>
                     </td>
-                    <td><?= $service->time_left ?></td>
+                    <td class="last"><?= $service->time_left ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php else : ?>

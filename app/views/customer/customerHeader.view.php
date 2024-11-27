@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/serviceProvider.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/formSet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,12 +33,12 @@
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers" data-section="propertyLisingToAllUsers"><button class="btn">Search</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/payments" data-section="payments"><button class="btn">Payments</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/occupiedProperties" data-section="occupiedProperties"><button class="btn">Occupied Properties</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/repairListing" data-section="repairListing"><button class="btn">Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn">Profile</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/updateRole" data-section="updateRole"><button class="btn">Update Role</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers" data-section="propertyLisingToAllUsers"><button class="btn"><i class="fa-solid fa-magnifying-glass"></i>Search</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/payments" data-section="payments"><button class="btn"><i class="fa-solid fa-money-check-dollar"></i>Payments</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/occupiedProperties" data-section="occupiedProperties"><button class="btn"><i class="fa-solid fa-house-user"></i>History</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/repairListing" data-section="repairListing"><button class="btn"><i class="fa-solid fa-hammer"></i>Services</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/updateRole" data-section="updateRole"><button class="btn"><i class="fa-solid fa-square-pen"></i>Update Role</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>

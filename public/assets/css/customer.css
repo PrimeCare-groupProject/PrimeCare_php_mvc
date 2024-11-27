@@ -210,7 +210,9 @@ select {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
     gap: 20px;
+    margin-top: 10px;
 }
 
 .OC__property_card {
@@ -380,6 +382,7 @@ select {
 /** update role */
 .UR__container{
     display: flex;
+    margin-top:10px;
     flex-direction: row;
     align-items: center;
     justify-content: center;

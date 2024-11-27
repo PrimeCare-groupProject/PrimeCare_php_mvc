@@ -13,7 +13,7 @@
     padding: 10px 15px;
     text-align: left;
     border-bottom: 1px solid var(--background-color);
-    border-radius: 10px;
+    /* border-radius: 10px; */
     word-wrap: break-word;
     /* Ensures text wraps if it's too long */
     overflow: hidden;
@@ -23,6 +23,14 @@
     white-space: nowrap;
     /* Prevents text from wrapping to a new line */
     font-family: "Outfit", sans-serif;
+}
+
+.listing-table .first{
+    border-radius: 10px 0 0 10px; 
+}
+
+.listing-table .last{
+    border-radius: 0 10px 10px 0; 
 }
 
 .listing-table th {
