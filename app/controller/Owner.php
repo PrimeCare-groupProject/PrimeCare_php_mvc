@@ -226,8 +226,32 @@ class Owner
         // Validate email
         if (!$email) {
             $errors[] = "Invalid email format.";
-        }
+            $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
 
+            redirect('dashboard/profile');
+            exit;
+
+        }else{
+            $user = new User();
+            $availableUser = $user->first(['email' => $email]);
+            if(isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid){
+                $errors[] = "Email already exists.";
+                $_SESSION['errors'] = $errors;
+                $_SESSION['status'] = $status;
+
+                redirect('dashboard/profile');
+                exit;
+            }
+        }
+        if(!$user->validate($_POST)){
+            $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
+            $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
+
+            redirect('dashboard/profile');
+            exit;
+        }
         // Check if profile picture is uploaded
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
             $profilePicture = $_FILES['profile_picture'];

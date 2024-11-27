@@ -62,59 +62,59 @@
         </div>
         <div class="property-listing">
             <div class="listing-items">
-            <?php if (!empty($properties)): ?>
-                <?php $properties = array_slice($properties, 0, 4); ?>
-                <?php foreach($properties as $property): ?>
-                    <div class="PL_property-card" style="height: auto;">
-                        <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
-                        <div class="content-section-of-card">
-                            <div class="address" style="padding: 0;">
-                            <?= $property->address ?>
+                <?php if (!empty($properties)): ?>
+                    <?php $properties = array_slice($properties, 0, 4); ?>
+                    <?php foreach ($properties as $property): ?>
+                        <div class="PL_property-card" style="height: auto;">
+                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
+                            <div class="content-section-of-card">
+                                <div class="address" style="padding: 0;">
+                                    <?= $property->address ?>
+                                </div>
+                                <div class="name">
+                                    <?= $property->name ?>
+                                </div>
+                                <div class="price">
+                                    <?= $property->rent_on_basis ?> /Month
+                                </div>
                             </div>
-                            <div class="name">
-                            <?= $property->name ?>
-                            </div>
-                            <div class="price">
-                            <?= $property->rent_on_basis ?> /Month
+                            <div class="units-diplays">
+                                <div class="unit-display__item">
+                                    <div class="unit-display__item__icon">
+                                        <img src="<?= ROOT ?>/assets/images/bed.png" alt="beds" class="unit-display__item__icon__image">
+                                    </div>
+                                    <div class="unit-display__item__text">
+                                        <div class="unit-display__item__text__number">
+                                            <?= $property->bedrooms ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="unit-display__item">
+                                    <div class="unit-display__item__icon">
+                                        <img src="<?= ROOT ?>/assets/images/bathroom.png" alt="baths" class="unit-display__item__icon__image">
+                                    </div>
+                                    <div class="unit-display__item__text">
+                                        <div class="unit-display__item__text__number">
+                                            <?= $property->bathrooms ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="unit-display__item">
+                                    <div class="unit-display__item__icon">
+                                        <img src="<?= ROOT ?>/assets/images/size.png" alt="area" class="unit-display__item__icon__image">
+                                    </div>
+                                    <div class="unit-display__item__text">
+                                        <div class="unit-display__item__text__number">
+                                            <?= $property->size_sqr_ft ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="units-diplays">
-                            <div class="unit-display__item">
-                                <div class="unit-display__item__icon">
-                                    <img src="<?= ROOT ?>/assets/images/bed.png" alt="beds" class="unit-display__item__icon__image">
-                                </div>
-                                <div class="unit-display__item__text">
-                                    <div class="unit-display__item__text__number">
-                                    <?= $property->bedrooms ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="unit-display__item">
-                                <div class="unit-display__item__icon">
-                                    <img src="<?= ROOT ?>/assets/images/bathroom.png" alt="baths" class="unit-display__item__icon__image">
-                                </div>
-                                <div class="unit-display__item__text">
-                                    <div class="unit-display__item__text__number">
-                                    <?= $property->bathrooms ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="unit-display__item">
-                                <div class="unit-display__item__icon">
-                                    <img src="<?= ROOT ?>/assets/images/size.png" alt="area" class="unit-display__item__icon__image">
-                                </div>
-                                <div class="unit-display__item__text">
-                                    <div class="unit-display__item__text__number">
-                                    <?= $property->size_sqr_ft ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
                 <?php else: ?>
-            <p>No properties found.</p>
-        <?php endif; ?>
+                    <p>No properties found.</p>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -126,24 +126,28 @@
         </div>
         <div class="service-listing-slider">
             <div class="listing-items-slides">
-                <?php for ($i = 0; $i < 6; $i++): ?>
-                    <div class="service-slide">
-                        <div class="PL_property-card-home">
-                            <a href="<?= ROOT ?>/"><img src="<?= ROOT ?>/assets/images/pool.jpg" alt="property" class="property-card-image"></a>
-                            <div class="content-section-of-card">
-                                <div class="address-home">
-                                    Plumbing Services
-                                </div>
-                                <div class="name">
-                                    All kinds of plumbing services
-                                </div>
-                                <div class="price" style="color: var(--green-color);">
-                                    Rs. 500 /Hour
+                <?php if (!empty($services)): ?>
+                    <?php foreach ($services as $service): ?>
+                        <div class="service-slide">
+                            <div class="PL_property-card-home" style="height: 350px;">
+                                <a href="<?= ROOT ?>/"><img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="property" class="property-card-image"></a>
+                                <div class="content-section-of-card">
+                                    <div class="address-home">
+                                        <?= $service->name ?>
+                                    </div>
+                                    <!-- <div class="price" style="color: var(--green-color);">
+                                        <?= $service->cost_per_hour ?>
+                                    </div> -->
+                                    <div class="name" style="justify-items: flex-end;">
+                                        <?= $service->description ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                <?php endfor; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No properties found.</p>
+                <?php endif; ?>
             </div>
         </div>
     </section>

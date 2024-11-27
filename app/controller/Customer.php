@@ -99,8 +99,32 @@ class Customer
         // Validate email
         if (!$email) {
             $errors[] = "Invalid email format.";
-        }
+            $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
 
+            redirect('dashboard/profile');
+            exit;
+
+        }else{
+            $user = new User();
+            $availableUser = $user->first(['email' => $email]);
+            if(isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid){
+                $errors[] = "Email already exists.";
+                $_SESSION['errors'] = $errors;
+                $_SESSION['status'] = $status;
+
+                redirect('dashboard/profile');
+                exit;
+            }
+        }
+        if(!$user->validate($_POST)){
+            $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
+            $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
+
+            redirect('dashboard/profile');
+            exit;
+        }
         // Check if profile picture is uploaded
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
             $profilePicture = $_FILES['profile_picture'];
@@ -239,5 +263,36 @@ class Customer
         // show($owner);
         // show($agent);
         $this->view('customer/bookProperty', ['property' => $propertyUnit , 'owner' => $owner, 'agent' => $agent]);
+    }
+
+    public function repairListing(){
+        $service = new Services;
+        $services = $service->findAll();
+
+        $this->view('customer/repairListing' , ['services' => $services]);
+    }
+
+    public function updateRole(){
+        $services = new Services;
+        $services = $services->findAll();
+        $this->view('customer/updateRole', ['services' => $services]);
+    }
+
+    public function updateToOwner(){
+        $user = new User();
+        if($user->update($_SESSION['user']->pid, ['user_lvl' => '1'], 'pid')){
+            $_SESSION['user']->user_lvl = '1';
+            echo "Role updated successfully";
+            redirect('dashboard');
+            exit;
+        }else{
+            $_SESSION['errors'] = ['Failed to update role. Please try again.'];
+            echo "Failed to update role. Please try again.";
+            redirect('dashboard/updateRole');
+            exit;
+        }
+    }
+
+    public function updateToSerPro(){
     }
 }
