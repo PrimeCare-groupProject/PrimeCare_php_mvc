@@ -303,12 +303,12 @@ class ServiceProvider {
             'status' => $service_details->status ?? null,
             'earnings' => $service_details->cost_per_hour * ($service_details->total_hours ?? 0),
             'service_images' => json_decode($service_details->service_images ?? '[]'),
+            'service_provider_description' => $service_details->service_provider_description ?? '',
         ];
 
         // Load view with data
         $this->view('serviceprovider/serviceSummery', $view_data);
     }
-
 
 
     public function repairListing(){
