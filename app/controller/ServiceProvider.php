@@ -278,8 +278,38 @@ class ServiceProvider {
     }
     
     public function serviceSummery(){
-        $this->view('serviceprovider/serviceSummery');
+        $service_id = $_GET['service_id'] ?? null;
+        if (!$service_id) {
+            redirect('serviceprovider/repairRequests');
+            return;
+        }
+
+        // Get service details
+        $serviceLog = new ServiceLog();
+        $service_details = $serviceLog->first(['service_id' => $service_id]);
+
+        if (!$service_details) {
+            $_SESSION['error'] = 'Service not found';
+            redirect('serviceprovider/repairRequests');
+            return;
+        }
+
+        // Prepare view data
+        $view_data = [
+            'service_id' => $service_id,
+            'property_id' => $service_details->property_id ?? null,
+            'property_name' => $service_details->property_name ?? null,
+            'service_type' => $service_details->service_type ?? null,
+            'status' => $service_details->status ?? null,
+            'earnings' => $service_details->cost_per_hour * ($service_details->total_hours ?? 0),
+            'service_images' => json_decode($service_details->service_images ?? '[]'),
+        ];
+
+        // Load view with data
+        $this->view('serviceprovider/serviceSummery', $view_data);
     }
+
+
 
     public function repairListing(){
         $this->view('serviceprovider/repairListing');
