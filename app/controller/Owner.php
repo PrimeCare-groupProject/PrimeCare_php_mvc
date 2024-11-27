@@ -139,9 +139,9 @@ class Owner
         } else if ($a == "repairlisting"){
             $this->repairListing($b = '', $c = '', $d = '');
             return;
-        // } else if ($a == "servicerequest"){
-        //     $this->serviceRequest($b = '', $c = '', $d = '');
-        //     return;
+        } else if ($a == "servicerequest"){
+            $this->serviceRequest($b = '', $c = '', $d = '');
+            return;
         } else if ($a == "updateproperty"){
             $this->updateProperty($propertyId=$b);
             return;
