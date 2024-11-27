@@ -1,7 +1,7 @@
 <?php require 'serviceproviderHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
-    <img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons">
+    <a href="<?= ROOT ?>/dashboard/repairRequests"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons"></a>
     <h2>ADD Logs</h2>
 </div>
 
