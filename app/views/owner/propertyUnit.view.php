@@ -4,7 +4,7 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/dashboard/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/property/propertyListing"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2><?= $property->name ?></h2>
                 <p><span>Maintained By: </span>Agent's Name</p>
@@ -106,16 +106,16 @@
                 <span class="input-label-small">Year Built:</span><span class="input-field-small"><?= $property->year_built ?></span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">Monthly Rent:</span><span class="input-field-small">LKR 20000</span>
+                <span class="input-label-small">Monthly Rent:</span><span class="input-field-small"><?= $property->rent_on_basis ?></span>
             </div>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small">Units:</span><span class="input-field-small">4</span>
+                <span class="input-label-small">Units:</span><span class="input-field-small"><?= $property->units ?></span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">Size(square feet):</span><span class="input-field-small">LKR <?= $property->rent_on_basis ?></span>
+                <span class="input-label-small">Size(square feet):</span><span class="input-field-small"><?= $property->size_sqr_ft ?></span>
             </div>
         </div>
 
