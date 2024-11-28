@@ -68,7 +68,7 @@ class Manager {
                 'contact' => $contact,
                 'password' => $password, // Hash the password before saving
                 'confirmPassword' =>$password,
-                'user_lvl' => 2,
+                'user_lvl' => 3,
                 'username' => $this->generateUsername($_POST['fname']),
             ];
             // echo "validating user details<br>";
@@ -115,6 +115,9 @@ class Manager {
                 $userId = $userDetails[0]->pid;
                 // var_dump($userId);
                 if ($userStatus) {
+                     
+                    $personalDetails['branch'] = 1;
+                    $personalDetails['bank'] = 1;
                     // Save payment details
                     // echo "inserting payment details<br>";
                     $paymentDetailStatus = $payment_details->insert([
