@@ -68,7 +68,7 @@ class Manager {
                 'contact' => $contact,
                 'password' => $password, // Hash the password before saving
                 'confirmPassword' =>$password,
-                'user_lvl' => 2,
+                'user_lvl' => 3,
                 'username' => $this->generateUsername($_POST['fname']),
             ];
             // echo "validating user details<br>";
