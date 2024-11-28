@@ -702,9 +702,11 @@ textarea .input-field{
 
   /* Active state styles */
   .toggle-track.activeToggle {
+    transition: transform 0.3s ease;
     background-color: var(--primary-color);
   }
 
   .toggle-track.activeToggle .toggle-knob {
+    transition: transform 0.3s ease;
     transform: translateX(26px);
   }

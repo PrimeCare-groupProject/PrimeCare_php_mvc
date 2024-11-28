@@ -211,7 +211,7 @@ select {
     align-items: center;
     justify-content: center;
     width: 100%;
-    gap: 20px;
+    gap: 10px;
     margin-top: 10px;
 }
 
@@ -220,11 +220,11 @@ select {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    width: 95%;
+    width: 96%;
     padding: 0 20px;
     border-radius: 10px;
     background-color: var(--white-color);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
 }
 
 .image-section {
