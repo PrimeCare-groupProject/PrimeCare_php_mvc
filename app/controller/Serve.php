@@ -118,8 +118,9 @@ class Serve{
                 // Handle failure (e.g., insert failed)
                 $_SESSION['flash_message'] = 'Failed to create service. Please try again.';
             }
-            // Ensure the form page is loaded after submission
-            $this->view('agent/editrepairing');
+            $service2 = $service->where(['service_id' => $_POST['service_id']])[0];
+            $this->view('agent/editrepairing', ['service1' => $service2]);
+            
         }
     }
     
