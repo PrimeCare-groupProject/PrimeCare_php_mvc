@@ -28,7 +28,7 @@
             </div>
         </a>
 
-        <a href="<?= ROOT ?>/dashboard/managementhome">
+        <a href="<?= ROOT ?>/dashboard/managementhome/financemanagement">
             <div class="management-card">
                 <div class="management-text">
                     <h2>Finance Management</h2>

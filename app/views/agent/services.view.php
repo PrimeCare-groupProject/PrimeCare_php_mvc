@@ -1,34 +1,90 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
+<style>
+    .UR__container {
+        display: flex;
+        gap: 30px;
+    }
+
+    .UR__side_containers {
+        position: relative;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .UR__side_containers:hover {
+        transform: scale(1.05); /* Adds hover zoom effect */
+    }
+
+    .primary-btn {
+        text-decoration: none; /* Removes underline from button text */
+        background-color: #FCA311;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    .primary-btn:hover {
+        background-color: #F7DC6F;
+    }
+
+    .popup {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 14px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .UR__side_containers:hover .popup {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
 <div class="user_view-menu-bar">
     <div class="gap"></div>
-    <h2>Services</h2>
+    <h2>Manage Providers</h2>
 </div>
-<div class="management-cards-container">
-    <div class="management-card-container-sub">
+<div style="padding-top: 20px;" class="UR__container">
+    <div class="UR__side_containers">
         <a href="<?= ROOT ?>/dashboard/services/serviceproviders">
-            <div class="management-card">
-                <div class="management-text">
-                    <h2>Service Providers</h2>
-                </div>
-                <div class="management-icon">
-                    <img src="<?= ROOT ?>/assets/images/manager.png" alt="Ongoing Task">
-                </div>
+            <div class="UR__image_container">
+                <img src="<?= ROOT ?>/assets/images/empmanage.jpg" alt="Owner">
+            </div>
+            <div class="button-container">
+                <button class="primary-btn">
+                    Service Providers
+                </button>
             </div>
         </a>
+        <div class="popup">Manage all service providers</div>
     </div>
 
-    <div class="management-card-container-sub">
+    <div class="UR__side_containers">
         <a href="<?= ROOT ?>/dashboard/services/payments">
-            <div class="management-card">
-                <div class="management-text">
-                    <h2>Payments</h2>
-                </div>
-                <div class="management-icon">
-                    <img src="<?= ROOT ?>/assets/images/folder.png" alt="Inventory Management">
-                </div>
+            <div class="UR__image_container">
+                <img src="<?= ROOT ?>/assets/images/paymentManage.png" alt="Owner">
+            </div>
+            <div class="button-container">
+                <button class="primary-btn">
+                    Payments
+                </button>
             </div>
         </a>
+        <div class="popup">Manage all payments</div>
     </div>
 </div>
 

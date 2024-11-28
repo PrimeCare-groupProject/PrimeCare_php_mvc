@@ -1,6 +1,7 @@
 <?php require 'customerHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>occupied Properties</h2>
 </div>
 

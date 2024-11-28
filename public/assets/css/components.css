@@ -11,7 +11,7 @@
     box-shadow: var(--box-shadow);
     overflow: hidden;
     max-width: 400px;
-    margin: 10px;
+    margin: 5px;
     cursor: pointer;
 }
 
@@ -334,7 +334,8 @@
     border-radius: 20px;
     padding: 10px 20px;
     margin: 10px 5px;
-    width: calc(95% );
+    /* width: calc(95% ); */
+    width: inherit;
 }
 
 

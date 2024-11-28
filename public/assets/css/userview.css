@@ -181,13 +181,21 @@ hr {
 }
 
 
-.user_view-sidemenu ul li a button img {
+.user_view-sidemenu ul li a button img{
     width: 20px;
     height: 20px;
     margin-right: 10px;
     align-self: center;
 }
 
+.user_view-sidemenu ul li a button i
+ {
+    margin-top: 3px;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    align-self: center;
+}
 .user_view-menu-bar {
     display: flex;
     flex-direction: row;
@@ -517,8 +525,8 @@ textarea .input-field{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     /* 3 columns */
-    gap: -10px;
-    padding: 5px;
+    gap: 0px;
+    padding: 0px;
 }
 
 @media screen and (max-width: 768px) {
@@ -694,9 +702,11 @@ textarea .input-field{
 
   /* Active state styles */
   .toggle-track.activeToggle {
+    transition: transform 0.3s ease;
     background-color: var(--primary-color);
   }
 
   .toggle-track.activeToggle .toggle-knob {
+    transition: transform 0.3s ease;
     transform: translateX(26px);
   }

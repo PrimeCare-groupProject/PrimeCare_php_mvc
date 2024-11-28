@@ -1,14 +1,14 @@
 <?php require_once 'ownerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>'>
+    <a href='<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>'>
         <img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons">
     </a>
     <h2>Update details on <span style="color: var(--green-color);"><?= $property->name ?><span></h2>
 </div>
 
-<!-- <form method="POST" action="<?= ROOT ?>/property/update/<?= $property->property_id ?>" enctype="multipart/form-data"> -->
-<form method="POST" action="<?= ROOT ?>/property/updateTemp/<?= $property->property_id ?>" enctype="multipart/form-data">
+<form method="POST" action="<?= ROOT ?>/property/update/<?= $property->property_id ?>" enctype="multipart/form-data">
+<!-- <form method="POST" action="<?= ROOT ?>/property/updateTemp/<?= $property->property_id ?>" enctype="multipart/form-data"> -->
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
             <label class="input-label">Name Of Property*</label>

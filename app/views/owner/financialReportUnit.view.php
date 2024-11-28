@@ -3,7 +3,8 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/property/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <!-- <a href="<?= ROOT ?>/property/propertylisting/propertyunitowner"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a> -->
+            <a href="javascript:history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2>Property Name</h2>
                 <p><span>Maintained By: </span>Agent's Name</p>

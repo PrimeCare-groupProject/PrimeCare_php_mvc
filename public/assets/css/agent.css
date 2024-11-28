@@ -419,7 +419,7 @@ body.popup-active .blur-container {
 
 .limited-paragraph {
     display: -webkit-box;
-    -webkit-line-clamp: 5;
+    line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -428,7 +428,6 @@ body.popup-active .blur-container {
 .booking-container {
     display: flex;
     background-color: white;
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
     width: 95%;
     min-width: 100px;
     height: 360px;
