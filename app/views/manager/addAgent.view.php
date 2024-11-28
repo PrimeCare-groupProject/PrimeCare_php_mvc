@@ -19,7 +19,7 @@
             <div class="input-group-group">
                 <label for="email" class="input-label">Email Address</label>
                 <input type="email" name="email" id="email" class="input-field" 
-                    placeholder="johndoe@gmail.com" value="king.ed.wendt888@gmail.com" required>
+                    placeholder="johndoe@gmail.com" value="janithprabash944ugc@gmail.com" required>
             </div>
 
             <div class="input-group-group">
@@ -43,7 +43,7 @@
 
             <div class="input-group-aligned">
                 <button type="button" class="green btn" onclick="showSearchBox()">Add existing User</button>
-                <button type="button" class="primary-btn" onclick="showBankDetails()">Next</button>
+                <button type="button" class="primary-btn" style="margin-bottom: 10px;" onclick="showBankDetails()">Next</button>
             </div>
 
             <div class="errors" 
@@ -77,12 +77,12 @@
             <div class="input-group-group">
                 <label for="branch" class="input-label">Branch</label>
                 <input type="text" name="branch" id="branch" class="input-field" 
-                    placeholder="Main Branch" value="1" required>
+                    placeholder="Main Branch" value="kandana" required>
             </div>
             <div class="input-group-group">
                 <label for="bankName" class="input-label">Bank Name</label>
                 <input type="text" name="bankName" id="bankName" class="input-field" 
-                    placeholder="ABC Bank" value="1" required>
+                    placeholder="ABC Bank" value="commercial bank" required>
             </div>
 
             <div class="input-group-aligned">
@@ -110,7 +110,7 @@
 
 <!-- floating search box -->
 <div id="searchUserForm" style="display: none; height: 600px;">
-    <form id="find-user" method="post">
+    <form id="find-user" method="get" action="<?= ROOT ?>/dashboard/managementhome/agentmanagement/addagent">
         <input type="hidden" name="find_user" value="1">
         <div class="SearchBox">
             <button class="close_btn" id="close-btn" onclick="removeSearchBox(event)">X</button>
@@ -123,7 +123,7 @@
                         value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : "" ?>" 
                         placeholder="Search user..."
                     >
-                    <button class="search-btn" type="submit">
+                    <button class="search-btn" type="submit" onclick="updateSearchTerm()">
                         <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
                     </button>
                 </div>
@@ -163,6 +163,12 @@
 </div>
 
 <script>
+    function updateSearchTerm() {
+        var searchTerm = document.querySelector('input[name="searchterm"]').value;
+        var form = document.getElementById('find-user');
+        form.action = '<?= ROOT ?>/dashboard/managementhome/agentmanagement/finduser?searchterm=' + encodeURIComponent(searchTerm);
+        form.submit();
+    }
     function showPersonalDetails() {
         document.getElementById('personalDetailsView').style.display = 'block';
         document.getElementById('bankDetailsView').style.display = 'none';
