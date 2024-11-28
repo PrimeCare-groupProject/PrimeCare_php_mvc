@@ -115,6 +115,9 @@ class Manager {
                 $userId = $userDetails[0]->pid;
                 // var_dump($userId);
                 if ($userStatus) {
+                     
+                    $personalDetails['branch'] = 1;
+                    $personalDetails['bank'] = 1;
                     // Save payment details
                     // echo "inserting payment details<br>";
                     $paymentDetailStatus = $payment_details->insert([
