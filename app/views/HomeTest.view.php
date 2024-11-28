@@ -261,8 +261,8 @@
                         <div class="title">Nimna Pathum</div>
                         <div class="des">Computer Science Undergraduate at UCSC</div>
                         <div class="buttons">
-                            <button>GitHub</button>
-                            <button>LinkedIn</button>
+                            <button><a href="https://github.com/nimnapathum" style="text-decoration: none;">GitHub</a></button>
+                            <button><a href="https://www.linkedin.com/in/nimna-pathum-87a271266/" style="text-decoration: none;">LinkedIn</a></button>
                         </div>
                     </div>
                 </div>
@@ -273,32 +273,32 @@
                         <div class="title">Wendt Edmund</div>
                         <div class="des">Computer Science Undergraduate at UCSC</div>
                         <div class="buttons">
-                            <button>GitHub</button>
-                            <button>LinkedIn</button>
+                            <button><a href="https://github.com/lifewithwendy" style="text-decoration: none;">GitHub</a></button>
+                            <button><a href="https://www.linkedin.com/in/wvedmund/" style="text-decoration: none;">LinkedIn</a></button>
                         </div>
                     </div>
                 </div>
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member3.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/janithhome.png" alt="">
                     <div class="content">
                         <div class="author">Developer</div>
                         <div class="title">Janith Prabash</div>
                         <div class="des">Computer Science Undergraduate at UCSC</div>
                         <div class="buttons">
-                            <button>GitHub</button>
-                            <button>LinkedIn</button>
+                            <button><a href="https://github.com/janithprabashrk" style="text-decoration: none;">GitHub</a></button>
+                            <button><a href="https://www.linkedin.com/in/janithrk/" style="text-decoration: none;">LinkedIn</a></button>
                         </div>
                     </div>
                 </div>
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member4.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/bimsarahome.png" alt="">
                     <div class="content">
                         <div class="author">Developer</div>
                         <div class="title">Bimsara Imash</div>
                         <div class="des">Computer Science Undergraduate at UCSC</div>
                         <div class="buttons">
-                            <button>GitHub</button>
-                            <button>LinkedIn</button>
+                            <button><a href="https://github.com/BimsaraImash" style="text-decoration: none;">GitHub</a></button>
+                            <button><a href="https://www.linkedin.com/in/bimsara-imash-b97081282/" style="text-decoration: none;">LinkedIn</a></button>
                         </div>
                     </div>
                 </div>
@@ -319,13 +319,13 @@
                     </div>
                 </div>
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member3.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/janithhome.png" alt="">
                     <div class="content">
                         <div class="title">Janith Prabash</div>
                     </div>
                 </div>
                 <div class="item">
-                    <img src="<?= ROOT ?>/assets/images/homeImages/member4.jpg" alt="">
+                    <img src="<?= ROOT ?>/assets/images/homeImages/Bimsarahome.png" alt="">
                     <div class="content">
                         <div class="title">Bimsara Imash</div>
                     </div>
