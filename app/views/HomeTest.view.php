@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/HomeTest.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -447,7 +448,26 @@
         function hideMenu() {
             navlinks.style.right = "-200px";
         }
+
+        //loader effect
+        function displayLoader() {
+            document.querySelector('.loader-container').style.display = '';
+            //onclick="displayLoader()"
+        }
+        
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', displayLoader);
+        });
+
+        document.querySelectorAll('a').forEach(link => {
+            console.log(link);
+
+            link.addEventListener('click', displayLoader);
+        });
     </script>
+    <div class="loader-container" style="display: none;">
+        <div class="spinner-loader"></div>
+    </div>
 </body>
 
 </html>
