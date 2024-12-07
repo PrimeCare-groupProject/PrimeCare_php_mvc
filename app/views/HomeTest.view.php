@@ -383,7 +383,7 @@
             </div>
             <div class="right-side">
                 <div class="topic-text">Send us a message</div>
-                <form method="GET">
+                <form method="POST">
                     <input type="hidden" name="action" value="contactus">
                     <div class="input-box">
                         <label for="name">Your Name:</label>
@@ -399,6 +399,23 @@
                         <textarea type="text" name="message" id="message" cols="20" rows="5" placeholder="Message"></textarea>
                     </div>
                     <button type="submit">Send</button>
+                    <!-- Success message -->
+                    <?php if (!empty($success)): ?>
+                        <div class="success-message" style="color: green;">
+                            <?= esc($success) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Error messages -->
+                    <?php if (!empty($errors)): ?>
+                        <div class="error-messages" style="color: red;">
+                            <ul>
+                                <?php foreach ($errors as $error): ?>
+                                    <li><?= esc($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
