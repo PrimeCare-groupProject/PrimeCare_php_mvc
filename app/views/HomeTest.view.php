@@ -383,7 +383,8 @@
             </div>
             <div class="right-side">
                 <div class="topic-text">Send us a message</div>
-                <form action="">
+                <form method="GET">
+                    <input type="hidden" name="action" value="contactus">
                     <div class="input-box">
                         <label for="name">Your Name:</label>
                         <input type="text" name="name" id="name" placeholder="Name">

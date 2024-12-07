@@ -62,8 +62,8 @@
     border-radius: 50%;
     background: linear-gradient(0deg, 
         transparent, 
-        #3498db, 
-        #2ecc71, 
+        #db8a34, 
+        #a2cc2e, 
         transparent
     );
     animation: spin-gradient 1s linear infinite;
@@ -82,13 +82,18 @@
     border-top: 5px solid #3498db;
     border-radius: 50%;
     animation: 
-        spin 1s linear infinite,
+        /* spin 1s linear infinite, */
         pulse 1.5s ease-in-out infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(0.9); }
-    50% { transform: scale(1.1); }
+    0%, 100% { 
+        transform: scale(0.9); 
+        transform: rotate(0deg); 
+    }
+    50% { 
+        transform: scale(1.1); 
+        transform: rotate(360deg); }
 }
 
 /* Responsive & Accessible */
