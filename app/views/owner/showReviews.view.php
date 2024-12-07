@@ -1,11 +1,13 @@
 <?php require_once 'ownerHeader.view.php'; ?>
 <div class="user_view-menu-bar">
-    <div class="flex-bar-space-between-row" style="padding: 0 20px;">
+    <div class="flex-bar-space-between-row" >
+        
         <div class="left-content">
+            <div class="gap"></div>
             <h2>Reviews</h2>
         </div>
         <div>
-            <span class="RS__date-range">March 2021 - February 2022</span>
+            <span class="RS__date-range" style="margin-right:20px;">March 2021 - February 2022</span>
         </div>
     </div>
 </div>

@@ -11,7 +11,7 @@
     box-shadow: var(--box-shadow);
     overflow: hidden;
     max-width: 400px;
-    margin: 10px;
+    margin: 5px;
     cursor: pointer;
 }
 
@@ -312,6 +312,20 @@
     border-bottom: 1px solid var(--background-color);
 }
 
+.AG__button_class{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+}
+
+.property-assign-header h3 {
+    font-size: 1.5rem;
+    color: var(--black-color);
+    margin: 0;
+}
+
 /* Approval Card Css*/
 .approval-container {
     display: flex;
@@ -320,15 +334,22 @@
     border-radius: 20px;
     padding: 10px 20px;
     margin: 10px 5px;
-    width: calc(95% );
+    /* width: calc(95% ); */
+    width: inherit;
 }
 
 
 .approval-left-content {
     display: flex;
     flex-direction: column;
-    gap: 10px;
     width: 80%;
+    padding: 0 10px;
+}
+
+.approval-left-content h3 {
+  font-size: 1.5rem;
+  color: var(--black-color);
+  margin: 0 0 10px 0;
 }
 
 .approval-right-content {

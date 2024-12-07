@@ -1,6 +1,7 @@
 <?php require 'customerHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>Search</h2>
     <div class="view-filter-button">
         <img src="<?= ROOT ?>/assets/images/arrow-down.png" alt="see" class="filter-menu-btn" id="filter-menu-btn" onclick="toggleMenu()">

@@ -172,6 +172,7 @@ select:hover, select:focus {
     text-decoration: none;
     background-color: var(--light-blue);
     color: var(--primary-blue);
+    border: transparent;
     border-radius: 12px;
     gap: 12px;
 }
@@ -264,6 +265,7 @@ select:hover, select:focus {
 }
 
 .stat-amount {
+    font-family: 'outfit', sans-serif;
     font-size: 32px;
     font-weight: 600;
     margin: 8px 0;

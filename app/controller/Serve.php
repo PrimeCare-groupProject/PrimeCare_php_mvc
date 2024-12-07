@@ -80,23 +80,22 @@ class Serve{
             $oldImage = "C:/xampp/htdocs/php_mvc_backend/public/" . $_POST['service_img'];
             
             // Check if files are uploaded
-            if (!empty($_FILES['service_images']['name'][0])) {
+            if (!empty($_FILES['service_images']['name'])) {
                 $uploadDir = ROOTPATH . "public/assets/images/uploads/services_images/";
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true); // Ensure directory exists
                 }
 
                 $uploadedFiles = [];
-                foreach ($_FILES['service_images']['name'] as $key => $name) {
-                    $tempName = $_FILES['service_images']['tmp_name'][$key];
+                    $name = $_FILES['service_images']['name'];
+                    $tempName = $_FILES['service_images']['tmp_name'];
                     $extension = pathinfo($name, PATHINFO_EXTENSION);
                     $newName = uniqid('service_', true) . '.' . $extension; // Unique filename
                     $destination = $uploadDir . $newName;
 
                     if (move_uploaded_file($tempName, $destination)) {
                         $uploadedFiles[] = "assets/images/uploads/services_images/" . $newName;
-                    }
-                }                                                   
+                    }            
 
                 // Save the file paths to the database (as JSON for multiple files)
                 if (!empty($uploadedFiles)) {
@@ -110,6 +109,7 @@ class Serve{
 
             // Update repair data into the database
             $res = $service->update($_POST['service_id'], $arr, 'service_id');
+
             if ($res) {
                 // Set flash message in session
                 $_SESSION['flash_message'] = 'Service created successfully!';
@@ -118,15 +118,22 @@ class Serve{
                 // Handle failure (e.g., insert failed)
                 $_SESSION['flash_message'] = 'Failed to create service. Please try again.';
             }
-            // Ensure the form page is loaded after submission
-            $this->view('agent/addnewrepair');
+            $service2 = $service->where(['service_id' => $_POST['service_id']])[0];
+            $this->view('agent/editrepairing', ['service1' => $service2]);
+            
         }
     }
     
-    
-
     public function delete() {
 
+    }
+
+
+    // service unit retrieve for customer
+    public function serviceUnit($service_id) {
+        $service = new Services;
+        $service = $service->where(['service_id' => $service_id])[0];
+        $this->view('customer/repairUnit', ['service' => $service]);
     }
 
 }

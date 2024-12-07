@@ -1,12 +1,15 @@
 .filter-container-flex-start {
     display: flex;
     flex-direction: row;
-    gap: 10px;
-    width: 97%;
+    gap: 40px;
+    width: inherit;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-around;
     color: var(--dark-grey-color);
-    padding-left: 20px;
+    padding: 0 20px;
+    background-color: var(--white-color);
+    border-radius: 10px;
+    margin: 10px 5px ;
 }
 
 .width-100 {
@@ -27,7 +30,7 @@
     width: 150px;
 }
 
-.content_wrapper{
+.content_wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -46,7 +49,7 @@
     font-family: "Outfit", sans-serif;
 }
 
-.employee-details-container .listing-table-for-customer-payments tr input{
+.employee-details-container .listing-table-for-customer-payments tr input {
     width: 90%;
     height: 100%;
     border: none;
@@ -55,6 +58,7 @@
     font-family: "Outfit", sans-serif;
     font-size: 17px;
 }
+
 /* 
 .employee-details-container .listing-table-for-customer-payments tr input{
     border: none;
@@ -64,7 +68,7 @@
 
 .replyBoxLabel,
 .replyBoxSpan {
-    transition:.3s ease;
+    transition: .3s ease;
 }
 
 /* 
@@ -131,7 +135,7 @@ a .management-card .management-icon img {
 }
  */
 
- .management-cards-container {
+.management-cards-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -142,7 +146,7 @@ a .management-card .management-icon img {
     gap: 0px;
 }
 
-.management-cards-container a{
+.management-cards-container a {
     text-decoration: none;
     width: 100%;
     height: auto;
@@ -158,46 +162,56 @@ a .management-card .management-icon img {
     width: 90%;
     height: 70%;
     margin: 10px 0;
-    gap: 0; /* Added gap between cards */
+    gap: 0;
+    /* Added gap between cards */
 }
 
 
 a .management-card {
     background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));
     width: 100%;
-    height: 88%; /* Adjust height */
-    border-radius: 15px; /* Increase border-radius to match the rounded corners */
+    height: 88%;
+    /* Adjust height */
+    border-radius: 15px;
+    /* Increase border-radius to match the rounded corners */
     display: flex;
     flex-direction: row;
     box-sizing: border-box;
     align-items: center;
     justify-content: space-between;
     padding: 20px;
-    box-shadow: var(--box-shadow-form); /* Increased shadow for more depth */
+    box-shadow: var(--box-shadow-form);
+    /* Increased shadow for more depth */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative; /* Allows for absolute positioning if necessary */
+    position: relative;
+    /* Allows for absolute positioning if necessary */
     text-decoration: none;
 }
 
 a .management-card:hover {
-    transform: translateY(-5px); /* Higher hover effect */
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+    transform: translateY(-5px);
+    /* Higher hover effect */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    /* Stronger shadow on hover */
 }
 
 a .management-card .management-text h2 {
     text-decoration: none;
-    font-size: 1.6em; /* Increase font size */
+    font-size: 1.6em;
+    /* Increase font size */
     color: var(--white-color);
     margin: 0;
 }
 
 a .management-card .management-icon img {
-    width: 100px; /* Larger image size */
+    width: 100px;
+    /* Larger image size */
     height: auto;
 }
 
 .management-icon {
-    margin-left: 10px; /* Add margin for space between text and image */
+    margin-left: 10px;
+    /* Add margin for space between text and image */
 }
 
 /* Media Query for smaller screens */
@@ -209,25 +223,29 @@ a .management-card .management-icon img {
     .management-card-container-sub {
         flex-direction: column;
         width: 100%;
-        gap: 15px; /* Reduce gap on smaller screens */
+        gap: 15px;
+        /* Reduce gap on smaller screens */
     }
 
     .management-card {
         width: 90%;
-        height: 130px; /* Adjust height for mobile */
+        height: 130px;
+        /* Adjust height for mobile */
         padding: 20px;
     }
 
     .management-card .management-text h2 {
-        font-size: 1.4em; /* Adjust text size for mobile */
+        font-size: 1.4em;
+        /* Adjust text size for mobile */
     }
 
     .management-card .management-icon img {
-        width: 80px; /* Adjust image size for mobile */
+        width: 80px;
+        /* Adjust image size for mobile */
     }
 }
 
-.dashboard .border-button-sm{
+.dashboard .border-button-sm {
     padding: 5px 10px;
     border-radius: 30px;
     font-size: 0.8rem;
@@ -235,7 +253,7 @@ a .management-card .management-icon img {
     min-width: 80px;
 }
 
-.AddnewAgentform{
+.AddnewAgentform {
     padding: 5px;
 }
 
@@ -277,7 +295,7 @@ a .management-card .management-icon img {
     /* Make it fully visible */
 }
 
-.SearchBox{
+.SearchBox {
     position: absolute;
     left: 25%;
     top: 27%;
@@ -293,39 +311,233 @@ a .management-card .management-icon img {
     font-family: "Outfit", sans-serif;
 }
 
-.SearchBox .user-details  {
+.SearchBox .user-details {
     width: 90%;
 }
-.SearchBox .user-details  .input-group-aligned{
-    gap:30px;
+
+.SearchBox .user-details .input-group-aligned {
+    gap: 30px;
 }
 
-.searchUserForm{
-    display: none; 
+.searchUserForm {
+    display: none;
     height: 600px;
 }
 
-.profile_pic_large{
-    width: 250px; /* Avatar size */
-    height: 250px; 
+.profile_pic_large {
+    width: 250px;
+    /* Avatar size */
+    height: 250px;
+    border-radius: 50%;
+    /* Circular avatar */
+    object-fit: cover;
+    /* Fit avatar inside circle */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    /* Avatar shadow */
+}
+
+.profile_pic_mediam{
+    width: 100px; /* Avatar size */
+    height: 100px; 
     border-radius: 50%; /* Circular avatar */
     object-fit: cover; /* Fit avatar inside circle */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Avatar shadow */
 }
 
-.input-group .left_details{
+.profile_pic_mediam{
+    width: 100px; /* Avatar size */
+    height: 100px; 
+    border-radius: 50%; /* Circular avatar */
+    object-fit: cover; /* Fit avatar inside circle */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Avatar shadow */
+}
+
+.input-group .left_details {
     flex: 3;
 }
+
 .input-group .right_details {
     flex: 1;
     align-items: center;
     justify-content: space-between;
     display: flex;
     flex-direction: column;
-    padding: 2vh 2px ;
-    
+    padding: 2vh 2px;
+    gap: 30px;
+
 }
 
-.manager_form_wrapper{
+.manager_form_wrapper {
     margin: 10px 5px;
+}
+
+.finance_card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/** Manager management home */
+.MM__cards_container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 20px;
+    justify-content: center;
+}
+
+.MM__cards_container a .MM__text h2 {
+    text-decoration: none;
+}
+
+.MM__cards {
+    width: 230px;
+    height: 270px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: var(--white-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-form);
+    font-family: "Outfit", sans-serif;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.MM__img {
+    width: 200px;
+    height: 200px;
+    margin-bottom: 10px;
+}
+
+.MM__text {
+    text-align: center;
+    font-size: 1.2em;
+    /* color: var(--dark-grey-color); */
+    color: var(--primary-color) !important;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+.MM__cards_container a {
+    text-decoration: none;
+    /* Removes underline */
+    color: inherit;
+    /* Inherits color from parent container */
+}
+
+.MM__cards_container a:hover {
+    text-decoration: none;
+    /* Ensures no underline on hover */
+}
+
+.MM__cards:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    /* Stronger shadow on hover */
+}
+
+
+.fixed_width_for_label {
+    width: 100px !important;
+}
+
+.small_margin {
+    margin: 5px !important;
+}
+
+
+
+
+/** finance management css */
+.FM__salary_container{
+    display: grid;
+    grid-template-columns: 1fr 2fr 3fr 3fr;
+    padding: 20px 10px;
+    gap: 10px;
+    background-color: var(--white-color);
+    border-radius: 14px;
+    /* max-width: 1200px; */
+    margin: 0 5px;
+}
+
+.FM__columns{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+    /* padding: 0 20px; */
+}
+
+.FM__columns_img{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    margin: 10px;
+}
+
+.FM__columns h3{
+    color: var(--black-color);
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.FM__main_container{
+    margin-top:10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    /* filter: blur(10px); */
+}
+
+.FM__popup_menu{
+    position: absolute;
+    top: 60%;
+    right: 40%;
+    max-width: 600px;
+    max-height: 400px;
+    transform: translate(50%, -50%);
+    display: inline-flex;
+    gap: 10px;
+    padding: 20px 30px;
+    background-color: var(--white-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-form);
+    z-index: 1;
+}
+
+.FM_popup_img{
+    text-align: center;
+}
+
+.blurred {
+    filter: blur(10px);
+}
+
+
+/** compare update */
+.not-equal{
+    background-color: rgba(var(--primary-blue-rgb), 0.2)!important;
+    color: var(--primary-blue);
+}
+
+.CP__button_container{
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+}
+
+.CP__buttons{
+    display: inline-flex;
+    justify-content: flex-end;
+    padding: 0 40px;
+    gap: 20px;
 }

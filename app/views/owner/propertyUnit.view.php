@@ -1,9 +1,10 @@
 <?php require_once 'ownerHeader.view.php'; ?>
+<?php !empty($_SESSION['status']) ? $status = $_SESSION['status'] : "" ?>
 
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/property/propertylisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/property/propertyListing"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2><?= $property->name ?></h2>
                 <p><span>Maintained By: </span>Agent's Name</p>
@@ -11,16 +12,24 @@
         </div>
         <div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/financialReportUnit/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Financial Report</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/reportProblem/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Report a Problem</span>
             </div>
         </div>
     </div>
 </div>
+
+<div class="errors" style="display: <?= !empty($status) ? 'block' : 'none'; ?>; background-color: #b5f9a2;">
+    <?php if (!empty($status)): ?>
+        <p><?= $status;  ?></p>
+    <?php endif; ?>
+    <?php $_SESSION['status'] = '' ?>
+</div>
+
 
 <div class="property-unit-container">
 
@@ -49,9 +58,9 @@
                 <?php require __DIR__ . '/../components/reviewfiled1.php'; ?>
             <?php endfor; ?>
         </div>
-        
-        
-        
+
+
+
     </div>
 
     <div class="property-details-section">
@@ -97,16 +106,16 @@
                 <span class="input-label-small">Year Built:</span><span class="input-field-small"><?= $property->year_built ?></span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">Monthly Rent:</span><span class="input-field-small">LKR 20000</span>
+                <span class="input-label-small">Monthly Rent:</span><span class="input-field-small"><?= $property->rent_on_basis ?></span>
             </div>
         </div>
 
         <div class="input-group">
             <div class="input-group">
-                <span class="input-label-small">Units:</span><span class="input-field-small">4</span>
+                <span class="input-label-small">Units:</span><span class="input-field-small"><?= $property->units ?></span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">Size(square feet):</span><span class="input-field-small">LKR <?= $property->rent_on_basis ?></span>
+                <span class="input-label-small">Size(square feet):</span><span class="input-field-small"><?= $property->size_sqr_ft ?></span>
             </div>
         </div>
 
@@ -123,14 +132,16 @@
         <p class="input-field-small more-padding"><?= $property->floor_plan ?></p>
 
         <div class="flex-buttons-space-between">
-            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/updateProperty/<?= $property->property_id ?>'">Edit Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>'">Edit Property</button>
+            <!-- <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>'">Edit Property</button> -->
             <!--Should be fixed later when property table done-->
             <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
-            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/delete/<?= $property->property_id ?>'">Remove Property</button>
+            <!-- <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/delete/<?= $property->property_id ?>'">Remove Property</button> -->
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/property/dropProperty/<?= $property->property_id ?>'">Remove Property</button>
         </div>
 
     </div>
-    
+
 </div>
 
 

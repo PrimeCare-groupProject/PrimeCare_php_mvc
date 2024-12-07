@@ -1,6 +1,7 @@
 <?php require 'customerHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>occupied Properties</h2>
 </div>
 
@@ -56,7 +57,7 @@
             <div class="button-group">
                 <button class="primary-btn green-solid">Proceed to pay</button>
                 <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/reportProblem/'">Repairs</button>
-                <button class="primary-btn red-solid" onclick="window.location.href='<?= ROOT ?>/dashboard/leaveProperty/28'">Leave</button>
+                <button class="primary-btn red-solid" onclick="window.location.href='<?= ROOT ?>/dashboard/leaveProperty/35'">Leave</button>
             </div>
         </div>
     </div>

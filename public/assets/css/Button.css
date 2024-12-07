@@ -70,8 +70,9 @@
     /* width: 100%; */
     max-width: 200px;
     min-width: 150px;
-    background-color: var(--primary-color);
-    color: var(--white-color);
+    background-color: transparent;
+    color: var(--primary-color);
+    border-right: 5px solid var(--primary-color);
 }
 
 .small-btn {
@@ -146,6 +147,11 @@
     background-color: rgba(var(--primary-color-rgb), 0.20);
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
+}
+
+.orange:hover{
+    background-color: rgba(var(--primary-color-rgb), 0.80);
+    color: var(--white-color);
 }
 
 .more-margin {

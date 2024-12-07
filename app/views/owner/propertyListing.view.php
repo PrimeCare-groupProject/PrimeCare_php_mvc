@@ -1,6 +1,8 @@
 <?php require_once 'ownerHeader.view.php'; ?>
+<?php !empty($_SESSION['status']) ? $status = $_SESSION['status'] : "" ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>properties</h2>
     <div class="flex-bar">
         <div class="search-container">
@@ -14,10 +16,14 @@
         </div>
     </div>
 </div>
-<!-- 
-<div class="success-msg-container">
-    <p class="success-msg"><?= $property->success['insert'] ?? '' ?></p>
-</div> -->
+
+
+<div class="errors" style="display: <?= !empty($status) ? 'block' : 'none'; ?>; background-color: #b5f9a2;">
+    <?php if (!empty($status)): ?>
+        <p><?= $status;  ?></p>
+    <?php endif; ?>
+    <?php $_SESSION['status'] = '' ?>
+</div>
 
 <div class="listing-the-property">
     <!-- Property Listings -->
@@ -26,8 +32,9 @@
             <?php foreach ($properties as $property): ?>
                 <div class="property-card">
                     <div class="property-image">
-                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt="Property Image"></a> -->
-                        <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt="Property Image"></a>
+                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
+                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
+                        <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a>
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
@@ -49,14 +56,14 @@
                         </div>
                         <div>
                             <p class="property-description">
-                            <?= $property->description ?>
+                                <?= $property->description ?>
                             </p>
                         </div>
                         <div class="property-actions">
                             <a href="#" class="change-status">change Pending</a>
                             <div>
-                                <a href="<?=ROOT?>/dashboard/updateProperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="<?= ROOT ?>/property/delete/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/dashboard/dropProperty/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
                             </div>
                         </div>
                     </div>

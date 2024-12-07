@@ -36,4 +36,13 @@ trait controller
         redirect('home');
         exit;
     }
+    
+    public function switchUser() {
+        if (isset($_SESSION['customerView'])) {
+            $_SESSION['customerView'] = !$_SESSION['customerView'];
+        } else {
+            $_SESSION['customerView'] = true;
+        }
+        redirect('dashboard');
+    }
 }

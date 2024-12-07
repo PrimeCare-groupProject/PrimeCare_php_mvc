@@ -336,6 +336,7 @@ body.popup-active .blur-container {
 #specific-page * {
   box-sizing: border-box;
 }
+
 #specific-page body {
   display: flex;
   justify-content: center;
@@ -345,13 +346,14 @@ body.popup-active .blur-container {
   font-family: "Roboto", sans-serif;
   color: #10182f;
 }
+
 #specific-page .container {
     flex-direction: column;
     margin: 0px;
     cursor: pointer;
 }
 #specific-page .card1 {
-  margin: 10px;
+  margin: 0px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
@@ -368,7 +370,8 @@ body.popup-active .blur-container {
   flex-direction: column;
   align-items: flex-start;
   padding-left: 20px;
-  min-height: 195px;
+  min-height: 220px;
+  width: 93%;
 }
 
 #specific-page .tag {
@@ -416,7 +419,7 @@ body.popup-active .blur-container {
 
 .limited-paragraph {
     display: -webkit-box;
-    -webkit-line-clamp: 5;
+    line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -461,7 +464,7 @@ body.popup-active .blur-container {
 }
 
 .booking-container h2 {
-    color: #c0392b;
+    color: var(--primary-color);
     margin: 10px 0;
     margin-top: 10px;
 }
@@ -496,11 +499,11 @@ body.popup-active .blur-container {
     max-width: 150px;
     min-width: 100px;
     padding: 10px 20px;
-    background-color: rgb(80, 80, 238);
-    color: lightblue;
+    background-color: var(--primary-color);
+    color: var(--white-color);
     font-size: 14px;
     font-weight: 500;
-    border: 2px solid rgb(80, 80, 238);
+    border: 2px solid var(--primary-color);
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -508,8 +511,7 @@ body.popup-active .blur-container {
 }
 
 .primary-btn1:hover {
-    background-color: lightblue;
-    color: #10182f;
+    background-color: var(--primary-color-hover);
 }
 
 .input-field1 {
@@ -524,4 +526,103 @@ body.popup-active .blur-container {
     box-sizing: border-box;
     transition: border-color 0.3s ease;
     font-family: 'outfit', sans-serif;
+}
+
+.input-field2 {
+    width: 100%;
+    padding: 5px;
+    margin: 5px 0;
+    font-size: 14px;
+    border: 1px solid var(--input-border-color);
+    background-color: var(--background-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+.input-label-aligend1{
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark-grey-color);
+    display: block;
+    text-align: left;
+    width: 150px;
+}
+
+.task-input-field {
+    width: 100%;
+    padding: 5px;
+    margin: 5px 0;
+    font-size: 14px;
+    border: 1px solid var(--input-border-color);
+    background-color: var(--background-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+.task-input-label-aligend{
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark-grey-color);
+    display: block;
+    text-align: left;
+    width: 150px;
+}
+
+.input-group-new {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 95%;
+    padding-right: 5px;
+    min-width: 100px;
+    /* margin: 10px; */
+}
+
+.approval-left-content1 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80%;
+}
+
+.approval-serPro-img{
+    height: 125px;
+    width: 125px;
+    margin-top: 15px;
+    margin-left: 37px;
+
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.input-label-aligend2{
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--dark-grey-color);
+    display: block;
+    text-align: left;
+    width: 150px;
+}
+
+.container1 {
+    display: flex;
+    grid-template-columns: 300px 1fr;
+    padding-top: 15px;
+    padding-left: 12px;
+    padding-bottom: 10px;
+    max-width: 1440px;
+    margin: 0 auto;
+    font-family: 'outfit', sans-serif;
+}
+
+.input-group4 {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 95%;
+    /* margin: 10px; */
 }

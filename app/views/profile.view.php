@@ -1,21 +1,23 @@
 <?php 
-    $type = $user->user_lvl;
-    if($type == 0){
+    if(isset($_SESSION['customerView']) && $_SESSION['customerView'] == true ){
         require_once 'customer/customerHeader.view.php'; 
+    }else{        
+        $type = $user->user_lvl;
+        if($type == 0){
+            require_once 'customer/customerHeader.view.php'; 
+        }else if($type == 1){
+            require_once 'owner/ownerHeader.view.php'; 
 
-    }
-    if($type == 1){
-        require_once 'owner/ownerHeader.view.php'; 
-
-    }else if($type == 2){
-        require_once 'serviceProvider/serviceProviderHeader.view.php'; 
-        
-    }else if($type == 3){
-        require_once 'agent/agentHeader.view.php'; 
-        
-    }else if($type == 4){
+        }else if($type == 2){
+            require_once 'serviceProvider/serviceProviderHeader.view.php'; 
+            
+        }else if($type == 3){
+            require_once 'agent/agentHeader.view.php'; 
+            
+        }else if($type == 4){
         require_once 'manager/managerHeader.view.php'; 
         
+        }
     }
 ?>
 <div class="user_view-menu-bar">

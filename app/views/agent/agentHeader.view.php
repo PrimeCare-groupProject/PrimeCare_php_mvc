@@ -16,9 +16,11 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/repairCard.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/agent.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <title>PrimeCare</title>
 </head>
@@ -29,31 +31,32 @@
             <a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a>
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
             <!-- toggle button -->
-            <div class="toggle_wrapper"> 
+            <form method="post" class="toggle_wrapper" action="<?= ROOT ?>/dashboard/switchUser">
                 <div class="toggle-button tooltip-container">
                     <span class="tooltip-text">Change To Customer Mood</span>
                     <!-- Outer track -->
-                    <div class="toggle-track" id="toggleTrack">
-                    <!-- Inner knob -->
-                    <input type="button" name="toggle_btn" class="toggle-knob"></input>
+                    <div class="toggle-track" id="toggleTrack" onclick="submitToggleForm()">
+                        <!-- Inner knob -->
+                        <div class="toggle-knob"></div>
+                        <input type="hidden" name="toggle_state" id="toggleState" value="<?= isset($_SESSION['toggle_state']) ? $_SESSION['toggle_state'] : '0' ?>">
+                        <input type="submit" name="toggle_btn" value="1" hidden>
                     </div>
                 </div>
-                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url)?>" alt="Profile Picture" class="header-profile-picture"></a>
-            </div>
+                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="" class="header-profile-picture"></a>
+            </form>
         </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><img src="<?= ROOT ?>/assets/images/dashboard.png" alt="">Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/preInspection"><button class="btn"><img src="<?= ROOT ?>/assets/images/preinspection.png " alt="">Pre Inspections</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Requested Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><img src="<?= ROOT ?>/assets/images/Taskmanagement.png " alt="">Bookings</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><img src="<?= ROOT ?>/assets/images/repairrequests.png " alt="">Inventory</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><img src="<?= ROOT ?>/assets/images/managebookings.png" alt="">Manage Providers</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><img src="<?= ROOT ?>/assets/images/profile.png" alt="">Profile</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/preInspection"><button class="btn"><i class="fa-solid fa-file-contract"></i>Pre Inspections</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><i class="fa-solid fa-list-check"></i>Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><i class="fa-solid fa-inbox"></i>Requested Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/repairings"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><i class="fa-solid fa-house"></i>Bookings</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><i class="fa-solid fa-warehouse"></i>Inventory</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn" style="padding-right:0px;"><i class="fa-solid fa-users-gear"></i>Manage Providers</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
@@ -110,6 +113,22 @@
                     if (window.location.href.includes('profile')) {
                         logoutBtn.style.display = 'block';
                     }
+                });
+                function submitToggleForm() {
+                    document.querySelector('.toggle_wrapper').submit();
+                }
+
+                function displayLoader() {
+                    document.querySelector('.loader-container').style.display = '';
+                    //onclick="displayLoader()"
+                }
+                
+                document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', displayLoader);
+                });
+
+                document.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', displayLoader);
                 });
             </script>
 

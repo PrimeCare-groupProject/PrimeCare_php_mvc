@@ -43,6 +43,91 @@ class User {
             $this->errors['email'] = 'Email is not valid';
         }
 
+        // Optional: Check against allowed domains (if needed)
+        $domain = substr($data['email'], strpos($data['email'], '@') + 1);
+
+        $allowedDomains = [
+            // Professional Email Providers
+            'gmail.com',
+            'outlook.com',
+            'yahoo.com',
+            'hotmail.com',
+            'protonmail.com',
+            'icloud.com',
+        
+            // Tech Companies
+            'google.com',
+            'microsoft.com',
+            'apple.com',
+            'amazon.com',
+            'facebook.com',
+            'twitter.com',
+            'linkedin.com',
+        
+            // Common Workplace Domains
+            'company.com',
+            'corp.com',
+            'business.com',
+            'enterprise.com',
+        
+            // Educational Institutions
+            'university.edu',
+            'college.edu',
+            'school.edu',
+            'campus.edu',
+        
+            // Government and Public Sector
+            'gov.com',
+            'public.org',
+            'municipality.gov',
+        
+            // Startup and Tech Ecosystem
+            'startup.com',
+            'techcompany.com',
+            'innovate.com',
+        
+            // Freelance and Remote Work
+            'freelancer.com',
+            'consultant.com',
+            'remote.work',
+        
+            // Regional and Local Businesses
+            'localbank.com',
+            'regional.org',
+            'cityservice.com',
+        
+            // Healthcare and Medical
+            'hospital.org',
+            'clinic.com',
+            'medical.net',
+        
+            // Non-Profit and NGO
+            'nonprofit.org',
+            'charity.org',
+            'ngo.com',
+        
+            // Creative Industries
+            'design.com',
+            'creative.org',
+            'agency.com',
+        
+            // Personal Domains
+            'me.com',
+            'personal.com',
+            'home.net',
+        
+            // International Email Providers
+            'mail.ru',
+            'yandex.com',
+            'gmx.com',
+            'web.de'
+        ];
+        
+        if (!in_array($domain, $allowedDomains)) {
+            $this->errors['email'] = 'Email domain is not allowed';
+            return false;
+        }
+
         // Validate contact (phone number)
         if (empty($data['contact'])) {
             // var_dump($data['contact']);
@@ -52,12 +137,14 @@ class User {
         }
         
         // Validate password (e.g., minimum 5 characters)
-        if (empty($data['password']) || strlen($data['password']) < 5) {
+        if (!empty($data['password'])) {
+            if (strlen($data['password']) < 5) {
             $this->errors['password'] = 'Password should be at least 5 characters long';
-        }
-        // if confirmation is correct
-        if($data['password'] != $data['confirmPassword']){
+            }
+            // if confirmation is correct
+            if ($data['password'] != $data['confirmPassword']) {
             $this->errors['password'] = 'Passwords do not match';
+            }
         }
 
         // Optionally validate image_URL (if needed)

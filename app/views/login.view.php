@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/login.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <title>PrimeCare</title>
 </head>
@@ -53,6 +54,24 @@
 
         </div>
     </div>
+    <!-- Classic Spinner -->
+    <div class="loader-container" style="display: none;">
+        <div class="spinner-loader"></div>
+    </div>
+
 </body>
 
+<script>
+    function displayLoader() {
+        document.querySelector('.loader-container').style.display = '';
+  // document.querySelector('.loader-container').style.display = 'block';
+    }
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', displayLoader);
+    });
+
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', displayLoader);
+    });
+</script>
 </html>

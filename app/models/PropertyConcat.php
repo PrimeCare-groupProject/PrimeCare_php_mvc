@@ -27,6 +27,7 @@ class PropertyConcat
         'furnished',
         'status',
         'person_id',
+        'agent_id',
         'property_images',
         'property_deed_images',
     ];
