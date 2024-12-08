@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/components.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/forms.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/serviceProvider.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
@@ -39,7 +40,7 @@
                         <input type="submit" name="toggle_btn" value="1" hidden>
                     </div>
                 </div>
-                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile Picture" class="header-profile-picture"></a>
+                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="" class="header-profile-picture"></a>
             </form>
         </div>
         <div class="content-section">
@@ -111,6 +112,20 @@
                 function submitToggleForm() {
                     document.querySelector('.toggle_wrapper').submit();
                 }
+
+                //loader effect
+                function displayLoader() {
+                    document.querySelector('.loader-container').style.display = '';
+                    //onclick="displayLoader()"
+                }
+                
+                document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', displayLoader);
+                });
+
+                document.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', displayLoader);
+                });
             </script>
 
 

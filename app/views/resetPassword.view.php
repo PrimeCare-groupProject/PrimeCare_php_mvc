@@ -67,5 +67,19 @@
         </div>
     </div>
 </body>
+<script>
+    function displayLoader() {
+        document.querySelector('.loader-container').style.display = '';
+        //onclick="displayLoader()"
+    }
+    
+    document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', displayLoader);
+    });
 
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', displayLoader);
+    });
+
+</script>
 </html>

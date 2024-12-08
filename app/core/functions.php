@@ -156,6 +156,13 @@ function get_img($image_url = "", $type = 'user') {
     }else if ($type == 'property'){
         return ROOT . "/assets/images/property.png";
     }	
+    if (empty($image_url)) {
+        if ($type == 'user') {
+            return ROOT . "/assets/images/user.png";
+        } else if ($type == 'property') {
+            return ROOT . "/assets/images/property.png";
+        }
+    }	
     // return ROOT . "/assets/images/user.png";
 }
 
