@@ -32,7 +32,7 @@
             <!-- toggle button -->
             <form method="post" class="toggle_wrapper" action="<?= ROOT ?>/dashboard/switchUser">
                 <div class="toggle-button tooltip-container">
-                    <span class="tooltip-text">Change To Original Mood</span>
+                    <span class="tooltip-text">Change To Customer Mood</span>
                     <!-- Outer track -->
                     <div class="toggle-track" id="toggleTrack" onclick="submitToggleForm()">
                         <!-- Inner knob -->
@@ -114,8 +114,17 @@
                 toggleTrack.addEventListener('click', () => {
                 toggleTrack.classList.toggle('activeToggle');
                 });
-                function submitToggleForm() {
-                    document.querySelector('.toggle_wrapper').submit();
+                
+                 function submitToggleForm() {
+                    const submitBtn = document.querySelector('.toggle_wrapper');
+                    const toggleTrack = document.getElementById('toggleTrack');
+                    
+                    toggleTrack.classList.add('activeToggle');
+                    
+                    setTimeout(() => {
+                        submitBtn.submit();
+                        displayLoader();
+                    }, 300);
                 }
 
                 //loader effect

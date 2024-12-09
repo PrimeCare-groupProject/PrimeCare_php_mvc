@@ -114,8 +114,17 @@
                         logoutBtn.style.display = 'block';
                     }
                 });
+
                 function submitToggleForm() {
-                    document.querySelector('.toggle_wrapper').submit();
+                    const submitBtn = document.querySelector('.toggle_wrapper');
+                    const toggleTrack = document.getElementById('toggleTrack');
+                    
+                    toggleTrack.classList.add('activeToggle');
+                    
+                    setTimeout(() => {
+                        submitBtn.submit();
+                        displayLoader();
+                    }, 300);
                 }
 
                 function displayLoader() {

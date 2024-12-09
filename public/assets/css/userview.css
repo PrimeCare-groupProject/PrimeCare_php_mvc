@@ -680,7 +680,7 @@ textarea .input-field{
     background-color: #ddd;
     border-radius: 17px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 1s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   }
 
@@ -702,11 +702,11 @@ textarea .input-field{
 
   /* Active state styles */
   .toggle-track.activeToggle {
-    transition: transform 0.3s ease;
+    transition: background-color 0.5s ease; /* Increased transition time to 2 seconds */
     background-color: var(--primary-color);
-  }
+    }
 
   .toggle-track.activeToggle .toggle-knob {
     transition: transform 0.3s ease;
-    transform: translateX(26px);
+    transform: translateX(24px);
   }

@@ -478,9 +478,9 @@
         });
 
         document.querySelectorAll('a').forEach(link => {
-            console.log(link);
-
-            link.addEventListener('click', displayLoader);
+            if (!link.getAttribute('href').startsWith('#')) {
+                link.addEventListener('click', displayLoader);
+            }
         });
     </script>
     <div class="loader-container" style="display: none;">

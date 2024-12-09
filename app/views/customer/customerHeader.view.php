@@ -123,8 +123,15 @@
                         document.getElementById('toggleState').value = toggleTrack.classList.contains('activeToggle') ? '1' : '0';
                     });
                 });
+
                 function submitToggleForm() {
-                    document.querySelector('.toggle_wrapper').submit();
+                    const submitBtn = document.querySelector('.toggle_wrapper');
+                    
+                    setTimeout(() => {
+                    const submitBtn = document.querySelector('.toggle_wrapper');
+                        submitBtn.submit();
+                        displayLoader();
+                    }, 300);
                 }
                 //loader effect
                 function displayLoader() {
@@ -139,5 +146,6 @@
                 document.querySelectorAll('a').forEach(link => {
                     link.addEventListener('click', displayLoader);
                 });
+                
             </script>
             <div class="user_view-content_section" id="content-section">

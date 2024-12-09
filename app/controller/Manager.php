@@ -444,9 +444,41 @@ class Manager {
         }
     }
 
-    public function contacts(){
-        $this->view('manager/contacts');
+    public function contacts() {
+        $randomMessages = new RandomMessage;
+        $randomPerson = new RandomPerson;
+    
+        // Fetch all messages with status 1
+        $messages = $randomMessages->where(['status' => 1], []);
+        $groupedMessages = [];
+    
+        if (!empty($messages)) {
+            foreach ($messages as $message) {
+                // Fetch the person details for the message
+                $personDetails = $randomPerson->first(['pid' => $message->pid]);
+                $personDetails->pid = $message->pid;
+    
+                // Initialize the grouped messages for this person if not already done
+                if (!isset($groupedMessages[$message->pid])) {
+                    $groupedMessages[$message->pid] = (object) [
+                        'personDetails' => $personDetails,
+                        'messages' => '', // Use a string variable to store all messages
+                        'count' => 0 // Initialize count variable
+                    ];
+                }
+                if (substr_count($message->message, "\n") > 0) {
+                    $groupedMessages[$message->pid]->count += substr_count($message->message, "\n");
+                }
+                // Append the message content to the string variable
+                $groupedMessages[$message->pid]->messages .= $message->message . "\n";
+                $groupedMessages[$message->pid]->count++; // Increment the count
+            }
+        }
+    
+        // Pass the grouped messages to the view
+        $this->view('manager/contacts', ['messages' => $groupedMessages]);
     }
+    
     
     private function logout(){
         session_unset();
