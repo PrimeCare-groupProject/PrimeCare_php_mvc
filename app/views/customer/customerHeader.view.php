@@ -141,3 +141,11 @@
                 });
             </script>
             <div class="user_view-content_section" id="content-section">
+
+            <?php
+            $flash = $_SESSION['flash'] ?? null;
+            // Show flash messages
+            if(isset($flash)){
+                flash_message($flash['msg'] , $flash['type']);
+            }
+            ?>
