@@ -12,6 +12,8 @@ body {
     height: 100vh;
     background-color: var(--background-color);
     font-family: 'Poppins', Arial, sans-serif;
+    position: relative;
+    overflow: hidden;
 }
 
 .header-line {
