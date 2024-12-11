@@ -16,6 +16,13 @@ class Owner
 
     public function index()
     {
+        // $flash = [
+        //     'msg' => "This is the message",
+        //     'type' => "success"
+        // ];
+        // $_SESSION['flash'] = $flash;
+
+
         $this->view('owner/dashboard', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -27,8 +34,8 @@ class Owner
     {
         $this->view('owner/dashboard', [
             'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'errors' => $_SESSION['errors'],
+            'status' => $_SESSION['status'] 
         ]);
     }
 
@@ -72,7 +79,7 @@ class Owner
     {
         $propertyImage = new PropertyImageModel;
         // Fetch all images associated with the property
-        $images = $propertyImage->where(['property_id' =>$propertyId]);
+        $images = $propertyImage->where(['property_id' => $propertyId]);
         show($images);
         foreach ($images as $image) {
             $imagePath = ROOTPATH . "public/assets/images/uploads/property_images/" . $image->image_url;
@@ -108,7 +115,7 @@ class Owner
         $this->deletePropertyDocument($propertyId);
 
         // Delete the property
-        $property->delete($propertyId , 'property_id');
+        $property->delete($propertyId, 'property_id');
 
         $_SESSION['status'] = 'Property deleted successfully!';
 
@@ -116,14 +123,15 @@ class Owner
         redirect('dashboard/propertyListing');
     }
 
-    private function updateProperty($propertyId){
+    private function updateProperty($propertyId)
+    {
         $property = new PropertyConcat;
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         //show($propertyUnit);
         $this->view('owner/updateProperty', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? '' ,
+            'status' => $_SESSION['status'] ?? '',
             'property' => $propertyUnit
         ]);
     }
@@ -133,26 +141,26 @@ class Owner
         if ($a == 'addproperty') {
             $this->addProperty($b = '', $c = '', $d = '');
             return;
-        // } else if ($a == 'propertyunit') {
-        //     $this->propertyUnit($b = '', $c = '', $d = '');
-        //     return;
-        } else if ($a == "repairlisting"){
+            // } else if ($a == 'propertyunit') {
+            //     $this->propertyUnit($b = '', $c = '', $d = '');
+            //     return;
+        } else if ($a == "repairlisting") {
             $this->repairListing($b = '', $c = '', $d = '');
             return;
-        } else if ($a == "servicerequest"){
+        } else if ($a == "servicerequest") {
             $this->serviceRequest($b = '', $c = '', $d = '');
             return;
-        } else if ($a == "updateproperty"){
-            $this->updateProperty($propertyId=$b);
+        } else if ($a == "updateproperty") {
+            $this->updateProperty($propertyId = $b);
             return;
-        } else if ($a == "propertyunitowner"){
-            $this->propertyUnitOwner($propertyId=$b);
+        } else if ($a == "propertyunitowner") {
+            $this->propertyUnitOwner($propertyId = $b);
             return;
-        } else if ($a == "financialreportunit"){
-            $this->financialReportUnit($propertyId=$b);
+        } else if ($a == "financialreportunit") {
+            $this->financialReportUnit($propertyId = $b);
             return;
-        } else if ($a == "reportproblem"){
-            $this->reportProblem($propertyId=$b);
+        } else if ($a == "reportproblem") {
+            $this->reportProblem($propertyId = $b);
             return;
         }
 
@@ -169,12 +177,12 @@ class Owner
 
         $property = new PropertyModel; // Initialize Property instance
 
-        
+
 
         $this->view('owner/propertyUnit', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? '' , 
+            'status' => $_SESSION['status'] ?? '',
             $property
         ]);
     }
@@ -301,11 +309,10 @@ class Owner
 
             redirect('dashboard/profile');
             exit;
-
-        }else{
+        } else {
             $user = new User();
             $availableUser = $user->first(['email' => $email]);
-            if(isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid){
+            if (isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid) {
                 $errors[] = "Email already exists.";
                 $_SESSION['errors'] = $errors;
                 $_SESSION['status'] = $status;
@@ -314,7 +321,7 @@ class Owner
                 exit;
             }
         }
-        if(!$user->validate($_POST)){
+        if (!$user->validate($_POST)) {
             $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
             $_SESSION['errors'] = $errors;
             $_SESSION['status'] = $status;
@@ -395,7 +402,7 @@ class Owner
         redirect('dashboard/profile');
         exit;
     }
-    
+
     private function reportProblem()
     {
         $this->view('owner/reportProblem', [
@@ -405,7 +412,8 @@ class Owner
         ]);
     }
 
-    private function financialReportUnit(){
+    private function financialReportUnit()
+    {
         $this->view('owner/financialReportUnit', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -413,7 +421,8 @@ class Owner
         ]);
     }
 
-    public function showReviews(){
+    public function showReviews()
+    {
         $this->view('owner/showReviews', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -421,6 +430,3 @@ class Owner
         ]);
     }
 }
-
-
-
