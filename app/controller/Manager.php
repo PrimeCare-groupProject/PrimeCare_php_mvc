@@ -220,18 +220,19 @@ class Manager {
                 $this->logout();
             }
         $this->handleProfileSubmission();
-        return;
+        // return;
         }
-
+        echo "profile method";
         $this->view('profile', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? 'hello world'
         ]);
 
         // Clear session data after rendering the view
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
+        return;
     }
 
     private function handleProfileSubmission()
@@ -256,16 +257,23 @@ class Manager {
 
         }else{
             $user = new User();
+            // var_dump($email);
             $availableUser = $user->first(['email' => $email]);
-            if(isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid){
-                $errors[] = "Email already exists.";
-                $_SESSION['errors'] = $errors;
-                $_SESSION['status'] = $status;
+            // echo "evailable usrs are ";
+            // die();
+            if($availableUser){
+                if( $availableUser->pid != $_SESSION['user']->pid){
+                    $errors[] = "Email already exists.Use another one.";
+                    $_SESSION['errors'] = $errors;
+                    $_SESSION['status'] = $status;
+    
+                    redirect('dashboard/profile');
+                    exit;
 
-                redirect('dashboard/profile');
-                exit;
+                }
             }
         }
+
         if(!$user->validate($_POST)){
             $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
             $_SESSION['errors'] = $errors;
@@ -315,15 +323,19 @@ class Manager {
                 'lname' => $lastName,
                 'email' => $email,
                 'contact' => $contactNumber,
-                'image_url' => $targetFile ?? null
+                'image_url' => $targetFile ?? 'user.png'
             ], 'pid');
 
             if ($updated) {
                 // Delete old profile picture if a new one is uploaded
                 if (isset($targetFile) && !empty($_SESSION['user']->image_url)) {
                     $oldPicPath = $targetDir . $_SESSION['user']->image_url;
-                    if (file_exists($oldPicPath)) {
-                        unlink($oldPicPath);
+                    try {
+                        if (file_exists($oldPicPath)) {
+                            unlink($oldPicPath);
+                        }
+                    } catch (Exception $e) {
+                        $status = "Profile updated, but failed to delete old profile picture: " . $e->getMessage();
                     }
                 }
                 // Update session data
@@ -343,10 +355,11 @@ class Manager {
         // Store errors or success in session and redirect
         $_SESSION['errors'] = $errors;
         $_SESSION['status'] = $status;
-
+        // echo "handleProfilesubmission";
         redirect('dashboard/profile');
         exit;
     }
+    
 
     public function managementHome($a = '', $b = '', $c = '', $d = ''){
         // echo $a . "<br>";

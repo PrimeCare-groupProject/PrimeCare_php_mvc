@@ -15,7 +15,7 @@
             require_once 'agent/agentHeader.view.php'; 
             
         }else if($type == 4){
-        require_once 'manager/managerHeader.view.php'; 
+            require_once 'manager/managerHeader.view.php'; 
         
         }
     }
@@ -71,11 +71,11 @@
 
             <h5 class="editText" id="editText" style="display: none;">click profile picture to edit !</h5>
             <div class="errors" 
-                style="display: <?= !empty($errors) || !empty($message) ? 'block' : 'none'; ?>; 
+                style="display: <?= !empty($errors) || !empty($status) ? 'block' : 'none'; ?>; 
                         background-color: <?= !empty($errors) ? '#f8d7da' : (!empty($status) ? '#b5f9a2' : '#f8d7da'); ?>;">
-                <?php if (!empty($errors)): ?>
+                <?php if (!empty($_SESSION['errors'])): ?>
                     <p><?= $errors[0] ?? '' ?></p>
-                <?php elseif (!empty($status)): ?>
+                <?php elseif (!empty($_SESSION['status'])): ?>
                     <p><?= $status ;  ?></p>
                 <?php endif; ?>
             </div>
