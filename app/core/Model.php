@@ -5,8 +5,11 @@ use function PHPSTORM_META\type;
 defined('ROOTPATH') or exit('Access denied');
 
 trait Model{//similar to a class but can be inherited by other classes
-    use Database;
+    public $instance;
 
+    public function __construct() {
+        $this->instance = Database::getInstance();
+    }
     // public $table = 'users'; //table name which can inherit
     // public $order_column = "id";
     
@@ -48,7 +51,7 @@ trait Model{//similar to a class but can be inherited by other classes
     // Helper method to dynamically fetch column names of the table
     private function getTableColumns() {
         $query = "SHOW COLUMNS FROM $this->table";
-        $result = $this->query($query);
+        $result = $this->insert->query($query);
     
         if ($result) {
             return array_map(function ($column) {
@@ -59,6 +62,7 @@ trait Model{//similar to a class but can be inherited by other classes
     
         return [];
     }
+
     public function findAll(){//search rows depending on the data passed
         $query = "
             select * 
@@ -68,17 +72,18 @@ trait Model{//similar to a class but can be inherited by other classes
             offset $this->offset
             ";
         // show($query);
-        return $this->query($query);
+        return $this->instance->query($query);
     }
     
     public function getTotalCount() {
         $query = "SELECT COUNT(*) as total FROM $this->table";
-        $result = $this->query($query);
+        $result = $this->instance->query($query);
         if ($result) {
             return $result[0]->total;
         }
         return 0;
     }
+
     //with searchterm also included
     public function getTotalCountWhere($data = [], $data_not = [], $searchTerm = "") {
         // Initialize the query and parameters
@@ -130,7 +135,7 @@ trait Model{//similar to a class but can be inherited by other classes
     
         // Execute the query
         $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
-        $result = $this->query($query, $parameters);
+        $result = $this->instance->query($query, $parameters);
     
         if ($result) {
             return $result[0]->total;
@@ -138,7 +143,6 @@ trait Model{//similar to a class but can be inherited by other classes
     
         return 0;
     }
-    
     
     //with searchterm also included
     public function where($data , $data_not = [], $searchTerm = "") {
@@ -182,7 +186,7 @@ trait Model{//similar to a class but can be inherited by other classes
         $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
         
         // Execute the query and return the result
-        return $this->query($query, $parameters);
+        return $this->instance->query($query, $parameters);
     }
 
     
@@ -224,7 +228,7 @@ trait Model{//similar to a class but can be inherited by other classes
         $query .= " limit $this->limit offset $this->offset";
         $data = array_merge($data, $data_not);
         // show($query);
-        $result = $this->query($query, $data);
+        $result = $this->instance->query($query, $data);
         if($result){
             return $result[0];
         }
@@ -245,7 +249,7 @@ trait Model{//similar to a class but can be inherited by other classes
                 }
             }
         }
-        $results = $this->query($query, $data);
+        $results = $this->instance->query($query, $data);
         // show($results);
         return $results ? true : false ;
 
@@ -264,7 +268,7 @@ trait Model{//similar to a class but can be inherited by other classes
         
         // Bind the ID to the data array
         $data[$id_column] = $id;        
-        $result = $this->query($query, $data);        
+        $result = $this->instance->query($query, $data);        
         // Return true on success, false on failure
         return $result !== false;
     }
@@ -275,7 +279,7 @@ trait Model{//similar to a class but can be inherited by other classes
             delete from $this->table 
             where $id_column = :$id_column";
         // show($query);
-        $result = $this->query($query, $data);
+        $result = $this->instance->query($query, $data);
         
         return $result !== false;
     }
