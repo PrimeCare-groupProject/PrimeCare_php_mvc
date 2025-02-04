@@ -35,7 +35,7 @@ class Owner
         $this->view('owner/dashboard', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'],
-            'status' => $_SESSION['status'] 
+            'status' => $_SESSION['status']
         ]);
     }
 
@@ -161,6 +161,12 @@ class Owner
             return;
         } else if ($a == "reportproblem") {
             $this->reportProblem($propertyId = $b);
+            return;
+        } else if ($a == "dropProperty") {
+            $this->dropProperty($propertyId = $b);
+            return;
+        } else if ($a == "create") {
+            $this->create($propertyId = $b);
             return;
         }
 
@@ -428,5 +434,112 @@ class Owner
             'errors' => $_SESSION['errors'] ?? [],
             'status' => $_SESSION['status'] ?? ''
         ]);
+    }
+
+    public function create()
+    {
+        $property = new PropertyModel;
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Validate the form data
+            if (!$property->validateProperty($_POST)) {
+                $this->view('owner/addProperty', ['property' => $property]);
+                return;
+            }
+
+            // Prepare property data for insertion
+            $arr = [
+                'name' => $_POST['name'],
+                'type' => $_POST['type'],
+                'description' => $_POST['description'],
+                'address' => $_POST['address'],
+                'zipcode' => $_POST['zipcode'],
+                'city' => $_POST['city'],
+                'state_province' => $_POST['state_province'],
+                'country' => $_POST['country'],
+                'year_built' => $_POST['year_built'],
+                'rent_on_basis' => $_POST['rent_on_basis'] ?? 0,
+                'units' => $_POST['units'] ?? 0,
+                'size_sqr_ft' => $_POST['size_sqr_ft'],
+                'bedrooms' => $_POST['bedrooms'] ?? 0,
+                'bathrooms' => $_POST['bathrooms'] ?? 0,
+                'floor_plan' => $_POST['floor_plan'],
+                'parking' => $_POST['parking'] ?? 'no',
+                'furnished' => $_POST['furnished'] ?? 'no',
+                'status' => $_POST['status'] ?? 'pending',
+                'person_id' => $_SESSION['user']->pid
+            ];
+
+            // Insert property data into the database
+            $res = $property->insert($arr);
+
+            if ($res) {
+                // Get the ID of the last inserted property
+                $propertyId = $property->where(['name' => $_POST['name'], 'address' => $_POST['address']])[0]->property_id;
+
+                // Upload images using the generic function
+                $imageErrors = upload_image(
+                    $_FILES['property_images'],
+                    ROOTPATH . 'public/assets/images/uploads/property_images/',
+                    new PropertyImageModel(),
+                    $propertyId,
+                    [
+                        'allowed_ext' => ['jpg', 'jpeg', 'png'],
+                        'prefix' => 'property',
+                        'url_field' => 'image_url',
+                        'fk_field' => 'property_id'
+                    ]
+                );
+
+                // Upload documents using the same function with different config
+                $documentErrors = upload_image(
+                    $_FILES['property_documents'],
+                    ROOTPATH . 'public/assets/documents/uploads/property_documents/',
+                    new PropertyDocModel(),
+                    $propertyId,
+                    [
+                        'allowed_ext' => ['pdf', 'docx', 'txt'],
+                        'prefix' => 'doc',
+                        'url_field' => 'document_path',
+                        'fk_field' => 'property_id',
+                        'max_size' => 10 * 1024 * 1024 // 10MB
+                    ]
+                );
+
+                // Check for any upload errors
+                if (!empty($imageErrors) || !empty($documentErrors)) {
+                    $property->errors['media'] = array_merge($imageErrors, $documentErrors);
+                    $_SESSION['flash']['msg'] = "Property added failed!";
+                    $_SESSION['flash']['type'] = "error";
+                    $this->view('owner/addProperty', ['property' => $property]);
+                    return;
+                }
+
+                // Redirect on success
+                $_SESSION['flash']['msg'] = "Property added successfully!";
+                $_SESSION['flash']['type'] = "success";
+                redirect('property/propertyListing');
+            } else {
+                $property->errors['insert'] = 'Failed to add Property. Please try again.';
+                $this->view('property/propertyListing', ['property' => $property]);
+            }
+        } else {
+            $this->view('property/propertyListing', ['property' => $property]);
+        }
+    }
+
+    // drop property
+    public function dropProperty($propertyId)
+    {
+        $property = new PropertyModel;
+        if ($property->update($propertyId, ['status' => 'inactive'], 'property_id')) {
+            $_SESSION['flash']['msg'] = 'Property dropped successfully!';
+            $_SESSION['flash']['type'] = 'success';
+        } else {
+            $_SESSION['flash']['msg'] = 'Failed to drop property. Please try again.';
+            $_SESSION['flash']['type'] = 'error';
+        }
+        // Redirect to the property listing page
+        redirect('property/propertyListing');
     }
 }
