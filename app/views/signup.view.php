@@ -24,10 +24,17 @@
             <form action="<?= ROOT ?>/signup" method="post" class="signup-form__fields">
                 <label for="email" class="signup-form__label">Email Address</label>
                 <input type="email" name="email" id="email" class="signup-form__input" placeholder="johndoe@gmail.com" required>
-
-                <label for="phoneNo" class="signup-form__label">Contact Number</label>
-                <input type="text" name="contact" id="phoneNo" class="signup-form__input" placeholder="076XXXXXXX" required>
-
+        	    
+                <div class="signup-form__name-fields">
+                    <div class="signup-form__name-field">
+                        <label for="phoneNo" class="signup-form__label">Contact Number</label>
+                        <input type="text" name="contact" id="phoneNo" class="signup-form__input" placeholder="076XXXXXXX" required>
+                    </div>
+                    <div class="signup-form__name-field">
+                        <label for="nic" class="signup-form__label">NIC</label>
+                        <input type="text" name="nic" id="nic" class="signup-form__input" placeholder="0000000000" required>
+                    </div>
+                </div>
                 <!-- First and Last Name Fields in Flex Layout -->
                 <div class="signup-form__name-fields">
                     <div class="signup-form__name-field">
@@ -72,7 +79,8 @@
                     $user->errors['password'] ?? 
                     $user->errors['fname'] ??
                     $user->errors['lname'] ??
-                    $user->errors['auth']  ?>
+                    $user->errors['auth'] ??
+                    $user->errors['nic'] ?>
                 </p>
             </div>
 

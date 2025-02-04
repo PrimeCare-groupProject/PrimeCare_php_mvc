@@ -15,7 +15,8 @@ class User {
         'image_url',
         'user_lvl',
         'reset_code',
-        'created_date'
+        'created_date',
+        'nic'
     ];
 
     public $errors = [];
@@ -31,6 +32,10 @@ class User {
         // Validate last name
         if (empty($data['lname']) || !preg_match('/^[a-zA-Z]+$/', $data['lname'])) {
             $this->errors['lname'] = 'Last name is not valid';
+        }
+        // Validate NIC
+        if (empty($data['nic']) || !preg_match('/^(?:\d{12}|\d{9}[xXvV])$/', $data['nic'])) {
+            $this->errors['nic'] = 'NIC is not valid';
         }
 
         // Validate username
