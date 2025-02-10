@@ -27,7 +27,7 @@
     </div>
     <div class="approval-right-content">
         <button class="primary-btn">Remove</button>
-        <a href='<?= ROOT ?>/dashboard/services/serviceproviders/spremove'>
+        <a href='<?= ROOT ?>/dashboard/manageProviders/serviceproviders/spremove'>
             <button class="secondary-btn">Change</button>
         <img src="<?= ROOT ?>/assets/images/serProimg.png" alt="property" class="approval-serPro-img">
         </a>
