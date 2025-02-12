@@ -34,7 +34,7 @@ class User {
             $this->errors['lname'] = 'Last name is not valid';
         }
         // Validate NIC
-        if (empty($data['nic']) || !preg_match('/^(?:\d{12}|\d{9}[xXvV])$/', $data['nic'])) {
+        if (!empty($data['nic']) && !preg_match('/^(?:\d{12}|\d{9}[xXvV])$/', $data['nic'])) {
             $this->errors['nic'] = 'NIC is not valid';
         }
 
