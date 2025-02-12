@@ -83,22 +83,9 @@
             <!-- Temporary !!!! Dropdown to select property and hidden field for property ID -->
             <div class="input-group">
                 <span class="input-label">Property Name:</span>
-                <select name="property_name" class="input-field" required>
-                    <option value="">Select Property</option>
-                    <option value="Seaside Villa" <?= ($_GET['property_name'] ?? '') == 'Seaside Villa' ? 'selected' : '' ?>>Seaside Villa</option>
-                    <option value="Mountain View Apartment" <?= ($_GET['property_name'] ?? '') == 'Mountain View Apartment' ? 'selected' : '' ?>>Mountain View Apartment</option>
-                    <option value="Sunset Manor" <?= ($_GET['property_name'] ?? '') == 'Sunset Manor' ? 'selected' : '' ?>>Sunset Manor</option>
-                    <option value="Downtown Condo" <?= ($_GET['property_name'] ?? '') == 'Downtown Condo' ? 'selected' : '' ?>>Downtown Condo</option>
-                    <option value="Lakeside House" <?= ($_GET['property_name'] ?? '') == 'Lakeside House' ? 'selected' : '' ?>>Lakeside House</option>
-                </select>
-                <!-- Hidden input to store the property ID based on selected property name -->
-                <input type="hidden" name="property_id" value="<?= array_search($_GET['property_name'] ?? '', [
-                    'Seaside Villa' => 1,
-                    'Mountain View Apartment' => 2, 
-                    'Sunset Manor' => 3,
-                    'Downtown Condo' => 4,
-                    'Lakeside House' => 5
-                ]) ?>">
+                <span class="input-field"><?= htmlspecialchars($_GET['property_name'] ?? 'Not Selected') ?></span>
+                <input type="hidden" name="property_name" value="<?= htmlspecialchars($_GET['property_name'] ?? '') ?>">
+                <input type="hidden" name="property_id" value="<?= htmlspecialchars($_GET['property_id'] ?? '') ?>">
             </div>
 
             <div class="input-group">
