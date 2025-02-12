@@ -50,14 +50,14 @@ class Serve{
                 $_SESSION['flash_message'] = 'Failed to create service. Please try again.';
             }
             // Ensure the form page is loaded after submission
-            $this->view('agent/addnewrepair');
+            $this->view('agent/addnewservice');
         }
     }
 
     public function read() {
         $service = new Services;
         $services = $service->findAll();
-        $this->view('agent/repairings', ['services' => $services]);
+        $this->view('agent/services', ['services' => $services]);
     }
 
     public function update() {
@@ -119,13 +119,24 @@ class Serve{
                 $_SESSION['flash_message'] = 'Failed to create service. Please try again.';
             }
             $service2 = $service->where(['service_id' => $_POST['service_id']])[0];
-            $this->view('agent/editrepairing', ['service1' => $service2]);
+            $this->view('agent/editservices', ['service1' => $service2]);
             
         }
     }
     
-    public function delete() {
+    public function preInspect() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $property_id = $_POST['property_id'];
 
+            $preinspect =  new PropertyModel;
+            $preinspection = $preinspect->where(['property_id' => $property_id])[0];
+            
+            $user_id = $preinspection->person_id;
+            $userdata =  new User;
+            $user = $userdata->where(['pid' => $user_id])[0];
+
+            $this->view('agent/preinspectionupdate', ['preinspect' => $preinspection,'user' => $user]);
+        }
     }
 
 
@@ -137,3 +148,5 @@ class Serve{
     }
 
 }
+
+

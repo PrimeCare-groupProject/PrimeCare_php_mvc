@@ -31,7 +31,7 @@
 
             <!-- Image preview container -->
             <div id="image-preview-container" style="display: flex; gap: 10px; margin-top: 10px;"></div>
-
+            
             <div class="buttons-to-right">
                 <button type="submit" class="primary-btn">Submit</button>
             </div>
