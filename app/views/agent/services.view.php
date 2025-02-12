@@ -129,7 +129,7 @@ function closePopup() {
 document.getElementById('confirmDelete').addEventListener('click', function () {
     if (deleteServiceId !== null) {
         // Redirect to the delete route
-        window.location.href = "<?= ROOT ?>/dashboard/repairings/delete/" + deleteServiceId;
+        window.location.href = "<?= ROOT ?>/dashboard/services/delete/" + deleteServiceId;
     }
 });
 

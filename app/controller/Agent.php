@@ -181,10 +181,6 @@ class Agent{
     public function expenses() {
         echo "User Expenses Section";
     }
-    
-    public function preInspection(){
-        $this->view('agent/preInspection');
-    }
 
     public function requestedTasks(){
         $service = new ServiceLog();
@@ -313,7 +309,7 @@ class Agent{
                 $service_id = (int)$c;
                 $service = new Services;
                 $service->delete($service_id , 'service_id');
-                redirect('/dashboard/repairings');
+                redirect('/dashboard/services');
                 break;
             case 'addnewservice':
                 $this->addnewservice($c, $d);
@@ -336,6 +332,23 @@ class Agent{
     public function addnewservice(){
         $this->view('agent/addnewservice');
     }
+
+    public function preInspection($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'preinspectionupdate':
+                $this->view('agent/preinspectionupdate');
+                break;
+            default:
+                $preinspection = new PropertyModel;
+                $inspection = $preinspection->where(['status' => 'pending']);
+                $this->view('agent/preInspection', ['preinspection' => $inspection]);
+                break;
+        }
+        
+    }
+
+        
+    
 
     public function inventory($b = '', $c = '', $d = ''){
         switch($b){
