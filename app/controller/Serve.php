@@ -139,6 +139,34 @@ class Serve{
         }
     }
 
+    public function preInspectUpdate(){
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $preinspect =  new PropertyModel;
+            
+            $res = $preinspect->update($_POST['property_id'], ['status' => "active"], 'property_id');
+            redirect('/dashboard/preInspection');
+        }
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST["action"])) {
+                if ($_POST["action"] == "accept") {
+                    // Call Accept Controller
+                    $preinspect =  new PropertyModel;
+            
+                    $res = $preinspect->update($_POST['property_id'], ['status' => "active"], 'property_id');
+                    redirect('/dashboard/preInspection');
+                    exit;
+                } elseif ($_POST["action"] == "reject") {
+                    $preinspect =  new PropertyModel;
+            
+                    $res = $preinspect->update($_POST['property_id'], ['status' => "inactive"], 'property_id');
+                    redirect('/dashboard/preInspection');
+                    exit;
+                }
+            }
+        }
+    }
+
 
     // service unit retrieve for customer
     public function serviceUnit($service_id) {
