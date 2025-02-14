@@ -1,5 +1,6 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
+<?php if (!empty($preinspection)): ?>
 <?php
 // Check if a search query is set
 $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -9,16 +10,23 @@ $preinspection = array_filter($preinspection, function ($preinspect) use ($searc
     return stripos($preinspect->name, $searchQuery) !== false; // Case-insensitive search
 });
 ?>
+<?php endif; ?>
 
 <div class="user_view-menu-bar">
     <div class="gap"></div>
     <h2>PreInspection</h2>
     <div class="flex-bar">
         <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search Property Name..." value="<?= htmlspecialchars($searchQuery) ?>">
-            <button class="search-btn" onclick="searchProperty()">
-                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons">
-            </button>
+            <?php if (!empty($preinspection)): ?>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search Property Name..." value="<?= htmlspecialchars($searchQuery) ?>">
+                <button class="search-btn" onclick="searchProperty()">
+                    <img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons">
+                </button>
+            <?php else: ?>
+                <button class="search-btn" >
+                    <img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons">
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -39,25 +47,25 @@ $preinspection = array_filter($preinspection, function ($preinspect) use ($searc
                     <div class="input-group2">
                         <div class="input-group">
                             <div class="input-group-aligned">
-                                <span class="input-label-aligend1"><strong>Propery ID:</strong></span><span class="input-field2"><?= $preinspect->property_id ?></span>
+                                <span class="input-label-aligend1"><strong>Propery ID:</strong></span><input class="input-field2" value="<?= $preinspect->property_id ?>" readonly>
                             </div>
                             <div class="input-group-aligned">
-                                <span class="input-label-aligend1"><strong>Customer ID:</strong></span><span class="input-field2"><?= $preinspect->person_id ?></span>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <div class="input-group-aligned">
-                                <span class="input-label-aligend1"><strong>Property Name:</strong></span><span class="input-field2"><?= $preinspect->name ?></span>
+                                <span class="input-label-aligend1"><strong>Customer ID:</strong></span><input class="input-field2" value="<?= $preinspect->person_id ?>" readonly>
                             </div>
                         </div>
                         <div class="input-group">
                             <div class="input-group-aligned">
-                                <span class="input-label-aligend1"><strong>Property Address:</strong></span><span class="input-field2"><?= $preinspect->address ?></span>
+                                <span class="input-label-aligend1"><strong>Property Name:</strong></span><input class="input-field2" value="<?= $preinspect->name ?>" readonly>
                             </div>
                         </div>
                         <div class="input-group">
                             <div class="input-group-aligned">
-                                <span class="input-label-aligend1"><strong>Description:</strong></span><span class="input-field2"><?= $preinspect->description ?></span>
+                                <span class="input-label-aligend1"><strong>Property Address:</strong></span><input class="input-field2" value="<?= $preinspect->address ?>" readonly>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-aligned">
+                                <span class="input-label-aligend1"><strong>Description:</strong></span><input class="input-field2" value="<?= $preinspect->description ?>" readonly>
                             </div>
                         </div>
                     </div>
