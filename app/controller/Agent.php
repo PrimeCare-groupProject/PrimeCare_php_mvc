@@ -291,7 +291,9 @@ class Agent{
                 $this->spreassign();
                 break;
             default:
-            $this->view('agent/tasks');
+            $service = new ServiceLog;
+            $tasks = $service->findAll();
+            $this->view('agent/tasks',['tasks' => $tasks]);
                 break;
         }
     }
