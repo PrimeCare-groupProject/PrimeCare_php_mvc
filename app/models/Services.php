@@ -3,7 +3,7 @@
 class Services {
     use Model;
 
-    protected $table = 'services';
+    public $table = 'services';
     protected $order_column = "service_id";
     protected $allowedColumns = [
         'service_id',

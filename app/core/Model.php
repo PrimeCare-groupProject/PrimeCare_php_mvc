@@ -283,4 +283,24 @@ trait Model{//similar to a class but can be inherited by other classes
         
         return $result !== false;
     }
+
+    public function join($joinTable, $joinCondition, $columns = "*", $joinType = "INNER", $order = null) {
+
+        $conditionArray = [];
+        foreach ($joinCondition as $column1 => $column2) {
+            $conditionArray[] = "$this->table.$column1 = $joinTable->table.$column2";
+        }
+        $query = "SELECT $columns FROM $this->table $joinType JOIN $joinTable->table ON ";
+        $query .= implode(' AND ', $conditionArray);
+        
+        
+        // Add an additional join for the $order table if provided
+        if ($order !== null) {
+            $query .= " $joinType JOIN {$order->table} ON {$order->joinCondition}";
+        }
+    
+        $query .= " ORDER BY $this->table.$this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
+        return $this->instance->query($query);
+    }
+    
 }

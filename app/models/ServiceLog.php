@@ -3,7 +3,7 @@
 class ServiceLog {
     use Model;
 
-    protected $table = 'serviceLog';
+    public $table = 'serviceLog';
     protected $order_column = "service_id";
     protected $allowedColumns = [
         'service_type',

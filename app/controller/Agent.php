@@ -287,12 +287,17 @@ class Agent{
             case 'taskremoval': 
                 $this->taskremoval();
                 break;
-            case 'spreassign': 
-                $this->spreassign();
+            case 'edittasks': 
+                $this->editTasks();
                 break;
             default:
             $service = new ServiceLog;
-            $tasks = $service->findAll();
+            $services = new Services;
+            $condition = [
+                'services_id' => 'service_id',      // `users.id` should match `posts.user_id`
+            ];
+            $tasks = $service->join($services, $condition);
+           
             $this->view('agent/tasks',['tasks' => $tasks]);
                 break;
         }
@@ -300,6 +305,14 @@ class Agent{
 
     public function newTask(){
         $this->view('agent/newtask');
+    }
+
+    public function editTasks(){
+        $this->view('agent/edittasks');
+    }
+
+    public function taskRemoval(){
+        $this->view('agent/taskremoval');
     }
 
     public function services($b = '', $c = '', $d = ''){
@@ -365,28 +378,6 @@ class Agent{
 
     public function newinventory(){
         $this->view('agent/newinventory');
-    }
-
-    public function repairing($d){
-        switch($d){
-            case 'taskremoval': 
-                $this->taskremoval();
-                break;
-            case 'spreassign': 
-                $this->spreassign();
-                break;
-            default:
-            $this->view('agent/repairing');
-                break;
-        }
-    }
-
-    public function taskRemoval(){
-        $this->view('agent/taskremoval');
-    }
-
-    public function spreassign(){
-        $this->view('agent/spreassign');
     }
 
     public function manageBookings(){
