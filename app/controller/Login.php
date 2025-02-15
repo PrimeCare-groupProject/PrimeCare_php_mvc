@@ -21,6 +21,18 @@ class Login{
                 // Verify the password using password_verify()
                 if(password_verify($arr['password'], $result->password)){
                     unset($result->password); // Remove the password before storing user data in session
+                    if($result->AccountStatus == 0){
+                        $updated = $user->update($result->pid, [
+                            'AccountStatus' => 1
+                        ], 'pid');
+                        if($updated){
+                            $result->AccountStatus = 1;
+
+                            $_SESSION['flash']['msg'] = "Welcome back to Primcare!";
+                            $_SESSION['flash']['type'] = "welcome";
+                        }
+                    }
+                    // Store user data in session
                     $_SESSION['user'] = $result; 
                     
                     // Redirect to home or dashboard

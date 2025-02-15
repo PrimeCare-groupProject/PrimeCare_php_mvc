@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/HomeTest.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
@@ -15,6 +16,13 @@
 </head>
 
 <body>
+    <?php
+        $flash = $_SESSION['flash'] ?? null;
+        // Show flash messages
+        if(isset($flash)){
+            flash_message($flash['msg'] , $flash['type']);
+        }
+    ?>
 
     <!-- Header Section -->
     <section class="header" id="home">

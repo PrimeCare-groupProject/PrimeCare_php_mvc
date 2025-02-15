@@ -52,15 +52,20 @@
                     <input type="text" id="last-name" name="lname" class="input-field" value="<?= esc($user->lname) ?>" disabled>
                 </div>
             </div>
+            <div class="input-group">
+                <div class="input-group-group">
+                    <label for="contact-number" class="input-label">Contact number</label>
+                    <input type="text" id="contact-number" class="input-field" name="contact" value="<?= esc($user->contact) ?>" disabled>
+                </div>
+                <div class="input-group-group">
+                    <label for="nic" class="input-label">NIC</label>
+                    <input type="text" id="nic" class="input-field" name="nic" value="<?= esc($user->nic) ?>" disabled>
+                </div>
+            </div>
             <div class="input-group-group">
                 <label for="email" class="input-label">Email</label>
                 <input type="email" id="email" class="input-field" name="email" value="<?= esc($user->email) ?>" disabled>
             </div>
-            <div class="input-group-group">
-                <label for="contact-number" class="input-label">Contact number</label>
-                <input type="text" id="contact-number" class="input-field" name="contact" value="<?= esc($user->contact) ?>" disabled>
-            </div>
-
             <div class="input-group-aligned">
                 <button type="button" class="primary-btn" id="edit-button">Edit</button>
                 <button type="button" class="secondary-btn" id="cancel-button" style="display: none;">Cancel</button>
@@ -179,7 +184,11 @@
     
         // Enable form fields and profile picture edit when "Edit" button is clicked
     editButton.addEventListener('click', () => {
-        formFields.forEach(field => field.disabled = false); // Enable input fields
+        formFields.forEach(field => {
+            if (field.id !== 'nic') { // Prevent the email field from being editable
+                field.disabled = false;
+            }
+        }); // Enable input fields
         profilePicturePreview.classList.add('editable'); // Indicate the picture is editable
         editButton.style.display = 'none';
         removeButton.style.display = 'none';
@@ -227,7 +236,7 @@
 // if (isset($_FILES['profile_picture'])) {
     // show($_FILES['profile_picture'] ?? "null");
     // show( $_POST );
-    // show( $user );
+    show( $user );
     // show( $_SESSION);
 // }
 // show(get_img($user->image_url));

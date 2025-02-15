@@ -188,29 +188,45 @@ class Manager {
             if (isset($_POST['delete_account'])) {
                 $errors = [];
                 $status = '';
+                //AccountStatus
                 $userId = $_SESSION['user']->pid; // Replace with actual user ID from session
-    
-                // Delete the user from the database
-                $user = new User();
-                $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
-    
-                if ($deleted) {
-                    // Delete the user's profile picture if it exists
-                    $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $_SESSION['user']->image_url;
-                    if (!empty($_SESSION['user']->image_url) && file_exists($profilePicturePath)) {
-                        unlink($profilePicturePath);
-                    }
-    
+                
+                // Update the user's Account Status to 0 instead od deleting accounnt
+                $updated = $user->update($userId, [
+                    'AccountStatus' => 0
+                ], 'pid');
+
+                if ($updated) {
                     // Clear the user session data
                     session_unset();
                     session_destroy();
-    
                     // Redirect to the home page or login page
                     redirect('home');
                     exit;
                 } else {
                     $errors[] = "Failed to delete account. Please try again.";
                 }
+                // Delete the user from the database
+                // $user = new User();
+                // $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
+    
+                // if ($deleted) {
+                //     // Delete the user's profile picture if it exists
+                //     $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $_SESSION['user']->image_url;
+                //     if (!empty($_SESSION['user']->image_url) && file_exists($profilePicturePath)) {
+                //         unlink($profilePicturePath);
+                //     }
+    
+                //     // Clear the user session data
+                //     session_unset();
+                //     session_destroy();
+    
+                //     // Redirect to the home page or login page
+                //     redirect('home');
+                //     exit;
+                // } else {
+                //     $errors[] = "Failed to delete account. Please try again.";
+                // }
     
                 // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
@@ -222,7 +238,6 @@ class Manager {
         $this->handleProfileSubmission();
         // return;
         }
-        echo "profile method";
         $this->view('profile', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -243,39 +258,117 @@ class Manager {
         // Get form data and sanitize inputs
         $firstName = esc($_POST['fname'] ?? null);
         $lastName = esc($_POST['lname'] ?? null);
-        $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
         $contactNumber = esc($_POST['contact'] ?? null);
 
+        $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
         // Validate email
         if (!$email) {
             $errors[] = "Invalid email format.";
-            $_SESSION['errors'] = $errors;
-            $_SESSION['status'] = $status;
+        } else {
+            // Optional: Check against allowed domains
+            $domain = substr($email, strpos($email, '@') + 1);
 
-            redirect('dashboard/profile');
-            exit;
-
-        }else{
-            $user = new User();
-            // var_dump($email);
-            $availableUser = $user->first(['email' => $email]);
-            // echo "evailable usrs are ";
-            // die();
-            if($availableUser){
-                if( $availableUser->pid != $_SESSION['user']->pid){
-                    $errors[] = "Email already exists.Use another one.";
-                    $_SESSION['errors'] = $errors;
-                    $_SESSION['status'] = $status;
-    
-                    redirect('dashboard/profile');
-                    exit;
-
+            $allowedDomains = [
+                // Professional Email Providers
+                'gmail.com',
+                'outlook.com',
+                'yahoo.com',
+                'hotmail.com',
+                'protonmail.com',
+                'icloud.com',
+            
+                // Tech Companies
+                'google.com',
+                'microsoft.com',
+                'apple.com',
+                'amazon.com',
+                'facebook.com',
+                'twitter.com',
+                'linkedin.com',
+            
+                // Common Workplace Domains
+                'company.com',
+                'corp.com',
+                'business.com',
+                'enterprise.com',
+            
+                // Educational Institutions
+                'university.edu',
+                'college.edu',
+                'school.edu',
+                'campus.edu',
+            
+                // Government and Public Sector
+                'gov.com',
+                'public.org',
+                'municipality.gov',
+            
+                // Startup and Tech Ecosystem
+                'startup.com',
+                'techcompany.com',
+                'innovate.com',
+            
+                // Freelance and Remote Work
+                'freelancer.com',
+                'consultant.com',
+                'remote.work',
+            
+                // Regional and Local Businesses
+                'localbank.com',
+                'regional.org',
+                'cityservice.com',
+            
+                // Healthcare and Medical
+                'hospital.org',
+                'clinic.com',
+                'medical.net',
+            
+                // Non-Profit and NGO
+                'nonprofit.org',
+                'charity.org',
+                'ngo.com',
+            
+                // Creative Industries
+                'design.com',
+                'creative.org',
+                'agency.com',
+            
+                // Personal Domains
+                'me.com',
+                'personal.com',
+                'home.net',
+            
+                // International Email Providers
+                'mail.ru',
+                'yandex.com',
+                'gmx.com',
+                'web.de'
+            ];
+            
+            if (!in_array($domain, $allowedDomains)) {
+                $errors[] = 'Email domain is not allowed';
+            } else {
+                $user = new User();
+                $availableUser = $user->first(['email' => $email]);
+                if ($availableUser && $availableUser->pid != $_SESSION['user']->pid) {
+                    $errors[] = "Email already exists. Use another one.";
                 }
             }
         }
 
+        if (!empty($errors)) {
+            $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
+            redirect('dashboard/profile');
+            exit;
+        }
+
         if(!$user->validate($_POST)){
-            $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
+            $errors = [
+                $user->errors['fname'] ?? 
+                $user->errors['lname'] ?? 
+                $user->errors['email'] ?? 
+                $user->errors['contact'] ?? []];
             $_SESSION['errors'] = $errors;
             $_SESSION['status'] = $status;
 
@@ -316,7 +409,7 @@ class Manager {
 
         // Update user profile in the database
         if (empty($errors) && $_SESSION['user']->pid) {
-            $userId = $_SESSION['user']->pid; // Replace with actual user ID from session or context
+            $userId = $_SESSION['user']->pid; 
             $user = new User();
             $updated = $user->update($userId, [
                 'fname' => $firstName,

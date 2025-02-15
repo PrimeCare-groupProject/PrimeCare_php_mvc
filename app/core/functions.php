@@ -271,6 +271,15 @@ function flash_message()
             $icon = 'fas fa-exclamation-circle'; // Exclamation icon for warning
             break;
         case 'info':
+            $colors->bgColor = '#d1ecf1'; // Light blue
+            $colors->textColor = '#0c5460'; // Dark blue
+            $icon = 'fas fa-info-circle'; // Info icon for informational messages
+            break;
+        case 'welcome':
+            $colors->bgColor = '#ffe5b4'; // Light orange
+            $colors->textColor = '#ff8c00'; // Dark orange
+            $icon = 'fa-light fa-face-smile'; // Smile icon for welcome back
+            break;
         default:
             $colors->bgColor = '#d1ecf1'; // Light blue
             $colors->textColor = '#0c5460'; // Dark blue
@@ -305,3 +314,4 @@ function flash_message()
         unset($_SESSION['flash']);
     }
 }
+
