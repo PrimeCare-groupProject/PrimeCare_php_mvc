@@ -74,6 +74,8 @@
             alert('Please upload a valid image file.');
         }
     }
+
+    
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>

@@ -284,8 +284,11 @@ class Agent{
             case 'newtask': 
                 $this->newTask();
                 break;
-            case 'taskremoval': 
-                $this->taskremoval();
+            case 'delete':
+                $service_id = (int)$c;
+                $service = new ServiceLog;
+                $service->delete($service_id , 'service_id');
+                redirect('/dashboard/tasks');   
                 break;
             case 'edittasks': 
                 $this->editTasks($c,$d);
@@ -294,11 +297,9 @@ class Agent{
             $service = new ServiceLog;
             $services = new Services;
             $condition = [
-                'services_id' => 'service_id',      // `users.id` should match `posts.user_id`
+                'service_id' => 'services_id',      // `users.id` should match `posts.user_id`
             ];
-            $tasks = $service->join($services, $condition);
-            
-           
+            $tasks = $services->join($service, $condition);
             $this->view('agent/tasks',['tasks' => $tasks]);
                 break;
         }
@@ -316,6 +317,7 @@ class Agent{
     }
 
     public function taskRemoval(){
+        
         $this->view('agent/taskremoval');
     }
 

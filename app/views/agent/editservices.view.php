@@ -68,7 +68,6 @@
                     class="input-field" 
                     accept=".png, .jpg, .jpeg" 
                     onchange="previewNewImage(event)"
-                    required
                 >
                 
                 <div id="new-image-preview" style="margin-top: 10px;"></div>
