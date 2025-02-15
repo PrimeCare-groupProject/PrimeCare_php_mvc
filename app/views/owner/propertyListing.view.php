@@ -26,12 +26,6 @@
 </div>
  -->
 
-<?php 
-    if(isset($_SESSION['flash'])){
-        flash_message(); 
-    }
-?>
-
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">

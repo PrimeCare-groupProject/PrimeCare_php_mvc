@@ -31,7 +31,7 @@
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
             <!-- toggle button -->
             <form method="post" class="toggle_wrapper" action="<?= ROOT ?>/dashboard/switchUser">
-                <?php if(isset($_SESSION['user']) && $_SESSION['user']->user_lvl != 0): ?>
+                <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_lvl != 0): ?>
                     <div class="toggle-button tooltip-container">
                         <span class="tooltip-text">Change To Original Mood</span>
                         <!-- Outer track -->
@@ -126,9 +126,9 @@
 
                 function submitToggleForm() {
                     const submitBtn = document.querySelector('.toggle_wrapper');
-                    
+
                     setTimeout(() => {
-                    const submitBtn = document.querySelector('.toggle_wrapper');
+                        const submitBtn = document.querySelector('.toggle_wrapper');
                         submitBtn.submit();
                         displayLoader();
                     }, 300);
@@ -138,22 +138,19 @@
                     document.querySelector('.loader-container').style.display = '';
                     //onclick="displayLoader()"
                 }
-                
+
                 document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', displayLoader);
+                    form.addEventListener('submit', displayLoader);
                 });
 
                 document.querySelectorAll('a').forEach(link => {
                     link.addEventListener('click', displayLoader);
                 });
-                
             </script>
             <div class="user_view-content_section" id="content-section">
 
-            <?php
-            $flash = $_SESSION['flash'] ?? null;
-            // Show flash messages
-            if(isset($flash)){
-                flash_message($flash['msg'] , $flash['type']);
-            }
-            ?>
+                <?php
+                if (isset($_SESSION['flash'])) {
+                    flash_message();
+                }
+                ?>

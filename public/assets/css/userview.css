@@ -13,7 +13,7 @@ body {
     background-color: var(--background-color);
     font-family: 'Poppins', Arial, sans-serif;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .header-line {

@@ -55,7 +55,7 @@
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
-                    <input type="text" name="logout" value= "1" hidden>
+                    <input type="text" name="logout" value="1" hidden>
                 </form>
             </div>
 
@@ -64,21 +64,21 @@
                     const sidebarLinks = document.querySelectorAll('.user_view-sidemenu ul li a');
                     let isTabActive = false;
                     const currentURL = window.location.href;
-                    const url = new URL(window.location.href);  // Get the current page URL
-                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/');  // Split the URL into an array
+                    const url = new URL(window.location.href); // Get the current page URL
+                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/'); // Split the URL into an array
                     const currentPage = path[3] || "dashboard";
                     console.log(path[3]);
                     // Loop through each sidebar link
                     sidebarLinks.forEach(link => {
                         const button = link.querySelector('button');
                         const href = link.getAttribute('href');
-                        
+
                         // Check if the current page matches the link's href
                         if (currentURL.includes(href)) {
                             // Add 'active' class to the button
                             button.classList.add('active');
                             button.classList.remove('btn');
-                            isTabActive = true;  // Mark that a tab is active
+                            isTabActive = true; // Mark that a tab is active
                         } else {
                             // Remove 'active' class from the button
                             button.classList.remove('active');
@@ -95,7 +95,7 @@
                             dashboardButton.classList.add('btn');
                             dashboardButton.classList.remove('active');
                         }
-                    }else{
+                    } else {
                         // console.log(" tab is not active");
 
                         dashboardButton.classList.add('active');
@@ -109,12 +109,13 @@
                         logoutBtn.style.display = 'block';
                     }
                 });
+
                 function submitToggleForm() {
                     const submitBtn = document.querySelector('.toggle_wrapper');
                     const toggleTrack = document.getElementById('toggleTrack');
-                    
+
                     toggleTrack.classList.add('activeToggle');
-                    
+
                     setTimeout(() => {
                         submitBtn.submit();
                         displayLoader();
@@ -126,9 +127,9 @@
                     document.querySelector('.loader-container').style.display = '';
                     //onclick="displayLoader()"
                 }
-                
+
                 document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', displayLoader);
+                    form.addEventListener('submit', displayLoader);
                 });
 
                 document.querySelectorAll('a').forEach(link => {
@@ -139,10 +140,8 @@
 
             <div class="user_view-content_section" id="content-section">
 
-            <?php
-            $flash = $_SESSION['flash'] ?? null;
-            // Show flash messages
-            if(isset($flash)){
-                flash_message($flash['msg'] , $flash['type']);
-            }
-            ?>
+                <?php
+                if (isset($_SESSION['flash'])) {
+                    flash_message();
+                }
+                ?>
