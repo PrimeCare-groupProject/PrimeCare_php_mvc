@@ -288,7 +288,7 @@ class Agent{
                 $this->taskremoval();
                 break;
             case 'edittasks': 
-                $this->editTasks();
+                $this->editTasks($c,$d);
                 break;
             default:
             $service = new ServiceLog;
@@ -297,6 +297,7 @@ class Agent{
                 'services_id' => 'service_id',      // `users.id` should match `posts.user_id`
             ];
             $tasks = $service->join($services, $condition);
+            
            
             $this->view('agent/tasks',['tasks' => $tasks]);
                 break;
@@ -307,8 +308,11 @@ class Agent{
         $this->view('agent/newtask');
     }
 
-    public function editTasks(){
-        $this->view('agent/edittasks');
+    public function editTasks($c,$d){
+        $service_id = $c;
+        $task = new ServiceLog;
+        $tasks = $task->where(['service_id' => $service_id])[0];
+        $this->view('agent/edittasks', ['tasks' => $tasks]);
     }
 
     public function taskRemoval(){
@@ -323,11 +327,11 @@ class Agent{
             case 'delete':
                 $service_id = (int)$c;
                 $service = new Services;
-                $service->delete($service_id , 'service_id');
+                $service->delete($service_id , 'services_id');
                 redirect('/dashboard/services');
                 break;
             case 'addnewservice':
-                $this->addnewservice($c, $d);
+                $this->addnewservice();
                 break;
             default:
                 $service = new Services;
@@ -340,7 +344,7 @@ class Agent{
     public function editservices($c){
         $service_id = $c;
         $service = new Services;
-        $service1 = $service->where(['service_id' => $service_id])[0];
+        $service1 = $service->where(['services_id' => $service_id])[0];
         $this->view('agent/editservices', ['service1' => $service1]);
     }
 
@@ -394,7 +398,7 @@ class Agent{
                 $this->serviceProviders($c, $d);
                 break;
             case 'payments':
-                $this->payments($c, $d);
+                $this->payments();
                 break;
             default:
                 $this->view('agent/manageProviders');
@@ -405,10 +409,10 @@ class Agent{
     public function serviceProviders($c,$d){
         switch($c){
             case 'addserviceprovider':
-                $this->addServiceProvider($c, $d);
+                $this->addServiceProvider();
                 break;
             case 'spremove':
-                $this->spremove($c, $d);
+                $this->spremove();
                 break;
             default:
                 $this->view('agent/serviceproviders');
@@ -427,7 +431,7 @@ class Agent{
     public function removeserviceprovider($c,$d){
         switch($d){
             case 'spremove':
-                $this->spremove($c, $d);
+                $this->spremove();
                 break;
             default:
                 $this->view('agent/removeserviceprovider');
@@ -442,7 +446,7 @@ class Agent{
     public function bookings($b = '', $c = '', $d = ''){
         switch($b){
             case 'bookingaccept':
-                $this->bookingAccept($c, $d);
+                $this->bookingAccept();
                 break;
             default:
                 $this->view('agent/booking');

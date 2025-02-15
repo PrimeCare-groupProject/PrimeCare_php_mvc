@@ -35,8 +35,8 @@
                                     <div class="repair-actionsnew">
                                         <span class="tag tag-teal"><?= $service->cost_per_hour ?> LKR</span>
                                             <div>
-                                                <a href="<?=ROOT?>/dashboard/services/editservices/<?= $service->service_id ?>" class="delete1-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                                <a href="javascript:void(0);" class="edit-btn" onclick="confirmDelete(<?= $service->service_id ?>)">
+                                                <a href="<?=ROOT?>/dashboard/services/editservices/<?= $service->services_id ?>" class="delete1-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
+                                                <a href="javascript:void(0);" class="edit-btn" onclick="confirmDelete(<?= $service->services_id ?>)">
                                                     <img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" />
                                                 </a>
                                             </div>

@@ -34,7 +34,7 @@
                                     <span class="tag tag-teal"><?= $task->property_name ?></span>
                                 </div>
                                 <div>
-                                    <a href="<?=ROOT?>/dashboard/tasks/edittasks/" class="delete1-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
+                                    <a href="<?=ROOT?>/dashboard/tasks/edittasks/<?= $task->service_id?>" class="delete1-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
                                     <a href="javascript:void(0);" class="edit-btn" >
                                         <img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" />
                                     </a>

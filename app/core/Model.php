@@ -299,7 +299,7 @@ trait Model{//similar to a class but can be inherited by other classes
             $query .= " $joinType JOIN {$order->table} ON {$order->joinCondition}";
         }
     
-        $query .= " ORDER BY $this->table.$this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
+        $query .= " ORDER BY $this->table.$this->order_column $this->order_type";
         return $this->instance->query($query);
     }
     
