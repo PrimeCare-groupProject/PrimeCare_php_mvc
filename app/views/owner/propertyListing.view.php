@@ -18,12 +18,13 @@
 </div>
 
 
-<div class="errors" style="display: <?= !empty($status) ? 'block' : 'none'; ?>; background-color: #b5f9a2;">
+<!-- <div class="errors" style="display: <?= !empty($status) ? 'block' : 'none'; ?>; background-color: #b5f9a2;">
     <?php if (!empty($status)): ?>
         <p><?= $status;  ?></p>
     <?php endif; ?>
     <?php $_SESSION['status'] = '' ?>
 </div>
+ -->
 
 <div class="listing-the-property">
     <!-- Property Listings -->
@@ -63,7 +64,7 @@
                             <a href="#" class="change-status">change Pending</a>
                             <div>
                                 <a href="<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="<?= ROOT ?>/property/dropProperty/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/dashboard/propertylisting/dropProperty/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
                             </div>
                         </div>
                     </div>

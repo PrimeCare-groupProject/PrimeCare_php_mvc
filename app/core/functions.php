@@ -243,6 +243,7 @@ function get_img($image_url = "", $type = 'user')
  *
  * @return void
  */
+
 function flash_message()
 {
     $message = $_SESSION['flash']['msg'];
@@ -304,4 +305,99 @@ function flash_message()
 
         unset($_SESSION['flash']);
     }
+}
+
+
+function upload_image(
+    array $uploaded_files,
+    string $target_dir,
+    object $model,
+    int $foreign_key_id,
+    array $options = []
+): array {
+    $errors = [];
+    $defaults = [
+        'allowed_ext' => ['jpg', 'jpeg', 'png'],
+        'prefix' => 'file',
+        'url_field' => 'image_url',
+        'fk_field' => 'property_id',
+        'max_size' => 5242880, // 5MB in bytes
+        'overwrite' => false
+    ];
+    $config = array_merge($defaults, $options);
+
+    // Create directory if it doesn't exist
+    if (!is_dir($target_dir)) {
+        mkdir($target_dir, 0755, true);
+    }
+
+    // Check if files were uploaded
+    if (empty($uploaded_files['name'][0])) {
+        $errors[] = 'No files selected for upload';
+        return $errors;
+    }
+
+    foreach ($uploaded_files['name'] as $index => $filename) {
+        $tmp_name = $uploaded_files['tmp_name'][$index];
+        $error = $uploaded_files['error'][$index];
+        $size = $uploaded_files['size'][$index];
+
+        // Skip empty fields
+        if ($error === UPLOAD_ERR_NO_FILE) continue;
+
+        // Handle upload errors
+        if ($error !== UPLOAD_ERR_OK) {
+            $errors[] = "Upload error (#$error) for: " . esc($filename);
+            continue;
+        }
+
+        // Validate file size
+        if ($size > $config['max_size']) {
+            $errors[] = "File too large: " . esc($filename) . " (" . format_bytes($size) . ")";
+            continue;
+        }
+
+        // Get file extension
+        $file_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        // Validate extension
+        if (!in_array($file_ext, $config['allowed_ext'])) {
+            $errors[] = "Invalid file type for: " . esc($filename);
+            continue;
+        }
+
+        // Generate unique filename
+        $new_filename = $config['prefix'] . '_' . uniqid() . '_' . $foreign_key_id . '.' . $file_ext;
+        $full_path = rtrim($target_dir, '/') . '/' . $new_filename;
+
+        // Check if file exists
+        if (!$config['overwrite'] && file_exists($full_path)) {
+            $errors[] = "File already exists: " . esc($filename);
+            continue;
+        }
+
+        // Move uploaded file
+        if (move_uploaded_file($tmp_name, $full_path)) {
+            // Save to database
+            $model->insert([
+                $config['url_field'] => $new_filename,
+                $config['fk_field'] => $foreign_key_id
+            ]);
+        } else {
+            $errors[] = "Failed to save: " . esc($filename);
+        }
+    }
+
+    return $errors;
+}
+
+// Helper function to format bytes
+function format_bytes($bytes, $precision = 2): string
+{
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+    $bytes /= (1 << (10 * $pow));
+    return round($bytes, $precision) . ' ' . $units[$pow];
 }
