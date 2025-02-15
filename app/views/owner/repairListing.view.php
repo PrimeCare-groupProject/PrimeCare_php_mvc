@@ -15,7 +15,7 @@
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Door Lock Repair and Replacement&cost_per_hour=1000&estimated_hours=2'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Door Lock Repair and Replacement&cost_per_hour=1000&estimated_hours=2&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/DoorRepair.jpg" alt="Door Lock Repair">
             </div>
@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Plumbing Leak Repair and Maintenance&cost_per_hour=1500&estimated_hours=3'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Plumbing Leak Repair and Maintenance&cost_per_hour=1500&estimated_hours=3&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/Plumbing.jpg" alt="Plumbing Repair">
             </div>
@@ -47,7 +47,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=HVAC Maintenance&cost_per_hour=2000&estimated_hours=4'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=HVAC Maintenance&cost_per_hour=2000&estimated_hours=4&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/ac.jpg" alt="HVAC Maintenance">
             </div>
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Electrical System Inspection and Maintenance&cost_per_hour=1800&estimated_hours=3'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Electrical System Inspection and Maintenance&cost_per_hour=1800&estimated_hours=3&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/elect.jpg" alt="Electrical Maintenance">
             </div>
@@ -79,7 +79,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Gardening and Landscaping Services&cost_per_hour=1200&estimated_hours=5'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Gardening and Landscaping Services&cost_per_hour=1200&estimated_hours=5&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/gardening.png " alt="Gardening Services">
             </div>
@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Window and Glass Repair&cost_per_hour=1300&estimated_hours=2'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Window and Glass Repair&cost_per_hour=1300&estimated_hours=2&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/glass.jpg" alt="Window Repair">
             </div>
@@ -111,7 +111,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Painting and Surface Touch-Ups&cost_per_hour=1100&estimated_hours=6'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Painting and Surface Touch-Ups&cost_per_hour=1100&estimated_hours=6&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/paint.png" alt="Painting Services">
             </div>
@@ -127,7 +127,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Roof and Gutter Cleaning&cost_per_hour=1600&estimated_hours=4'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Roof and Gutter Cleaning&cost_per_hour=1600&estimated_hours=4&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/roof.jpg" alt="Roof Cleaning">
             </div>
@@ -143,7 +143,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Pool Cleaning and Maintenance&cost_per_hour=1400&estimated_hours=3'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Pool Cleaning and Maintenance&cost_per_hour=1400&estimated_hours=3&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/pool.jpg" alt="Pool Maintenance">
             </div>
@@ -159,7 +159,7 @@
             </div>
         </div>
 
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Flooring and Carpet Repair&cost_per_hour=1700&estimated_hours=4'">
+        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Flooring and Carpet Repair&cost_per_hour=1700&estimated_hours=4&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/floor.jpg" alt="Flooring Repair">
             </div>
@@ -174,7 +174,7 @@
                 </p>
             </div>
         </div>
-            <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Pest Control and Extermination&cost_per_hour=1900&estimated_hours=3'">
+            <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Pest Control and Extermination&cost_per_hour=1900&estimated_hours=3&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
             <div class="property-image">
                 <img src="<?= ROOT ?>/assets/images/fest.jpg" alt="pest Maintenance">
             </div>

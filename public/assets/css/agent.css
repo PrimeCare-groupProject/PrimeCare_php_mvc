@@ -626,3 +626,12 @@ body.popup-active .blur-container {
     width: 95%;
     /* margin: 10px; */
 }
+
+.description-box {
+    width: 100%; /* Ensures it does not change the width */
+    overflow-wrap: break-word; /* Breaks long words */
+    white-space: pre-wrap; /* Maintains line breaks */
+    resize: none; /* Prevents resizing */
+    height: auto; /* Adapts to content */
+    min-height: 80px; /* Set a minimum height */
+}

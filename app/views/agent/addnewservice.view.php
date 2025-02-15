@@ -1,7 +1,7 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/repairings'>
+    <a href='<?= ROOT ?>/dashboard/services'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
     <h2>New Service</h2>
@@ -31,7 +31,7 @@
 
             <!-- Image preview container -->
             <div id="image-preview-container" style="display: flex; gap: 10px; margin-top: 10px;"></div>
-
+            
             <div class="buttons-to-right">
                 <button type="submit" class="primary-btn">Submit</button>
             </div>

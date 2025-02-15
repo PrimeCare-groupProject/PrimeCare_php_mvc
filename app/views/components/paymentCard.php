@@ -24,7 +24,7 @@
     </div>
     <div class="approval-right-content">
         <button class="primary-btn">Go To Task</button>
-        <a href='<?= ROOT ?>/dashboard/services/payments'>
+        <a href='<?= ROOT ?>/dashboard/manageProviders/payments'>
             <button class="secondary-btn">Pay</button>
         <img src="<?= ROOT ?>/assets/images/serProimg.png" alt="property" class="approval-serPro-img">
         </a>

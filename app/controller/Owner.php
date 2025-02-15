@@ -209,7 +209,7 @@ class Owner
             $data = [
                 'service_type' => $_POST['service_type'],
                 'date' => $_POST['date'],
-                'property_id' => $_POST['property_id'],
+                'property_id' => $_POST['property_id'], // This will now be the actual property ID
                 'property_name' => $_POST['property_name'],
                 'status' => $_POST['status'],
                 'service_description' => $_POST['service_description'],

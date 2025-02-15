@@ -35,9 +35,10 @@ class Signup {
             // Check for existing email
             // show($_POST);
             $arr['email'] = $_POST['email'];
+            $arr['nic'] = $_POST['nic'];
             $result = $user->first($arr, []);
             if ($result && isset($result->email)) {
-                $user->errors['email'] = 'Email already exists';
+                $user->errors['email'] = 'Email or NIC already exists';
                 // show($user->errors);
                 // echo "if1";
                 $this->view('signup',['user' => $user]); // Re-render signup view with error
@@ -60,6 +61,7 @@ class Signup {
                 'contact' => $_POST['contact'],
                 'password' => $this->hashPw($_POST['password']),
                 'user_lvl' => 0,
+                'nic' => $_POST['nic'],
                 'username' => $this->generateUsername($_POST['fname']), // Generate username
             ];
             // show($arr);
