@@ -64,7 +64,7 @@ class Serve{
         $service = new Services;
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $arr = [
-                    'services_id' => $_POST['services_id'],
+                    'service_id' => $_POST['service_id'],
                     'name' => $_POST['name'],
                     'cost_per_hour' => $_POST['cost_per_hour'],
                     'description' => $_POST['description']
@@ -108,7 +108,7 @@ class Serve{
             }
 
             // Update repair data into the database
-            $res = $service->update($_POST['services_id'], $arr, 'services_id');
+            $res = $service->update($_POST['service_id'], $arr, 'service_id');
 
             if ($res) {
                 // Set flash message in session
@@ -118,7 +118,7 @@ class Serve{
                 // Handle failure (e.g., insert failed)
                 $_SESSION['flash_message'] = 'Failed to create service. Please try again.';
             }
-            $service2 = $service->where(['services_id' => $_POST['services_id']])[0];
+            $service2 = $service->where(['service_id' => $_POST['service_id']])[0];
             $this->view('agent/editservices', ['service1' => $service2]);
             
         }
@@ -169,16 +169,16 @@ class Serve{
 
 
     // service unit retrieve for customer
-    public function serviceUnit($services_id) {
+    public function serviceUnit($service_id) {
         $service = new Services;
-        $service = $service->where(['services_id' => $services_id])[0];
+        $service = $service->where(['service_id' => $service_id])[0];
         $this->view('customer/repairUnit', ['service' => $service]);
     }
 
     public function taskUpdate(){
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $arr = [
-                    'services_id' => $_POST['services_id'],
+                    'service_id' => $_POST['service_id'],
                     'service_type' => $_POST['service_type'],
                     'date' => $_POST['date'],
                     'property_id' => $_POST['propertyID'],
@@ -191,7 +191,7 @@ class Serve{
                     'service_description' => $_POST['service_description']
             ];
             $service = new ServiceLog;
-            $res = $service->update($_POST['services_id'], $arr, 'services_id');
+            $res = $service->update($_POST['service_id'], $arr, 'service_id');
 
             if ($res) {
                 // Set flash message in session
@@ -201,7 +201,7 @@ class Serve{
                 // Handle failure (e.g., insert failed)
                 $_SESSION['flash_message'] = 'Failed to update task. Please try again.';
             }
-            $tasks = $service->where(['services_id' => $_POST['services_id']])[0];
+            $tasks = $service->where(['service_id' => $_POST['service_id']])[0];
             $this->view('agent/edittasks', ['tasks' => $tasks]);
             
         }

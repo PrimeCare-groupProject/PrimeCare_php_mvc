@@ -327,7 +327,7 @@ class Agent{
             case 'delete':
                 $service_id = (int)$c;
                 $service = new Services;
-                $service->delete($service_id , 'services_id');
+                $service->delete($service_id , 'service_id');
                 redirect('/dashboard/services');
                 break;
             case 'addnewservice':
@@ -344,7 +344,7 @@ class Agent{
     public function editservices($c){
         $service_id = $c;
         $service = new Services;
-        $service1 = $service->where(['services_id' => $service_id])[0];
+        $service1 = $service->where(['service_id' => $service_id])[0];
         $this->view('agent/editservices', ['service1' => $service1]);
     }
 
