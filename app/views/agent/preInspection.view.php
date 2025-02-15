@@ -47,10 +47,10 @@ $preinspection = array_filter($preinspection, function ($preinspect) use ($searc
                     <div class="input-group2">
                         <div class="input-group">
                             <div class="input-group-aligned">
-                                <span class="input-label-aligend1"><strong>Propery ID:</strong></span><input class="input-field2" value="<?= $preinspect->property_id ?>" readonly>
+                                <span class="input-label-aligend1"><strong>Property ID:</strong></span><input class="input-field2" value="<?= $preinspect->property_id ?>" readonly>
                             </div>
                             <div class="input-group-aligned">
-                                <span class="input-label-aligend1"><strong>Customer ID:</strong></span><input class="input-field2" value="<?= $preinspect->person_id ?>" readonly>
+                                <span class="input-label-aligend1"><strong>Owner ID:</strong></span><input class="input-field2" value="<?= $preinspect->person_id ?>" readonly>
                             </div>
                         </div>
                         <div class="input-group">

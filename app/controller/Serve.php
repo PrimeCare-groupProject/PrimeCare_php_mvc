@@ -175,6 +175,38 @@ class Serve{
         $this->view('customer/repairUnit', ['service' => $service]);
     }
 
+    public function taskUpdate(){
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $arr = [
+                    'service_id' => $_POST['service_id'],
+                    'service_type' => $_POST['service_type'],
+                    'date' => $_POST['date'],
+                    'property_id' => $_POST['propertyID'],
+                    'property_name' => $_POST['property_name'],
+                    'cost_per_hour' => $_POST['cost_per_hour'],
+                    'total_hours' => $_POST['total_hours'],
+                    'status' => $_POST['status'],
+                    'service_provider_id' => $_POST['service_provider_id'],
+                    'total_cost' => $_POST['total_cost'],
+                    'service_description' => $_POST['service_description']
+            ];
+            $service = new ServiceLog;
+            $res = $service->update($_POST['service_id'], $arr, 'service_id');
+
+            if ($res) {
+                // Set flash message in session
+                $_SESSION['flash_message'] = 'Task Updated successfully!';
+
+            } else {
+                // Handle failure (e.g., insert failed)
+                $_SESSION['flash_message'] = 'Failed to update task. Please try again.';
+            }
+            $tasks = $service->where(['service_id' => $_POST['service_id']])[0];
+            $this->view('agent/edittasks', ['tasks' => $tasks]);
+            
+        }
+    }
+
 }
 
 
