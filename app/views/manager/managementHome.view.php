@@ -73,7 +73,7 @@
             </div>
         </a>
 
-        <a href="<?= ROOT ?>/dashboard/financialManagement">
+        <a href="<?= ROOT ?>/dashboard/managementhome/financemanagement">
             <div class="MM__cards">
                 <div class="MM__text">
                     <h2>Finance Management</h2>

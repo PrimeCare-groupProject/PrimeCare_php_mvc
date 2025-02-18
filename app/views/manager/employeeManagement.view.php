@@ -25,18 +25,16 @@
         <table class="listing-table-for-customer-payments">
             <thead>
                 <tr>
-                    <th style='max-width: 15%;' class="extra-space sortable first" id="date-header">
-                        Created Date
-                        <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
-                    </th>
-                    <th style='max-width: 35px;'>ID</th>
+                    <th class='first' style='max-width: 35px;' id="date-header">ID</th>
                     <th style='max-width: 20%;'>Name</th>
                     <th style='max-width: 23%;'>Email</th>
+                    <th style='max-width: 15%;'>NIC</th>
                     <th style='min-width: 75px;' class="sortable" id="user-type-header">
                         User Type
                         <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                     </th>
-                    <th style='width: 5%;' class="last">Image</th>
+                    <th style='width: 5%;'>Image</th>
+                    <th class='last' style='width: 5%;'>Status</th>
                     <th hidden>Reset Code</th>
                 </tr>
             </thead>
@@ -45,10 +43,10 @@
                     if (isset($userlist) && count($userlist) > 0) {
                         foreach ($userlist as $user) {
                             echo "<tr onclick='showUserDetailBox(this)'>";
-                            echo "<td class='first'><input type='text' name='created_date' value='" . ($user->created_date ? date('Y-m-d', strtotime($user->created_date)) : "-") . "' disabled></td>";
-                            echo "<td><input type='text' name='id' value='{$user->pid}' disabled></td>";
+                            echo "<td class='first'><input  type='text' name='id' value='{$user->pid}' disabled></td>";
                             echo "<td><input type='text' name='name' value='{$user->fname} {$user->lname}' disabled></td>";
                             echo "<td><input type='email' name='email' value='{$user->email}' disabled></td>";
+                            echo "<td><input type='text' name='nic' value='{$user->nic}' disabled></td>";
                             echo '<td><button class=" ';
                             switch ($user->user_lvl) {
                                 case 4: echo 'manager_button">Manager'; break;
@@ -59,13 +57,14 @@
                                 default: echo '_button">Unknown'; break;
                             }
                             echo "</button></td>";
-                            echo "<td class='last'><img class='header-profile-picture' style='margin:0px' src='".get_img($user->image_url)."'></td>";
+                            echo "<td><img class='header-profile-picture' style='margin:0px' src='".get_img($user->image_url)."'></td>";
+                            echo "<td class='last'><input  type='text' name='AccountStatus' value='" . ($user->AccountStatus ? 'Active' : 'Inactive') . "' disabled></td>";
                             echo "<td hidden><input type='text' value='" . (empty($user->reset_code) ? "---" : $user->reset_code) . "' disabled></td>";
                             echo "<td hidden><input type='text' value='{$user->contact}' disabled></td>";
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='6'>No records found</td></tr>";
+                        echo "<tr><td colspan='8'>No records found</td></tr>";
                     }
                 ?>
             </tbody>

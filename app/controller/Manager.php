@@ -530,7 +530,7 @@ class Manager {
         // $this->view('manager/requestApproval');
     }
 
-    public function financialManagement(){
+    private function financialManagement(){
         $this->view('manager/financemanagement');
     }
 
