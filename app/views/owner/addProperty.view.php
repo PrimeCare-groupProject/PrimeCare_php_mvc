@@ -7,7 +7,13 @@
     <h2>ADD PROPERTIES</h2>
 </div>
 
-<form method="POST" action="<?= ROOT ?>/property/create" enctype="multipart/form-data">
+<?php 
+    if(isset($_SESSION['flash'])){
+        flash_message(); 
+    }
+?>
+
+<form method="POST" action="<?= ROOT ?>/dashboard/propertylisting/create" enctype="multipart/form-data">
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
             <label class="input-label">Name Of Property*</label>

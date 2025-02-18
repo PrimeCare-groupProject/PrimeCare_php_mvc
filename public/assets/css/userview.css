@@ -12,6 +12,7 @@ body {
     background-color: var(--background-color);
     font-family: 'Poppins', Arial, sans-serif;
     position: relative;
+    overflow-x: hidden;
 }
 
 .header-line {

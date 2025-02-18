@@ -138,9 +138,9 @@
                 function submitToggleForm() {
                     const submitBtn = document.querySelector('.toggle_wrapper');
                     const toggleTrack = document.getElementById('toggleTrack');
-                    
+
                     toggleTrack.classList.add('activeToggle');
-                    
+
                     setTimeout(() => {
                         submitBtn.submit();
                         displayLoader();
@@ -161,12 +161,10 @@
                 });
             </script>
 
-        
+
             <div class="user_view-content_section" id="content-section">
-            <?php
-            $flash = $_SESSION['flash'] ?? null;
-            // Show flash messages
-            if(isset($flash)){
-                flash_message($flash['msg'] , $flash['type']);
-            }
-            ?>
+                <?php
+                if (isset($_SESSION['flash'])) {
+                    flash_message();
+                }
+                ?>

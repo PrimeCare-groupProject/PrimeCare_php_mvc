@@ -32,7 +32,7 @@
                                     <p class="limited-paragraph">
                                         <?= $service->description ?>
                                     </p>
-                                    <div class="repair-actions">
+                                    <div class="repair-actionsnew">
                                         <span class="tag tag-teal"><?= $service->cost_per_hour ?> LKR</span>
                                             <div>
                                                 <a href="<?=ROOT?>/dashboard/services/editservices/<?= $service->service_id ?>" class="delete1-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
