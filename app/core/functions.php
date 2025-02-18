@@ -278,7 +278,7 @@ function flash_message()
         case 'welcome':
             $colors->bgColor = '#ffe5b4'; // Light orange
             $colors->textColor = '#ff8c00'; // Dark orange
-            $icon = 'fa-light fa-face-smile'; // Smile icon for welcome back
+            $icon = 'fas fa-face-smile'; // Smile icon for welcome back
             break;
         default:
             $colors->bgColor = '#d1ecf1'; // Light blue
@@ -314,4 +314,5 @@ function flash_message()
         unset($_SESSION['flash']);
     }
 }
+
 

@@ -17,6 +17,7 @@
 .alert .fa-times-circle,
 .alert .fa-check-circle,
 .alert .fa-info-circle,
+.alert .fa-face-smile,
 .alert .fa-exclamation-circle{
     /* margin-right: 10px; */
     position: absolute;
@@ -29,6 +30,7 @@
 
 .alert .msg{
     font-size: 16px;
+    margin-left: 10px;
     /* color: #ce8500; */
     padding: 0 20px;
     font-weight: 500;

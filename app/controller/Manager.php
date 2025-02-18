@@ -241,7 +241,7 @@ class Manager {
         $this->view('profile', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? 'hello world'
+            'status' => $_SESSION['status'] ?? ''
         ]);
 
         // Clear session data after rendering the view
@@ -580,11 +580,56 @@ class Manager {
                 $groupedMessages[$message->pid]->count++; // Increment the count
             }
         }
+        
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['replyMessage'])) {
+            $replyMessage = trim($_POST['emailMessage']);
+            // show($_POST);
+            if (empty($replyMessage) && $_POST['complete'] == 0) {
+                $_SESSION['flash']['msg'] = "Reply Message should not be empty";
+                $_SESSION['flash']['type'] = "error";
+                
+            } else {
+                if(isset($_POST['email'])){
+                    $email = trim($_POST['email']);
+                    $name = trim($_POST['name']) ?? 'User';
+                    
+                    
+                    // $status = sendMail(
+                    //     $email ,
+                    //     'Primecare Respond', "
+                    //     <div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px;\">
+                    //         <h1 style=\"color: #4CAF50;\">Reply to Your Query</h1>
+                    //         <p>Hello, {$name}</p>
+                    //         <p>Thank you for reaching out to us.</p>
+                    //         <p>{$replyMessage}</p>
+                    //         <p>If you have any further questions, please feel free to reply to this email.</p>
+                    //         <br>
+                    //         <p>Best regards,<br>PrimeCare Support Team</p>
+                    //     </div>
+                    // ");
+                    // if(!$status['error']){
+                    //     $_SESSION['flash']['msg'] = "Reply sent successfully!";
+                    //     $_SESSION['flash']['type'] = "success";
+                    // } else {
+                    //     $_SESSION['flash']['msg'] = "Failed to send reply. Please try again.";
+                    //     $_SESSION['flash']['type'] = "error";
+                    // }
+                }
+                if(isset($_POST['complete']) && $_POST['complete'] == 1){
+                    // show($_POST);
+                    // die;
+                    $pid = $_POST['pid'];
+                    $randomMessages->update($pid, ['status' => 0], 'pid');
+                    $_SESSION['flash']['msg'] = "Message marked as complete.";
+                    $_SESSION['flash']['type'] = "success";
+                    redirect('manager/contacts');
+                }
+            }
+        }
     
         // Pass the grouped messages to the view
         $this->view('manager/contacts', ['messages' => $groupedMessages]);
     }
-    
     
     private function logout(){
         session_unset();
