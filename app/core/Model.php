@@ -51,8 +51,7 @@ trait Model{//similar to a class but can be inherited by other classes
     // Helper method to dynamically fetch column names of the table
     private function getTableColumns() {
         $query = "SHOW COLUMNS FROM $this->table";
-        $result = $this->insert->query($query);
-    
+        $result = $this->instance->query($query);
         if ($result) {
             return array_map(function ($column) {
                 return $column->Field;
@@ -197,7 +196,12 @@ trait Model{//similar to a class but can be inherited by other classes
     
         // Dynamically fetch column names for the table
         $columns = $this->getTableColumns(); // Assuming this function fetches table columns
-    
+        
+        // Make sure there are columns to search
+        if (empty($columns)) {
+            return ''; // No columns to search
+        }
+
         $searchQuery = "(";
         foreach ($columns as $column) {
             $searchQuery .= "$column LIKE :searchTerm OR ";
