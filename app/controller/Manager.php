@@ -195,7 +195,6 @@ class Manager {
                 $updated = $user->update($userId, [
                     'AccountStatus' => 0
                 ], 'pid');
-
                 if ($updated) {
                     // Clear the user session data
                     session_unset();
@@ -204,7 +203,9 @@ class Manager {
                     redirect('home');
                     exit;
                 } else {
-                    $errors[] = "Failed to delete account. Please try again.";
+                    $_SESSION['flash']['msg'] = "Failed to delete account. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                    // $errors[] = "Failed to delete account. Please try again.";
                 }
                 // Delete the user from the database
                 // $user = new User();
@@ -250,8 +251,7 @@ class Manager {
         return;
     }
 
-    private function handleProfileSubmission()
-    {
+    private function handleProfileSubmission(){
         $errors = [];
         $status = '';
 
@@ -357,19 +357,23 @@ class Manager {
         }
 
         if (!empty($errors)) {
-            $_SESSION['errors'] = $errors;
+            $errorString = implode("<br>", $errors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
+            // $_SESSION['errors'] = $errors;
             $_SESSION['status'] = $status;
             redirect('dashboard/profile');
             exit;
         }
 
-        if(!$user->validate($_POST)){
-            $errors = [
-                $user->errors['fname'] ?? 
-                $user->errors['lname'] ?? 
-                $user->errors['email'] ?? 
-                $user->errors['contact'] ?? []];
-            $_SESSION['errors'] = $errors;
+        if (!$user->validate($_POST)) {
+            $validationErrors = [];
+            foreach ($user->errors as $error) {
+                $validationErrors[] = $error;
+            }
+            $errorString = implode("<br>", $validationErrors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
             $_SESSION['status'] = $status;
 
             redirect('dashboard/profile');
@@ -446,9 +450,19 @@ class Manager {
         }
 
         // Store errors or success in session and redirect
-        $_SESSION['errors'] = $errors;
-        $_SESSION['status'] = $status;
-        // echo "handleProfilesubmission";
+        if (!empty($errors)) {
+            $errorString = implode("<br>", $errors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
+            // $_SESSION['errors'] = $errors;
+            // $_SESSION['status'] = $status;
+            redirect('dashboard/profile');
+            exit;
+        }
+        $_SESSION['flash']['msg'] = $status;
+        $_SESSION['flash']['type'] = "success";
+        // $_SESSION['errors'] = $errors;
+        // $_SESSION['status'] = $status;
         redirect('dashboard/profile');
         exit;
     }
@@ -478,10 +492,6 @@ class Manager {
     }
 
     public function propertyManagement($b = '', $c = '', $d = ''){
-        // echo $b . "<br>";
-        // echo $c . "<br>";
-        // echo $d . "<br>";
-        // show(URL(3));
         switch($b){
             case 'assignagents':
                 $this->assignAgents($c, $d);
@@ -497,31 +507,71 @@ class Manager {
 
     private function employeeManagement(){
         $user = new User;
-        $user->setLimit(7); //set limit before anything
 
-        $searchterm = isset($_GET['searchterm']) ? $_GET['searchterm'] : "";
+        if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "update_user") {
+            $user->validate($_POST);
+            $errors = $user->errors;
+
+            if (isset($_POST['email'])) {
+                $email = $_POST['email'];
+                $availableUser = $user->first(['email' => $email]);
+                if ($availableUser && $availableUser->pid != $_POST['pid']) {
+                    $errors['email'] = "Email already exists. Use another one.";
+                }
+            }
+
+            if (!empty($errors)) {
+                $_SESSION['flash'] = [
+                    'msg' => implode("<br>", $errors),
+                    'type' => "error"
+                ];
+            } else {
+                // Perform update
+                if (isset($_POST['action'])) unset($_POST['action']);
+                $updateStatus = $user->update($_POST['pid'], $_POST, 'pid');
+                if ($updateStatus) {
+                    $_SESSION['flash'] = [
+                        'msg' => "User updated successfully!",
+                        'type' => "success"
+                    ];
+                } else {
+                    $_SESSION['flash'] = [
+                        'msg' => "Failed to update user. Please try again.",
+                        'type' => "error"
+                    ];
+                }
+            }
+        }
+
+        $user->setLimit(7);
+
+        $searchterm = $_GET['searchterm'] ?? "";
         $limit = $user->getLimit();
         $countWithTerms = $user->getTotalCountWhere([], [], $searchterm);
 
-        $totalPages =  ceil( $countWithTerms / $limit ) ; 
-
+        $totalPages = ceil($countWithTerms / $limit);
         $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $offset = ($limit - 1) * ($currentPage-1 ); #generate offset
-        $user->setOffset($offset); //set offset after limit
+        $offset = ($currentPage - 1) * $limit; // Corrected offset calculation
 
-        $userlist = $user->where([], [], $searchterm);//get the details
-        
-        if (isset($userlist) && is_array($userlist) && count($userlist) > 0) {
-            foreach($userlist as $user){//filter out pasword
-                unset($user->password);
+        $user->setOffset($offset);
+        $userlist = $user->where([], [], $searchterm);
+
+        if (!empty($userlist)) {
+            foreach ($userlist as $user) {
+                unset($user->password); // Remove password from result
             }
         }
-        // Instantiate the Pagination class with the current page, total pages, and range
-        $pagination = new Pagination($currentPage, $totalPages, 2); 
-        $paginationLinks = $pagination->generateLinks();    // Generate pagination links
-        // Pass pagination links to the view
-        $this->view('manager/employeeManagement',['paginationLinks' => $paginationLinks, 'userlist' => $userlist ? $userlist : [], 'tot' => $totalPages]);
+
+        $pagination = new Pagination($currentPage, $totalPages, 2);
+        $paginationLinks = $pagination->generateLinks();
+
+        $this->view('manager/employeeManagement', [
+            'paginationLinks' => $paginationLinks,
+            'userlist' => $userlist ?? [],
+            'tot' => $totalPages
+        ]);
     }
+
 
     public function requestApproval(){
         $property = new PropertyModelTemp;

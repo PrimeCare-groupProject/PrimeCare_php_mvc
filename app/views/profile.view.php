@@ -146,7 +146,7 @@
             const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB in bytes
 
             if (!allowedMimeTypes.includes(file.type)) {
-                alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
+                // alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
                 profilePictureInput.value = ''; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'Invalid file type! Please upload an image (JPEG, PNG, or GIF).';
@@ -155,7 +155,7 @@
                 errorAlert.style.display = 'block';
 
             } else if (file.size > maxSizeInBytes) {
-                alert('File size exceeds 2 MB! Please upload a smaller image.');
+                // alert('File size exceeds 2 MB! Please upload a smaller image.');
                 profilePictureInput = profilePicture; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'File size exceeds 2 MB! Please upload a smaller image.';
@@ -236,7 +236,7 @@
 // if (isset($_FILES['profile_picture'])) {
     // show($_FILES['profile_picture'] ?? "null");
     // show( $_POST );
-    show( $user );
+    // show( $user );
     // show( $_SESSION);
 // }
 // show(get_img($user->image_url));

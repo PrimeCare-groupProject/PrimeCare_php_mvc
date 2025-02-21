@@ -20,6 +20,7 @@
         </form>
     </div>
 </div>
+
 <div class="content_wrapper" id='formContainer'>
     <div class="employee-details-container">
         <table class="listing-table-for-customer-payments">
@@ -36,6 +37,7 @@
                     <th style='width: 5%;'>Image</th>
                     <th class='last' style='width: 5%;'>Status</th>
                     <th hidden>Reset Code</th>
+                    <th hidden>Contact</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,7 +45,7 @@
                     if (isset($userlist) && count($userlist) > 0) {
                         foreach ($userlist as $user) {
                             echo "<tr onclick='showUserDetailBox(this)'>";
-                            echo "<td class='first'><input  type='text' name='id' value='{$user->pid}' disabled></td>";
+                            echo "<td class='first'><input type='text' name='id' value='{$user->pid}' disabled></td>";
                             echo "<td><input type='text' name='name' value='{$user->fname} {$user->lname}' disabled></td>";
                             echo "<td><input type='email' name='email' value='{$user->email}' disabled></td>";
                             echo "<td><input type='text' name='nic' value='{$user->nic}' disabled></td>";
@@ -58,13 +60,13 @@
                             }
                             echo "</button></td>";
                             echo "<td><img class='header-profile-picture' style='margin:0px' src='".get_img($user->image_url)."'></td>";
-                            echo "<td class='last'><input  type='text' name='AccountStatus' value='" . ($user->AccountStatus ? 'Active' : 'Inactive') . "' disabled></td>";
+                            echo "<td class='last'><input type='text' name='AccountStatus' value='" . ($user->AccountStatus ? 'Active' : 'Inactive') . "' style='color:" . ($user->AccountStatus ? "var(--green-color)" : "var(--red-color)") . ";' disabled></td>";
                             echo "<td hidden><input type='text' value='" . (empty($user->reset_code) ? "---" : $user->reset_code) . "' disabled></td>";
                             echo "<td hidden><input type='text' value='{$user->contact}' disabled></td>";
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='8'>No records found</td></tr>";
+                        echo "<tr><td colspan='9'>No records found</td></tr>";
                     }
                 ?>
             </tbody>
@@ -75,62 +77,206 @@
     </div>
 </div>
 
-<div id="searchUserForm" style="display: none"><!--style="display: none"-->
+<div id="searchUserForm" style="display: none">
     <form id="find-user" method="post">
-        <input type="hidden" name="find_user" value="1">
+        <input type="hidden" name="action" value="update_user">
         <div class="SearchBox">
             <button class="close_btn" id="close-btn" onclick="removeUserDetailBox(event)">X</button>
             <div class="input-group">
                 <div class="user-details left_details">
                     <div class="input-group">
                         <div class="input-group-group">
-                            <label for="popup-created-date" class="input-label">Created Date:</label>
-                            <input id="popup-created-date" type="text" class="input-field" disabled>
-                        </div>
-                        <div class="input-group-group">
                             <label for="popup-id" class="input-label">ID:</label>
                             <input id="popup-id" type="text" class="input-field" disabled>
                         </div>
+                        <div class="input-group-group">
+                            <label for="popup-status" class="input-label">Account Status:</label>
+                            <input id="popup-status" type="text" class="input-field" disabled>
+                        </div>
                     </div>
-                    <label for="popup-fname" class="input-label">First Name:</label>
-                    <input id="popup-fname" type="text" class="input-field" disabled>
-                    <label for="popup-lname" class="input-label">Last Name:</label>
-                    <input id="popup-lname" type="text" class="input-field" disabled>
-                        <label for="popup-email" class="input-label">Email:</label>
-                        <input id="popup-email" type="email" class="input-field" disabled>
                     <div class="input-group">
                         <div class="input-group-group">
-                            <label for="popup-reset-code" class="input-label">Reset Code:</label>
-                            <input id="popup-reset-code" type="text" class="input-field" disabled>
+                            <label for="popup-fname" class="input-label">First Name:</label>
+                            <input id="popup-fname" type="text" class="input-field" disabled>
                         </div>
                         <div class="input-group-group">
-                            <label for="popup-contact" class="input-label">Contact :</label>
+                            <label for="popup-lname" class="input-label">Last Name:</label>
+                            <input id="popup-lname" type="text" class="input-field" disabled>
+                        </div>
+                    </div>
+
+                    <label for="popup-email" class="input-label">Email:</label>
+                    <input id="popup-email" type="email" class="input-field" disabled>
+                    
+                    <div class="input-group">
+                        <div class="input-group-group">
+                            <label for="popup-nic" class="input-label">NIC:</label>
+                            <input id="popup-nic" type="text" class="input-field" disabled>
+                        </div>
+                        <div class="input-group-group">
+                            <label for="popup-contact" class="input-label">Contact:</label>
                             <input id="popup-contact" type="text" class="input-field" disabled>
                         </div>
                     </div>
+                    <div class="input-group-group">
+                        <label for="popup-reset-code" class="input-label">Reset Code:</label>
+                        <input id="popup-reset-code" type="text" class="input-field" disabled>
+                    </div>
                 </div>
                 <div class="user-details right_details">
-                    <!-- profile picture -->
                     <img src="" class="profile_pic_large" id="popup-profile-pic">
-                    <!-- buttons -->
-                    <div class="input-group-aligned">
                     <div class="input-group-aligned">
                         <button type="button" class="secondary-btn" id="edit-btn" style="margin-top: 0px;" onclick="makeEditable()">Edit</button>
                         <button type="button" class="red btn" id="delete-btn" onclick="makeEditable()">Delete</button>
                         <button type="button" class="green btn" id="save-btn" onclick="saveChanges()" style="display: none;">Save</button>
                         <button type="button" class="red btn" id="cancel-btn" onclick="cancelChanges()" style="display: none;">Cancel</button>
                     </div>
-
-                    </div>
                 </div>
             </div>
         </div>
     </form>
+    <div class="loader-container" style="display: none;">
+        <div class="spinner-loader"></div>
+    </div>
 </div>
 
 <script>
     let isDateAscending = true;
     let isUserTypeAscending = true;
+    let initialData = {};
+
+    function showUserDetailBox(row) {
+        const cells = row.querySelectorAll('td');
+        
+        //Get values from table cells
+        document.getElementById('popup-id').value = cells[0].querySelector('input').value;
+        
+        //Split name into first and last name
+        const fullName = cells[1].querySelector('input').value;
+        const names = fullName.split(' ');
+        document.getElementById('popup-fname').value = names[0];
+        document.getElementById('popup-lname').value = names[1] || '';
+        
+        // Get other values
+        document.getElementById('popup-email').value = cells[2].querySelector('input').value;
+        document.getElementById('popup-nic').value = cells[3].querySelector('input').value;
+        document.getElementById('popup-profile-pic').src = cells[5].querySelector('img').src;
+        document.getElementById('popup-status').value = cells[6].querySelector('input').value;
+        document.getElementById('popup-status').style.color = cells[6].querySelector('input').style.color;
+        document.getElementById('popup-reset-code').value = cells[7].querySelector('input').value;
+        document.getElementById('popup-contact').value = cells[8].querySelector('input').value;
+        
+        // Show form and blur background
+        document.getElementById('searchUserForm').style.display = 'block';
+        document.getElementById('formContainer').classList.add('blurred-background');
+        
+        if (document.getElementById('popup-status').value === 'Active') {
+            document.getElementById('popup-status').style.color = 'var(--green-color)';
+        } else {
+            document.getElementById('popup-status').style.color = 'var(--red-color)';
+        }
+    }
+
+    function removeUserDetailBox(event) {
+        event.preventDefault();
+        cancelChanges();
+        document.getElementById('searchUserForm').style.display = 'none';
+        document.getElementById('formContainer').classList.remove('blurred-background');
+    }
+
+    function makeEditable() {
+        // Save initial data
+        initialData = {
+            pid: document.getElementById('popup-id').value,
+            fname: document.getElementById('popup-fname').value,
+            lname: document.getElementById('popup-lname').value,
+            email: document.getElementById('popup-email').value,
+            nic: document.getElementById('popup-nic').value,
+            status: document.getElementById('popup-status').value,
+            resetCode: document.getElementById('popup-reset-code').value,
+            contact: document.getElementById('popup-contact').value
+        };
+
+        // Enable editing
+        document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
+            if (field.id !== 'popup-id' && field.id !== 'popup-status') {
+                field.disabled = false;
+            }
+        });
+
+        // Toggle buttons
+        document.getElementById('edit-btn').style.display = 'none';
+        document.getElementById('delete-btn').style.display = 'none';
+        document.getElementById('save-btn').style.display = 'inline-block';
+        document.getElementById('cancel-btn').style.display = 'inline-block';
+    }
+
+    function cancelChanges() {
+        // Restore initial values
+        document.getElementById('popup-id').value = initialData.pid;
+        document.getElementById('popup-fname').value = initialData.fname;
+        document.getElementById('popup-lname').value = initialData.lname;
+        document.getElementById('popup-email').value = initialData.email;
+        document.getElementById('popup-nic').value = initialData.nic;
+        document.getElementById('popup-status').value = initialData.status;
+        document.getElementById('popup-reset-code').value = initialData.resetCode;
+        document.getElementById('popup-contact').value = initialData.contact;
+
+        // Disable editing
+        document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
+            field.disabled = true;
+        });
+
+        // Toggle buttons
+        document.getElementById('edit-btn').style.display = 'inline-block';
+        document.getElementById('delete-btn').style.display = 'inline-block';
+        document.getElementById('save-btn').style.display = 'none';
+        document.getElementById('cancel-btn').style.display = 'none';
+    }
+
+    function saveChanges() {
+        // Create hidden inputs for all the data
+        const form = document.getElementById('find-user');
+        
+        const hiddenInputs = {
+            'pid': document.getElementById('popup-id').value,
+            'fname': document.getElementById('popup-fname').value,
+            'lname': document.getElementById('popup-lname').value,
+            'email': document.getElementById('popup-email').value,
+            'nic': document.getElementById('popup-nic').value,
+            'status': document.getElementById('popup-status').value,
+            'reset_code': document.getElementById('popup-reset-code').value,
+            'contact': document.getElementById('popup-contact').value,
+        };
+
+        // Add or update hidden inputs only if the value has changed
+        let fieldCount = 0;
+        console.log("count is", fieldCount);
+        for(let name in hiddenInputs) {
+            if(hiddenInputs[name] !== initialData[name] || name === 'pid') {
+                let input = form.querySelector(`input[name="${name}"]`);
+                if(name == 'reset_code' && hiddenInputs['reset_code'] === '---') {
+                    continue;
+                }
+                if(!input) {
+                    input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    form.appendChild(input);
+                }
+                input.value = hiddenInputs[name];
+                fieldCount++;
+            }
+        }
+        fieldCount--;
+        console.log("count is", fieldCount);
+        if(fieldCount > 0){
+            // Submit the form
+            form.submit();
+        }else{
+            cancelChanges();
+        }
+    }
 
     document.getElementById('date-header').addEventListener('click', function() {
         sortTableByDate(isDateAscending);
@@ -164,114 +310,20 @@
         rows.forEach(row => tbody.appendChild(row));
     }
 
-    function showUserDetailBox(row) {
-        const cells = row.querySelectorAll('td');
-        console.log(cells)
-        document.getElementById('popup-created-date').value = cells[0].querySelector('input').value;
-        document.getElementById('popup-id').value = cells[1].querySelector('input').value;
-        document.getElementById('popup-fname').value = cells[2].querySelector('input').value.split(' ')[0];
-        document.getElementById('popup-lname').value = cells[2].querySelector('input').value.split(' ')[1];
-        document.getElementById('popup-email').value = cells[3].querySelector('input').value;
-        document.getElementById('popup-reset-code').value = cells[6].querySelector('input').value.trim();
-        document.getElementById('popup-contact').value = cells[7].querySelector('input').value.trim();
-
-        // Set the profile image
-        const imgSrc = cells[5].querySelector('img').src; // Get the image source from the table
-        document.getElementById('popup-profile-pic').src = imgSrc;
-
-        document.getElementById('searchUserForm').style.display = 'block';
-        document.getElementById('formContainer').classList.add('blurred-background');
+    function displayLoader() {
+        document.querySelector('.loader-container').style.display = '';
+        //onclick="displayLoader()"
     }
+    
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', displayLoader);
+    });
 
-    function removeUserDetailBox(event) {
-        event.preventDefault();
-        cancelChanges();
-        document.getElementById('searchUserForm').style.display = 'none';
-        document.getElementById('formContainer').classList.remove('blurred-background');
-    }
-
-    let initialData = {};
-
-    function makeEditable() {
-        // Save the initial data for all fields
-        initialData = {
-            createdDate: document.getElementById('popup-created-date').value,
-            id: document.getElementById('popup-id').value,
-            fname: document.getElementById('popup-fname').value,
-            lname: document.getElementById('popup-lname').value,
-            email: document.getElementById('popup-email').value,
-            resetCode: document.getElementById('popup-reset-code').value,
-            contact: document.getElementById('popup-contact').value
-        };
-
-        // Enable fields for editing
-        document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
-            field.disabled = false;
-        });
-
-        // Show Save and Cancel buttons, hide Edit button
-        document.getElementById('edit-btn').style.display = 'none';
-        document.getElementById('delete-btn').style.display = 'none';
-        document.getElementById('save-btn').style.display = 'inline-block';
-        document.getElementById('cancel-btn').style.display = 'inline-block';
-    }
-
-    function cancelChanges() {
-        // Revert all fields to their initial values
-        document.getElementById('popup-created-date').value = initialData.createdDate;
-        document.getElementById('popup-id').value = initialData.id;
-        document.getElementById('popup-fname').value = initialData.fname;
-        document.getElementById('popup-lname').value = initialData.lname;
-        document.getElementById('popup-email').value = initialData.email;
-        document.getElementById('popup-reset-code').value = initialData.resetCode;
-        document.getElementById('popup-contact').value = initialData.contact;
-
-        // Disable editing for fields
-        document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
-            field.disabled = true;
-        });
-
-        // Hide Save and Cancel buttons, show Edit button
-        document.getElementById('edit-btn').style.display = 'inline-block';
-        document.getElementById('delete-btn').style.display = 'inline-block';
-        document.getElementById('save-btn').style.display = 'none';
-        document.getElementById('cancel-btn').style.display = 'none';
-    }
-
-    function saveChanges() {
-        // Disable fields after saving
-        document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
-            field.disabled = true;
-        });
-
-        // Hide Save and Cancel buttons, show Edit button
-        document.getElementById('edit-btn').style.display = 'inline-block';
-        document.getElementById('delete-btn').style.display = 'inline-block';
-        document.getElementById('save-btn').style.display = 'none';
-        document.getElementById('cancel-btn').style.display = 'none';
-
-        // Optionally, send the updated data to the server via AJAX
-        const updatedData = {
-            createdDate: document.getElementById('popup-created-date').value,
-            id: document.getElementById('popup-id').value,
-            fname: document.getElementById('popup-fname').value,
-            lname: document.getElementById('popup-lname').value,
-            email: document.getElementById('popup-email').value,
-            resetCode: document.getElementById('popup-reset-code').value,
-            contact: document.getElementById('popup-contact').value
-        };
-
-        console.log('Saving updated data:', updatedData);
-        // Example AJAX POST request
-        // fetch('/save-user-details', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(updatedData)
-        // }).then(response => {
-        //     if (response.ok) alert('Changes saved successfully!');
-        // }).catch(error => console.error('Error saving changes:', error));
-    }
-
+    document.querySelectorAll('a').forEach(link => {
+        if (!link.getAttribute('href').startsWith('#')) {
+            link.addEventListener('click', displayLoader);
+        }
+    });
 </script>
-
+<?php show($_POST); ?>
 <?php require_once 'managerFooter.view.php'; ?>

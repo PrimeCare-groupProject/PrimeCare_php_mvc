@@ -125,7 +125,7 @@
                     setTimeout(() => {
                         submitBtn.submit();
                         displayLoader();
-                    }, 300);
+                    });
                 }
 
                 //loader effect

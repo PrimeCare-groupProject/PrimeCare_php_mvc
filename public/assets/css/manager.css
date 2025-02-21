@@ -296,14 +296,14 @@ a .management-card .management-icon img {
 }
 
 .SearchBox {
-    position: absolute;
+    position: fixed;
     left: 25%;
     top: 27%;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 65%;
-    height: 60%;
+    height: 55%;
     padding: 20px;
     background-color: var(--white-color);
     border-radius: 10px;
@@ -540,4 +540,17 @@ a .management-card .management-icon img {
     justify-content: flex-end;
     padding: 0 40px;
     gap: 20px;
+}
+
+.active-status {
+    color: green; /* Text color */
+    background-color: var(--green-color); /* Green background */
+    border: 1px solid var(--green-color); /* Green border */
+}
+
+/* Red style for inactive status */
+.inactive-status {
+    color: white; /* Text color */
+    background-color: var(--red-color); /* Red background */
+    border: 1px solid var(--red-color); /* Red border */
 }
