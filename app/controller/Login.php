@@ -50,6 +50,12 @@ class Login {
                         ];
                         redirect('login');
                         return;
+                    } elseif ($result->AccountStatus == 2) {
+                        // Account is blocked
+                        $_SESSION['flash'] = [
+                            'msg' => "Your details are being processed still. Hang in there.",
+                            'type' => "welcome"
+                        ];
                     }
 
                     // Store user data in session

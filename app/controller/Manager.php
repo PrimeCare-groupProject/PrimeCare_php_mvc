@@ -191,22 +191,24 @@ class Manager {
                 //AccountStatus
                 $userId = $_SESSION['user']->pid; // Replace with actual user ID from session
                 
+                $_SESSION['flash']['msg'] = "Managers are not allowed to delete Accounts.";
+                $_SESSION['flash']['type'] = "error";
                 // Update the user's Account Status to 0 instead od deleting accounnt
-                $updated = $user->update($userId, [
-                    'AccountStatus' => 0
-                ], 'pid');
-                if ($updated) {
-                    // Clear the user session data
-                    session_unset();
-                    session_destroy();
-                    // Redirect to the home page or login page
-                    redirect('home');
-                    exit;
-                } else {
-                    $_SESSION['flash']['msg'] = "Failed to delete account. Please try again.";
-                    $_SESSION['flash']['type'] = "error";
-                    // $errors[] = "Failed to delete account. Please try again.";
-                }
+                // $updated = $user->update($userId, [
+                //     'AccountStatus' => 0
+                // ], 'pid');
+                // if ($updated) {
+                //     // Clear the user session data
+                //     session_unset();
+                //     session_destroy();
+                //     // Redirect to the home page or login page
+                //     redirect('home');
+                //     exit;
+                // } else {
+                //     $_SESSION['flash']['msg'] = "Failed to delete account. Please try again.";
+                //     $_SESSION['flash']['type'] = "error";
+                //     // $errors[] = "Failed to delete account. Please try again.";
+                // }
                 // Delete the user from the database
                 // $user = new User();
                 // $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
@@ -469,9 +471,6 @@ class Manager {
     
 
     public function managementHome($a = '', $b = '', $c = '', $d = ''){
-        // echo $a . "<br>";
-        // echo $b . "<br>";
-        // echo $c . "<br>";
         switch($a){
             case 'propertymanagement':
                 $this->propertyManagement($b,$c,$d);

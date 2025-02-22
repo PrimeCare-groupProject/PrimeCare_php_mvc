@@ -86,6 +86,9 @@
             </div>
 
         </div>
+        <?php if ($_SESSION['user']->AccountStatus == 2): ?>
+            <p class="status-message" style="text-align: right; margin-bottom:-15px; color: var(--primary-color);">Pending details change request</p>
+        <?php endif; ?>
     </div>
 </form>
 <form id="delete-account-form" method="post" >
@@ -220,9 +223,9 @@
     });
 
     removeButton.addEventListener('click', () => {
-    dialogContainer.style.display = 'block';
-    blurBackground.classList.add('blurred-background'); // Add blur class
-});
+        dialogContainer.style.display = 'block';
+        blurBackground.classList.add('blurred-background'); // Add blur class
+    });
 
     cancelDeleteButton.addEventListener('click', () => {
         dialogContainer.style.display = 'none';
@@ -261,4 +264,5 @@
         require_once 'manager/managerFooter.view.php'; 
         
     }
+    show($user);
 ?>
