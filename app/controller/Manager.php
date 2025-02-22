@@ -541,6 +541,39 @@ class Manager {
                     ];
                 }
             }
+
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "delete_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $user->update($pid, ['AccountStatus' => 0], 'pid');
+            $_SESSION['flash'] = [
+                'msg' => "User deleted successfully!",
+                'type' => "success"
+            ];
+            // $user->update();
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "block_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $updateStatus = $user->update($pid, ['AccountStatus' => -1], 'pid');
+            if ($updateStatus) {
+                $_SESSION['flash'] = [
+                    'msg' => "User Blocked successfully!",
+                    'type' => "success"
+                ];
+            }
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "unblock_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $updateStatus = $user->update($pid, ['AccountStatus' =>0], 'pid');
+            if ($updateStatus) {
+                $_SESSION['flash'] = [
+                    'msg' => "User Unblocked successfully!",
+                    'type' => "success"
+                ];
+            }
         }
 
         $user->setLimit(7);

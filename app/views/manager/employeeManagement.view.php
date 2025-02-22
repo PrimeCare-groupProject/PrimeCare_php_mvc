@@ -28,14 +28,14 @@
                 <tr>
                     <th class='first' style='max-width: 35px;' id="date-header">ID</th>
                     <th style='max-width: 20%;'>Name</th>
-                    <th style='max-width: 23%;'>Email</th>
-                    <th style='max-width: 15%;'>NIC</th>
-                    <th style='min-width: 75px;' class="sortable" id="user-type-header">
+                    <th style='max-width: 30%;'>Email</th>
+                    <th style='max-width: 60px'>NIC</th>
+                    <th style='min-width: 60px;' class="sortable" id="user-type-header">
                         User Type
                         <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
                     </th>
                     <th style='width: 5%;'>Image</th>
-                    <th class='last' style='width: 5%;'>Status</th>
+                    <th class='last' style='width: 35px;'>Status</th>
                     <th hidden>Reset Code</th>
                     <th hidden>Contact</th>
                 </tr>
@@ -60,7 +60,7 @@
                             }
                             echo "</button></td>";
                             echo "<td><img class='header-profile-picture' style='margin:0px' src='".get_img($user->image_url)."'></td>";
-                            echo "<td class='last'><input type='text' name='AccountStatus' value='" . ($user->AccountStatus ? 'Active' : 'Inactive') . "' style='color:" . ($user->AccountStatus ? "var(--green-color)" : "var(--red-color)") . ";' disabled></td>";
+                            echo "<td class='last'><input type='text' name='AccountStatus' value='" . ($user->AccountStatus ==  0 ? 'Inactive' : ($user->AccountStatus == -1 ? 'Blocked' : 'Active')) . "' style='color:" . ($user->AccountStatus == 1 ? "var(--green-color)" : "var(--red-color)") . ";' disabled></td>";
                             echo "<td hidden><input type='text' value='" . (empty($user->reset_code) ? "---" : $user->reset_code) . "' disabled></td>";
                             echo "<td hidden><input type='text' value='{$user->contact}' disabled></td>";
                             echo "</tr>";
@@ -127,8 +127,11 @@
                     <img src="" class="profile_pic_large" id="popup-profile-pic">
                     <div class="input-group-aligned">
                         <button type="button" class="secondary-btn" id="edit-btn" style="margin-top: 0px;" onclick="makeEditable()">Edit</button>
-                        <button type="button" class="red btn" id="delete-btn" onclick="makeEditable()">Delete</button>
+                        <button type="button" class="red btn" id="delete-btn" onclick="deleteAccount()">Delete</button>
+                        
                         <button type="button" class="green btn" id="save-btn" onclick="saveChanges()" style="display: none;">Save</button>
+                        <button type="button" class="green btn" id="unblock-btn" onclick="unblockAccount()" style="display: none;">Unblock</button>
+                        <button type="button" class="red btn" id="block-btn" onclick="blockAccount()" style="display: none;">Block</button>
                         <button type="button" class="red btn" id="cancel-btn" onclick="cancelChanges()" style="display: none;">Cancel</button>
                     </div>
                 </div>
@@ -141,6 +144,31 @@
 </div>
 
 <script>
+    // Form elements
+    const searchUserForm = document.getElementById('searchUserForm');
+    const formContainer = document.getElementById('formContainer');
+    const findUserForm = document.getElementById('find-user');
+    const loaderContainer = document.querySelector('.loader-container');
+
+    // Popup form fields
+    const popupId = document.getElementById('popup-id');
+    const popupFname = document.getElementById('popup-fname');
+    const popupLname = document.getElementById('popup-lname');
+    const popupEmail = document.getElementById('popup-email');
+    const popupNic = document.getElementById('popup-nic');
+    const popupProfilePic = document.getElementById('popup-profile-pic');
+    const popupStatus = document.getElementById('popup-status');
+    const popupResetCode = document.getElementById('popup-reset-code');
+    const popupContact = document.getElementById('popup-contact');
+
+    // Buttons
+    const blockBtn = document.getElementById('block-btn');
+    const unblockBtn = document.getElementById('unblock-btn');
+    const editBtn = document.getElementById('edit-btn');
+    const deleteBtn = document.getElementById('delete-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+
     let isDateAscending = true;
     let isUserTypeAscending = true;
     let initialData = {};
@@ -148,53 +176,70 @@
     function showUserDetailBox(row) {
         const cells = row.querySelectorAll('td');
         
-        //Get values from table cells
-        document.getElementById('popup-id').value = cells[0].querySelector('input').value;
+        // Get values from table cells
+        popupId.value = cells[0].querySelector('input').value;
         
-        //Split name into first and last name
+        // Split name into first and last name
         const fullName = cells[1].querySelector('input').value;
         const names = fullName.split(' ');
-        document.getElementById('popup-fname').value = names[0];
-        document.getElementById('popup-lname').value = names[1] || '';
+        popupFname.value = names[0];
+        popupLname.value = names[1] || '';
         
         // Get other values
-        document.getElementById('popup-email').value = cells[2].querySelector('input').value;
-        document.getElementById('popup-nic').value = cells[3].querySelector('input').value;
-        document.getElementById('popup-profile-pic').src = cells[5].querySelector('img').src;
-        document.getElementById('popup-status').value = cells[6].querySelector('input').value;
-        document.getElementById('popup-status').style.color = cells[6].querySelector('input').style.color;
-        document.getElementById('popup-reset-code').value = cells[7].querySelector('input').value;
-        document.getElementById('popup-contact').value = cells[8].querySelector('input').value;
+        popupEmail.value = cells[2].querySelector('input').value;
+        popupNic.value = cells[3].querySelector('input').value;
+        popupProfilePic.src = cells[5].querySelector('img').src;
+        popupStatus.value = cells[6].querySelector('input').value;
+        popupStatus.style.color = cells[6].querySelector('input').style.color;
+        popupResetCode.value = cells[7].querySelector('input').value;
+        popupContact.value = cells[8].querySelector('input').value;
         
         // Show form and blur background
-        document.getElementById('searchUserForm').style.display = 'block';
-        document.getElementById('formContainer').classList.add('blurred-background');
+        searchUserForm.style.display = 'block';
+        formContainer.classList.add('blurred-background');
         
-        if (document.getElementById('popup-status').value === 'Active') {
-            document.getElementById('popup-status').style.color = 'var(--green-color)';
-        } else {
-            document.getElementById('popup-status').style.color = 'var(--red-color)';
-        }
-    }
+        const accountStatus = popupStatus.value;
+        
+        if (accountStatus === 'Active') {
+            popupStatus.style.color = 'var(--green-color)';
+            editBtn.style.display = 'inline-block';
+            deleteBtn.style.display = 'inline-block';
 
-    function removeUserDetailBox(event) {
-        event.preventDefault();
-        cancelChanges();
-        document.getElementById('searchUserForm').style.display = 'none';
-        document.getElementById('formContainer').classList.remove('blurred-background');
+            blockBtn.style.display = 'none';
+            unblockBtn.style.display = 'none';
+            saveBtn.style.display = 'none';
+
+        } else if (accountStatus === 'Blocked') {
+            popupStatus.style.color = 'var(--red-color)';
+            unblockBtn.style.display = 'inline-block';
+            editBtn.style.display = 'inline-block';
+
+            deleteBtn.style.display = 'none';
+            blockBtn.style.display = 'none';
+            deleteBtn.style.display = 'none';
+
+        } else {
+            popupStatus.style.color = 'var(--red-color)';
+            editBtn.style.display = 'inline-block';
+            blockBtn.style.display = 'inline-block';
+            
+            saveBtn.style.display = 'none';
+            deleteBtn.style.display = 'none';
+            unblockBtn.style.display = 'none';
+        }
     }
 
     function makeEditable() {
         // Save initial data
         initialData = {
-            pid: document.getElementById('popup-id').value,
-            fname: document.getElementById('popup-fname').value,
-            lname: document.getElementById('popup-lname').value,
-            email: document.getElementById('popup-email').value,
-            nic: document.getElementById('popup-nic').value,
-            status: document.getElementById('popup-status').value,
-            resetCode: document.getElementById('popup-reset-code').value,
-            contact: document.getElementById('popup-contact').value
+            pid: popupId.value,
+            fname: popupFname.value,
+            lname: popupLname.value,
+            email: popupEmail.value,
+            nic: popupNic.value,
+            status: popupStatus.value,
+            resetCode: popupResetCode.value,
+            contact: popupContact.value
         };
 
         // Enable editing
@@ -205,89 +250,150 @@
         });
 
         // Toggle buttons
-        document.getElementById('edit-btn').style.display = 'none';
-        document.getElementById('delete-btn').style.display = 'none';
-        document.getElementById('save-btn').style.display = 'inline-block';
-        document.getElementById('cancel-btn').style.display = 'inline-block';
+        const accountStatus = popupStatus.value;
+
+        editBtn.style.display = 'none';
+        cancelBtn.style.display = 'inline-block';
+        saveBtn.style.display = 'inline-block';
+        
+        if (accountStatus === 'Active') {
+            popupStatus.style.color = 'var(--green-color)';
+            deleteBtn.style.display = 'none';
+
+        } else if (accountStatus === 'Blocked') {
+            unblockBtn.style.display = 'none';
+            popupStatus.style.color = 'var(--red-color)';
+        } else {
+            popupStatus.style.color = 'var(--red-color)';
+            blockBtn.style.display = 'none';
+        }
     }
 
     function cancelChanges() {
         // Restore initial values
-        document.getElementById('popup-id').value = initialData.pid;
-        document.getElementById('popup-fname').value = initialData.fname;
-        document.getElementById('popup-lname').value = initialData.lname;
-        document.getElementById('popup-email').value = initialData.email;
-        document.getElementById('popup-nic').value = initialData.nic;
-        document.getElementById('popup-status').value = initialData.status;
-        document.getElementById('popup-reset-code').value = initialData.resetCode;
-        document.getElementById('popup-contact').value = initialData.contact;
+        popupId.value = initialData.pid;
+        popupFname.value = initialData.fname;
+        popupLname.value = initialData.lname;
+        popupEmail.value = initialData.email;
+        popupNic.value = initialData.nic;
+        popupStatus.value = initialData.status;
+        popupResetCode.value = initialData.resetCode;
+        popupContact.value = initialData.contact;
 
         // Disable editing
         document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
             field.disabled = true;
         });
 
-        // Toggle buttons
-        document.getElementById('edit-btn').style.display = 'inline-block';
-        document.getElementById('delete-btn').style.display = 'inline-block';
-        document.getElementById('save-btn').style.display = 'none';
-        document.getElementById('cancel-btn').style.display = 'none';
+        const accountStatus = popupStatus.value;
+
+        editBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'none';
+        saveBtn.style.display = 'none';
+        
+        if (accountStatus === 'Active') {
+            deleteBtn.style.display = 'inline-block';
+            blockBtn.style.display = 'none';
+            unblockBtn.style.display = 'none';
+        } else if (accountStatus === 'Blocked') {
+            unblockBtn.style.display = 'inline-block';
+            blockBtn.style.display = 'none';
+            deleteBtn.style.display = 'none';
+        } else {
+            blockBtn.style.display = 'inline-block';
+            deleteBtn.style.display = 'none';
+            unblockBtn.style.display = 'none';
+        }
+    }
+
+    function removeUserDetailBox(event) {
+        event.preventDefault();
+        cancelChanges();
+        searchUserForm.style.display = 'none';
+        formContainer.classList.remove('blurred-background');
+    }
+
+    function createFormWithAction(action) {
+        const form = document.createElement('form');
+        form.method = 'post';
+
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'action';
+        hiddenInput.value = action;
+        form.appendChild(hiddenInput);
+
+        const pidField = document.createElement('input');
+        pidField.type = 'hidden';
+        pidField.name = 'pid';
+        pidField.value = popupId.value;
+        form.appendChild(pidField);
+
+        return form;
+    }
+
+    function deleteAccount() {
+        const form = createFormWithAction('delete_user');
+        document.body.appendChild(form);
+        displayLoader();
+        form.submit();
+    }
+
+    function blockAccount() {
+        const form = createFormWithAction('block_user');
+        document.body.appendChild(form);
+        displayLoader();
+        form.submit();
+    }
+
+    function unblockAccount() {
+        const form = createFormWithAction('unblock_user');
+        document.body.appendChild(form);
+        displayLoader();
+        form.submit();
     }
 
     function saveChanges() {
-        // Create hidden inputs for all the data
-        const form = document.getElementById('find-user');
+        const form = findUserForm;
         
-        const hiddenInputs = {
-            'pid': document.getElementById('popup-id').value,
-            'fname': document.getElementById('popup-fname').value,
-            'lname': document.getElementById('popup-lname').value,
-            'email': document.getElementById('popup-email').value,
-            'nic': document.getElementById('popup-nic').value,
-            'status': document.getElementById('popup-status').value,
-            'reset_code': document.getElementById('popup-reset-code').value,
-            'contact': document.getElementById('popup-contact').value,
+        const currentValues = {
+            pid: popupId.value,
+            fname: popupFname.value,
+            lname: popupLname.value,
+            email: popupEmail.value,
+            nic: popupNic.value,
+            status: popupStatus.value,
+            reset_code: popupResetCode.value,
+            contact: popupContact.value,
         };
 
-        // Add or update hidden inputs only if the value has changed
         let fieldCount = 0;
-        console.log("count is", fieldCount);
-        for(let name in hiddenInputs) {
-            if(hiddenInputs[name] !== initialData[name] || name === 'pid') {
-                let input = form.querySelector(`input[name="${name}"]`);
-                if(name == 'reset_code' && hiddenInputs['reset_code'] === '---') {
+        for (let name in currentValues) {
+            if (currentValues[name] !== initialData[name] || name === 'pid') {
+                if (name === 'reset_code' && currentValues.reset_code === '---') {
                     continue;
                 }
-                if(!input) {
+                let input = form.querySelector(`input[name="${name}"]`);
+                if (!input) {
                     input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = name;
                     form.appendChild(input);
                 }
-                input.value = hiddenInputs[name];
+                input.value = currentValues[name];
                 fieldCount++;
             }
         }
-        fieldCount--;
-        console.log("count is", fieldCount);
-        if(fieldCount > 0){
-            // Submit the form
+
+        if (fieldCount > 1) {
+            displayLoader();
             form.submit();
-        }else{
+        } else {
             cancelChanges();
         }
     }
 
-    document.getElementById('date-header').addEventListener('click', function() {
-        sortTableByDate(isDateAscending);
-        isDateAscending = !isDateAscending;
-    });
-
-    document.getElementById('user-type-header').addEventListener('click', function() {
-        sortTableByUserType(isUserTypeAscending);
-        isUserTypeAscending = !isUserTypeAscending;
-    });
-
+    // Sorting functions
     function sortTableByDate(isAscending) {
         const rows = Array.from(document.querySelectorAll('.listing-table-for-customer-payments tbody tr'));
         rows.sort((a, b) => {
@@ -311,10 +417,20 @@
     }
 
     function displayLoader() {
-        document.querySelector('.loader-container').style.display = '';
-        //onclick="displayLoader()"
+        loaderContainer.style.display = '';
     }
-    
+
+    // Event Listeners
+    document.getElementById('date-header').addEventListener('click', () => {
+        sortTableByDate(isDateAscending);
+        isDateAscending = !isDateAscending;
+    });
+
+    document.getElementById('user-type-header').addEventListener('click', () => {
+        sortTableByUserType(isUserTypeAscending);
+        isUserTypeAscending = !isUserTypeAscending;
+    });
+
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', displayLoader);
     });
@@ -325,5 +441,4 @@
         }
     });
 </script>
-<?php show($_POST); ?>
 <?php require_once 'managerFooter.view.php'; ?>
