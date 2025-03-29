@@ -1,223 +1,402 @@
 <?php require_once 'ownerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/property/propertylisting'>
+    <a href='<?= ROOT ?>/dashboard/propertyListing'>
         <img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons">
     </a>
     <h2>ADD PROPERTIES</h2>
 </div>
 
-<?php 
-    if(isset($_SESSION['flash'])){
-        flash_message(); 
-    }
+<?php
+if (isset($_SESSION['flash'])) {
+    flash_message();
+}
 ?>
 
 <form method="POST" action="<?= ROOT ?>/dashboard/propertylisting/create" enctype="multipart/form-data">
-    <div class="owner-addProp-container">
-        <div class="owner-addProp-form-left">
-            <label class="input-label">Name Of Property*</label>
-            <input type="text" name="name" placeholder="Enter Property Name" class="input-field" required>
+    <div class="owner-addProp-form">
+        <h3 class="form-headers no-top-border">Property Details</h3>
+        <label class="input-label">Name Of Property*</label>
+        <input type="text" name="name" placeholder="Enter Property Name" class="input-field" required>
 
-            <!-- <label class="input-label">Type*</label>
-            <select name="type" class="input-field" required>
-                <option value="short_term">Short Term</option>
-                <option value="monthly">Monthly</option>
-                <option value="service_only">Service Only</option>
-            </select> -->
-            <label class="input-label">Type*</label>
-            <select name="type" class="input-field" id="property-type" required onchange="toggleRentField()">
-                <option value="shortTerm">Short Term</option>
-                <option value="monthly">Monthly</option>
-                <option value="serviceOnly">Service Only</option>
-            </select>
+        <label class="input-label">Type*</label>
+        <select name="type" class="input-field" id="property-type" required onchange="toggleRentField()">
+            <option value="House">House</option>
+            <option value="Apartment">Apartment</option>
+            <option value="Villa">Villa</option>
+            <option value="Studio">Studio</option>
+            <option value="farmhouse">Farmhouse</option>
+        </select>
 
-            <label class="input-label">Description*</label>
-            <textarea name="description" placeholder="Write About Property" class="input-field" required></textarea>
-
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">Year Built*</label>
-                    <input type="text" name="year_built" placeholder="Enter Property Year Built" class="input-field" required>
-                </div>
-                <!-- <div class="input-group-group">
-                    <label class="input-label">Monthly Rent In LKR*</label>
-                    <input type="text" name="rent_on_basis" placeholder="Enter Rent" class="input-field" required>
-                </div> -->
-                <div class="input-group-group" id="rent-basis-field" style="display: none;">
-                    <label class="input-label">Monthly Rent In LKR*</label>
-                    <input type="number" name="rent_on_basis" placeholder="Enter Rent" class="input-field" value="0">
-                </div>
-            </div>
-
-            <!-- <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">Status*</label>
-                    <input type="text" name="status" placeholder="Enter the status" class="input-field" required>
-                    <select name="status" class="input-field" required>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="under_maintenance">Under Maintenance</option>
-                        <option value="sold">Sold</option>
-                        <option value="pending">Pending</option>
-                    </select>
-                </div>
-            </div> -->
-
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">Furnished</label>
-                    <select name="furnished" class="input-field">
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </div>
-                <div class="input-group-group">
-                    <label class="input-label">Parking</label>
-                    <select name="parking" class="input-field">
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- <label class="input-label">Upload Property Image*</label>
-            <div class="owner-addProp-file-upload">
-                <input type="file" name="property_image[]" id="property_image" class="input-field" multiple required>
-                <div class="owner-addProp-upload-area">
-                    <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
-                    <p class="upload-area-no-margin">Drop your files here</p>
-                    <button type="button" class="primary-btn" onclick="document.getElementById('property_image').click()">Choose File</button>
-                </div>
-            </div> -->
-            <div id="uploaded-files" class="owner-addProp-uploaded-files">
-                <!-- Uploaded files will be displayed here -->
-            </div>
+        <label class="input-label">Description*</label>
+        <textarea name="description" placeholder="Write About Property" class="input-field" required></textarea>
 
 
-            <label class="input-label">Upload Property Images (Max 6)*</label>
-            <div class="owner-addProp-file-upload">
-                <input type="file" name="property_images[]" id="property_images" class="input-field" multiple
-                    accept=".png, .jpg, .jpeg" data-max-files="6" onchange="handleFileSelect(event)" required>
-                <div class="owner-addProp-upload-area">
-                    <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
-                    <p class="upload-area-no-margin">Drop your files here</p>
-                    <button type="button" class="primary-btn" onclick="document.getElementById('property_images').click()">Choose File</button>
-                </div>
-            </div>
-            <div id="preview-container" class="owner-addProp-uploaded-files">
-                <!-- Preview area for selected images -->
-            </div>
-
-
-
-
-
-        </div>
-
-        <div class="owner-addProp-form-right">
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">Country*</label>
-                    <input type="text" name="country" placeholder="Enter Property Country" class="input-field" required>
-                </div>
-                <div class="input-group-group">
-                    <label class="input-label">State*</label>
-                    <input type="text" name="state_province" placeholder="Enter Property State" class="input-field" required>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">City*</label>
-                    <input type="text" name="city" placeholder="Enter Property City" class="input-field" required>
-                </div>
-                <div class="input-group-group">
-                    <label class="input-label">Address*</label>
-                    <input type="text" name="address" placeholder="Enter Address" class="input-field" required>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">Zip Code*</label>
-                    <input type="text" name="zipcode" placeholder="Enter Property Zip Code" class="input-field" required>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">No Of Units Of Property*</label>
-                    <input type="text" name="units" placeholder="Enter No Of Property Units" class="input-field" required>
-                </div>
-                <div class="input-group-group">
-                    <label class="input-label">Size Of Property In Square Roots*</label>
-                    <input type="text" name="size_sqr_ft" placeholder="Enter Property Size" class="input-field" required>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label class="input-label">Bedrooms*</label>
-                    <input type="text" name="bedrooms" placeholder="Enter No Of Bedrooms" class="input-field" required>
-                </div>
-                <div class="input-group-group">
-                    <label class="input-label">Bathrooms*</label>
-                    <input type="text" name="bathrooms" placeholder="Enter No of Bathrooms" class="input-field" required>
-                </div>
-            </div>
-
+        <h3 class="form-headers">Basic Property Information</h3>
+        <div class="input-group">
             <div class="input-group-group">
-                <label class="input-label">Floor Plan</label>
-                <textarea name="floor_plan" placeholder="Enter a Description About The Property" class="input-field"></textarea>
-            </div>
-
-            <label class="input-label">Upload Property Ownership Details*</label>
-            <div class="owner-addProp-file-upload">
-                <input type="file" name="property_documents" id="ownership_details" accept=".pdf" data-max-files="6" onchange="handleFileSelectForDocs(event)" required>
-                <div class="owner-addProp-upload-area">
-                    <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
-                    <p class="upload-area-no-margin">Drop your files here</p>
-                    <button type="button" class="primary-btn" onclick="document.getElementById('ownership_details').click()">Choose File</button>
-                </div>
-            </div>
-            <div id="preview-container-docs" class="owner-addProp-uploaded-files">
-                <!-- Preview area for selected images -->
-            </div>
-
-            <div class="items-inline">
-                <input type="checkbox" name="terms" required />
-                <p>By Clicking, I Agree To Terms & Conditions.</p>
-            </div>
-            <div class="buttons-to-right">
-                <button type="submit" class="primary-btn">Save</button>
-            </div>
-
-            <div class="errors" style="display: <?= !empty($property->errors) ? 'block' : 'none'; ?>">
-                <p><?= $property->errors['type'] ??
-                        $property->errors['name'] ??
-                        $property->errors['description'] ??
-                        $property->errors['year_built'] ??
-                        $property->errors['rent_on_basis'] ??
-                        $property->errors['country'] ??
-                        $property->errors['state_province'] ??
-                        $property->errors['city'] ??
-                        $property->errors['address'] ??
-                        $property->errors['zipcode'] ??
-                        $property->errors['units'] ??
-                        $property->errors['size_sqr_ft'] ??
-                        $property->errors['bedrooms'] ??
-                        $property->errors['bathrooms'] ??
-                        $property->errors['insert'] ??
-                        $property->errors['media']  ?>
-                </p>
+                <label class="input-label">Address*</label>
+                <input type="text" name="address" placeholder="Enter Address" class="input-field" required>
             </div>
         </div>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">City*</label>
+                <input type="text" name="city" placeholder="Enter Property City" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Zip Code*</label>
+                <input type="text" name="zipcode" placeholder="Enter Property Zip Code" class="input-field" required>
+            </div>
+        </div>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">State*</label>
+                <input type="text" name="state_province" placeholder="Enter Property State" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Country*</label>
+                <input type="text" name="country" placeholder="Enter Property Country" class="input-field" required>
+            </div>
+        </div>
+
+
+        <h3 class="form-headers">Property Specifications</h3>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Year Built*</label>
+                <input type="text" name="year_built" placeholder="Enter Property Year Built" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Size Of Property In Square Roots*</label>
+                <input type="number" name="size_sqr_ft" placeholder="Enter Property Size" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Number of Floors*</label>
+                <input type="number" name="number_of_floors" placeholder="Enter Number of floors" class="input-field" required>
+            </div>
+        </div>
+        <div class="input-group-group">
+            <label class="input-label">Floor Plan</label>
+            <textarea name="floor_plan" placeholder="Enter a Description About The Property" class="input-field"></textarea>
+        </div>
+
+
+        <h3 class="form-headers">Room Details</h3>
+        <div class="input-group-group">
+            <label class="input-label">No Of Units Of Property*</label>
+            <input type="number" name="units" placeholder="Enter No Of Property Units" class="input-field" required>
+        </div>
+
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Bedrooms*</label>
+                <input type="number" name="bedrooms" placeholder="Enter No Of Bedrooms" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Bathrooms*</label>
+                <input type="number" name="bathrooms" placeholder="Enter No of Bathrooms" class="input-field" required>
+            </div>
+        </div>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Kitchen*</label>
+                <input type="number" name="kitchen" placeholder="Enter No Of Kitchens" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Living Rooms*</label>
+                <input type="number" name="living_room" placeholder="Enter No of Living Rooms" class="input-field" required>
+            </div>
+        </div>
+
+
+        <h3 class="form-headers">Furnishing Details</h3>
+        <div class="input-group">
+            <label class="input-label">Furnished*</label>
+            <select name="furnished" class="input-field">
+                <option value="Fully Furnished">Fully Furnished</option>
+                <option value="Semi-Furnished">Semi-Furnished</option>
+                <option value="Unfurnished">Unfurnished</option>
+            </select>
+        </div>
+        <div class="input-group-group">
+            <label class="input-label">Furnished Description*</label>
+            <textarea name="furniture_description" placeholder="Enter a Furnished Description" class="input-field"></textarea>
+        </div>
+
+
+
+        <h3 class="form-headers">Parking Details</h3>
+        <div class="input-group">
+            <label class="input-label">Parking*</label>
+            <select name="parking" class="input-field">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Parking Slots*</label>
+                <input type="number" name="parking_slots" placeholder="Enter No Of Parking Slots" class="input-field">
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Type Of Parking*</label>
+                <select name="type_of_parking" class="input-field">
+                    <option value="Covered Garage">Covered Garage</option>
+                    <option value="Open Parking">Open Parking</option>
+                    <option value="Street Parking">Street Parking</option>
+                    <option value="Carport">Carport</option>
+                    <option value="Underground Parking">Underground Parking</option>
+                </select>
+            </div>
+        </div>
+
+
+        <h3 class="form-headers">Amenities</h3>
+        <div class="input-group-group">
+            <label class="input-label">Utilities Included*</label>
+            <div class="checkbox-group checkbox-group-column extra-margin-botton">
+                <div class="checkbox-group checkbox-group-row">
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Electricity"> Electricity</label>
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Water Supply"> Water Supply</label>
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Internet"> Internet</label>
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Gas Connection"> Gas Connection</label>
+                </div>
+                <div class="checkbox-group checkbox-group-row">
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Cable TV"> Cable TV</label>
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Solar Power"> Solar Power</label>
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Backup Generator"> Backup Generator</label>
+                    <label class="inline-label"><input type="checkbox" name="utilities_included[]" value="Waste Disposal"> Waste Disposal</label>
+                </div>
+            </div>
+        </div>
+        <div class="input-group-group">
+            <label class="input-label">Additional Utilites*</label>
+            <textarea name="additional_utilities" placeholder="Enter a Description about additional Utilities" class="input-field"></textarea>
+        </div>
+
+
+        <h3 class="form-headers">Security Details</h3>
+        <div class="input-group-group">
+            <div class="checkbox-group checkbox-group-column extra-margin-botton">
+                <div class="checkbox-group checkbox-group-row">
+                    <label class="inline-label"><input type="checkbox" name="security_features[]" value="CCTV"> CCTV</label>
+                    <label class="inline-label"><input type="checkbox" name="security_features[]" value="Security Guards"> Security Guards</label>
+                    <label class="inline-label"><input type="checkbox" name="security_features[]" value="Intercom System"> Intercom System</label>
+                </div>
+                <div class="checkbox-group checkbox-group-row">
+                    <label class="inline-label"><input type="checkbox" name="security_features[]" value="Access Control"> Access Control</label>
+                    <label class="inline-label"><input type="checkbox" name="security_features[]" value="Fire Alarm"> Fire Alarm</label>
+                    <label class="inline-label"><input type="checkbox" name="security_features[]" value="Gated Community"> Gated Community</label>
+                </div>
+            </div>
+        </div>
+
+
+
+        <h3 class="form-headers">Additional Amenities*</h3>
+        <div class="input-group-group">
+            <div class="checkbox-group checkbox-group-column extra-margin-botton">
+                <div class="checkbox-group checkbox-group-row">
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="Swimming Pool"> Swimming Pool</label>
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="Gym"> Gym</label>
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="Garden"> Garden</label>
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="Elevator"> Elevator</label>
+                </div>
+                <div class="checkbox-group checkbox-group-row">
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="Play Area"> Play Area</label>
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="Clubhouse"> Clubhouse</label>
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="Jogging Track"> Jogging Track</label>
+                    <label class="inline-label"><input type="checkbox" name="additional_amenities[]" value="BBQ Area"> BBQ Area</label>
+                </div>
+            </div>
+        </div>
+
+
+        <h3 class="form-headers">Rental Information*</h3>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Purpose*</label>
+                <select name="purpose" class="input-field">
+                    <option value="Rent">For Rent</option>
+                    <option value="Safeguard">For Safeguard (Security Purposes)</option>
+                    <option value="Vacation_Rental">Vacation Rental</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Rental Period*</label>
+                <select name="rental_period" class="input-field">
+                    <option value="Monthly">Monthly</option>
+                    <option value="Annually">Annually</option>
+                    <option value="Daily">Daily</option>
+                </select>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Rental Price*</label>
+                <input type="number" name="rental_price" placeholder="Enter the rental" class="input-field">
+            </div>
+        </div>
+        <!-- <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Available Date*</label>
+                <div class="checkbox-group checkbox-group-row">
+                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Monday"> Monday</label>
+                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Tuesday"> Tuesday</label>
+                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Wednesday"> Wednesday</label>
+                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Thursday"> Thursday</label>
+                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Friday"> Friday</label>
+                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Saturday"> Saturday</label>
+                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Sunday"> Sunday</label>
+                </div>
+            </div>
+        </div> -->
+
+
+        <h3 class="form-headers">Owner Information*</h3>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Owner Name*</label>
+                <input type="text" name="owner_name" placeholder="Enter the Owner Name" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Owner Email*</label>
+                <input type="text" name="owner_email" placeholder="Enter the Owner Email" class="input-field" required>
+            </div>
+        </div>
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">Owner Contact Number*</label>
+                <input type="text" name="owner_phone" placeholder="Enter the Owner Contact Number" class="input-field" required>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Owner Additional Contact*</label>
+                <input type="text" name="additional_contact" placeholder="Enter a Additional Contact" class="input-field" required>
+            </div>
+        </div>
+
+
+        <h3 class="form-headers">Special Instructions*</h3>
+        <div class="input-group">
+            <div class="checkbox-group checkbox-group-column">
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="No_Pets_Allowed"> No Pets Allowed</label>
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="No_Smoking_Inside_the_Property"> No Smoking Inside the Property</label>
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="Suitable_for_Families_Only"> Suitable for Families Only</label>
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="No_Loud_Music_or_Parties"> No Loud Music or Parties</label>
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="Maintenance_Fee_Included"> Maintenance Fee Included</label>
+            </div>
+            <div class="checkbox-group checkbox-group-column">
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="Tenant_Responsible_for_Utilities"> Tenant Responsible for Utilities</label>
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="Lease_Renewal_Option_Available"> Lease Renewal Option Available</label>
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="Immediate_Move_In_Available"> Immediate Move-In Available</label>
+                <label class="inline-label"><input type="checkbox" name="special_instructions[]" value="Background_Check_Required_for_Tenants"> Background Check Required for Tenants</label>
+            </div>
+        </div>
+
+
+        <h3 class="form-headers">Legal Details*</h3>
+        <div class="input-group">
+            <div class="checkbox-group checkbox-group-column">
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Property_Ownership_Verified"> Property Ownership Verified</label>
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Property_Free_from_Legal_Disputes"> Property Free from Legal Disputes</label>
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="All_Taxes_Paid_Up_to_Date"> All Taxes Paid Up to Date</label>
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Rental_Agreement_Draft_Available"> Rental Agreement Draft Available</label>
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Property_Insured"> Property Insured</label>
+            </div>
+            <div class="checkbox-group checkbox-group-column">
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Compliance_with_Local_Housing_Laws"> Compliance with Local Housing Laws</label>
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Tenant_Screening_Required"> Tenant Screening Required</label>
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Lease_Agreement_Must_Be_Signed"> Lease Agreement Must Be Signed</label>
+                <label class="inline-label"><input type="checkbox" name="legal_details[]" value="Security_Deposit_Refundable"> Security Deposit Refundable (Subject to Conditions)</label>
+            </div>
+        </div>
+
+
+
+
+
+        <h3 class="form-headers">Photos & Documents*</h3>
+
+        <label class="input-label">Upload Property Images (Max 6)*</label>
+        <div class="owner-addProp-file-upload">
+            <input type="file" name="property_images[]" id="property_images" class="input-field" multiple
+                accept=".png, .jpg, .jpeg" data-max-files="6" onchange="handleFileSelect(event)" required>
+            <div class="owner-addProp-upload-area">
+                <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
+                <p class="upload-area-no-margin">Drop your files here</p>
+                <button type="button" class="primary-btn" onclick="document.getElementById('property_images').click()">Choose File</button>
+            </div>
+        </div>
+
+        <div id="uploaded-files" class="owner-addProp-uploaded-files">
+            <!-- Uploaded files will be displayed here -->
+        </div>
+
+
+        <div id="preview-container" class="owner-addProp-uploaded-files">
+            <!-- Preview area for selected images -->
+        </div>
+
+        <label class="input-label">Upload Property Ownership Details*</label>
+        <div class="owner-addProp-file-upload">
+            <input type="file" name="property_documents" id="ownership_details" accept=".pdf" data-max-files="6" onchange="handleFileSelectForDocs(event)" required>
+            <div class="owner-addProp-upload-area">
+                <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
+                <p class="upload-area-no-margin">Drop your files here</p>
+                <button type="button" class="primary-btn" onclick="document.getElementById('ownership_details').click()">Choose File</button>
+            </div>
+        </div>
+        <div id="preview-container-docs" class="owner-addProp-uploaded-files">
+            <!-- Preview area for selected images -->
+        </div>
+
+        <div class="items-inline">
+            <input type="checkbox" name="terms" required />
+            <p>By Clicking, I Agree To Terms & Conditions.</p>
+        </div>
+        <div class="buttons-to-right">
+            <button type="submit" class="primary-btn">Save</button>
+        </div>
+
+        <!-- <div class="errors" style="display: <?= !empty($property->errors) ? 'block' : 'none'; ?>">
+            <p><?=
+                $property->errors['name'] ??
+                    $property->errors['description'] ??
+
+                    $property->errors['address'] ??
+                    $property->errors['city'] ??
+                    $property->errors['zipcode'] ??
+                    $property->errors['state_province'] ??
+                    $property->errors['country'] ??
+
+                    $property->errors['rental_price'] ??
+                    $property->errors['rental_period'] ??
+
+
+                    $property->errors['year_built'] ??
+                    $property->errors['size_sqr_ft'] ??
+                    $property->errors['number_of_floors'] ??
+                    $property->errors['floor_plan'] ??
+
+                    $property->errors['furniture_description'] ??
+                    $property->errors['parking_slots'] ??
+                    $property->errors['parking'] ??
+
+
+                    $property->errors['owner_name'] ??
+                    $property->errors['owner_email'] ??
+                    $property->errors['owner_phone']
+                ?>
+            </p>
+        </div> -->
     </div>
+    <!-- </div> -->
 </form>
 
 <script>
     var ROOT = '<?= ROOT ?>';
+
     function toggleRentField() {
         const typeSelect = document.getElementById('property-type');
         const rentBasisField = document.getElementById('rent-basis-field');
