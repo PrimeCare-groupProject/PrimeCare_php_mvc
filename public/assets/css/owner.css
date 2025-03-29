@@ -18,6 +18,30 @@
     color: var(--dark-grey-color);
 }
 
+.owner-addProp-form{
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+    width: 70%;
+    background-color: var(--white-color);
+    padding: 10px 20px;
+    border-radius: 20px;
+}
+
+.form-headers{
+    font-family: 'outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-grey-color);
+    margin: 10px 0;
+    padding: 10px 0;
+    border-top: 2px solid var(--light-grey-color);
+}
+
+.no-top-border{
+    border-top: none !important;
+}
+
 .owner-addProp-form-left,
 .owner-addProp-form-right {
     width: 48%;
@@ -179,6 +203,10 @@ button.delete-btn {
     flex-direction: row;
     align-items: center;
     gap: 10px;
+}
+
+.items-inline p{
+    color: var(--dark-grey-color);
 }
 
 .owner-addProp-upload-logo {
