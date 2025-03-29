@@ -60,6 +60,33 @@
     flex: 1;
 }
 
+.checkbox-group{
+    display: flex;
+    gap: 10px;
+    margin: 5px;
+}
+
+.extra-margin-botton{
+    margin-bottom: 10px;
+}
+
+.checkbox-group-row{
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.checkbox-group-column{
+    flex-direction: column;
+}
+
+.inline-label{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+    color: var(--dark-grey-color);
+}
+
 .input-group-aligned{
     display: flex;
     flex-direction: row;
