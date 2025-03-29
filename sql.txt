@@ -1,4 +1,4 @@
-CREATE TABLE propertyModel (
+CREATE TABLE propertyTable (
     property_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type ENUM('House', 'Apartment', 'Villa', 'Studio', 'Farmhouse') NOT NULL,
