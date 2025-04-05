@@ -210,6 +210,10 @@ hr {
     background-color: var(--white-color);
 }
 
+.full-width-for-content{
+    width: 100% !important;
+}
+
 .success-msg-container{
     display: flex;
     justify-content: center;
@@ -411,6 +415,25 @@ textarea .input-field{
     border-color: var(--primary-color);
     outline: none;
 }
+
+.blue-input-field{
+    background-color: var(--white-color) !important;
+    color: var(--link-color);
+    border: 1px solid var(--link-color) !important;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.blue-input-field-solid{
+    background-color: var(--link-color) !important;
+    color: var(--white-color);
+    border: 1px solid var(--link-color) !important;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+}
+
 /* 
 .profile-edit-form {
     display: flex;

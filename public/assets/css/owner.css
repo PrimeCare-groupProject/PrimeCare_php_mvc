@@ -78,6 +78,9 @@
 }
 
 .upload-area-no-margin {
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--dark-grey-color);
     margin: 0;
 }
 
@@ -252,6 +255,8 @@ button.delete-btn {
     flex-direction: row;
     justify-content: center;
     gap: 10px;
+
+    margin-bottom: 30px;
 }
 
 
@@ -523,6 +528,67 @@ button.delete-btn {
     opacity: 1;
     /* Make it fully visible */
 }
+
+.color_alert:hover {
+    filter: brightness(0) saturate(100%) invert(50%) sepia(100%) saturate(5000%) hue-rotate(25deg) brightness(100%) contrast(100%);
+    /* Turns black to red */
+}
+
+.color_financial:hover {
+    filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(85%) contrast(90%);
+    /* Turns black to grey */
+}
+
+.color_contact:hover {
+    filter: brightness(0) saturate(100%) invert(22%) sepia(96%) saturate(7475%) hue-rotate(201deg) brightness(97%) contrast(104%);
+    /* Turns black to blue */
+}
+
+.color_edit:hover {
+    filter: brightness(0) saturate(100%) invert(56%) sepia(96%) saturate(388%) hue-rotate(74deg) brightness(92%) contrast(93%);
+    /* Turns black to green */
+}
+
+.color_caution:hover {
+    filter: brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(7463%) hue-rotate(0deg) brightness(97%) contrast(109%);
+}
+
+
+
+/** Popup message */
+.PopupMessage__contact-popup {
+    position: absolute;
+    top: 150px; /* Adjust based on your layout */
+    right: 20px;
+    background-color: var(--white-color);
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    width: 400px;
+    padding: 20px;
+    font-size: 14px;
+    border-radius: 50px;
+}
+/* 
+.PopupMessage__contact-popup::after {
+    content: "";
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 400px;
+    height: 300px;
+    background-image: url('../images/conatct_agent.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.2;
+    pointer-events: none;
+} */
+
+.PopupMessage__hidden {
+    display: none;
+}
+
 
 
 /** Dashboard css */
@@ -797,4 +863,60 @@ td.green-color {
 .RS__reviewer-property {
     font-size: 16px;
     color: var(--secondary-color);
+}
+
+
+
+/** Property Delete View */
+.PD__delete-property-container {
+    max-width: 900px;
+    margin: 10px auto;
+    padding: 20px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.PD__delete-notice-box {
+    background-color: var(--white-color);
+    padding: 10px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.center-div-h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    padding: 10px 0;
+}
+
+.center-div-h2 h2 {
+    align-self: center;
+    color: var(--red-color);
+    margin-bottom: 15px;
+}
+
+.PD__delete-notice-box h4 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: var(--dark-grey-color);
+}
+
+.PD__delete-notice-box p {
+    margin: 10px 0;
+}
+
+.PD__delete-notice-box ul {
+    list-style: disc;
+    margin-left: 20px;
+    color: var(--dark-grey-color);
+}
+
+.PD__confirm-buttons {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    gap: 15px;
 }

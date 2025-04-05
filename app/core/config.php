@@ -20,6 +20,7 @@ defined('ROOTPATH') or exit('Access denied');
     
  define('APP_NAME', 'PrimeCare');
  define('APP_DESC', 'Protect . Earn . Find');
+ define('RENTAL_PRICE', 1000); // rental price for a day
 
 //  true means show any errors
  define('DEBUG', true);

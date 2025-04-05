@@ -54,7 +54,10 @@ class Property
 
         'status',
         'person_id',
-        'agent_id'
+        'agent_id',
+        'duration',
+        'start_date',
+        'end_date'
     ];
 
     public $errors = [];
@@ -68,9 +71,9 @@ class Property
             $this->errors['name'] = 'Invalid property name.';
         }
 
-        if (!isset($data['rental_price']) || !is_numeric($data['rental_price']) || $data['rental_price'] < 0) {
-            $this->errors['rental_price'] = 'Rental price must be a positive number.';
-        }
+        // if (!isset($data['rental_price']) || !is_numeric($data['rental_price']) || $data['rental_price'] < 0) {
+        //     $this->errors['rental_price'] = 'Rental price must be a positive number.';
+        // }
 
         if (!isset($data['rental_period'])) {
             $this->errors['rental_period'] = 'Rental period must be a valid number.';
@@ -96,29 +99,32 @@ class Property
             $this->errors['zipcode'] = 'Invalid Zipcode format.';
         }
 
-        if (!isset($data['year_built']) || !filter_var($data['year_built'], FILTER_VALIDATE_INT) || $data['year_built'] < 1800 || $data['year_built'] > date("Y")) {
-            $this->errors['year_built'] = 'Year built must be between 1800 and ' . date("Y") . '.';
+        if($data['purpose'] == 'Rent'){
+            if (!isset($data['year_built']) || !filter_var($data['year_built'], FILTER_VALIDATE_INT) || $data['year_built'] < 1800 || $data['year_built'] > date("Y")) {
+                $this->errors['year_built'] = 'Year built must be between 1800 and ' . date("Y") . '.';
+            }
+    
+            if (!isset($data['size_sqr_ft']) || !filter_var($data['size_sqr_ft'], FILTER_VALIDATE_INT) || $data['size_sqr_ft'] <= 0) {
+                $this->errors['size_sqr_ft'] = 'Invalid size in square feet.';
+            }
+    
+            if (!isset($data['number_of_floors']) || !filter_var($data['number_of_floors'], FILTER_VALIDATE_INT) || $data['number_of_floors'] < 0) {
+                $this->errors['number_of_floors'] = 'Number of floors must be a positive integer.';
+            }
+    
+            if (!isset($data['furnished']) || !in_array($data['furnished'], ['Fully Furnished', 'Semi-Furnished', 'Unfurnished'])) {
+                $this->errors['furnished'] = 'Invalid furnished status.';
+            }
+    
+            if (!isset($data['parking']) || ($data['parking'] != '1' && $data['parking'] != '0')) {
+                $this->errors['parking'] = 'Invalid parking value.';
+            }
+    
+            if ($data['parking'] == '1' && (!isset($data['parking_slots']) || !filter_var($data['parking_slots'], FILTER_VALIDATE_INT) || $data['parking_slots'] < 0)) {
+                $this->errors['parking_slots'] = 'Invalid number of parking slots.';
+            }
         }
 
-        if (!isset($data['size_sqr_ft']) || !filter_var($data['size_sqr_ft'], FILTER_VALIDATE_INT) || $data['size_sqr_ft'] <= 0) {
-            $this->errors['size_sqr_ft'] = 'Invalid size in square feet.';
-        }
-
-        if (!isset($data['number_of_floors']) || !filter_var($data['number_of_floors'], FILTER_VALIDATE_INT) || $data['number_of_floors'] < 0) {
-            $this->errors['number_of_floors'] = 'Number of floors must be a positive integer.';
-        }
-
-        if (!isset($data['furnished']) || !in_array($data['furnished'], ['Fully Furnished', 'Semi-Furnished', 'Unfurnished'])) {
-            $this->errors['furnished'] = 'Invalid furnished status.';
-        }
-
-        if (!isset($data['parking']) || ($data['parking'] != '1' && $data['parking'] != '0')) {
-            $this->errors['parking'] = 'Invalid parking value.';
-        }
-
-        if ($data['parking'] == '1' && (!isset($data['parking_slots']) || !filter_var($data['parking_slots'], FILTER_VALIDATE_INT) || $data['parking_slots'] < 0)) {
-            $this->errors['parking_slots'] = 'Invalid number of parking slots.';
-        }
 
         if (empty($data['owner_name']) || !preg_match('/^[a-zA-Z\s]+$/', $data['owner_name'])) {
             $this->errors['owner_name'] = 'Invalid owner name.';
