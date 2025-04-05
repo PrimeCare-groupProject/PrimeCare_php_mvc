@@ -5,10 +5,21 @@
     <div class="gap"></div>
     <h2>properties</h2>
     <div class="flex-bar">
-        <div class="search-container">
+        <!-- <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Anything...">
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
+        </div> -->
+
+        <div class="filter-container">
+            <select id="propertyStatusFilter" class="filter-input">
+                <option value="">Select Status</option>
+                <option value="pending">Pending</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="under Maintenance">Under Maintenance</option>
+            </select>
         </div>
+
         <!-- <button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button> -->
         <div class="tooltip-container">
             <a href='<?= ROOT ?>/dashboard/propertyListing/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
@@ -26,6 +37,8 @@
 </div>
  -->
 
+
+
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
@@ -33,8 +46,6 @@
             <?php foreach ($properties as $property): ?>
                 <div class="property-card">
                     <div class="property-image">
-                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
-                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
                         <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a>
                     </div>
                     <div class="property-details">
@@ -47,24 +58,24 @@
                                 </div>
                             </div>
                             <div>
-                                
+
                                 <div class="property-status">
-                                    <?php 
-                                        $color = 'orange'; 
-                                        switch($property->status):
-                                            case 'pending':
-                                                $color = 'orange';
-                                                break;
-                                            case 'active':
-                                                $color = 'green';
-                                                break;  
-                                            case 'inactive':
-                                                $color = 'red';
-                                                break;
-                                            case 'under Maintenance':
-                                                $color = 'blue';
-                                                break;    
-                                        endswitch;
+                                    <?php
+                                    $color = 'orange';
+                                    switch ($property->status):
+                                        case 'Pending':
+                                            $color = 'orange';
+                                            break;
+                                        case 'Active':
+                                            $color = 'green';
+                                            break;
+                                        case 'Inactive':
+                                            $color = 'red';
+                                            break;
+                                        case 'Under Maintenance':
+                                            $color = 'blue';
+                                            break;
+                                    endswitch;
                                     ?>
                                     <span class="border-button <?= $color ?>"><?= $property->status ?></span>
                                 </div>
@@ -78,13 +89,13 @@
                                 <?= $property->description ?>
                             </p>
                         </div>
-                        <div class="property-actions">
+                        <!-- <div class="property-actions">
                             <a href="#" class="change-status">change Pending</a>
                             <div>
                                 <a href="<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
                                 <a href="<?= ROOT ?>/dashboard/propertylisting/dropProperty/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
@@ -101,6 +112,8 @@
         <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
     </div>
 </div>
+
+
 
 <script>
     let currentPage = 1;
@@ -143,5 +156,6 @@
     // Initial page load
     showPage(currentPage);
 </script>
+
 
 <?php require_once 'ownerFooter.view.php'; ?>

@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/pagination.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
-    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertyListingCssForAll.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/repairCard.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/agent.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
-    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertyListingCssForAll.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

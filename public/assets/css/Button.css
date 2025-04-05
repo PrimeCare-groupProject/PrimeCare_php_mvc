@@ -155,9 +155,14 @@
 }
 
 .blue{
-    background-color: rgba(var(--link-color), 0.20);
+    background-color: rgba(var(--link-color-rgb), 0.20);
     color: var(--link-color);
     border: 1px solid var(--link-color);
+}
+
+.blue:hover{
+    background-color: rgba(var(--link-color-rgb), 0.80)!important;
+    color: var(--white-color)!important;
 }
 
 .more-margin {

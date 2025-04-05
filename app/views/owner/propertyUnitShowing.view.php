@@ -7,19 +7,74 @@
             <a href="<?= ROOT ?>/property/propertyListing"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2><?= $property->name ?></h2>
-                <p><span>Maintained By: </span>Agent's Name</p>
+                <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>
             </div>
         </div>
         <div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/bars.png" alt="Print" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Financial Report</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/caution.png" alt="Problem" class="small-icons align-to-right" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/alert.png" alt="Problem" class="small-icons align-to-right color_alert" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Report a Problem</span>
             </div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/support.png" alt="contact" class="small-icons align-to-right color_contact" onclick="toggleContactPopup(event)">
+                <span class="tooltip-text">Contact the Agent</span>
+            </div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/edit_icon.png" alt="edit" class="small-icons align-to-right color_edit" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>'">
+                <span class="tooltip-text">Edit Details</span>
+            </div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/delete_black.png" alt="edit" class="small-icons align-to-right color_caution" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>'">
+                <span class="tooltip-text">Remove</span>
+            </div>
         </div>
+        <div id="contactPopup" class="PopupMessage__contact-popup PopupMessage__hidden">
+            <div class="PL__owner_details_container">
+                <img src="<?= get_img($agent->image_url) ?>" alt="Profile Picture" class="PL__agent-picture" id="profile-picture-preview">
+                <div class="PL__popup_column_content">
+                    <p><?= $agent->fname . ' ' . $agent->fname ?></p>
+                    <p class="PL__light-color"><?= $agent->email ?></p>
+                    <p class="PL__contact_button" id="agentContact" onclick="copyContactToClipboard()"><?= $agent->contact ?></p>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            function toggleContactPopup(event) {
+                event.stopPropagation(); // Prevent click from reaching document
+                const popup = document.getElementById('contactPopup');
+                popup.classList.toggle('PopupMessage__hidden');
+            }
+
+            // Close popup if clicking outside
+            document.addEventListener('click', function(e) {
+                const popup = document.getElementById('contactPopup');
+                if (!popup.classList.contains('PopupMessage__hidden')) {
+                    popup.classList.add('PopupMessage__hidden');
+                }
+            });
+
+            // Prevent closing when clicking inside the popup
+            document.getElementById('contactPopup').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            function copyContactToClipboard() {
+                const contact = document.getElementById('agentContact').innerText;
+                navigator.clipboard.writeText(contact).then(() => {
+                    console.log("Phone number copied to clipboard!");
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            }
+        </script>
+
+
     </div>
 </div>
 
@@ -45,18 +100,42 @@
     </div>
 
     <div class="PL__property-details PL__more_padding">
-        <div class="PL__contacts-section">
-            <div class="PL__contact">
-                <div class="rating-big">
-                    <span class="rating-score-big">4.0</span>
-                    <span class="stars-big">★★★★☆</span>
+
+        <?php
+        if ($property->purpose == 'Rent') {
+            echo "
+                <div class='PL__contacts-section'>
+                    <div class='PL__contact'>
+                        <div class='rating-big'>
+                            <span class='rating-score-big'>4.0</span>
+                            <span class='stars-big'>★★★★☆</span>
+                        </div>
+                    </div>
+                    <div class='PL__pricing'>
+                        <span> " . $property->rental_price . " LKR</span>
+                        <small>PER MONTH</small>
+                    </div>
+                </div>
+                ";
+        } else {
+            echo "
+            <div class='PL__contacts-section'>
+                <div class='PL__contact'>
+                    <div class='rating-big'>
+                        <button class='primary-btn'>Make Payment</button>
+                    </div>
+                </div>
+                <div class='PL__pricing'>
+                    <span> " . $property->rental_price . " LKR</span>
+                    <small>PER Day</small>
                 </div>
             </div>
-            <div class="PL__pricing">
-                <span><?= $property->rental_price ?> LKR</span>
-                <small>PER MONTH</small>
-            </div>
-        </div>
+            ";
+        }
+
+        ?>
+
+
         <h2>Description</h2>
         <p>
             <?= $property->description ?>
@@ -66,96 +145,95 @@
         <table>
             <tr>
                 <td>Name:</td>
-                <td><?= $property->name ?></td>
+                <td class="PL__table_data"><?= $property->name ?></td>
             </tr>
             <tr>
                 <td>Type:</td>
-                <td><?= $property->type ?></td>
+                <td class="PL__table_data"><?= $property->type ?></td>
             </tr>
             <tr>
                 <td>Zip Code:</td>
-                <td><?= $property->zipcode ?></td>
+                <td class="PL__table_data"><?= $property->zipcode ?></td>
             </tr>
             <tr>
                 <td>City:</td>
-                <td><?= $property->city ?></td>
+                <td class="PL__table_data"><?= $property->city ?></td>
             </tr>
             <tr>
                 <td>State/Province:</td>
-                <td><?= $property->state_province ?></td>
+                <td class="PL__table_data"><?= $property->state_province ?></td>
             </tr>
             <tr>
                 <td>Country:</td>
-                <td><?= $property->country ?></td>
+                <td class="PL__table_data"><?= $property->country ?></td>
             </tr>
             <tr>
                 <td>Address:</td>
-                <td><?= $property->address ?></td>
+                <td class="PL__table_data"><?= $property->address ?></td>
             </tr>
             <tr>
-                <td>Year Built:</td>
-                <td><?= $property->year_built ?></td>
+                <td>Purpose:</td>
+                <td class="PL__table_data"><?= $property->purpose ?></td>
             </tr>
-            <!-- <tr>
-                                    <td>Units:</td>
-                                    <td>4</td>
-                                </tr>
-                                <tr>
-                                    <td>Bedrooms:</td>
-                                    <td>2015</td>
-                                </tr>
-                                <tr>
-                                    <td>Size (sq. ft):</td>
-                                    <td>6000</td>
-                                </tr> 
-                            -->
-            <tr>
-                <td>Floor Plan:</td>
-                <td><?= $property->floor_plan ?></td>
-            </tr>
-            <tr>
-                <td>Furniture Description:</td>
-                <td><?= $property->furniture_description ?></td>
-            </tr>
+
+            <?php if($property->purpose == 'Rent'){ ?>
+                <tr>
+                    <td>Year Built:</td>
+                    <td class="PL__table_data"><?= $property->year_built ?></td>
+                </tr>
+                <tr>
+                    <td>Floor Plan:</td>
+                    <td class="PL__table_data"><?= $property->floor_plan ?></td>
+                </tr>
+                <tr>
+                    <td>Furniture Description:</td>
+                    <td class="PL__table_data"><?= $property->furniture_description ?></td>
+                </tr>
+            <?php } ?>
+
         </table>
 
-        <h2>Overview</h2>
-        <div class="overview overview-more-width">
-            <div class="overview-grid-four">
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/bed.png" alt="Bed Icon">
-                    <span><?= $property->bedrooms ?> Bedroom</span>
-                </div>
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/bathroom.png" alt="Bathroom Icon">
-                    <span><?= $property->bathrooms ?> Bathroom</span>
-                </div>
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/floor.png" alt="Unit Icon">
-                    <span><?= $property->units ?> Units</span>
-                </div>
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/size.png" alt="Area Icon">
-                    <span><?= $property->size_sqr_ft ?> ft</span>
-                </div>
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/furniture.png" alt="Furniture Icon">
-                    <span><?= $property->furnished ?></span>
-                </div>
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/garage.png" alt="Garage Icon">
-                    <span><?= $property->parking; ?> <?= $property->type_of_parking ?></span>
-                </div>
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/kitchen.png" alt="kitchen Icon">
-                    <span><?= $property->kitchen ?> Kitchen</span>
-                </div>
-                <div class="PL__overview-item">
-                    <img src="<?= ROOT ?>/assets/images/living-room.png" alt="living room Icon">
-                    <span><?= $property->living_room ?> Living Room</span>
+        <?php if($property->purpose == 'Rent'){ ?>
+
+            <h2>Overview</h2>
+            <div class="overview overview-more-width">
+                <div class="overview-grid-four">
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/bed.png" alt="Bed Icon">
+                        <span><?= $property->bedrooms ?> Bedroom</span>
+                    </div>
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/bathroom.png" alt="Bathroom Icon">
+                        <span><?= $property->bathrooms ?> Bathroom</span>
+                    </div>
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/floor.png" alt="Unit Icon">
+                        <span><?= $property->units ?> Units</span>
+                    </div>
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/size.png" alt="Area Icon">
+                        <span><?= $property->size_sqr_ft ?> ft</span>
+                    </div>
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/furniture.png" alt="Furniture Icon">
+                        <span><?= $property->furnished ?></span>
+                    </div>
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/garage.png" alt="Garage Icon">
+                        <span><?= $property->parking; ?> <?= $property->type_of_parking ?></span>
+                    </div>
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/kitchen.png" alt="kitchen Icon">
+                        <span><?= $property->kitchen ?> Kitchen</span>
+                    </div>
+                    <div class="PL__overview-item">
+                        <img src="<?= ROOT ?>/assets/images/living-room.png" alt="living room Icon">
+                        <span><?= $property->living_room ?> Living Room</span>
+                    </div>
                 </div>
             </div>
-        </div>
+
+        <?php } ?>
 
         <?php if (!empty($property->utilities_included)) {
             $utilities = explode(',', $property->utilities_included);
@@ -183,10 +261,8 @@
                 }
                 echo "</div>";
             }
-        } else {
-            echo "<h2>Utilities Included</h2>";
-            echo "<p>No Utilities Included</p>";
-        }
+        } 
+
         ?>
 
         <?php if (!empty($property->additional_amenities)) {
@@ -256,16 +332,6 @@
         ?>
 
 
-
-        <!-- <h2>Agent Details</h2>
-        <div class="PL__owner_details_container">
-            
-                <img src="<?= get_img($agent->image_url) ?>" alt="Profile Picture" class="PL__agent-picture" id="profile-picture-preview">
-                <p><?= $agent->fname . ' ' . $agent->fname ?></p>
-                <p><?= $agent->contact ?></p>
-            
-        </div> -->
-
         <?php if (!empty($property->special_instructions)) {
             $utilities = explode(',', $property->special_instructions);
 
@@ -323,15 +389,19 @@
         ?>
 
 
-
-
-
-        <div class="agreement">
-            <input type="checkbox" id="agree">
-            <label for="agree">By Clicking, I Agree To Terms & Conditions.</label>
+        <?php
+        if ($property->purpose == 'Rent') {
+            echo "<div class='agreement'>
+            <input type='checkbox' id='agree'>
+            <label for='agree'>By Clicking, I Agree To Terms & Conditions.</label>
         </div>
 
-        <button class="book-btn">Book Property</button>
+        <button class='book-btn'>Book Property</button>";
+        }
+        ?>
+
+
+        <?php if($property->purpose == 'Rent') { ?>
 
         <h2>Reviews</h2>
         <div class="review101">
@@ -379,6 +449,10 @@
             </div>
 
         </div>
+
+        <?php } ?>
+
+
     </div>
 </div>
 
