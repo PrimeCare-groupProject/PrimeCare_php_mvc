@@ -47,8 +47,26 @@
                                 </div>
                             </div>
                             <div>
+                                
                                 <div class="property-status">
-                                    <span class="border-button"><?= $property->status ?></span>
+                                    <?php 
+                                        $color = 'orange'; 
+                                        switch($property->status):
+                                            case 'pending':
+                                                $color = 'orange';
+                                                break;
+                                            case 'active':
+                                                $color = 'green';
+                                                break;  
+                                            case 'inactive':
+                                                $color = 'red';
+                                                break;
+                                            case 'under Maintenance':
+                                                $color = 'blue';
+                                                break;    
+                                        endswitch;
+                                    ?>
+                                    <span class="border-button <?= $color ?>"><?= $property->status ?></span>
                                 </div>
                             </div>
                         </div>
