@@ -11,7 +11,10 @@ class Owner
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         //show($propertyUnit);
 
-        $this->view('owner/propertyUnit', ['property' => $propertyUnit]);
+        $agent = new User;
+        $agentDetails = $agent->where(['pid' => $propertyUnit->agent_id])[0];
+
+        $this->view('owner/propertyUnitShowing', ['property' => $propertyUnit , 'agent' => $agentDetails]);
     }
 
     public function index()
@@ -175,20 +178,18 @@ class Owner
     }
 
 
-    public function propertyUnit($propertyId)
-    {
+    // public function propertyUnit($propertyId)
+    // {
+    //     $property = new PropertyConcat;
+    //     $propertyUnit = $property->where(['property_id' => $propertyId])[0];
 
-        $property = new PropertyModel; // Initialize Property instance
-
-
-
-        $this->view('owner/propertyUnit', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? '',
-            $property
-        ]);
-    }
+    //     $this->view('owner/propertyUnitShowing', [
+    //         'user' => $_SESSION['user'],
+    //         'errors' => $_SESSION['errors'] ?? [],
+    //         'status' => $_SESSION['status'] ?? '',
+    //         $property
+    //     ]);
+    // }
 
     private function repairListing()
     {
@@ -542,7 +543,7 @@ class Owner
 
 
 
-
+    // dont touch this..final create function for properties
     public function create()
     {
         $property = new Property;
@@ -584,10 +585,10 @@ class Owner
                 'parking_slots' => $_POST['parking_slots'] ?? 0,
                 'type_of_parking' => $_POST['type_of_parking'] ?? 'none',
 
-                'utilities_included' => is_array($_POST['utilities_included']) ? json_encode($_POST['utilities_included']) : ($_POST['utilities_included'] ?? 'none'),
-                'additional_utilities' => is_array($_POST['additional_utilities']) ? json_encode($_POST['additional_utilities']) : ($_POST['additional_utilities'] ?? 'none'),
-                'additional_amenities' => is_array($_POST['additional_amenities']) ? json_encode($_POST['additional_amenities']) : ($_POST['additional_amenities'] ?? 'none'),
-                'security_features' => is_array($_POST['security_features']) ? json_encode($_POST['security_features']) : ($_POST['security_features'] ?? 'none'),
+                'utilities_included' => is_array($_POST['utilities_included']) ? implode(',', $_POST['utilities_included']) : ($_POST['utilities_included'] ?? 'none'),
+                'additional_utilities' => is_array($_POST['additional_utilities']) ? implode(',', $_POST['additional_utilities']) : ($_POST['additional_utilities'] ?? 'none'),
+                'additional_amenities' => is_array($_POST['additional_amenities']) ? implode(',', $_POST['additional_amenities']) : ($_POST['additional_amenities'] ?? 'none'),
+                'security_features' => is_array($_POST['security_features']) ? implode(',', $_POST['security_features']) : ($_POST['security_features'] ?? 'none'),
 
                 'purpose' => $_POST['purpose'] ?? 'rent',
                 'rental_period' => $_POST['rental_period'],
@@ -598,8 +599,8 @@ class Owner
                 'owner_phone' => $_POST['owner_phone'],
                 'additional_contact' => $_POST['additional_contact'],
 
-                'special_instructions' => is_array($_POST['special_instructions']) ? json_encode($_POST['special_instructions']) : ($_POST['special_instructions'] ?? 'none'),
-                'legal_details' => is_array($_POST['legal_details']) ? json_encode($_POST['legal_details']) : ($_POST['legal_details'] ?? 'none'),
+                'special_instructions' => is_array($_POST['special_instructions']) ? implode(',', $_POST['special_instructions']) : ($_POST['special_instructions'] ?? 'none'),
+                'legal_details' => is_array($_POST['legal_details']) ? implode(',', $_POST['legal_details']) : ($_POST['legal_details'] ?? 'none'),
 
                 'status' => 'pending',
                 'person_id' => $_SESSION['user']->pid,
@@ -610,13 +611,13 @@ class Owner
             //$res = $property->insert($arr);
 
             // Debugging: Check if the data is prepared correctly
-            error_log("Prepared Data: " . print_r($arr, true));
+            //error_log("Prepared Data: " . print_r($arr, true));
 
             $res = $property->insert($arr);
 
-            if (!$res) {
-                error_log("Insert function failed!");
-            }
+            // if (!$res) {
+            //     error_log("Insert function failed!");
+            // }
 
             if ($res) {
                 // Get the ID of the last inserted property
@@ -645,7 +646,7 @@ class Owner
                     [
                         'allowed_ext' => ['pdf', 'docx', 'txt'],
                         'prefix' => 'doc',
-                        'url_field' => 'document_path',
+                        'url_field' => 'image_url',
                         'fk_field' => 'property_id',
                         'max_size' => 10 * 1024 * 1024 // 10MB
                     ]
