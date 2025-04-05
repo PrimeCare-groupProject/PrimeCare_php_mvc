@@ -28,7 +28,7 @@
                 <span class="tooltip-text">Edit Details</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/delete_black.png" alt="edit" class="small-icons align-to-right color_caution" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/delete_black.png" alt="edit" class="small-icons align-to-right color_caution" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/deleteView/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Remove</span>
             </div>
         </div>

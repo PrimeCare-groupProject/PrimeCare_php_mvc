@@ -171,13 +171,31 @@ class Owner
         } else if ($a == "update") {
             $this->update($propertyId = $b);
             return;
+        } else if ($a == "deleteView") {
+            $this->deleteView($propertyId = $b);
+            return;
+        } else if ($a == "deleteRequest"){
+            $this->deleteRequest($propertyId = $b);
+            return;
         }
 
         //if property listing is being called
         $property = new PropertyConcat;
-        $properties = $property->where(['person_id' => $_SESSION['user']->pid]);
+        $properties = $property->where(['person_id' => $_SESSION['user']->pid] , ['status' => 'Inactive']);
 
         $this->view('owner/propertyListing', ['properties' => $properties]);
+    }
+
+    public function deleteView($propertyId){
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+
+        $this->view('owner/deleteProperty', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'property' => $propertyUnit
+        ]);
     }
 
 
@@ -882,5 +900,19 @@ class Owner
                 redirect('dashboard/propertyListing');
             }
         }
+    }
+
+    public function deleteRequest($propertyId){
+        $property = new Property;
+        $update = $property->update($propertyId, ['status' => 'inactive'], 'property_id');
+        if ($update) {
+            $_SESSION['flash']['msg'] = "Property deleted successfully!";
+            $_SESSION['flash']['type'] = "success";
+        } else {
+            $_SESSION['flash']['msg'] = "Failed to delete property. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+        }
+        // Redirect to the property listing page
+        redirect('property/propertyListing');
     }
 }

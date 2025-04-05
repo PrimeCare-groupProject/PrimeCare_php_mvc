@@ -864,3 +864,59 @@ td.green-color {
     font-size: 16px;
     color: var(--secondary-color);
 }
+
+
+
+/** Property Delete View */
+.PD__delete-property-container {
+    max-width: 900px;
+    margin: 10px auto;
+    padding: 20px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.PD__delete-notice-box {
+    background-color: var(--white-color);
+    padding: 10px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.center-div-h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    padding: 10px 0;
+}
+
+.center-div-h2 h2 {
+    align-self: center;
+    color: var(--red-color);
+    margin-bottom: 15px;
+}
+
+.PD__delete-notice-box h4 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: var(--dark-grey-color);
+}
+
+.PD__delete-notice-box p {
+    margin: 10px 0;
+}
+
+.PD__delete-notice-box ul {
+    list-style: disc;
+    margin-left: 20px;
+    color: var(--dark-grey-color);
+}
+
+.PD__confirm-buttons {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    gap: 15px;
+}
