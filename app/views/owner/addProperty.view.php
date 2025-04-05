@@ -340,7 +340,7 @@ if (isset($_SESSION['flash'])) {
 
         <label class="input-label">Upload Property Ownership Details*</label>
         <div class="owner-addProp-file-upload">
-            <input type="file" name="property_documents" id="ownership_details" accept=".pdf" data-max-files="6" onchange="handleFileSelectForDocs(event)" required>
+            <input type="file" name="property_documents[]" id="ownership_details" accept=".pdf" onchange="handleFileSelectForDocs(event)" required>
             <div class="owner-addProp-upload-area">
                 <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
                 <p class="upload-area-no-margin">Drop your files here</p>
