@@ -6,6 +6,7 @@ defined('ROOTPATH') or exit('Access denied');
 spl_autoload_register(function($classname){
     require $filename = "../app/models/".ucfirst($classname).".php";	
 });#if no class is found, find it and load it
+
 require 'config.php';
 require 'functions.php';
 require 'Database.php'; #capitals becuz classes
@@ -13,3 +14,4 @@ require 'Model.php';
 require 'Controller.php';
 require 'App.php';
 require 'Pagination.php';
+// require './../libraries/PHPMailer/send.php';

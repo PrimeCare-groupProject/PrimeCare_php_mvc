@@ -50,14 +50,14 @@ class Serve{
                 $_SESSION['flash_message'] = 'Failed to create service. Please try again.';
             }
             // Ensure the form page is loaded after submission
-            $this->view('agent/addnewrepair');
+            $this->view('agent/addnewservice');
         }
     }
 
     public function read() {
         $service = new Services;
         $services = $service->findAll();
-        $this->view('agent/repairings', ['services' => $services]);
+        $this->view('agent/services', ['services' => $services]);
     }
 
     public function update() {
@@ -118,13 +118,53 @@ class Serve{
                 // Handle failure (e.g., insert failed)
                 $_SESSION['flash_message'] = 'Failed to create service. Please try again.';
             }
-            // Ensure the form page is loaded after submission
-            $this->view('agent/editrepairing');
+            $service2 = $service->where(['service_id' => $_POST['service_id']])[0];
+            $this->view('agent/editservices', ['service1' => $service2]);
+            
         }
     }
     
-    public function delete() {
+    public function preInspect() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $property_id = $_POST['property_id'];
 
+            $preinspect =  new PropertyModel;
+            $preinspection = $preinspect->where(['property_id' => $property_id])[0];
+            
+            $user_id = $preinspection->person_id;
+            $userdata =  new User;
+            $user = $userdata->where(['pid' => $user_id])[0];
+
+            $this->view('agent/preinspectionupdate', ['preinspect' => $preinspection,'user' => $user]);
+        }
+    }
+
+    public function preInspectUpdate(){
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $preinspect =  new PropertyModel;
+            
+            $res = $preinspect->update($_POST['property_id'], ['status' => "active"], 'property_id');
+            redirect('/dashboard/preInspection');
+        }
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST["action"])) {
+                if ($_POST["action"] == "accept") {
+                    // Call Accept Controller
+                    $preinspect =  new PropertyModel;
+            
+                    $res = $preinspect->update($_POST['property_id'], ['status' => "active"], 'property_id');
+                    redirect('/dashboard/preInspection');
+                    exit;
+                } elseif ($_POST["action"] == "reject") {
+                    $preinspect =  new PropertyModel;
+            
+                    $res = $preinspect->update($_POST['property_id'], ['status' => "inactive"], 'property_id');
+                    redirect('/dashboard/preInspection');
+                    exit;
+                }
+            }
+        }
     }
 
 
@@ -135,4 +175,38 @@ class Serve{
         $this->view('customer/repairUnit', ['service' => $service]);
     }
 
+    public function taskUpdate(){
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $arr = [
+                    'service_id' => $_POST['service_id'],
+                    'service_type' => $_POST['service_type'],
+                    'date' => $_POST['date'],
+                    'property_id' => $_POST['propertyID'],
+                    'property_name' => $_POST['property_name'],
+                    'cost_per_hour' => $_POST['cost_per_hour'],
+                    'total_hours' => $_POST['total_hours'],
+                    'status' => $_POST['status'],
+                    'service_provider_id' => $_POST['service_provider_id'],
+                    'total_cost' => $_POST['total_cost'],
+                    'service_description' => $_POST['service_description']
+            ];
+            $service = new ServiceLog;
+            $res = $service->update($_POST['service_id'], $arr, 'service_id');
+
+            if ($res) {
+                // Set flash message in session
+                $_SESSION['flash_message'] = 'Task Updated successfully!';
+
+            } else {
+                // Handle failure (e.g., insert failed)
+                $_SESSION['flash_message'] = 'Failed to update task. Please try again.';
+            }
+            $tasks = $service->where(['service_id' => $_POST['service_id']])[0];
+            $this->view('agent/edittasks', ['tasks' => $tasks]);
+            
+        }
+    }
+
 }
+
+

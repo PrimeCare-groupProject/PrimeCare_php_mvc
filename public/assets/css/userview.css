@@ -9,9 +9,10 @@ body {
 .user_view-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
     background-color: var(--background-color);
     font-family: 'Poppins', Arial, sans-serif;
+    position: relative;
+    overflow-x: hidden;
 }
 
 .header-line {
@@ -207,6 +208,10 @@ hr {
     border-radius: 5px;
     height: 10%;
     background-color: var(--white-color);
+}
+
+.full-width-for-content{
+    width: 100% !important;
 }
 
 .success-msg-container{
@@ -410,6 +415,25 @@ textarea .input-field{
     border-color: var(--primary-color);
     outline: none;
 }
+
+.blue-input-field{
+    background-color: var(--white-color) !important;
+    color: var(--link-color);
+    border: 1px solid var(--link-color) !important;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.blue-input-field-solid{
+    background-color: var(--link-color) !important;
+    color: var(--white-color);
+    border: 1px solid var(--link-color) !important;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+}
+
 /* 
 .profile-edit-form {
     display: flex;
@@ -680,7 +704,7 @@ textarea .input-field{
     background-color: #ddd;
     border-radius: 17px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 1s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   }
 
@@ -702,11 +726,11 @@ textarea .input-field{
 
   /* Active state styles */
   .toggle-track.activeToggle {
-    transition: transform 0.3s ease;
+    transition: background-color 0.5s ease; /* Increased transition time to 2 seconds */
     background-color: var(--primary-color);
-  }
+    }
 
   .toggle-track.activeToggle .toggle-knob {
     transition: transform 0.3s ease;
-    transform: translateX(26px);
+    transform: translateX(24px);
   }

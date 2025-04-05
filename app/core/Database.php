@@ -4,16 +4,34 @@ defined('ROOTPATH') or exit('Access denied');
 
 use LDAP\Result;
 
-trait Database{
+class Database{
 
-    private function connect(){
+    private static $instance = null;
+    private $con;
+
+    private function __construct()
+    {
         $string = "mysql:host=".DBHOST.";dbname=".DBNAME."";
         $con = new PDO($string, DBUSER, DBPASS);
-        return $con;
+        $this->con = $con;
+    }
+
+    public static function getInstance(){
+        if (self::$instance == null)
+        {
+        self::$instance = new Database();
+        }
+    
+        return self::$instance;
+    }
+
+    public function getConnection()
+    {
+        return $this->con;
     }
     
-    public function query($query, $data = []) {
-        $con = $this->connect();
+    public function query($query, $data = []){
+        $con = $this->getConnection();
         $stm = $con->prepare($query);
         $check = $stm->execute($data);
         
@@ -34,11 +52,9 @@ trait Database{
         return false;  // No results or query failed
     }
     
-    
-    
 
     public function get_row($query, $data = []){
-        $con = $this->connect();
+        $con = $this->getConnection();
         $stm = $con->prepare($query);
 
         $check = $stm->execute($data);

@@ -14,12 +14,17 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/forms.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/serviceProvider.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/formSet.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertyListingCssForAll.css">
+
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js" crossorigin="anonymous"></script>
     <title>PrimeCare</title>
 </head>
 
@@ -39,7 +44,7 @@
                         <input type="submit" name="toggle_btn" value="1" hidden>
                     </div>
                 </div>
-                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile Picture" class="header-profile-picture"></a>
+                <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="" class="header-profile-picture"></a>
             </form>
         </div>
         <div class="content-section">
@@ -47,7 +52,8 @@
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
                     <!-- <li><a href="<?= ROOT ?>/dashboard/addproperty"><button class="btn"><img src="<?= ROOT ?>/assets/images/addproperty.png" alt="">Add Property</button></a></li> -->
-                    <li><a href="<?= ROOT ?>/property/propertyListing"><button class="btn"><i class="fa-solid fa-house-chimney"></i>Property Listing</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/propertyListing"><button class="btn"><i class="fa-solid fa-house-chimney"></i>Property Listing</button></a></li>
+                    <!-- <li><a href="<?= ROOT ?>/dashboard/listing"><button class="btn"><i class="fa-solid fa-house-chimney"></i>Property Listing</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/maintenance"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Maintenance</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/financereport"><button class="btn"><i class="fa-solid fa-coins"></i>Finance Report</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/tenants"><button class="btn"><i class="fa-solid fa-users"></i>Tenants</button></a></li>
@@ -56,7 +62,7 @@
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
-                    <input type="text" name="logout" value= "1" hidden>
+                    <input type="text" name="logout" value="1" hidden>
                 </form>
             </div>
 
@@ -81,21 +87,21 @@
                     const sidebarLinks = document.querySelectorAll('.user_view-sidemenu ul li a');
                     let isTabActive = false;
                     const currentURL = window.location.href;
-                    const url = new URL(window.location.href);  // Get the current page URL
-                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/');  // Split the URL into an array
+                    const url = new URL(window.location.href); // Get the current page URL
+                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/'); // Split the URL into an array
                     const currentPage = path[3] || "dashboard";
                     console.log(path[3]);
                     // Loop through each sidebar link
                     sidebarLinks.forEach(link => {
                         const button = link.querySelector('button');
                         const href = link.getAttribute('href');
-                        
+
                         // Check if the current page matches the link's href
                         if (currentURL.includes(href)) {
                             // Add 'active' class to the button
                             button.classList.add('active');
                             button.classList.remove('btn');
-                            isTabActive = true;  // Mark that a tab is active
+                            isTabActive = true; // Mark that a tab is active
                         } else {
                             // Remove 'active' class from the button
                             button.classList.remove('active');
@@ -112,7 +118,7 @@
                             dashboardButton.classList.add('btn');
                             dashboardButton.classList.remove('active');
                         }
-                    }else{
+                    } else {
                         // console.log(" tab is not active");
 
                         dashboardButton.classList.add('active');
@@ -130,10 +136,37 @@
                     //     window.location.href = '<?= ROOT ?>/dashboard/logout';
                     // });
                 });
+
                 function submitToggleForm() {
-                    document.querySelector('.toggle_wrapper').submit();
+                    const submitBtn = document.querySelector('.toggle_wrapper');
+                    const toggleTrack = document.getElementById('toggleTrack');
+
+                    toggleTrack.classList.add('activeToggle');
+
+                    setTimeout(() => {
+                        submitBtn.submit();
+                        displayLoader();
+                    }, 300);
                 }
+                //loader effect
+                function displayLoader() {
+                    document.querySelector('.loader-container').style.display = '';
+                    //onclick="displayLoader()"
+                }
+
+                document.querySelectorAll('form').forEach(form => {
+                    form.addEventListener('submit', displayLoader);
+                });
+
+                document.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', displayLoader);
+                });
             </script>
 
 
             <div class="user_view-content_section" id="content-section">
+                <?php
+                if (isset($_SESSION['flash'])) {
+                    flash_message();
+                }
+                ?>

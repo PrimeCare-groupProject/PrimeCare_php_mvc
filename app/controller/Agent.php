@@ -181,10 +181,6 @@ class Agent{
     public function expenses() {
         echo "User Expenses Section";
     }
-    
-    public function preInspection(){
-        $this->view('agent/preInspection');
-    }
 
     public function requestedTasks(){
         $service = new ServiceLog();
@@ -288,14 +284,23 @@ class Agent{
             case 'newtask': 
                 $this->newTask();
                 break;
-            case 'taskremoval': 
-                $this->taskremoval();
+            case 'delete':
+                $service_id = (int)$c;
+                $service = new ServiceLog;
+                $service->delete($service_id , 'service_id');
+                redirect('/dashboard/tasks');   
                 break;
-            case 'spreassign': 
-                $this->spreassign();
+            case 'edittasks': 
+                $this->editTasks($c,$d);
                 break;
             default:
-            $this->view('agent/repairing');
+            $service = new ServiceLog;
+            $services = new Services;
+            $condition = [
+                'service_id' => 'services_id',      // `users.id` should match `posts.user_id`
+            ];
+            $tasks = $services->join($service, $condition);
+            $this->view('agent/tasks',['tasks' => $tasks]);
                 break;
         }
     }
@@ -304,38 +309,67 @@ class Agent{
         $this->view('agent/newtask');
     }
 
-    public function repairings($b = '', $c = '', $d = ''){
+    public function editTasks($c,$d){
+        $service_id = $c;
+        $task = new ServiceLog;
+        $tasks = $task->where(['service_id' => $service_id])[0];
+        $this->view('agent/edittasks', ['tasks' => $tasks]);
+    }
+
+    public function taskRemoval(){
+        
+        $this->view('agent/taskremoval');
+    }
+
+    public function services($b = '', $c = '', $d = ''){
         switch($b){
-            case 'editrepairing':
-                $this->editRepairing($c);
+            case 'editservices':
+                $this->editservices($c);
                 break;
             case 'delete':
                 $service_id = (int)$c;
                 $service = new Services;
                 $service->delete($service_id , 'service_id');
-                redirect('/dashboard/repairings');
+                redirect('/dashboard/services');
                 break;
-            case 'addnewrepair':
-                $this->addnewrepair($c, $d);
+            case 'addnewservice':
+                $this->addnewservice();
                 break;
             default:
                 $service = new Services;
                 $services = $service->findAll();
-                $this->view('agent/repairings', ['services' => $services]);
+                $this->view('agent/services', ['services' => $services]);
                 break;
         }
     }
 
-    public function editRepairing($c){
+    public function editservices($c){
         $service_id = $c;
         $service = new Services;
         $service1 = $service->where(['service_id' => $service_id])[0];
-        $this->view('agent/editrepairing', ['service1' => $service1]);
+        $this->view('agent/editservices', ['service1' => $service1]);
     }
 
-    public function addnewrepair(){
-        $this->view('agent/addnewrepair');
+    public function addnewservice(){
+        $this->view('agent/addnewservice');
     }
+
+    public function preInspection($b = '', $c = '', $d = ''){
+        switch($b){
+            case 'preinspectionupdate':
+                $this->view('agent/preinspectionupdate');
+                break;
+            default:
+                $preinspection = new PropertyModel;
+                $inspection = $preinspection->where(['status' => 'pending']);
+                $this->view('agent/preInspection', ['preinspection' => $inspection]);
+                break;
+        }
+        
+    }
+
+        
+    
 
     public function inventory($b = '', $c = '', $d = ''){
         switch($b){
@@ -352,32 +386,6 @@ class Agent{
         $this->view('agent/newinventory');
     }
 
-    public function newrepairing(){       
-        $this->view('agent/newrepairing');
-    }
-
-    public function repairing($d){
-        switch($d){
-            case 'taskremoval': 
-                $this->taskremoval();
-                break;
-            case 'spreassign': 
-                $this->spreassign();
-                break;
-            default:
-            $this->view('agent/repairing');
-                break;
-        }
-    }
-
-    public function taskRemoval(){
-        $this->view('agent/taskremoval');
-    }
-
-    public function spreassign(){
-        $this->view('agent/spreassign');
-    }
-
     public function manageBookings(){
         $this->view('agent/manageBookings');
     }
@@ -386,16 +394,16 @@ class Agent{
         $this->view('agent/problems');
     }
 
-    public function services($b = '', $c = '', $d = ''){
+    public function manageProviders($b = '', $c = '', $d = ''){
         switch($b){
             case 'serviceproviders':
                 $this->serviceProviders($c, $d);
                 break;
             case 'payments':
-                $this->payments($c, $d);
+                $this->payments();
                 break;
             default:
-                $this->view('agent/services');
+                $this->view('agent/manageProviders');
                 break;
         }
     }
@@ -403,10 +411,10 @@ class Agent{
     public function serviceProviders($c,$d){
         switch($c){
             case 'addserviceprovider':
-                $this->addServiceProvider($c, $d);
+                $this->addServiceProvider();
                 break;
             case 'spremove':
-                $this->spremove($c, $d);
+                $this->spremove();
                 break;
             default:
                 $this->view('agent/serviceproviders');
@@ -425,7 +433,7 @@ class Agent{
     public function removeserviceprovider($c,$d){
         switch($d){
             case 'spremove':
-                $this->spremove($c, $d);
+                $this->spremove();
                 break;
             default:
                 $this->view('agent/removeserviceprovider');
@@ -440,7 +448,7 @@ class Agent{
     public function bookings($b = '', $c = '', $d = ''){
         switch($b){
             case 'bookingaccept':
-                $this->bookingAccept($c, $d);
+                $this->bookingAccept();
                 break;
             default:
                 $this->view('agent/booking');

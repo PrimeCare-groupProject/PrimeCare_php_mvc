@@ -86,10 +86,10 @@
     padding: 10px 20px;
     border-radius: 30px;
     font-size: 0.8rem;
-    background-color: rgba(var(--green-color-rgb), 0.20);
+    /* background-color: rgba(var(--green-color-rgb), 0.20);
     color: var(--green-color);
-    border: 1px solid var(--green-color);
-    max-width: 100px;
+    border: 1px solid var(--green-color); */
+    max-width: 150px;
     min-width: 80px;
 }
 
@@ -152,6 +152,17 @@
 .orange:hover{
     background-color: rgba(var(--primary-color-rgb), 0.80);
     color: var(--white-color);
+}
+
+.blue{
+    background-color: rgba(var(--link-color-rgb), 0.20);
+    color: var(--link-color);
+    border: 1px solid var(--link-color);
+}
+
+.blue:hover{
+    background-color: rgba(var(--link-color-rgb), 0.80)!important;
+    color: var(--white-color)!important;
 }
 
 .more-margin {

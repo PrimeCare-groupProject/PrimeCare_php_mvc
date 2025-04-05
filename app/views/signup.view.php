@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/signup.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <title>PrimeCare</title>
 </head>
@@ -23,10 +24,17 @@
             <form action="<?= ROOT ?>/signup" method="post" class="signup-form__fields">
                 <label for="email" class="signup-form__label">Email Address</label>
                 <input type="email" name="email" id="email" class="signup-form__input" placeholder="johndoe@gmail.com" required>
-
-                <label for="phoneNo" class="signup-form__label">Contact Number</label>
-                <input type="text" name="contact" id="phoneNo" class="signup-form__input" placeholder="076XXXXXXX" required>
-
+        	    
+                <div class="signup-form__name-fields">
+                    <div class="signup-form__name-field">
+                        <label for="phoneNo" class="signup-form__label">Contact Number</label>
+                        <input type="text" name="contact" id="phoneNo" class="signup-form__input" placeholder="076XXXXXXX" required>
+                    </div>
+                    <div class="signup-form__name-field">
+                        <label for="nic" class="signup-form__label">NIC</label>
+                        <input type="text" name="nic" id="nic" class="signup-form__input" placeholder="0000000000" required>
+                    </div>
+                </div>
                 <!-- First and Last Name Fields in Flex Layout -->
                 <div class="signup-form__name-fields">
                     <div class="signup-form__name-field">
@@ -71,12 +79,30 @@
                     $user->errors['password'] ?? 
                     $user->errors['fname'] ??
                     $user->errors['lname'] ??
-                    $user->errors['auth']  ?>
+                    $user->errors['auth'] ??
+                    $user->errors['nic'] ?>
                 </p>
             </div>
 
         </div>
     </div>
+    <div class="loader-container" style="display: none;">
+        <div class="spinner-loader"></div>
+    </div>
 </body>
+<script>
+    function displayLoader() {
+        document.querySelector('.loader-container').style.display = '';
+        //onclick="displayLoader()"
+    }
+    
+    document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', displayLoader);
+    });
 
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', displayLoader);
+    });
+
+</script>
 </html>

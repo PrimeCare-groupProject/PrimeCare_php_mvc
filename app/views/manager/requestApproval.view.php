@@ -49,6 +49,9 @@
         </div>
     </div>
     <div>
+        <?php if (empty($requests)): ?>
+            <p style="text-align: center;">No requests found</p>
+        <?php else: ?>
         <?php foreach($requests as $request): ?>
             <div class="approval-container">
                 <div class="approval-left-content">
@@ -87,6 +90,7 @@
                 </div>
             </div>
         <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </div>
 

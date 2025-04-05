@@ -68,7 +68,7 @@ class Manager {
                 'contact' => $contact,
                 'password' => $password, // Hash the password before saving
                 'confirmPassword' =>$password,
-                'user_lvl' => 2,
+                'user_lvl' => 3,
                 'username' => $this->generateUsername($_POST['fname']),
             ];
             // echo "validating user details<br>";
@@ -115,6 +115,9 @@ class Manager {
                 $userId = $userDetails[0]->pid;
                 // var_dump($userId);
                 if ($userStatus) {
+                     
+                    $personalDetails['branch'] = 1;
+                    $personalDetails['bank'] = 1;
                     // Save payment details
                     // echo "inserting payment details<br>";
                     $paymentDetailStatus = $payment_details->insert([
@@ -185,29 +188,46 @@ class Manager {
             if (isset($_POST['delete_account'])) {
                 $errors = [];
                 $status = '';
+                //AccountStatus
                 $userId = $_SESSION['user']->pid; // Replace with actual user ID from session
-    
-                // Delete the user from the database
-                $user = new User();
-                $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
-    
-                if ($deleted) {
-                    // Delete the user's profile picture if it exists
-                    $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $_SESSION['user']->image_url;
-                    if (!empty($_SESSION['user']->image_url) && file_exists($profilePicturePath)) {
-                        unlink($profilePicturePath);
-                    }
-    
+                
+                // Update the user's Account Status to 0 instead od deleting accounnt
+                $updated = $user->update($userId, [
+                    'AccountStatus' => 0
+                ], 'pid');
+                if ($updated) {
                     // Clear the user session data
                     session_unset();
                     session_destroy();
-    
                     // Redirect to the home page or login page
                     redirect('home');
                     exit;
                 } else {
-                    $errors[] = "Failed to delete account. Please try again.";
+                    $_SESSION['flash']['msg'] = "Failed to delete account. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                    // $errors[] = "Failed to delete account. Please try again.";
                 }
+                // Delete the user from the database
+                // $user = new User();
+                // $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
+    
+                // if ($deleted) {
+                //     // Delete the user's profile picture if it exists
+                //     $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $_SESSION['user']->image_url;
+                //     if (!empty($_SESSION['user']->image_url) && file_exists($profilePicturePath)) {
+                //         unlink($profilePicturePath);
+                //     }
+    
+                //     // Clear the user session data
+                //     session_unset();
+                //     session_destroy();
+    
+                //     // Redirect to the home page or login page
+                //     redirect('home');
+                //     exit;
+                // } else {
+                //     $errors[] = "Failed to delete account. Please try again.";
+                // }
     
                 // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
@@ -217,9 +237,8 @@ class Manager {
                 $this->logout();
             }
         $this->handleProfileSubmission();
-        return;
+        // return;
         }
-
         $this->view('profile', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -229,43 +248,132 @@ class Manager {
         // Clear session data after rendering the view
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
+        return;
     }
 
-    private function handleProfileSubmission()
-    {
+    private function handleProfileSubmission(){
         $errors = [];
         $status = '';
 
         // Get form data and sanitize inputs
         $firstName = esc($_POST['fname'] ?? null);
         $lastName = esc($_POST['lname'] ?? null);
-        $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
         $contactNumber = esc($_POST['contact'] ?? null);
 
+        $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
         // Validate email
         if (!$email) {
             $errors[] = "Invalid email format.";
-            $_SESSION['errors'] = $errors;
-            $_SESSION['status'] = $status;
+        } else {
+            // Optional: Check against allowed domains
+            $domain = substr($email, strpos($email, '@') + 1);
 
-            redirect('dashboard/profile');
-            exit;
-
-        }else{
-            $user = new User();
-            $availableUser = $user->first(['email' => $email]);
-            if(isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid){
-                $errors[] = "Email already exists.";
-                $_SESSION['errors'] = $errors;
-                $_SESSION['status'] = $status;
-
-                redirect('dashboard/profile');
-                exit;
+            $allowedDomains = [
+                // Professional Email Providers
+                'gmail.com',
+                'outlook.com',
+                'yahoo.com',
+                'hotmail.com',
+                'protonmail.com',
+                'icloud.com',
+            
+                // Tech Companies
+                'google.com',
+                'microsoft.com',
+                'apple.com',
+                'amazon.com',
+                'facebook.com',
+                'twitter.com',
+                'linkedin.com',
+            
+                // Common Workplace Domains
+                'company.com',
+                'corp.com',
+                'business.com',
+                'enterprise.com',
+            
+                // Educational Institutions
+                'university.edu',
+                'college.edu',
+                'school.edu',
+                'campus.edu',
+            
+                // Government and Public Sector
+                'gov.com',
+                'public.org',
+                'municipality.gov',
+            
+                // Startup and Tech Ecosystem
+                'startup.com',
+                'techcompany.com',
+                'innovate.com',
+            
+                // Freelance and Remote Work
+                'freelancer.com',
+                'consultant.com',
+                'remote.work',
+            
+                // Regional and Local Businesses
+                'localbank.com',
+                'regional.org',
+                'cityservice.com',
+            
+                // Healthcare and Medical
+                'hospital.org',
+                'clinic.com',
+                'medical.net',
+            
+                // Non-Profit and NGO
+                'nonprofit.org',
+                'charity.org',
+                'ngo.com',
+            
+                // Creative Industries
+                'design.com',
+                'creative.org',
+                'agency.com',
+            
+                // Personal Domains
+                'me.com',
+                'personal.com',
+                'home.net',
+            
+                // International Email Providers
+                'mail.ru',
+                'yandex.com',
+                'gmx.com',
+                'web.de'
+            ];
+            
+            if (!in_array($domain, $allowedDomains)) {
+                $errors[] = 'Email domain is not allowed';
+            } else {
+                $user = new User();
+                $availableUser = $user->first(['email' => $email]);
+                if ($availableUser && $availableUser->pid != $_SESSION['user']->pid) {
+                    $errors[] = "Email already exists. Use another one.";
+                }
             }
         }
-        if(!$user->validate($_POST)){
-            $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
-            $_SESSION['errors'] = $errors;
+
+        if (!empty($errors)) {
+            $errorString = implode("<br>", $errors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
+            // $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
+            redirect('dashboard/profile');
+            exit;
+        }
+
+        if (!$user->validate($_POST)) {
+            $validationErrors = [];
+            foreach ($user->errors as $error) {
+                $validationErrors[] = $error;
+            }
+            $errorString = implode("<br>", $validationErrors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
             $_SESSION['status'] = $status;
 
             redirect('dashboard/profile');
@@ -305,22 +413,26 @@ class Manager {
 
         // Update user profile in the database
         if (empty($errors) && $_SESSION['user']->pid) {
-            $userId = $_SESSION['user']->pid; // Replace with actual user ID from session or context
+            $userId = $_SESSION['user']->pid; 
             $user = new User();
             $updated = $user->update($userId, [
                 'fname' => $firstName,
                 'lname' => $lastName,
                 'email' => $email,
                 'contact' => $contactNumber,
-                'image_url' => $targetFile ?? null
+                'image_url' => $targetFile ?? 'user.png'
             ], 'pid');
 
             if ($updated) {
                 // Delete old profile picture if a new one is uploaded
                 if (isset($targetFile) && !empty($_SESSION['user']->image_url)) {
                     $oldPicPath = $targetDir . $_SESSION['user']->image_url;
-                    if (file_exists($oldPicPath)) {
-                        unlink($oldPicPath);
+                    try {
+                        if (file_exists($oldPicPath)) {
+                            unlink($oldPicPath);
+                        }
+                    } catch (Exception $e) {
+                        $status = "Profile updated, but failed to delete old profile picture: " . $e->getMessage();
                     }
                 }
                 // Update session data
@@ -338,12 +450,23 @@ class Manager {
         }
 
         // Store errors or success in session and redirect
-        $_SESSION['errors'] = $errors;
-        $_SESSION['status'] = $status;
-
+        if (!empty($errors)) {
+            $errorString = implode("<br>", $errors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
+            // $_SESSION['errors'] = $errors;
+            // $_SESSION['status'] = $status;
+            redirect('dashboard/profile');
+            exit;
+        }
+        $_SESSION['flash']['msg'] = $status;
+        $_SESSION['flash']['type'] = "success";
+        // $_SESSION['errors'] = $errors;
+        // $_SESSION['status'] = $status;
         redirect('dashboard/profile');
         exit;
     }
+    
 
     public function managementHome($a = '', $b = '', $c = '', $d = ''){
         // echo $a . "<br>";
@@ -369,10 +492,6 @@ class Manager {
     }
 
     public function propertyManagement($b = '', $c = '', $d = ''){
-        // echo $b . "<br>";
-        // echo $c . "<br>";
-        // echo $d . "<br>";
-        // show(URL(3));
         switch($b){
             case 'assignagents':
                 $this->assignAgents($c, $d);
@@ -388,31 +507,104 @@ class Manager {
 
     private function employeeManagement(){
         $user = new User;
-        $user->setLimit(7); //set limit before anything
 
-        $searchterm = isset($_GET['searchterm']) ? $_GET['searchterm'] : "";
+        if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "update_user") {
+            $user->validate($_POST);
+            $errors = $user->errors;
+
+            if (isset($_POST['email'])) {
+                $email = $_POST['email'];
+                $availableUser = $user->first(['email' => $email]);
+                if ($availableUser && $availableUser->pid != $_POST['pid']) {
+                    $errors['email'] = "Email already exists. Use another one.";
+                }
+            }
+
+            if (!empty($errors)) {
+                $_SESSION['flash'] = [
+                    'msg' => implode("<br>", $errors),
+                    'type' => "error"
+                ];
+            } else {
+                // Perform update
+                if (isset($_POST['action'])) unset($_POST['action']);
+                $updateStatus = $user->update($_POST['pid'], $_POST, 'pid');
+                if ($updateStatus) {
+                    $_SESSION['flash'] = [
+                        'msg' => "User updated successfully!",
+                        'type' => "success"
+                    ];
+                } else {
+                    $_SESSION['flash'] = [
+                        'msg' => "Failed to update user. Please try again.",
+                        'type' => "error"
+                    ];
+                }
+            }
+
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "delete_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $user->update($pid, ['AccountStatus' => 0], 'pid');
+            $_SESSION['flash'] = [
+                'msg' => "User deleted successfully!",
+                'type' => "success"
+            ];
+            // $user->update();
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "block_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $updateStatus = $user->update($pid, ['AccountStatus' => -1], 'pid');
+            if ($updateStatus) {
+                $_SESSION['flash'] = [
+                    'msg' => "User Blocked successfully!",
+                    'type' => "success"
+                ];
+            }
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "unblock_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $updateStatus = $user->update($pid, ['AccountStatus' =>0], 'pid');
+            if ($updateStatus) {
+                $_SESSION['flash'] = [
+                    'msg' => "User Unblocked successfully!",
+                    'type' => "success"
+                ];
+            }
+        }
+
+        $user->setLimit(7);
+
+        $searchterm = $_GET['searchterm'] ?? "";
         $limit = $user->getLimit();
         $countWithTerms = $user->getTotalCountWhere([], [], $searchterm);
 
-        $totalPages =  ceil( $countWithTerms / $limit ) ; 
-
+        $totalPages = ceil($countWithTerms / $limit);
         $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $offset = ($limit - 1) * ($currentPage-1 ); #generate offset
-        $user->setOffset($offset); //set offset after limit
+        $offset = ($currentPage - 1) * $limit; // Corrected offset calculation
 
-        $userlist = $user->where([], [], $searchterm);//get the details
-        
-        if (isset($userlist) && is_array($userlist) && count($userlist) > 0) {
-            foreach($userlist as $user){//filter out pasword
-                unset($user->password);
+        $user->setOffset($offset);
+        $userlist = $user->where([], [], $searchterm);
+
+        if (!empty($userlist)) {
+            foreach ($userlist as $user) {
+                unset($user->password); // Remove password from result
             }
         }
-        // Instantiate the Pagination class with the current page, total pages, and range
-        $pagination = new Pagination($currentPage, $totalPages, 2); 
-        $paginationLinks = $pagination->generateLinks();    // Generate pagination links
-        // Pass pagination links to the view
-        $this->view('manager/employeeManagement',['paginationLinks' => $paginationLinks, 'userlist' => $userlist ? $userlist : [], 'tot' => $totalPages]);
+
+        $pagination = new Pagination($currentPage, $totalPages, 2);
+        $paginationLinks = $pagination->generateLinks();
+
+        $this->view('manager/employeeManagement', [
+            'paginationLinks' => $paginationLinks,
+            'userlist' => $userlist ?? [],
+            'tot' => $totalPages
+        ]);
     }
+
 
     public function requestApproval(){
         $property = new PropertyModelTemp;
@@ -421,7 +613,7 @@ class Manager {
         // $this->view('manager/requestApproval');
     }
 
-    public function financialManagement(){
+    private function financialManagement(){
         $this->view('manager/financemanagement');
     }
 
@@ -441,8 +633,85 @@ class Manager {
         }
     }
 
-    public function contacts(){
-        $this->view('manager/contacts');
+    public function contacts() {
+        $randomMessages = new RandomMessage;
+        $randomPerson = new RandomPerson;
+    
+        // Fetch all messages with status 1
+        $messages = $randomMessages->where(['status' => 1], []);
+        $groupedMessages = [];
+    
+        if (!empty($messages)) {
+            foreach ($messages as $message) {
+                // Fetch the person details for the message
+                $personDetails = $randomPerson->first(['pid' => $message->pid]);
+                $personDetails->pid = $message->pid;
+    
+                // Initialize the grouped messages for this person if not already done
+                if (!isset($groupedMessages[$message->pid])) {
+                    $groupedMessages[$message->pid] = (object) [
+                        'personDetails' => $personDetails,
+                        'messages' => '', // Use a string variable to store all messages
+                        'count' => 0 // Initialize count variable
+                    ];
+                }
+                if (substr_count($message->message, "\n") > 0) {
+                    $groupedMessages[$message->pid]->count += substr_count($message->message, "\n");
+                }
+                // Append the message content to the string variable
+                $groupedMessages[$message->pid]->messages .= $message->message . "\n";
+                $groupedMessages[$message->pid]->count++; // Increment the count
+            }
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['replyMessage'])) {
+            $replyMessage = trim($_POST['emailMessage']);
+            // show($_POST);
+            if (empty($replyMessage) && $_POST['complete'] == 0) {
+                $_SESSION['flash']['msg'] = "Reply Message should not be empty";
+                $_SESSION['flash']['type'] = "error";
+                
+            } else {
+                if(isset($_POST['email'])){
+                    $email = trim($_POST['email']);
+                    $name = trim($_POST['name']) ?? 'User';
+                    
+                    
+                    // $status = sendMail(
+                    //     $email ,
+                    //     'Primecare Respond', "
+                    //     <div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px;\">
+                    //         <h1 style=\"color: #4CAF50;\">Reply to Your Query</h1>
+                    //         <p>Hello, {$name}</p>
+                    //         <p>Thank you for reaching out to us.</p>
+                    //         <p>{$replyMessage}</p>
+                    //         <p>If you have any further questions, please feel free to reply to this email.</p>
+                    //         <br>
+                    //         <p>Best regards,<br>PrimeCare Support Team</p>
+                    //     </div>
+                    // ");
+                    // if(!$status['error']){
+                    //     $_SESSION['flash']['msg'] = "Reply sent successfully!";
+                    //     $_SESSION['flash']['type'] = "success";
+                    // } else {
+                    //     $_SESSION['flash']['msg'] = "Failed to send reply. Please try again.";
+                    //     $_SESSION['flash']['type'] = "error";
+                    // }
+                }
+                if(isset($_POST['complete']) && $_POST['complete'] == 1){
+                    // show($_POST);
+                    // die;
+                    $pid = $_POST['pid'];
+                    $randomMessages->update($pid, ['status' => 0], 'pid');
+                    $_SESSION['flash']['msg'] = "Message marked as complete.";
+                    $_SESSION['flash']['type'] = "success";
+                    redirect('manager/contacts');
+                }
+            }
+        }
+    
+        // Pass the grouped messages to the view
+        $this->view('manager/contacts', ['messages' => $groupedMessages]);
     }
     
     private function logout(){
