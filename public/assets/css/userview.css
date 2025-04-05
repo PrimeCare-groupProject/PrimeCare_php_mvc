@@ -210,6 +210,10 @@ hr {
     background-color: var(--white-color);
 }
 
+.full-width-for-content{
+    width: 100% !important;
+}
+
 .success-msg-container{
     display: flex;
     justify-content: center;
