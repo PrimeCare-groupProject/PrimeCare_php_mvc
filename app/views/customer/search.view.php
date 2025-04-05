@@ -46,7 +46,7 @@
                     </label>
                 </div>
             </div>
-    
+
             <div class="filter-row-instance">
                 <div class="half-of-the-row">
                     <label>Price Range:
@@ -61,7 +61,7 @@
                     </label>
                 </div>
             </div>
-    
+
             <div class="filter-row-instance">
                 <button type="button" onclick="applyFilters()" class="primary-btn">Apply Filters</button>
             </div>
@@ -76,8 +76,8 @@
             <?php foreach ($properties as $property): ?>
                 <div class="property-card">
                     <div class="property-image">
-                        <!-- <a href="<?= ROOT ?>/dashboard/propertyunit/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt=""></a> -->
-                        <a href="<?= ROOT ?>/property/propertyUnit/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt=""></a>
+                        <!-- <a href="<?= ROOT ?>/dashboard/propertyunit/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt=""></a> -->
+                        <a href="<?= ROOT ?>/property/propertyUnit/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt=""></a>
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
@@ -90,7 +90,7 @@
                             </div>
                             <div>
                                 <div class="property-status">
-                                    <span class="border-button-for-rent">RS.<?= $property->rent_on_basis ?></span>
+                                    <span class="border-button-for-rent">RS.<?= $property->rental_price ?></span>
                                 </div>
                             </div>
                         </div>

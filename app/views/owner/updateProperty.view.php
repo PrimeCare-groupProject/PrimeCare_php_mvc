@@ -8,7 +8,7 @@
 </div>
 
 <form method="POST" action="<?= ROOT ?>/property/update/<?= $property->property_id ?>" enctype="multipart/form-data">
-<!-- <form method="POST" action="<?= ROOT ?>/property/updateTemp/<?= $property->property_id ?>" enctype="multipart/form-data"> -->
+    <!-- <form method="POST" action="<?= ROOT ?>/property/updateTemp/<?= $property->property_id ?>" enctype="multipart/form-data"> -->
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
             <label class="input-label">Name Of Property*</label>
@@ -31,7 +31,7 @@
                 </div>
                 <div class="input-group-group" id="rent-basis-field" style="display: none;">
                     <label class="input-label">Monthly Rent In LKR*</label>
-                    <input type="number" name="rent_on_basis" placeholder="Enter Rent" value="<?= $property->rent_on_basis ?>" class="input-field">
+                    <input type="number" name="rental_price" placeholder="Enter Rent" value="<?= $property->rental_price ?>" class="input-field">
                 </div>
             </div>
 
@@ -160,7 +160,7 @@
                         $property->errors['name'] ??
                         $property->errors['description'] ??
                         $property->errors['year_built'] ??
-                        $property->errors['rent_on_basis'] ??
+                        $property->errors['rental_price'] ??
                         $property->errors['country'] ??
                         $property->errors['state_province'] ??
                         $property->errors['city'] ??
@@ -180,6 +180,7 @@
 
 <script>
     var ROOT = '<?= ROOT ?>';
+
     function toggleRentField() {
         const typeSelect = document.getElementById('property-type');
         const rentBasisField = document.getElementById('rent-basis-field');

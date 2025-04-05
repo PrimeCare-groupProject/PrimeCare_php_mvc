@@ -48,7 +48,7 @@
 
     <div class="property-details-section">
         <div class="input-group">
-            <span class="input-field-small-for-rent">Monthly Rent: LKR <?= $property->rent_on_basis ?></span>
+            <span class="input-field-small-for-rent">Monthly Rent: LKR <?= $property->rental_price ?></span>
         </div>
 
         <label class="bolder-text">Description</label>
