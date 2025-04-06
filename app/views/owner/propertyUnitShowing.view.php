@@ -10,6 +10,7 @@
                 <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>
             </div>
         </div>
+        <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>'">Request Repair</button>
         <div>
             <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
