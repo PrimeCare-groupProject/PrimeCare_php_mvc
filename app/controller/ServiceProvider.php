@@ -112,6 +112,27 @@ class ServiceProvider {
             ? round($totalHoursWorked / $totalWorks, 1) 
             : 0;
 
+        // Inside your dashboard() method, after processing all services
+
+        // Get 5 most recently completed tasks
+        $recentCompletedTasks = [];
+        foreach ($allServices as $service) {
+            if (strtolower($service->status) === 'done') {
+                $recentCompletedTasks[] = $service;
+            }
+        }
+
+        // Sort by date descending
+        usort($recentCompletedTasks, function($a, $b) {
+            return strtotime($b->date) - strtotime($a->date);
+        });
+
+        // Limit to 5 tasks
+        $recentCompletedTasks = array_slice($recentCompletedTasks, 0, 5);
+
+        // Add to data array
+        $data['recentCompletedTasks'] = $recentCompletedTasks;
+
         // Prepare final data
         $data = [
             'totalProfit' => $totalProfit,
@@ -126,6 +147,7 @@ class ServiceProvider {
             'weeklyEarnings' => $weeklyEarnings,
             'serviceTypeDistribution' => $serviceTypeDistribution,
             'serviceTypeEarnings' => $serviceTypeEarnings,
+            'recentCompletedTasks' => $recentCompletedTasks,
         ];
 
         // Load the dashboard view
