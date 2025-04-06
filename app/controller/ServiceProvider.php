@@ -5,11 +5,131 @@ class ServiceProvider {
     use controller;
     
     public function index() {
-        $this->view('serviceprovider/dashboard');
+        // Instead of loading the view directly, call dashboard()
+        $this->dashboard();
     }
 
     public function dashboard() {
-        $this->view('serviceprovider/dashboard');
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+
+        $serviceLog = new ServiceLog();
+        $provider_id = $_SESSION['user']->pid;
+
+        // Get all services for this provider
+        $conditions = ['service_provider_id' => $provider_id];
+        $allServices = $serviceLog->where($conditions);
+
+        // Ensure $allServices is always an array
+        if (!is_array($allServices)) {
+            $allServices = [];
+        }
+
+        // Initialize analytics data
+        $totalProfit = 0;
+        $totalHoursWorked = 0;
+        $completedWorks = 0;
+        $pendingWorks = 0;
+        $ongoingWorks = [];
+        $monthlyIncome = [];
+        $serviceTypeDistribution = [];
+        $serviceTypeEarnings = [];
+        $weeklyEarnings = [];
+
+        // Current month/year for monthly income
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        $currentMonthIncome = 0;
+
+        // Process each service
+        foreach ($allServices as $service) {
+            // Calculate cost
+            $serviceCost = $service->cost_per_hour * $service->total_hours;
+            
+            // Track totalProfit
+            $totalProfit += $serviceCost;
+            
+            // Track totalHours
+            $totalHoursWorked += $service->total_hours;
+
+            // Lowercase status for comparison
+            $status = strtolower($service->status);
+
+            // Change these comparisons to match the capitalization in your database
+            if ($status === 'done' || $status === 'Done') {
+                $completedWorks++;
+            } elseif ($status === 'pending' || $status === 'Pending') {
+                $pendingWorks++;
+            } elseif ($status === 'ongoing' || $status === 'Ongoing') {
+                $ongoingWorks[] = $service;
+            }
+
+            // Track monthly income if it matches current month/year
+            $serviceDate = strtotime($service->date);
+            $serviceMonth = date('m', $serviceDate);
+            $serviceYear = date('Y', $serviceDate);
+
+            if ($serviceYear == $currentYear && $serviceMonth == $currentMonth) {
+                $currentMonthIncome += $serviceCost;
+            }
+
+            // Example: track weekly earnings by day of this week
+            $serviceWeekDay = date('D', $serviceDate);
+            if (!isset($weeklyEarnings[$serviceWeekDay])) {
+                $weeklyEarnings[$serviceWeekDay] = 0;
+            }
+            $weeklyEarnings[$serviceWeekDay] += $serviceCost;
+
+            // Example: track service type distribution/earnings
+            $type = $service->service_type ?: 'Unknown';
+            if (!isset($serviceTypeDistribution[$type])) {
+                $serviceTypeDistribution[$type] = 0;
+                $serviceTypeEarnings[$type] = 0;
+            }
+            $serviceTypeDistribution[$type]++;
+            $serviceTypeEarnings[$type] += $serviceCost;
+        }
+
+        // Sort ongoing works by date descending, then limit to 5
+        if ($ongoingWorks) {
+            usort($ongoingWorks, function($a, $b) {
+                return strtotime($b->date) - strtotime($a->date);
+            });
+            $ongoingWorks = array_slice($ongoingWorks, 0, 5);
+        }
+
+        // Total works
+        $totalWorks = $completedWorks + $pendingWorks + count($ongoingWorks);
+
+        // Completion rate
+        $completionRate = $totalWorks ? round(($completedWorks / $totalWorks) * 100) : 0;
+
+        // Avg hours per service (if desired)
+        $avgHoursPerService = ($totalWorks && $totalHoursWorked) 
+            ? round($totalHoursWorked / $totalWorks, 1) 
+            : 0;
+
+        // Prepare final data
+        $data = [
+            'totalProfit' => $totalProfit,
+            'totalHoursWorked' => $totalHoursWorked,
+            'avgHoursPerService' => $avgHoursPerService,
+            'completedWorks' => $completedWorks,
+            'pendingWorks' => $pendingWorks,
+            'ongoingWorks' => $ongoingWorks,
+            'totalWorks' => $totalWorks,
+            'completionRate' => $completionRate,
+            'currentMonthIncome' => $currentMonthIncome,
+            'weeklyEarnings' => $weeklyEarnings,
+            'serviceTypeDistribution' => $serviceTypeDistribution,
+            'serviceTypeEarnings' => $serviceTypeEarnings,
+        ];
+
+        // Load the dashboard view
+        $this->view('serviceprovider/dashboard', $data);
     }
 
     public function profile(){
