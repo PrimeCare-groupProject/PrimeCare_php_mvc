@@ -214,10 +214,15 @@ class Owner
 
     private function repairListing()
     {
+        // Instantiate the Services model and fetch all services
+        $servicesModel = new Services();
+        $services = $servicesModel->getAllServices();
+        
         $this->view('owner/repairListing', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '',
+            'services' => $services  // Pass the services data to the view
         ]);
     }
 
