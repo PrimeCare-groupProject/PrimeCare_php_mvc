@@ -20,12 +20,13 @@
                      onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>&estimated_hours=2&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
                     <div class="property-image">
                         <?php 
+                        // Check if image file exists
                         $imgPath = ROOT . "/assets/images/repairimages/" . $service->service_img;
-                        $placeholderImg = ROOT . "/assets/images/service-placeholder.jpg";
+                        $placeholderPath = ROOT . "/assets/images/service_placeholder.jpg";
                         ?>
-                        <img src="<?= $imgPath ?>" alt="<?= $service->name ?>" 
-                             loading="lazy"
-                             onerror="this.onerror=null; this.src='<?= $placeholderImg ?>';">
+                        <img src="<?= !empty($service->service_img) ? $imgPath : $placeholderPath ?>" 
+                             alt="<?= $service->name ?>" 
+                             onerror="this.src='<?= $placeholderPath ?>'">
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
@@ -77,7 +78,7 @@
         showPage(currentPage);
     });
 
-    // Pagination functionality - optimized
+    // Pagination functionality
     const listingsPerPage = 9;
     const listings = document.querySelectorAll('.property-listing-grid .property-card');
     const totalPages = Math.ceil(listings.length / listingsPerPage);

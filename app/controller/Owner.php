@@ -218,6 +218,39 @@ class Owner
         $servicesModel = new Services();
         $services = $servicesModel->getAllServices();
         
+        // Check and fix image paths for each service
+        if (!empty($services)) {
+            foreach ($services as $key => $service) {
+                // If service_img is empty, skip
+                if (empty($service->service_img)) {
+                    continue;
+                }
+                
+                // Check if the image exists in the specified location
+                $imagePath = ROOTPATH . 'public/assets/images/repairimages/' . $service->service_img;
+                if (!file_exists($imagePath)) {
+                    // Try to find the image with common image extensions
+                    $found = false;
+                    $extensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    $baseName = pathinfo($service->service_img, PATHINFO_FILENAME);
+                    
+                    foreach ($extensions as $ext) {
+                        $testPath = ROOTPATH . 'public/assets/images/repairimages/' . $baseName . '.' . $ext;
+                        if (file_exists($testPath)) {
+                            $services[$key]->service_img = $baseName . '.' . $ext;
+                            $found = true;
+                            break;
+                        }
+                    }
+                    
+                    // If still not found, set to empty to use placeholder
+                    if (!$found) {
+                        $services[$key]->service_img = '';
+                    }
+                }
+            }
+        }
+        
         $this->view('owner/repairListing', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
