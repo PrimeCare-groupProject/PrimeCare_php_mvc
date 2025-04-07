@@ -32,36 +32,42 @@ class Manager {
         $user = new User();
         $payment_details = new PaymentDetails();
         $errors = [];
-        // show($_POST);
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $errors = [];
 
             // Validate and sanitize personal details
             $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
             if (!$email) {
-                $user->errors['email'] = "Invalid email format.";
+                $errors['email'] = "Invalid email format.";
             }
-            // echo "checking if user exist <br>";
-            $resultUser = $user->first(['email' => $email], []);
-            if (($resultUser && !empty($resultUser->email))) {
-                $errors['email'] = 'Email already exists';
-                //update user class errors
-                $user->errors['email'] = 'Email already exists';
-                $this->view('manager/addAgent',[
-                    'user' => $resultUser, 
-                    'errors' => $user->errors, 
-                    'message' => ''] ); // Re-render signup view with error
-                return; // Exit if email exists
-            }
-            
+
             $contact = esc($_POST['contact'] ?? null);
             $fname = esc($_POST['fname'] ?? null);
             $lname = esc($_POST['lname'] ?? null);
+            $nic = esc($_POST['nic'] ?? null);
 
+            // echo "checking if user exist <br>";
+            $resultUser = $user->first(['email' => $email], []);
+            $nicUser = $user->first(['nic' => $nic ], []);
+
+            if (($resultUser && !empty($resultUser->email)) || $nicUser && !empty($nicUser->email)) {
+                //update user class errors
+                $errors['email'] = 'Email or NIC already exists';
+                $this->view('manager/addAgent',[
+                    'user' => $resultUser, 
+                    'errors' => $errors, 
+                    'message' => ''] ); // Re-render signup view with error
+                
+                unset($errors['email']); // Clear the error after displaying it
+                return; // Exit if email exists
+            }
+            
             //generatepassword
             $password = bin2hex(random_bytes(4)); // Generates an 8-character password
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
             $personalDetails = [
+                'nic' => $nic,
                 'fname' => $fname,
                 'lname' => $lname,
                 'email' => $email,
@@ -81,23 +87,29 @@ class Manager {
                     'user' => $resultUser, 
                     'errors' => $user->errors, 
                     'message' => '']); // Re-render signup view with errors
+
+                unset($user->errors); // Clear the error after displaying it
                 return; // Exit if validation fails
             }
             // echo "user details validated:<br>";
             // show($user->errors);
 
             unset($personalDetails['confirmPassword']);
+
             $personalDetails['password'] = $hashedPassword;//set hashed password
             // echo "inserting user details<br>";
-            $userStatus = $user->insert($personalDetails);
+            // show($personalDetails);
 
+            $userStatus = $user->insert($personalDetails);
             if (!$userStatus) {
                 // echo "user details insertion failed<br>"; 
                 $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('manager/addAgent', [
                     'user' => $resultUser, 
-                    'errors' => $user->errors, 
+                    'errors' => $errors, 
                     'message' => '']);
+
+                unset($errors['auth']); // Clear the error after displaying it
                 return;
             }else{
                 // echo "user details inserted<br>"; 
@@ -109,8 +121,8 @@ class Manager {
             $branch = esc($_POST['branch'] ?? null);
             $bankName = esc($_POST['bankName'] ?? null);
 
+            // echo "Inside if bank details<br>";
             if (empty($user->errors) && $userStatus) {
-
                 $userDetails = $user->where(['email' => $email]);
                 $userId = $userDetails[0]->pid;
                 // var_dump($userId);
@@ -118,8 +130,31 @@ class Manager {
                      
                     $personalDetails['branch'] = 1;
                     $personalDetails['bank'] = 1;
+
+                    //check if payment details already exist
+                    $paymentDetails = $payment_details->first(['pid' => $userId, 'account_no' => $accountNo]);
+                    // echo "checking if payment details exist<br>";
+                    if ($paymentDetails) {
+                        $user->delete($personalDetails['pid'], 'pid'); 
+
+                        $errors['payment'] = "Payment details already exist for this account number.";
+                        $this->view('manager/addAgent',[
+                            'user' => $resultUser, 
+                            'errors' => $errors, 
+                            'message' => '']); // Re-render signup view with error
+                        unset($errors['payment']); // Clear the error after displaying it
+                        return; // Exit if payment details already exist
+                    }
                     // Save payment details
                     // echo "inserting payment details<br>";
+                    // var_dump([
+                    //     'card_name' => $cardName,
+                    //     'account_no' => $accountNo,
+                    //     'bank' => $bankName,
+                    //     'branch' => $branch,
+                    //     'pid' => $userId,
+                    // ]);
+
                     $paymentDetailStatus = $payment_details->insert([
                         'card_name' => $cardName,
                         'account_no' => $accountNo,
@@ -127,7 +162,8 @@ class Manager {
                         'branch' => $branch,
                         'pid' => $userId,
                     ]);
-                    // var_dump($paymentDetailStatus);
+                    
+                    // show($paymentDetailStatus);
                     // echo "payment details inserted<br>";
 
                     if($paymentDetailStatus){
@@ -147,37 +183,52 @@ class Manager {
                         ");
                         if(!$status['error']){
                             $message = "Agent added successfully!. Password has been sent to email";
+                            // echo "mail sent<br>";
                         }else{
                             $message = "Agent added successfully!. Failed to send email. Contact Agent at {$contact}";
+                            // echo "mail could not be sent<br>";
                         }
                     } else {
                         $message = "Failed to add Agent Payement Details. Please try again.";
+                        $user->delete($personalDetails['pid'], 'pid'); 
+                        // echo "payment details insertion failed<br>";
                     }
 
                     $this->view('manager/addAgent', [
                         'user' => $resultUser, 
-                        'errors' => $user->errors, 
+                        'errors' => $errors, 
                         'message' => $message]);
+                    
                     return;
                 } else {
                     $errors['auth'] = "Failed to add agent. Please try again.";
                     $this->view('manager/addAgent', [
                         'user' => $resultUser, 
-                        'errors' => $user->errors, 
+                        'errors' => $errors, 
                         'message' => '']);
+
+                    unset($errors['auth']); // Clear the error after displaying it
                     return;
                 }
             }
             $errors['auth'] = "Failed to add agent. Please try again.";
+
+            $user->delete($personalDetails['pid'], 'pid'); 
+
             $this->view('manager/addAgent', [
                 'user' => $resultUser, 
-                'errors' => $user->errors, 
+                'errors' => $errors, 
                 'message' => '']);
+
+            unset($errors['auth']); // Clear the error after displaying it
             return;
         }
         
 
-        $this->view('manager/addAgent');
+        $this->view('manager/addAgent',[
+            'errors' => $errors, 
+            'message' => '']
+        );
         return;
     }
     

@@ -410,3 +410,8 @@ function format_bytes($bytes, $precision = 2): string
     $bytes /= (1 << (10 * $pow));
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
+
+
+// require '../app/libraries/PHPMailer/send.php'; //send email
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'send.php';
+include_once SENDMAIL_PATH ;

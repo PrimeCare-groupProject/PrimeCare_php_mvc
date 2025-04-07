@@ -4,7 +4,7 @@
     <a href='<?= ROOT ?>/dashboard/managementhome'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Employee Management </h2>
+    <h2>Profile Management </h2>
     <div class="flex-bar">
         <form class="search-container" method="GET">
             <input 
@@ -24,25 +24,28 @@
 <div class="content_wrapper" id='formContainer'>
     <div class="employee-details-container">
         <table class="listing-table-for-customer-payments">
-            <thead>
-                <tr>
-                    <th class='first' style='max-width: 35px;' id="date-header">ID</th>
-                    <th style='max-width: 20%;'>Name</th>
-                    <th style='max-width: 30%;'>Email</th>
-                    <th style='max-width: 60px'>NIC</th>
-                    <th style='min-width: 60px;' class="sortable" id="user-type-header">
-                        User Type
-                        <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
-                    </th>
-                    <th style='width: 5%;'>Image</th>
-                    <th class='last' style='width: 35px;'>Status</th>
-                    <th hidden>Reset Code</th>
-                    <th hidden>Contact</th>
-                </tr>
-            </thead>
+            <?php if (isset($userlist) && is_array($userlist) && count($userlist) > 0) : ?>
+                <thead>
+                    <tr>
+                        <th class='first' style='max-width: 35px;' id="date-header">ID</th>
+                        <th style='max-width: 20%;'>Name</th>
+                        <th style='max-width: 30%;'>Email</th>
+                        <th style='max-width: 60px'>NIC</th>
+                        <th style='min-width: 60px;' class="sortable" id="user-type-header">
+                            User Type
+                            <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
+                        </th>
+                        <th style='width: 5%;'>Image</th>
+                        <th class='last' style='width: 35px;'>Status</th>
+                        <th hidden>Reset Code</th>
+                        <th hidden>Contact</th>
+                    </tr>
+                </thead>
+            <?php endif ?>
+                
             <tbody>
                 <?php 
-                    if (isset($userlist) && count($userlist) > 0) {
+                    if (isset($userlist) && is_array($userlist) && count($userlist) > 0) {
                         foreach ($userlist as $user) {
                             echo "<tr onclick='showUserDetailBox(this)'>";
                             echo "<td class='first'><input type='text' name='id' value='{$user->pid}' disabled></td>";

@@ -1,5 +1,6 @@
 <?php
 defined('ROOTPATH') or exit('Access denied');
+// include_once SENDMAIL_PATH ;
 
 class ResetPassword {
     use controller;

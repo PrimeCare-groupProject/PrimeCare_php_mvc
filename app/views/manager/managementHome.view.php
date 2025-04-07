@@ -54,7 +54,7 @@
         <a href="<?= ROOT ?>/dashboard/managementhome/employeemanagement">
             <div class="MM__cards">
                 <div class="MM__text">
-                    <h2>Employee Management</h2>
+                    <h2>Profile Management</h2>
                 </div>
                 <div class="management-icon">
                     <img src="<?= ROOT ?>/assets/images/employeeManagement.jpg" alt="Employee Management" class="MM__img">

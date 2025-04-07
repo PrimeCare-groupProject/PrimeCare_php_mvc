@@ -1,5 +1,7 @@
 
 <?php
+
+define('SENDMAIL_PATH', realpath(__FILE__));
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -32,7 +34,7 @@ function sendMail($to, $subject, $body, $from = 'support.primecare@gmail.com', $
         $mail->Host       = 'smtp.gmail.com'; // Set the SMTP server to send through
         $mail->SMTPAuth   = true;
         $mail->Username   = 'wvedmund@gmail.com'; // SMTP username
-        $mail->Password   = 'xrslfcozhskheuwp'; // SMTP password
+        $mail->Password   = 'yqiqdutkgxgxhjsy'; // SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
@@ -49,13 +51,15 @@ function sendMail($to, $subject, $body, $from = 'support.primecare@gmail.com', $
             // $imagePath2 = ROOT . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . $imagePath;
             // $mail->AddEmbeddedImage($imagePath2,'1', 'logo');
         }
-
+        // $mail->SMTPDebug = 3; // Shows detailed connection logs
         $mail->send();
         $status['error'] = false;
         $status['message'] = 'Message has been sent';
     } catch (Exception $e) {
         $status['error'] = true;
         $status['message'] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        echo    "Mailer Error: {$mail->ErrorInfo}";
+        die;
     }
     return $status;
 }
