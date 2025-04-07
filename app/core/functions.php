@@ -326,7 +326,7 @@ function upload_image(
 ): array {
     $errors = [];
     $defaults = [
-        'allowed_ext' => ['jpg', 'jpeg', 'png'],
+        'allowed_ext' => ['jpg', 'jpeg', 'png' , 'pdf' , 'docx', 'doc' , 'txt'],
         'prefix' => 'file',
         'url_field' => 'image_url',
         'fk_field' => 'property_id',
@@ -357,12 +357,14 @@ function upload_image(
         // Handle upload errors
         if ($error !== UPLOAD_ERR_OK) {
             $errors[] = "Upload error (#$error) for: " . esc($filename);
+            error_log("Upload error (#$error) for file: " . esc($filename));
             continue;
         }
 
         // Validate file size
         if ($size > $config['max_size']) {
             $errors[] = "File too large: " . esc($filename) . " (" . format_bytes($size) . ")";
+            error_log("File too large: " . esc($filename) . " (" . format_bytes($size) . ")");
             continue;
         }
 
@@ -372,6 +374,7 @@ function upload_image(
         // Validate extension
         if (!in_array($file_ext, $config['allowed_ext'])) {
             $errors[] = "Invalid file type for: " . esc($filename);
+            error_log("Invalid file type for: " . esc($filename));
             continue;
         }
 
@@ -382,21 +385,26 @@ function upload_image(
         // Check if file exists
         if (!$config['overwrite'] && file_exists($full_path)) {
             $errors[] = "File already exists: " . esc($filename);
+            error_log("File already exists: " . esc($filename));
             continue;
         }
 
         // Move uploaded file
         if (move_uploaded_file($tmp_name, $full_path)) {
             // Save to database
-            $model->insert([
+            if (!$model->insert([
                 $config['url_field'] => $new_filename,
                 $config['fk_field'] => $foreign_key_id
-            ]);
+            ])) {
+                $errors[] = "Failed to save the file path to the database for: " . esc($filename);
+                error_log("Failed to save the file path to the database for: " . esc($filename));
+            }
         } else {
-            $errors[] = "Failed to save: " . esc($filename);
+            $errors[] = "Failed to save the file: " . esc($filename);
+            error_log("Failed to save the file: " . esc($filename));
         }
     }
-
+    
     return $errors;
 }
 

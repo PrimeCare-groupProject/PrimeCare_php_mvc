@@ -20,7 +20,7 @@
         }
     }
 ?>
-<div class="user_view-menu-bar">
+<div class="user_view-menu-bar full-width-for-content">
     <div class="gap"></div>
     <h2>PROFILE</h2>
 </div>
