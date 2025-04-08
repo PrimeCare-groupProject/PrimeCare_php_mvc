@@ -51,7 +51,7 @@
                     <span class="input-label fixed_width_for_label"><strong>Type:</strong></span><span class="input-field small_margin"><?= $property->type ?></span>
                 </div>
                 <div class="input-group">
-                    <span class="input-label fixed_width_for_label"><strong>Date:</strong></span><span class="input-field small_margin">2024/08/23</span>
+                    <span class="input-label fixed_width_for_label"><strong>Date:</strong></span><span class="input-field small_margin"><?= date('Y-m-d', strtotime($property->created_at)) ?></span>
                 </div>
             </div>
             <div class="input-group">

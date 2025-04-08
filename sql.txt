@@ -112,6 +112,7 @@ SELECT
     p.purpose AS purpose,
     p.rental_period AS rental_period,
     p.rental_price AS rental_price,
+    p.duration AS duration,
     
     p.owner_name AS owner_name,
     p.owner_email AS owner_email,
@@ -127,6 +128,8 @@ SELECT
     
     p.created_at AS created_at,
     p.updated_at AS updated_at,
+    p.start_date AS start_date,
+    p.end_date AS end_date,
 
     -- Concatenated property images
     GROUP_CONCAT(DISTINCT pi.image_url ORDER BY pi.image_url ASC SEPARATOR ',') AS property_images,
@@ -143,6 +146,7 @@ LEFT JOIN
 
 GROUP BY 
     p.property_id;
+
 
 
 
@@ -226,4 +230,20 @@ CREATE TABLE propertyTempTable (
 
     FOREIGN KEY (person_id) REFERENCES person(pid) ON DELETE CASCADE,
     FOREIGN KEY (agent_id) REFERENCES person(pid) ON DELETE SET NULL
+);
+
+
+
+CREATE TABLE agent_property (
+    assign_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id INT NOT NULL,
+    agent_id INT NOT NULL,
+    property_status ENUM('pending' , 'approved'),
+    pre_inspection ENUM('pass' , 'failed'),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (agent_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
 );
