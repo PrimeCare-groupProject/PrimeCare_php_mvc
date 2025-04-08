@@ -11,25 +11,112 @@
     </div>
 </div>
 
+<!-- Success Modal Popup -->
 <?php if(isset($_SESSION['success_message'])): ?>
-    <div style="color: green; text-align: center; margin: 10px 0;">
-        <?= $_SESSION['success_message'] ?>
-        <p id="countdown">Redirecting in 10 seconds...</p>
+<div class="success-modal-overlay" id="successModal">
+    <div class="success-modal-content">
+        <div class="success-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <h2>Success!</h2>
+        <p><?= $_SESSION['success_message'] ?></p>
+        <p id="countdown" class="countdown">Redirecting in 10 seconds...</p>
+        <button class="modal-close-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting'">Continue</button>
     </div>
-    <script>
-        let timeLeft = 10;
-        const countdownElement = document.getElementById('countdown');
+</div>
+
+<style>
+    .success-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .success-modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        animation: slideUp 0.4s ease-out;
+    }
+    
+    .success-icon {
+        margin-bottom: 20px;
+    }
+    
+    .success-modal-content h2 {
+        color: #4CAF50;
+        margin-bottom: 15px;
+        font-size: 24px;
+    }
+    
+    .success-modal-content p {
+        margin-bottom: 20px;
+        color: #555;
+        font-size: 16px;
+    }
+    
+    .countdown {
+        font-size: 14px;
+        color: #777;
+        margin-top: 5px;
+    }
+    
+    .modal-close-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+    }
+    
+    .modal-close-btn:hover {
+        background-color: #3e8e41;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+
+<script>
+    let timeLeft = 10;
+    const countdownElement = document.getElementById('countdown');
+    
+    const countdown = setInterval(() => {
+        timeLeft--;
+        countdownElement.textContent = `Redirecting in ${timeLeft} seconds...`;
         
-        const countdown = setInterval(() => {
-            timeLeft--;
-            countdownElement.textContent = `Redirecting in ${timeLeft} seconds...`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(countdown);
-                window.location.href = '<?= ROOT ?>/dashboard/propertylisting';
-            }
-        }, 1000);
-    </script>
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            window.location.href = '<?= ROOT ?>/dashboard/propertylisting';
+        }
+    }, 1000);
+</script>
 <?php endif; ?>
 
 <?php if(isset($_SESSION['errors'])): ?>
