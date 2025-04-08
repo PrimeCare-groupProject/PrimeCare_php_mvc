@@ -554,3 +554,204 @@ a .management-card .management-icon img {
     background-color: var(--red-color); /* Red background */
     border: 1px solid var(--red-color); /* Red border */
 }
+
+
+
+/** assign Agents */
+.AA__property-management-container {
+    background-color: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin: 20px;
+}
+
+/* Filter section styling */
+.AA__filter-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.AA__search-box {
+    display: flex;
+    flex: 1;
+    min-width: 200px;
+}
+
+.AA__search-box input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px 0 0 6px;
+    font-size: 14px;
+}
+
+.AA__search-btn {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+/* Table styling */
+.AA__properties-table-container {
+    overflow-x: auto;
+}
+
+.AA__properties-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.AA__properties-table thead {
+    background-color: #f3f4f6;
+}
+
+.AA__properties-table th {
+    text-align: left;
+    padding: 15px;
+    font-weight: 600;
+    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.AA__align_to_center {
+    text-align: center !important;
+}
+
+.AA__properties-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #1f2937;
+}
+
+.AA__properties-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Status badges */
+.AA__status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.AA__status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.AA__status-assigned {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.AA__status-completed {
+    background-color: #e0e7ff;
+    color: #3730a3;
+}
+
+/* Action buttons */
+.AA__action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: space-around;
+}
+
+.AA__btn-show-property,
+.AA__btn-assign-agent {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.AA__btn-show-property {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    border: none;
+    text-decoration: none;
+}
+
+.AA__btn-show-property:hover {
+    background-color: #dbeafe;
+}
+
+.AA__btn-assign-agent {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: none;
+}
+
+.AA__btn-assign-agent:hover {
+    background-color: #e5e7eb;
+}
+
+/* Assignment panel */
+.AA__assignment-panel {
+    display: none;
+}
+
+.AA__assignment-panel.AA__active {
+    display: table-row;
+    background-color: #f8fafc;
+}
+
+.AA__assignment-details {
+    display: flex;
+    padding: 5px;
+    align-items: baseline;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.AA__property-details,
+.AA__agent-selection {
+    flex: 1;
+    min-width: 250px;
+}
+
+.AA__property-details h4,
+.AA__agent-selection h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #4b5563;
+    font-weight: 600;
+}
+
+.AA__agent-dropdown {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.AA__btn-confirm {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.AA__btn-confirm:hover {
+    background-color: #4338ca;
+}
