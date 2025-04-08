@@ -10,8 +10,11 @@
                 <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>
             </div>
         </div>
-        <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>'">Request Repair</button>
         <div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/engineering.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>'">
+                <span class="tooltip-text">Get Service</span>
+            </div>
             <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/house-owner.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Tenants</span>
@@ -397,7 +400,7 @@
         }
         ?>
 
-<!-- 
+        <!-- 
         <?php
         if ($property->purpose == 'Rent') {
             echo "<div class='agreement'>
