@@ -261,8 +261,10 @@ class Agent{
         if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
             $service_id = $_POST['delete_service_id'];
             
-            // Delete the service request
-            $result = $service->delete($service_id, 'service_id');
+            // Update the service request status to "Rejected" instead of deleting
+            $result = $service->update($service_id, [
+                'status' => 'Rejected'
+            ], 'service_id');
 
             if($result) {
                 $_SESSION['success'] = "Service request declined successfully";
