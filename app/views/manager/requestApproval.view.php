@@ -52,44 +52,44 @@
         <?php if (empty($requests)): ?>
             <p style="text-align: center;">No requests found</p>
         <?php else: ?>
-        <?php foreach($requests as $request): ?>
-            <div class="approval-container">
-                <div class="approval-left-content">
-                    <h3>Update Request 1</h3>
-                    <div class="input-group">
+            <?php foreach ($requests as $request): ?>
+                <div class="approval-container">
+                    <div class="approval-left-content">
+                        <h3>Update Request 1</h3>
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Property ID:</strong></span><span class="input-field small_margin"><?= $request->property_id ?></span>
+                            <div class="input-group">
+                                <span class="input-label fixed_width_for_label"><strong>Property ID:</strong></span><span class="input-field small_margin"><?= $request->property_id ?></span>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-label fixed_width_for_label"><strong>Price(LKR):</strong></span><span class="input-field small_margin"><?= $request->rental_price ?></span>
+                            </div>
                         </div>
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Price(LKR):</strong></span><span class="input-field small_margin"><?= $request->rent_on_basis ?></span>
+                            <div class="input-group">
+                                <span class="input-label fixed_width_for_label"><strong>Date:</strong></span><span class="input-field small_margin">2024/08/23</span>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-label fixed_width_for_label"><strong>Agent ID:</strong></span><span class="input-field small_margin"><?= $request->agent_id ?></span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="input-group">
                         <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Date:</strong></span><span class="input-field small_margin">2024/08/23</span>
+                            <div class="input-group">
+                                <span class="input-label fixed_width_for_label"><strong>Address:</strong></span><span class="input-field small_margin"><?= $request->address ?></span>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Agent ID:</strong></span><span class="input-field small_margin"><?= $request->agent_id ?></span>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Address:</strong></span><span class="input-field small_margin"><?= $request->address ?></span>
-                        </div>
-                    </div>
-                    <!-- <div class="input-group">
+                        <!-- <div class="input-group">
                         <div class="input-group">
                             <span class="input-label fixed_width_for_label"><strong>Description:</strong></span><span class="input-field small_margin"><?= $request->description ?></span>
                         </div>
                     </div> -->
+                    </div>
+                    <div class="approval-right-content">
+                        <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
+                        <!-- <button class="secondary-btn">Decline</button> -->
+                        <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="approval-right-content-img">
+                    </div>
                 </div>
-                <div class="approval-right-content">
-                    <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
-                    <!-- <button class="secondary-btn">Decline</button> -->
-                    <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="approval-right-content-img">
-                </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
         <?php endif; ?>
     </div>
 </div>

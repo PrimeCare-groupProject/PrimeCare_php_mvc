@@ -47,11 +47,11 @@
 
         <div class="owner-addProp-form-right">
 
-        <label class="input-label">Year Built</label>
+            <label class="input-label">Year Built</label>
             <input type="text" name="year Built" value="<?= $preinspect->year_built ?>" class="input-field" readonly>
 
             <label class="input-label">Rent (LKR)</label>
-            <input type="text" name="Rent" value="<?= $preinspect->rent_on_basis ?>" class="input-field" readonly>
+            <input type="text" name="Rent" value="<?= $preinspect->rental_price ?>" class="input-field" readonly>
 
             <label class="input-label">Units</label>
             <input type="text" name="units" value="<?= $preinspect->units ?>" class="input-field" readonly>
@@ -88,7 +88,7 @@
 
             <label class="input-label">Mobile No.</label>
             <input type="text" name="mobileNo" value="<?= $user->contact ?>" class="input-field" readonly>
-            
+
             <div class="buttons-to-right">
                 <button type="submit" name="action" value="accept" class="primary-btn">Accept</button>
                 <button type="submit" name="action" value="reject" class="secondary-btn">Reject</button>
@@ -97,9 +97,9 @@
     </div>
 </form>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         let descriptionBox = document.querySelector(".description-box");
-        
+
         if (descriptionBox) {
             descriptionBox.style.height = "auto"; // Reset height to auto
             descriptionBox.style.height = descriptionBox.scrollHeight + "px"; // Adjust height based on content

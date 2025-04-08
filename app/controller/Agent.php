@@ -361,13 +361,23 @@ class Agent{
             case 'preinspectionupdate':
                 $this->view('agent/preinspectionupdate');
                 break;
+            case 'inspectiondetails':
+                $this->inspectiondetails($property_id = $c);
+                return;
             default:
-                $preinspection = new PropertyModel;
-                $inspection = $preinspection->where(['status' => 'pending']);
+                $preinspection = new PropertyConcat;
+                $inspection = $preinspection->where(['status' => 'pending' , 'agent_id' => $_SESSION['user']->pid]);
                 $this->view('agent/preInspection', ['preinspection' => $inspection]);
                 break;
         }
         
+    }
+
+    public function inspectiondetails($property_id){
+        $property = new PropertyConcat;
+        $property = $property->where(['property_id' => $property_id , 'agent_id' => $_SESSION['user']->pid])[0];
+        // show($property);
+        $this->view('agent/inspectiondetails', ['property' => $property]);
     }
 
         

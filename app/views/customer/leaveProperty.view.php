@@ -34,12 +34,12 @@
             <button class="prev" onclick="prevSlide()">&#10094;</button>
             <button class="next" onclick="nextSlide()">&#10095;</button>
         </div>
-       
+
     </div>
 
     <div class="property-details-section">
         <div class="input-group">
-            <span class="input-field-small-for-rent">Monthly Rent: LKR <?= $property->rent_on_basis ?></span>
+            <span class="input-field-small-for-rent">Monthly Rent: LKR <?= $property->rental_price ?></span>
         </div>
 
         <p class="input-field-small more-padding">

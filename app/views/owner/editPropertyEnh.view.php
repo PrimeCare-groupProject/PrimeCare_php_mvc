@@ -91,7 +91,7 @@
             </div>
             <div class="input-group-group">
                 <label class="input-label">Duration (in months)*</label>
-                <input type="number" id="duration" name="duration" class="input-field" min="1" value="<?= $property->duration ?>" oninput="calculateRental()">
+                <input type="number" id="duration" name="duration" class="input-field" min="0" value="<?= $property->duration ?>" oninput="calculateRental()">
             </div>
             <div class="input-group-group">
                 <label class="input-label">Rental Price*</label>
@@ -104,11 +104,11 @@
         <div class="input-group" id="other-fields" style="display:none;">
             <div class="input-group-group">
                 <label class="input-label">Start Date*</label>
-                <input type="date" id="start_date" name="start_date" class="input-field" value="<?= $property->start_date ?>" onchange="updateEndDateLimit(); calculateRentalFromDates();" min="<?= date('Y-m-d') ?>">
+                <input type="date" id="start_date" name="start_date" class="input-field" value="<?= date('Y-m-d', strtotime($property->start_date)) ?>" onchange="updateEndDateLimit(); calculateRentalFromDates();" min="<?= date('Y-m-d') ?>">
             </div>
             <div class="input-group-group">
                 <label class="input-label">End Date*</label>
-                <input type="date" id="end_date" name="end_date" class="input-field" value="<?= $property->end_date ?>" onchange="calculateRentalFromDates();">
+                <input type="date" id="end_date" name="end_date" class="input-field" value="<?= date('Y-m-d', strtotime($property->end_date)) ?>" onchange="calculateRentalFromDates();">
             </div>
             <div class="input-group-group">
                 <label class="input-label">Base Rate*</label>
@@ -501,20 +501,57 @@
 </script>
 
 <script>
+    // function handlePurposeChange() {
+    //     const purpose = document.getElementById('purpose').value;
+    //     const rentFields = document.getElementById('rent-fields');
+    //     const otherFields = document.getElementById('other-fields');
+    //     const restOfFeilds = document.getElementById('rest-of-fields');
+
+    //     if (purpose === 'Rent') {
+    //         rentFields.style.display = 'flex';
+    //         otherFields.style.display = 'none';
+    //         restOfFeilds.style.display = 'block';
+    //     } else if (purpose === 'Safeguard' || purpose === 'Vacation_Rental') {
+    //         rentFields.style.display = 'none';
+    //         otherFields.style.display = 'flex';
+    //         restOfFeilds.style.display = 'none';
+    //     } else {
+    //         rentFields.style.display = 'none';
+    //         otherFields.style.display = 'none';
+    //     }
+    // }
+
     function handlePurposeChange() {
         const purpose = document.getElementById('purpose').value;
         const rentFields = document.getElementById('rent-fields');
         const otherFields = document.getElementById('other-fields');
         const restOfFeilds = document.getElementById('rest-of-fields');
 
+        const startDate = document.getElementById('start_date');
+        const endDate = document.getElementById('end_date');
+
         if (purpose === 'Rent') {
             rentFields.style.display = 'flex';
             otherFields.style.display = 'none';
             restOfFeilds.style.display = 'block';
+
+            // ✅ Remove min or required if not needed
+            startDate.removeAttribute('required');
+            endDate.removeAttribute('required');
+            startDate.removeAttribute('min');
+            endDate.removeAttribute('min');
         } else if (purpose === 'Safeguard' || purpose === 'Vacation_Rental') {
             rentFields.style.display = 'none';
             otherFields.style.display = 'flex';
             restOfFeilds.style.display = 'none';
+
+            // ✅ Add back validation
+            startDate.setAttribute('required', 'true');
+            endDate.setAttribute('required', 'true');
+
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            startDate.setAttribute('min', today);
         } else {
             rentFields.style.display = 'none';
             otherFields.style.display = 'none';
@@ -524,7 +561,7 @@
 
 <script>
     function calculateRental() {
-        const durationInput = document.getElementById('safeguard_duration');
+        const durationInput = document.getElementById('duration');
         const baseRateInput = document.getElementById('safeguard_base_rate');
         const totalDisplay = document.getElementById('total_display');
 
@@ -544,7 +581,7 @@
     // Trigger calculation on page load
     document.addEventListener('DOMContentLoaded', calculateRental);
 </script>
-
+<!-- 
 
 <script>
     function updateEndDateLimit() {
@@ -596,7 +633,66 @@
             totalDisplay.value = "";
         }
     }
+</script> -->
+
+<script>
+    function updateEndDateLimit() {
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const purpose = document.getElementById('purpose')?.value;
+
+        // ✅ Skip validation for "Rent" purpose
+        if (purpose === 'Rent') return;
+
+        if (startInput.value) {
+            const startDate = new Date(startInput.value);
+            const minEndDate = new Date(startDate);
+            minEndDate.setDate(startDate.getDate() + 1);
+
+            const yyyy = minEndDate.getFullYear();
+            const mm = String(minEndDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(minEndDate.getDate()).padStart(2, '0');
+            endInput.min = `${yyyy}-${mm}-${dd}`;
+
+            if (new Date(endInput.value) < minEndDate) {
+                endInput.value = '';
+            }
+        }
+    }
+
+    function calculateRentalFromDates() {
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const baseRate = parseFloat(document.getElementById('safeguard_base_rate').value) || 0;
+        const totalDisplay = document.getElementById('total_display');
+        const purpose = document.getElementById('purpose')?.value;
+
+        if (startInput.value && endInput.value) {
+            const startDate = new Date(startInput.value);
+            const endDate = new Date(endInput.value);
+
+            // ✅ Only check date logic if NOT "Rent"
+            if (purpose !== 'Rent') {
+                if (endDate <= startDate) {
+                    totalDisplay.value = "End date must be after start date";
+                    return;
+                }
+            }
+
+            const diffTime = endDate - startDate;
+            const duration = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const total = duration * baseRate;
+
+            totalDisplay.value = total.toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'LKR'
+            });
+        } else {
+            totalDisplay.value = "";
+        }
+    }
 </script>
+
 
 
 
