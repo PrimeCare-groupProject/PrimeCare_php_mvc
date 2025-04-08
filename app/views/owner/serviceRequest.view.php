@@ -3,7 +3,6 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <!-- <a href="<?= ROOT ?>/dashboard/propertyListing/repairlisting"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a> -->
             <a href="javascript:history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2>Service Request Form</h2>
@@ -41,12 +40,17 @@
     </div>
 <?php endif; ?>
 
-<div class="property-unit-container">
+<div class="property-unit-container" style="margin-top: 20px;">
     <div class="left-container-property-unit">
         <div class="slider">
             <div class="slides">
                 <div class="slide">
-                    <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Property Image">
+                    <?php if ($property_image): ?>
+                        <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $property_image ?>" 
+                             alt="Property Image">
+                    <?php else: ?>
+                        <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Property Image">
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -72,13 +76,6 @@
                 <span class="input-label">Request Date:</span>
                 <span class="input-field"><?= date('Y-m-d') ?></span>
             </div>
-
-            <!-- Display property name and store it in hidden input
-            <div class="input-group">
-                <span class="input-label">Property Name:</span>
-                <span class="input-field"><?= $_GET['property_name'] ?? 'Not Selected' ?></span>
-                <input type="hidden" name="property_name" value="<?= $_GET['property_name'] ?? '' ?>">
-            </div> -->
 
             <!-- Temporary !!!! Dropdown to select property and hidden field for property ID -->
             <div class="input-group">
@@ -106,7 +103,6 @@
                 <button type="submit" class="primary-btn">Submit Request</button>
                 <button type="button" class="secondary-btn" onclick="window.location.href='<?=ROOT?>/dashboard/repairlisting'">Cancel</button>
             </div>
-
         </form>
     </div>
 </div>

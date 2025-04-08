@@ -283,7 +283,7 @@ class Owner
             $data = [
                 'service_type' => $_POST['service_type'],
                 'date' => $_POST['date'],
-                'property_id' => $_POST['property_id'], // This will now be the actual property ID
+                'property_id' => $_POST['property_id'], 
                 'property_name' => $_POST['property_name'],
                 'status' => $_POST['status'],
                 'service_description' => $_POST['service_description'],
@@ -303,12 +303,32 @@ class Owner
             return;
         }
 
+        // Get property information from URL parameters
+        $property_id = $_GET['property_id'] ?? null;
+        $property_name = $_GET['property_name'] ?? '';
+        $service_type = $_GET['type'] ?? $type;
+        $cost_per_hour = $_GET['cost_per_hour'] ?? '';
+        
+        // Fetch property image if property_id is provided
+        $propertyImage = null;
+        if ($property_id) {
+            $imageModel = new PropertyImageModel();
+            $images = $imageModel->where(['property_id' => $property_id]);
+            if (!empty($images)) {
+                $propertyImage = $images[0]->image_url;
+            }
+        }
+
         $this->view('owner/serviceRequest', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
             'status' => $_SESSION['status'] ?? '',
             'success_message' => $_SESSION['success_message'] ?? '',
-            'type' => $type
+            'type' => $service_type,
+            'property_id' => $property_id,
+            'property_name' => $property_name,
+            'property_image' => $propertyImage,
+            'cost_per_hour' => $cost_per_hour
         ]);
 
         // Clear session messages after displaying
