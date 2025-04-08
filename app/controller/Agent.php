@@ -377,7 +377,9 @@ class Agent{
                 $this->newinventory();
                 break;
             default:
-            $this->view('agent/inventory'); 
+            $invent = new InventoryModel;
+            $inventories = $invent->findAll();
+            $this->view('agent/inventory',['inventories' => $inventories]); 
                 break;
         }       
     }

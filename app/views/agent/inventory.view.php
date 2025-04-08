@@ -27,44 +27,42 @@
             </tr>
         </thead>
         <tbody>
-            
+            <?php if (!empty($inventories)) : ?>
+                <?php foreach ($inventories as $inventory) : ?>
+                    <tr>
+                        <td><?= $inventory->inventory_id ?></td>
+                        <td><?= $inventory->inventory_name ?></td>
+                        <td><?= $inventory->property_id ?></td>
+                        <td><?= $inventory->property_name ?></td>
+                        <td><?= $inventory->total_price ?></td>
+                        <td><?= $inventory->date ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr style="height: 240px; background-color: #f8f9fa;">
+                    <td colspan="6" style="text-align: center; vertical-align: middle; padding: 0;">
+                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0;">
+                            <!-- Empty state icon -->
+                            <div style="margin-bottom: 15px; opacity: 0.5;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                    <path d="M13 2v7h7"></path>
+                                    <circle cx="12" cy="15" r="4"></circle>
+                                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                                </svg>
+                            </div>
+                            
+                            <!-- Message -->
+                            <h3 style="font-size: 16px; color: #555; margin: 0; font-weight: 500;">No inventory items found</h3>
+                            <p style="font-size: 14px; color: #777; margin: 8px 0 0 0; max-width: 400px;">
+                                There are currently no inventory items matching your criteria.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            <?php endif; ?>
         </tbody>
-        
     </table>
 </div>
-
-<script>
-    function openFullPage(inventoryId) {
-        window.location.href = "<?= ROOT ?>/inventory/view/" + inventoryId;
-    }
-
-    function sortTable(columnIndex) {
-        let table = document.querySelector(".inventory-table");
-        let rows = Array.from(table.rows).slice(1); // Exclude header row
-        let isAscending = table.getAttribute("data-sort-order") === "asc";
-        
-        rows.sort((rowA, rowB) => {
-            let cellA = rowA.cells[columnIndex].innerText.trim();
-            let cellB = rowB.cells[columnIndex].innerText.trim();
-
-            // Convert Price and Date for correct sorting
-            if (columnIndex === 4) { // Price column
-                cellA = parseFloat(cellA.replace(/[^0-9.]/g, "")) || 0;
-                cellB = parseFloat(cellB.replace(/[^0-9.]/g, "")) || 0;
-            } else if (columnIndex === 5) { // Date column
-                cellA = new Date(cellA);
-                cellB = new Date(cellB);
-            }
-
-            return isAscending ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
-        });
-
-        // Reorder rows in the table
-        rows.forEach(row => table.appendChild(row));
-
-        // Toggle sorting order
-        table.setAttribute("data-sort-order", isAscending ? "desc" : "asc");
-    }
-</script>
 
 <?php require_once 'agentFooter.view.php'; ?>
