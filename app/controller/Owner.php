@@ -44,10 +44,28 @@ class Owner
 
     public function maintenance()
     {
+        // Get the current user's ID
+        $ownerId = $_SESSION['user']->pid;
+        
+        // Instantiate the ServiceLog model
+        $serviceLog = new ServiceLog();
+        
+        // Get all service logs for properties owned by the current user
+        // This assumes property_id in ServiceLog can be linked to properties owned by this user
+        $serviceLogs = $serviceLog->findAll();
+        
+        // Calculate total expenses
+        $totalExpenses = 0;
+        foreach ($serviceLogs as $log) {
+            $totalExpenses += ($log->cost_per_hour * $log->total_hours);
+        }
+        
         $this->view('owner/maintenance', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLogs' => $serviceLogs,
+            'totalExpenses' => $totalExpenses
         ]);
     }
 
@@ -994,5 +1012,105 @@ class Owner
         }
         // Redirect to the property listing page
         redirect('property/propertyListing');
+    }
+
+    public function payment($serviceId = '')
+    {
+        if (empty($serviceId)) {
+            redirect('dashboard/maintenance');
+            return;
+        }
+
+        // Get service log details
+        $serviceLog = new ServiceLog();
+        $serviceDetails = $serviceLog->first(['service_id' => $serviceId]);
+        
+        if (!$serviceDetails) {
+            $_SESSION['errors'] = ['Service not found'];
+            redirect('dashboard/maintenance');
+            return;
+        }
+        
+        // Check if the service belongs to the current user's property
+        $ownerId = $_SESSION['user']->pid;
+        
+        // Check if the service is in "done" status
+        if (strtolower($serviceDetails->status) !== 'done') {
+            $_SESSION['errors'] = ['Payment can only be processed for completed services'];
+            redirect('dashboard/maintenance');
+            return;
+        }
+        
+        $this->view('owner/payment', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLog' => $serviceDetails
+        ]);
+        
+        // Clear session messages after displaying
+        unset($_SESSION['errors']);
+        unset($_SESSION['status']);
+    }
+
+    public function processPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+            redirect('dashboard/maintenance');
+            return;
+        }
+        
+        // Get POST data
+        $serviceId = $_POST['service_id'] ?? '';
+        $amount = $_POST['amount'] ?? 0;
+        $paymentMethod = $_POST['payment_method'] ?? '';
+        
+        // Basic validation
+        if (empty($serviceId) || empty($paymentMethod) || $amount <= 0) {
+            $_SESSION['errors'] = ['Invalid payment details'];
+            redirect('dashboard/payment/' . $serviceId);
+            return;
+        }
+        
+        // Get service details
+        $serviceLog = new ServiceLog();
+        $serviceDetails = $serviceLog->first(['service_id' => $serviceId]);
+        
+        if (!$serviceDetails) {
+            $_SESSION['errors'] = ['Service not found'];
+            redirect('dashboard/maintenance');
+            return;
+        }
+        
+        // In a real application, you would process the payment here
+        // For this example, we'll just mark the service as paid
+        
+        // Update service status to "paid"
+        $updated = $serviceLog->update($serviceId, [
+            'status' => 'Paid',
+            'payment_date' => date('Y-m-d H:i:s'),
+            'payment_method' => $paymentMethod
+        ], 'service_id');
+        
+        if ($updated) {
+            // Record the payment in a payments table
+            $payment = new Payment(); // You would need to create this model
+            $paymentData = [
+                'service_id' => $serviceId,
+                'amount' => $amount,
+                'payment_method' => $paymentMethod,
+                'payment_date' => date('Y-m-d H:i:s'),
+                'status' => 'Completed',
+                'user_id' => $_SESSION['user']->pid
+            ];
+            
+            $payment->insert($paymentData);
+            
+            $_SESSION['status'] = 'Payment processed successfully!';
+            redirect('dashboard/maintenance');
+        } else {
+            $_SESSION['errors'] = ['Failed to process payment. Please try again.'];
+            redirect('dashboard/payment/' . $serviceId);
+        }
     }
 }
