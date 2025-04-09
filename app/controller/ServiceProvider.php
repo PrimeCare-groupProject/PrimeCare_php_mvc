@@ -5,11 +5,153 @@ class ServiceProvider {
     use controller;
     
     public function index() {
-        $this->view('serviceprovider/dashboard');
+        // Instead of loading the view directly, call dashboard()
+        $this->dashboard();
     }
 
     public function dashboard() {
-        $this->view('serviceprovider/dashboard');
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+
+        $serviceLog = new ServiceLog();
+        $provider_id = $_SESSION['user']->pid;
+
+        // Get all services for this provider
+        $conditions = ['service_provider_id' => $provider_id];
+        $allServices = $serviceLog->where($conditions);
+
+        // Ensure $allServices is always an array
+        if (!is_array($allServices)) {
+            $allServices = [];
+        }
+
+        // Initialize analytics data
+        $totalProfit = 0;
+        $totalHoursWorked = 0;
+        $completedWorks = 0;
+        $pendingWorks = 0;
+        $ongoingWorks = [];
+        $monthlyIncome = [];
+        $serviceTypeDistribution = [];
+        $serviceTypeEarnings = [];
+        $weeklyEarnings = [];
+
+        // Current month/year for monthly income
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        $currentMonthIncome = 0;
+
+        // Process each service
+        foreach ($allServices as $service) {
+            // Calculate cost
+            $serviceCost = $service->cost_per_hour * $service->total_hours;
+            
+            // Track totalProfit
+            $totalProfit += $serviceCost;
+            
+            // Track totalHours
+            $totalHoursWorked += $service->total_hours;
+
+            // Lowercase status for comparison
+            $status = strtolower($service->status);
+
+            // Change these comparisons to match the capitalization in your database
+            if ($status === 'done' || $status === 'Done') {
+                $completedWorks++;
+            } elseif ($status === 'pending' || $status === 'Pending') {
+                $pendingWorks++;
+            } elseif ($status === 'ongoing' || $status === 'Ongoing') {
+                $ongoingWorks[] = $service;
+            }
+
+            // Track monthly income if it matches current month/year
+            $serviceDate = strtotime($service->date);
+            $serviceMonth = date('m', $serviceDate);
+            $serviceYear = date('Y', $serviceDate);
+
+            if ($serviceYear == $currentYear && $serviceMonth == $currentMonth) {
+                $currentMonthIncome += $serviceCost;
+            }
+
+            // Example: track weekly earnings by day of this week
+            $serviceWeekDay = date('D', $serviceDate);
+            if (!isset($weeklyEarnings[$serviceWeekDay])) {
+                $weeklyEarnings[$serviceWeekDay] = 0;
+            }
+            $weeklyEarnings[$serviceWeekDay] += $serviceCost;
+
+            // Example: track service type distribution/earnings
+            $type = $service->service_type ?: 'Unknown';
+            if (!isset($serviceTypeDistribution[$type])) {
+                $serviceTypeDistribution[$type] = 0;
+                $serviceTypeEarnings[$type] = 0;
+            }
+            $serviceTypeDistribution[$type]++;
+            $serviceTypeEarnings[$type] += $serviceCost;
+        }
+
+        // Sort ongoing works by date descending, then limit to 5
+        if ($ongoingWorks) {
+            usort($ongoingWorks, function($a, $b) {
+                return strtotime($b->date) - strtotime($a->date);
+            });
+            $ongoingWorks = array_slice($ongoingWorks, 0, 5);
+        }
+
+        // Total works
+        $totalWorks = $completedWorks + $pendingWorks + count($ongoingWorks);
+
+        // Completion rate
+        $completionRate = $totalWorks ? round(($completedWorks / $totalWorks) * 100) : 0;
+
+        // Avg hours per service (if desired)
+        $avgHoursPerService = ($totalWorks && $totalHoursWorked) 
+            ? round($totalHoursWorked / $totalWorks, 1) 
+            : 0;
+
+        // Inside your dashboard() method, after processing all services
+
+        // Get 5 most recently completed tasks
+        $recentCompletedTasks = [];
+        foreach ($allServices as $service) {
+            if (strtolower($service->status) === 'done') {
+                $recentCompletedTasks[] = $service;
+            }
+        }
+
+        // Sort by date descending
+        usort($recentCompletedTasks, function($a, $b) {
+            return strtotime($b->date) - strtotime($a->date);
+        });
+
+        // Limit to 5 tasks
+        $recentCompletedTasks = array_slice($recentCompletedTasks, 0, 5);
+
+        // Add to data array
+        $data['recentCompletedTasks'] = $recentCompletedTasks;
+
+        // Prepare final data
+        $data = [
+            'totalProfit' => $totalProfit,
+            'totalHoursWorked' => $totalHoursWorked,
+            'avgHoursPerService' => $avgHoursPerService,
+            'completedWorks' => $completedWorks,
+            'pendingWorks' => $pendingWorks,
+            'ongoingWorks' => $ongoingWorks,
+            'totalWorks' => $totalWorks,
+            'completionRate' => $completionRate,
+            'currentMonthIncome' => $currentMonthIncome,
+            'weeklyEarnings' => $weeklyEarnings,
+            'serviceTypeDistribution' => $serviceTypeDistribution,
+            'serviceTypeEarnings' => $serviceTypeEarnings,
+            'recentCompletedTasks' => $recentCompletedTasks,
+        ];
+
+        // Load the dashboard view
+        $this->view('serviceprovider/dashboard', $data);
     }
 
     public function profile(){
@@ -372,67 +514,76 @@ class ServiceProvider {
     }
 
     public function repairRequests() {
-        // Check if user is logged in
-        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
-            redirect('login');
-            return;
-        }
-    
-        $serviceLog = new ServiceLog();
-        $provider_id = $_SESSION['user']->pid;
-    
-        // Get current page for pagination
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $items_per_page = 10;
-        $offset = ($page - 1) * $items_per_page;
-    
-        // Construct the query conditions
-        $conditions = [
-            'service_provider_id' => $provider_id
-        ];
-    
-        // Add status filter if provided
-        if (isset($_GET['status']) && $_GET['status'] !== 'all') {
-            $conditions['status'] = $_GET['status'];
-        }
-    
-        // Get total count for pagination
-        $allServices = $serviceLog->where($conditions); // Fetch all matching records
-        $total_records = count($allServices); // Count the array
-        $total_pages = ceil($total_records / $items_per_page);
-    
-        // Paginate the records
-        $services = array_slice($allServices, $offset, $items_per_page); // Paginate manually
-    
-        // Calculate time left for pending services
-        foreach ($services as &$service) {
-            $service->earnings = $service->cost_per_hour * $service->total_hours;
-    
-            if ($service->status === 'Ongoing') {
-                // Calculate hours left (assuming 48-hour SLA from service date)
-                $service_date = new DateTime($service->date);
-                $current_date = new DateTime();
-                $time_diff = $service_date->diff($current_date);
-                $hours_passed = ($time_diff->days * 24) + $time_diff->h;
-                $days_left = floor($hours_passed / 24);
-                $hours_left = $hours_passed % 24;
-                $service->time_left = $hours_left > 0 ? $days_left . 'd ' . $hours_left . 'hr' : ($days_left > 0 ? $days_left . 'd' : 'Overdue');
-            } else {
-                $service->time_left = '-';
-            }
-        }
-    
-        // Prepare data for the view
-        $data = [
-            'services' => $services,
-            'current_page' => $page,
-            'total_pages' => $total_pages,
-            'selected_status' => $_GET['status'] ?? 'all'
-        ];
-    
-        // Load the view with data
-        $this->view('serviceprovider/repairRequests', $data);
+    // Check if user is logged in
+    if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+        redirect('login');
+        return;
     }
+
+    $serviceLog = new ServiceLog();
+    $provider_id = $_SESSION['user']->pid;
+
+    // Get current page for pagination
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $items_per_page = 10;
+    $offset = ($page - 1) * $items_per_page;
+
+    // Get status filter
+    $selected_status = isset($_GET['status']) ? $_GET['status'] : 'all';
+
+    // Construct the query conditions
+    $conditions = [
+        'service_provider_id' => $provider_id
+    ];
+
+    // Add status filter if provided
+    if ($selected_status !== 'all') {
+        $conditions['status'] = $selected_status;
+    }
+
+    // Get total count for pagination
+    $allServices = $serviceLog->where($conditions); // Fetch all matching records
+    
+    // Fix: Ensure $allServices is always an array
+    if (!is_array($allServices)) {
+        $allServices = []; // Convert to empty array if false or other non-array value
+    }
+    
+    $total_records = count($allServices);
+    $total_pages = ceil($total_records / $items_per_page);
+
+    // Paginate the records
+    $services = array_slice($allServices, $offset, $items_per_page);
+
+    // Calculate time left for pending services
+    foreach ($services as &$service) {
+        $service->earnings = $service->cost_per_hour * $service->total_hours;
+
+        if ($service->status === 'Ongoing') {
+            // Calculate hours left (assuming 48-hour SLA from service date)
+            $service_date = new DateTime($service->date);
+            $current_date = new DateTime();
+            $time_diff = $service_date->diff($current_date);
+            $hours_passed = ($time_diff->days * 24) + $time_diff->h;
+            $days_left = floor($hours_passed / 24);
+            $hours_left = $hours_passed % 24;
+            $service->time_left = $hours_left > 0 ? $days_left . 'd ' . $hours_left . 'hr' : ($days_left > 0 ? $days_left . 'd' : 'Overdue');
+        } else {
+            $service->time_left = '-';
+        }
+    }
+
+    // Prepare data for the view
+    $data = [
+        'services' => $services,
+        'current_page' => $page,
+        'total_pages' => $total_pages,
+        'selected_status' => $selected_status
+    ];
+
+    // Load the view with data
+    $this->view('serviceprovider/repairRequests', $data);
+}
     
 
     public function repairs(){

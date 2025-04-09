@@ -43,6 +43,8 @@ class PropertyModelTemp
 
         'purpose',
         'rental_period',
+        'start_date',
+        'end_date',
         'rental_price',
 
         'owner_name',
@@ -57,8 +59,7 @@ class PropertyModelTemp
         'person_id',
         'agent_id',
         'duration',
-        'start_date',
-        'end_date'
+        'request_status'
     ];
 
     public $errors = [];
@@ -146,17 +147,134 @@ class PropertyModelTemp
         return false;
     }
 
+    // public function compareWithPrevios($newData, $previousData)
+    // {
+    //     $fields = [
+    //         'name',
+    //         'type',
+    //         'description',
+    //         'address',
+    //         'zipcode',
+    //         'city',
+    //         'state_province',
+    //         'country',
+
+    //         'year_built',
+    //         'size_sqr_ft',
+    //         'number_of_floors',
+    //         'floor_plan',
+
+    //         'units',
+    //         'bedrooms',
+    //         'bathrooms',
+    //         'kitchen',
+    //         'living_room',
+
+    //         'furnished',
+    //         'furniture_description',
+
+    //         'parking',
+    //         'parking_slots',
+    //         'type_of_parking',
+    //         'purpose',
+    //         'rental_period',
+    //         'rental_price',
+
+    //         'owner_name',
+    //         'owner_email',
+    //         'owner_phone',
+    //         'additional_contact',
+
+    //         'duration',
+    //         // 'start_date',
+    //         // 'end_date'
+    //     ];
+
+    //     // show($newData);
+    //     // show($previousData);
+    //     foreach ($fields as $feild) {
+    //         if ($newData[$feild] != $previousData[$feild]) {
+    //             //echo "Field: $feild <br>";
+    //             return true; // A change is detected
+    //         }
+    //     }
+    //     // foreach ($fields as $key) {
+    //     //     if (isset($newData[$key]) && isset($previousData->$key)) {
+    //     //         if ($newData[$key] != $previousData->$key) {
+    //     //             return true; // A change is detected
+    //     //         }
+    //     //     } elseif (isset($newData[$key]) || isset($previousData->$key)) {
+    //     //         // One is set and the other is not
+    //     //         return true;
+    //     //     }
+    //     //     // print_r($newData[$key]);
+    //     //     // print_r($previousData->$key);
+    //     // }
+
+    //     return false; // No changes found
+    // }
+
     public function compareWithPrevios($newData, $previousData)
     {
+        $fields = [
+            'name',
+            'type',
+            'description',
+            'address',
+            'zipcode',
+            'city',
+            'state_province',
+            'country',
+            'year_built',
+            'size_sqr_ft',
+            'number_of_floors',
+            'floor_plan',
+            'units',
+            'bedrooms',
+            'bathrooms',
+            'kitchen',
+            'living_room',
+            'furnished',
+            'furniture_description',
+            'parking',
+            'parking_slots',
+            'type_of_parking',
+            'purpose',
+            'rental_period',
+            'rental_price',
+            'owner_name',
+            'owner_email',
+            'owner_phone',
+            'additional_contact',
+            'duration'
+        ];
 
-        foreach ($this->allowedColumns as $key) {
-            if (isset($newData->key) && isset($previousData->key)) {
-                if ($newData->key != $previousData->key) {
-                    return true; // A change is detected
-                }
-            } elseif (isset($newData->key) || isset($previousData->key)) {
-                // One is set and the other is not
-                return true;
+        $arrayFields = [
+            'utilities_included',
+            'additional_utilities',
+            'additional_amenities',
+            'security_features',
+            'special_instructions',
+            'legal_details'
+        ];
+
+        // Compare normal fields
+        foreach ($fields as $field) {
+            if (($newData[$field] ?? '') != ($previousData[$field] ?? '')) {
+                return true; // A change is detected
+            }
+        }
+
+        // Compare checkbox (array-based) fields
+        foreach ($arrayFields as $field) {
+            $newArr = array_filter(array_map('trim', explode(',', $newData[$field] ?? '')));
+            $prevArr = array_filter(array_map('trim', explode(',', $previousData[$field] ?? '')));
+
+            sort($newArr);
+            sort($prevArr);
+
+            if ($newArr !== $prevArr) {
+                return true; // A change is detected in checkbox values
             }
         }
 

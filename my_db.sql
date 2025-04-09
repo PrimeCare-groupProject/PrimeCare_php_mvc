@@ -364,6 +364,10 @@ CREATE TABLE `serviceLog` (
   `service_description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Status Cange in Rejected Service Requests
+ALTER TABLE `serviceLog` 
+MODIFY COLUMN `status` enum('Done','Pending','Ongoing','Rejected') NOT NULL;
+
 --
 -- Dumping data for table `serviceLog`
 --

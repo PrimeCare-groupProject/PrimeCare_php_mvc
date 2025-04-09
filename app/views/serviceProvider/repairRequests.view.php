@@ -59,10 +59,40 @@
                 </tr>
             <?php endforeach; ?>
         <?php else : ?>
-    <tr>
-        <td colspan="6" class="text-center">No service requests found</td>
-    </tr>
-<?php endif; ?>
+            <tr style="height: 240px; background-color: #f8f9fa;">
+                <td colspan="7" style="text-align: center; vertical-align: middle; padding: 30px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; max-width: 400px; margin: 0 auto;">
+                        <!-- Empty state icon -->
+                        <div style="margin-bottom: 15px; opacity: 0.5;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                <path d="M13 2v7h7"></path>
+                                <circle cx="12" cy="15" r="4"></circle>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                        </div>
+                        
+                        <!-- Message based on selected status -->
+                        <?php if ($selected_status === 'all'): ?>
+                            <h3 style="font-size: 18px; color: #444; margin: 0 0 8px 0; font-weight: 500;">No service requests found</h3>
+                            <p style="color: #777; font-size: 14px; margin: 0;">There are currently no service requests assigned to you.</p>
+                        <?php elseif ($selected_status === 'Done'): ?>
+                            <h3 style="font-size: 18px; color: #444; margin: 0 0 8px 0; font-weight: 500;">No completed service requests</h3>
+                            <p style="color: #777; font-size: 14px; margin: 0;">You don't have any completed service requests in your history.</p>
+                        <?php elseif ($selected_status === 'Ongoing'): ?>
+                            <h3 style="font-size: 18px; color: #444; margin: 0 0 8px 0; font-weight: 500;">No ongoing service requests</h3>
+                            <p style="color: #777; font-size: 14px; margin: 0;">You don't have any service requests in progress at the moment.</p>
+                        <?php else: ?>
+                            <h3 style="font-size: 18px; color: #444; margin: 0 0 8px 0; font-weight: 500;">No <?= esc($selected_status) ?> service requests</h3>
+                            <p style="color: #777; font-size: 14px; margin: 0;">There are no service requests with status "<?= esc($selected_status) ?>".</p>
+                        <?php endif; ?>
+                        
+                        <!-- Filter guidance -->
+                        <p style="color: #888; font-size: 13px; margin-top: 20px;">Try selecting a different status filter</p>
+                    </div>
+                </td>
+            </tr>
+        <?php endif; ?>
 
     </tbody>
 

@@ -1,6 +1,7 @@
 <?php
 defined('ROOTPATH') or exit('Access denied');
 
+
 class Agent
 {
     use controller;
@@ -442,8 +443,10 @@ class Agent
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
             $service_id = $_POST['delete_service_id'];
 
-            // Delete the service request
-            $result = $service->delete($service_id, 'service_id');
+            // Update the service request status to "Rejected" instead of deleting
+            $result = $service->update($service_id, [
+                'status' => 'Rejected'
+            ], 'service_id');
 
             if ($result) {
                 $_SESSION['success'] = "Service request declined successfully";
@@ -506,9 +509,8 @@ class Agent
         $this->view('agent/taskremoval');
     }
 
-    public function services($b = '', $c = '', $d = '')
-    {
-        switch ($b) {
+    public function services($b = '', $c = '', $d = ''){
+        switch($b){
             case 'editservices':
                 $this->editservices($c);
                 break;
@@ -548,12 +550,38 @@ class Agent
             case 'preinspectionupdate':
                 $this->view('agent/preinspectionupdate');
                 break;
+            case 'inspectiondetails':
+                $this->inspectiondetails($property_id = $c);
+                return;
+            case 'showReport':
+                $this->showReport($property_id = $c);
+                return;
             default:
-                $preinspection = new PropertyModel;
-                $inspection = $preinspection->where(['status' => 'pending']);
+                $preinspection = new PropertyConcat;
+                $inspection = $preinspection->where(['status' => 'pending', 'agent_id' => $_SESSION['user']->pid]);
                 $this->view('agent/preInspection', ['preinspection' => $inspection]);
                 break;
         }
+    }
+
+    public function showReport($property_id){
+        $property = new Property;
+        $agent = new User;
+        $property = $property->where(['property_id' => $property_id])[0];
+        $agent = $agent->where(['pid' => $_SESSION['user']->pid])[0];
+        
+        $this->view('agent/showReport', [
+            'property' => $property,
+            'agent' => $agent
+        ]);
+    }
+
+    public function inspectiondetails($property_id)
+    {
+        $property = new PropertyConcat;
+        $property = $property->where(['property_id' => $property_id, 'agent_id' => $_SESSION['user']->pid])[0];
+        // show($property);
+        $this->view('agent/inspectiondetails', ['property' => $property]);
     }
 
 
@@ -667,4 +695,34 @@ class Agent
         redirect('home');
         exit;
     }
+
+    // public function reportGen($property_id)
+    // {
+    //     $property = new PropertyConcat;
+    //     $property = $property->where(['property_id' => $property_id, 'agent_id' => $_SESSION['user']->pid])[0];
+
+    //     $agent = new User;
+    //     $agent = $agent->where(['pid' => $_SESSION['user']->pid])[0];
+    //     // require_once APPROOT . '/libraries/fpdf/fpdf.php';
+    //     // $pdf = new FPDF();
+    //     // $pdf->AddPage();
+    //     // $pdf->SetFont('Arial', 'B', 16);
+    //     // $pdf->Cell(40, 10, 'Hello, this is a report!');
+    //     // $pdf->Output();
+    //     // $this->report('preInsp', [
+    //     //     'user' => $_SESSION['user'],
+    //     //     'property' => $property,
+    //     //     'agent' => $agent
+    //     // ]);
+
+    //     $reportHTML = $this->generatePreInspectionReport([
+    //         'property' => $property,
+    //         'agent' => $agent
+    //     ]);
+
+    //     echo $reportHTML; // Or send as response, export to PDF, etc.
+
+    // }
+
+
 }

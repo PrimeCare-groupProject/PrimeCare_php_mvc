@@ -10,7 +10,7 @@
     
     box-shadow: var(--box-shadow);
     overflow: hidden;
-    max-width: 400px;
+    max-width: 100%;
     margin: 5px;
     cursor: pointer;
 }

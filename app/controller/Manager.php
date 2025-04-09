@@ -548,10 +548,49 @@ class Manager {
             case 'requestapproval':
                 $this->requestApproval($c, $d);
                 break;
+            case 'propertyView':
+                $this->propertyView($c, $d);
+                break;
+            case 'confirmAssign':
+                $this->confirmAssign($c, $d);
+                break;
             default:
                 $this->view('manager/propertymanagement');
                 break;
         }
+    }
+
+    public function propertyView($propertyID){
+        $property = new PropertyConcat;
+        $property = $property->first(['property_id' => $propertyID]);
+        $this->view('manager/propertyView' , ['property' => $property]);
+    }
+
+    public function confirmAssign($propertyID , $agentID){
+        $property = new Property;
+        $res_property = $property->update($propertyID, ['agent_id' => $agentID], 'property_id');
+
+        $agentAssignment = new agentAssignment;
+        $res_agent = $agentAssignment->insert([
+            'property_id' => $propertyID,
+            'agent_id' => $agentID,
+            'property_status' => 'pending',
+            'pre_inspection' => 'waiting',
+        ]);
+
+        if($res_property && $res_agent){
+            $_SESSION['flash'] = [
+                'msg' => "Property assigned to agent successfully!",
+                'type' => "success"
+            ];
+        }else{
+            $_SESSION['flash'] = [
+                'msg' => "Failed to assign property to agent. Please try again.",
+                'type' => "error"
+            ];
+        }
+
+        $this->assignAgents();
     }
 
     private function employeeManagement(){
@@ -656,7 +695,7 @@ class Manager {
 
     public function requestApproval(){
         $property = new PropertyModelTemp;
-        $requests = $property->where(['request_type' => 'update']);
+        $requests = $property->where(['request_status' => 'pending']);
         $this->view('manager/requestApproval', ['requests' => $requests]);
         // $this->view('manager/requestApproval');
     }
@@ -666,10 +705,13 @@ class Manager {
     }
 
     public function assignAgents(){
-        $property = new PropertyModel;
-        $properties = $property->where(['status' => 'pending']);
+        $property = new Property;
+        $properties = $property->where(['status' => 'pending' , 'agent_id' => 110]);
 
-        $this->view('manager/assignagents' , ['properties' => $properties]);
+        $agents = new User;
+        $agents = $agents->where(['user_lvl' => 3, 'AccountStatus' => 1]);
+
+        $this->view('manager/agentsToProperty' , ['properties' => $properties , 'agents' => $agents]);
     }
 
     public function agentManagement($b = ''){
@@ -895,6 +937,12 @@ class Manager {
         $property = $property->first(['property_id' => $propertyID]);
         $propertyUpdate = $propertyUpdate->first(['property_id' => $propertyID]);
         $this->view('manager/comparePropertyUpdate' , ['property' => $property , 'propertyUpdate' => $propertyUpdate]);
+    }
+
+    public function comparePropertyUpdateAccept($propertyID){
+        $property = new PropertyConcatTemp;
+        $propertyUpdate = new PropertyConcat;
+       
     }
     
 }

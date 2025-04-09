@@ -106,7 +106,7 @@
                 <span class="input-label-small">Year Built:</span><span class="input-field-small"><?= $property->year_built ?></span>
             </div>
             <div class="input-group">
-                <span class="input-label-small">Monthly Rent:</span><span class="input-field-small"><?= $property->rent_on_basis ?></span>
+                <span class="input-label-small">Monthly Rent:</span><span class="input-field-small"><?= $property->rental_price ?></span>
             </div>
         </div>
 

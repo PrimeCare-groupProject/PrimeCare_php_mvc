@@ -174,19 +174,36 @@ class Owner
         } else if ($a == "deleteView") {
             $this->deleteView($propertyId = $b);
             return;
-        } else if ($a == "deleteRequest"){
+        } else if ($a == "deleteRequest") {
             $this->deleteRequest($propertyId = $b);
+            return;
+        } else if ($a == "review") {
+            $this->reviewUnit($propertyId = $b);
             return;
         }
 
         //if property listing is being called
         $property = new PropertyConcat;
-        $properties = $property->where(['person_id' => $_SESSION['user']->pid] , ['status' => 'Inactive']);
+        $properties = $property->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
 
         $this->view('owner/propertyListing', ['properties' => $properties]);
     }
 
-    public function deleteView($propertyId){
+    public function reviewUnit($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+
+        $this->view('owner/singleReview', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'property' => $propertyUnit
+        ]);
+    }
+
+    public function deleteView($propertyId)
+    {
         $property = new PropertyConcat;
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
 
@@ -214,10 +231,48 @@ class Owner
 
     private function repairListing()
     {
+        // Instantiate the Services model and fetch all services
+        $servicesModel = new Services();
+        $services = $servicesModel->getAllServices();
+        
+        // Check and fix image paths for each service
+        if (!empty($services)) {
+            foreach ($services as $key => $service) {
+                // If service_img is empty, skip
+                if (empty($service->service_img)) {
+                    continue;
+                }
+                
+                // Check if the image exists in the specified location
+                $imagePath = ROOTPATH . 'public/assets/images/repairimages/' . $service->service_img;
+                if (!file_exists($imagePath)) {
+                    // Try to find the image with common image extensions
+                    $found = false;
+                    $extensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    $baseName = pathinfo($service->service_img, PATHINFO_FILENAME);
+                    
+                    foreach ($extensions as $ext) {
+                        $testPath = ROOTPATH . 'public/assets/images/repairimages/' . $baseName . '.' . $ext;
+                        if (file_exists($testPath)) {
+                            $services[$key]->service_img = $baseName . '.' . $ext;
+                            $found = true;
+                            break;
+                        }
+                    }
+                    
+                    // If still not found, set to empty to use placeholder
+                    if (!$found) {
+                        $services[$key]->service_img = '';
+                    }
+                }
+            }
+        }
+        
         $this->view('owner/repairListing', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '',
+            'services' => $services  // Pass the services data to the view
         ]);
     }
 
@@ -228,7 +283,7 @@ class Owner
             $data = [
                 'service_type' => $_POST['service_type'],
                 'date' => $_POST['date'],
-                'property_id' => $_POST['property_id'], // This will now be the actual property ID
+                'property_id' => $_POST['property_id'], 
                 'property_name' => $_POST['property_name'],
                 'status' => $_POST['status'],
                 'service_description' => $_POST['service_description'],
@@ -248,12 +303,32 @@ class Owner
             return;
         }
 
+        // Get property information from URL parameters
+        $property_id = $_GET['property_id'] ?? null;
+        $property_name = $_GET['property_name'] ?? '';
+        $service_type = $_GET['type'] ?? $type;
+        $cost_per_hour = $_GET['cost_per_hour'] ?? '';
+        
+        // Fetch property image if property_id is provided
+        $propertyImage = null;
+        if ($property_id) {
+            $imageModel = new PropertyImageModel();
+            $images = $imageModel->where(['property_id' => $property_id]);
+            if (!empty($images)) {
+                $propertyImage = $images[0]->image_url;
+            }
+        }
+
         $this->view('owner/serviceRequest', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
             'status' => $_SESSION['status'] ?? '',
             'success_message' => $_SESSION['success_message'] ?? '',
-            'type' => $type
+            'type' => $service_type,
+            'property_id' => $property_id,
+            'property_name' => $property_name,
+            'property_image' => $propertyImage,
+            'cost_per_hour' => $cost_per_hour
         ]);
 
         // Clear session messages after displaying
@@ -849,15 +924,38 @@ class Owner
         }
     }
 
+    public function updatePending($data, $propertyId)
+    {
+        $property = new Property;
+        $res = $property->update($propertyId, $data, 'property_id');
+        if ($res) {
+            $_SESSION['flash']['msg'] = "Property updated successfully!";
+            $_SESSION['flash']['type'] = "success";
+        } else {
+            $_SESSION['flash']['msg'] = "Failed to update property. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+        }
+        // Redirect to the property listing page
+        redirect('property/propertyListing');
+    }
+
     public function update($propertyId)
     {
         $property = new PropertyModelTemp;
-
         $beforeDetails = new Property;
         $beforeDetails = $beforeDetails->where(['property_id' => $propertyId])[0];
 
+        // Helper to safely implode or fallback
+        $safeImplode = function ($value) {
+            if (is_array($value)) {
+                return implode(',', $value);
+            } elseif (is_string($value)) {
+                return $value; // Assume already comma-separated
+            }
+            return '';
+        };
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Validate the form data
             if (!$property->validateProperty($_POST)) {
                 $_SESSION['flash']['msg'] = "Update Validation failed!";
                 $_SESSION['flash']['type'] = "error";
@@ -865,43 +963,25 @@ class Owner
                 return;
             }
 
-            // Set default values, falling back to the existing property details if not set
             $purpose = $_POST['purpose'] ?? $beforeDetails->purpose;
             $rental_period = $_POST['rental_period'] ?? $beforeDetails->rental_period;
             $start_date = $_POST['start_date'] ?? $beforeDetails->start_date;
             $end_date = $_POST['end_date'] ?? $beforeDetails->end_date;
 
-            // Calculate the rental price based on the purpose
             if ($purpose == 'Rent') {
-                $rental_price = $_POST['rental_price'] ?? $beforeDetails->rental_price; // Assuming the rental price is directly posted for "Rent"
+                $rental_price = $_POST['rental_price'] ?? $beforeDetails->rental_price;
             } else {
-                // Calculate duration in days for Safeguard/Vacation Rental purposes
                 $start_timestamp = strtotime($start_date);
                 $end_timestamp = strtotime($end_date);
-
-                if ($start_timestamp && $end_timestamp) {
-                    // Ensure end date is greater than start date
-                    $duration_in_days = ($end_timestamp - $start_timestamp) / (60 * 60 * 24); // Duration in days
-
-                    // If the end date is before the start date, set an error or fallback value
-                    if ($duration_in_days <= 0) {
-                        $duration_in_days = 1; // Minimum duration of 1 day
-                    }
-
-                    // Calculate rental price based on duration (using the constant RENTAL_PRICE)
-                    $rental_price = $duration_in_days * RENTAL_PRICE;
-                } else {
-                    $rental_price = $beforeDetails->rental_price; // Fallback to existing rental price if dates are invalid
-                }
+                $duration_in_days = ($start_timestamp && $end_timestamp) ? max(1, ($end_timestamp - $start_timestamp) / (60 * 60 * 24)) : 1;
+                $rental_price = $duration_in_days * RENTAL_PRICE;
             }
 
-            // Prepare the data for update
             $arr = [
                 'property_id' => $propertyId,
                 'name' => $_POST['name'] ?? $beforeDetails->name,
                 'type' => $_POST['type'] ?? $beforeDetails->type,
                 'description' => $_POST['description'] ?? $beforeDetails->description,
-
                 'address' => $_POST['address'] ?? $beforeDetails->address,
                 'zipcode' => $_POST['zipcode'] ?? $beforeDetails->zipcode,
                 'city' => $_POST['city'] ?? $beforeDetails->city,
@@ -926,18 +1006,10 @@ class Owner
                 'parking_slots' => $_POST['parking_slots'] ?? $beforeDetails->parking_slots,
                 'type_of_parking' => $_POST['type_of_parking'] ?? $beforeDetails->type_of_parking,
 
-                'utilities_included' => isset($_POST['utilities_included']) && is_array($_POST['utilities_included'])
-                    ? implode(',', $_POST['utilities_included'])
-                    : ($beforeDetails->utilities_included ?? ''),
-                'additional_utilities' => isset($_POST['additional_utilities']) && is_array($_POST['additional_utilities'])
-                    ? implode(',', $_POST['additional_utilities'])
-                    : ($beforeDetails->additional_utilities ?? ''),
-                'additional_amenities' => isset($_POST['additional_amenities']) && is_array($_POST['additional_amenities'])
-                    ? implode(',', $_POST['additional_amenities'])
-                    : ($beforeDetails->additional_amenities ?? ''),
-                'security_features' => isset($_POST['security_features']) && is_array($_POST['security_features'])
-                    ? implode(',', $_POST['security_features'])
-                    : ($beforeDetails->security_features ?? ''),
+                'utilities_included' => $safeImplode($_POST['utilities_included'] ?? $beforeDetails->utilities_included),
+                'additional_utilities' => $safeImplode($_POST['additional_utilities'] ?? $beforeDetails->additional_utilities),
+                'additional_amenities' => $safeImplode($_POST['additional_amenities'] ?? $beforeDetails->additional_amenities),
+                'security_features' => $safeImplode($_POST['security_features'] ?? $beforeDetails->security_features),
 
                 'purpose' => $purpose,
                 'rental_period' => $rental_period,
@@ -950,39 +1022,41 @@ class Owner
                 'owner_phone' => $_POST['owner_phone'] ?? $beforeDetails->owner_phone,
                 'additional_contact' => $_POST['additional_contact'] ?? $beforeDetails->additional_contact,
 
-                'special_instructions' => isset($_POST['special_instructions']) && is_array($_POST['special_instructions'])
-                    ? implode(',', $_POST['special_instructions'])
-                    : ($beforeDetails->special_instructions ?? ''),
-                'legal_details' => isset($_POST['legal_details']) && is_array($_POST['legal_details'])
-                    ? implode(',', $_POST['legal_details'])
-                    : ($beforeDetails->legal_details ?? ''),
+                'special_instructions' => $safeImplode($_POST['special_instructions'] ?? $beforeDetails->special_instructions),
+                'legal_details' => $safeImplode($_POST['legal_details'] ?? $beforeDetails->legal_details),
 
                 'status' => $beforeDetails->status,
-                'person_id' => $_SESSION['user']->pid,
+                'person_id' => $beforeDetails->person_id,
                 'agent_id' => $beforeDetails->agent_id,
-                'duration' => $_POST['duration'] ?? $beforeDetails->duration,
-                'request_status' => 'pending'
+                'duration' => ($purpose == 'Rent') ? ($_POST['duration'] ?? $beforeDetails->duration) : 0
             ];
 
-            $detect_change = $property->compareWithPrevios($arr, $beforeDetails);
-            //show($detect_change);
+            // ✅ Check if status is pending and directly update real table
+            if ($beforeDetails->status === 'Pending') {
+                $this->updatePending($arr, $propertyId); // function inside same controller
+                return;
+            }
+
+            // Continue temp table handling for non-pending properties
+            $arr['request_status'] = 'pending'; // Only needed in temp table
+
+            $beforeDetailsAsArray = (array)$beforeDetails;
+            $detect_change = $property->compareWithPrevios($arr, $beforeDetailsAsArray);
+
             if ($detect_change) {
                 $existingProperty = $property->where(['property_id' => $propertyId]);
-                //show($existingProperty);
+                echo "checkpoint 1";
                 if (!empty($existingProperty)) {
-                    // If property exists, perform the update
-                    $res = $property->update($propertyId, $arr, 'property_id');
-                } else {
-                    // If property does not exist, perform the insert
-                    $res = $property->insert($arr);
+                    $property->delete($propertyId, 'property_id');
                 }
+                echo "checkpoint 2";
 
+                $res = $property->insert($arr);
+
+                echo "checkpoint 3";
 
                 if ($res) {
-
-                    // Check if a file was uploaded without errors
                     if (isset($_FILES['property_images']) && $_FILES['property_images']['error'] === 0 && $_FILES['property_images']['size'] > 0) {
-                        // Proceed with the image upload if a file is selected and there are no errors
                         $imageErrors = upload_image(
                             $_FILES['property_images'],
                             ROOTPATH . 'public/assets/images/uploads/property_images/',
@@ -996,7 +1070,6 @@ class Owner
                             ]
                         );
 
-                        // Check for any upload errors
                         if (!empty($imageErrors)) {
                             $property->errors['media'] = $imageErrors;
                             $_SESSION['flash']['msg'] = "Property update failed! Error with image upload.";
@@ -1006,12 +1079,11 @@ class Owner
                         }
                     }
 
-                    // Redirect on success
                     $_SESSION['flash']['msg'] = "Property Update Request Sent!";
                     $_SESSION['flash']['type'] = "success";
                     redirect('property/propertyListing');
                 } else {
-                    $_SESSION['flash']['msg'] = "Property update failed! Error with image upload.";
+                    $_SESSION['flash']['msg'] = "Property update failed!";
                     $_SESSION['flash']['type'] = "error";
                     $this->view('owner/editPropertyEnh', ['property' => $beforeDetails]);
                 }
@@ -1023,7 +1095,15 @@ class Owner
         }
     }
 
-    public function deleteRequest($propertyId){
+
+
+
+
+
+
+
+    public function deleteRequest($propertyId)
+    {
         $property = new Property;
         $update = $property->update($propertyId, ['status' => 'inactive'], 'property_id');
         if ($update) {
