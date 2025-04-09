@@ -556,7 +556,7 @@ class Agent
             case 'showReport':
                 $this->showReport($property_id = $c);
                 return;
-            default:
+   
                 $preinspection = new PropertyConcat;
                 $inspection = $preinspection->where(['status' => 'pending', 'agent_id' => $_SESSION['user']->pid]);
                 $this->view('agent/preInspection', ['preinspection' => $inspection]);
@@ -593,8 +593,13 @@ class Agent
             case 'newinventory':
                 $this->newinventory();
                 break;
+            case 'editinventory':
+                $this->editinventory($c);
+                break;
             default:
-                $this->view('agent/inventory');
+            $invent = new InventoryModel;
+            $inventories = $invent->findAll();
+            $this->view('agent/inventory',['inventories' => $inventories]); 
                 break;
         }
     }
@@ -602,6 +607,12 @@ class Agent
     public function newinventory()
     {
         $this->view('agent/newinventory');
+    }
+
+    public function editinventory($c){
+        $invent = new InventoryModel;
+        $inventory = $invent->where(['inventory_id' => $c])[0];
+        $this->view('agent/editinventory', ['inventory' => $inventory]);
     }
 
     public function manageBookings()

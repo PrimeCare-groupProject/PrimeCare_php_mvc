@@ -641,6 +641,127 @@ body.popup-active .blur-container {
     height: 20px;
 }
 
+/* Main container */
+.inventory-details-container {
+    width: calc(100% - 30px);
+    margin: 10px 5px;
+    padding: 10px;
+    background-color: var(--white-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    font-family: "Outfit", sans-serif;
+}
+
+.inventory-details-container h2 {
+    text-align: left;
+    margin-left: 10px;
+    color: var(--dark-grey-color);
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* Fixed table layout */
+    font-family: "Outfit", sans-serif;
+}
+
+.inventory-table th,
+.inventory-table td {
+    width: 150px;
+    /* Set the fixed width */
+    padding: 10px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--background-color);
+    /* border-radius: 10px; */
+    word-wrap: break-word;
+    /* Ensures text wraps if it's too long */
+    overflow: hidden;
+    /* Ensures no overflow issues */
+    text-overflow: ellipsis;
+    /* Adds ellipsis (...) for overflowing text */
+    white-space: nowrap;
+    /* Prevents text from wrapping to a new line */
+    font-family: "Outfit", sans-serif;
+}
+
+.inventory-table .first{
+    border-radius: 10px 0 0 10px; 
+}
+
+.inventory-table .last{
+    border-radius: 0 10px 10px 0; 
+}
+
+.inventory-table th {
+    background-color: var(--background-color);
+    font-weight: 600;
+}
+
+th.sortable {
+    position: relative;
+    cursor: pointer; /* Change the cursor to indicate it's clickable */
+    padding-right: 25px; /* Add space for the image */
+}
+
+th.sortable img {
+    position: absolute;
+    right: 5px; /* Aligns the image to the right inside the <th> */
+    top: 50%;
+    transform: translateY(-50%); /* Vertically center the image */
+    width: 15px; /* Adjust width based on your image size */
+    height: auto; /* Keeps aspect ratio of the image */
+    opacity: 0.7; /* Slightly reduce opacity */
+    transition: opacity 0.3s ease; /* Smooth hover effect */
+}
+
+th.sortable:hover img {
+    opacity: 1; /* Make image fully visible on hover */
+}
+
+
+.inventory-table th:nth-child(1),
+.inventory-table td:nth-child(1) {
+    width: 80px;
+}
+
+.inventory-table th:nth-child(2),
+.inventory-table td:nth-child(2) {
+    width: 80px;
+}
+
+.inventory-table th:nth-child(3),
+.inventory-table td:nth-child(3) {
+    width: 80px;
+}
+
+.inventory-table th:nth-child(4),
+.inventory-table td:nth-child(4) {
+    width: 80px;
+}
+
+.inventory-table th:nth-child(5),
+.inventory-table td:nth-child(5) {
+    width: 80px;
+}
+
+.inventory-table th:nth-child(6),
+.inventory-table td:nth-child(6) {
+    width: 80px;
+    align-content: center;
+}
+
+.inventory-table th:nth-child(7),
+.inventory-table td:nth-child(7) {
+    width: 80px;
+}
+
+.inventory-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+.inventory-table tbody tr:hover {
+    background-color: #eff0f5;
+    cursor: pointer;
 
 #loading-spinner {
     display: none;
@@ -657,4 +778,3 @@ body.popup-active .blur-container {
     50% {
         opacity: 0;
     }
-}
