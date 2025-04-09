@@ -1,15 +1,15 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <?php if (!empty($preinspection)): ?>
-<?php
-// Check if a search query is set
-$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
+    <?php
+    // Check if a search query is set
+    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// Filter the properties based on the search query
-$preinspection = array_filter($preinspection, function ($preinspect) use ($searchQuery) {
-    return stripos($preinspect->name, $searchQuery) !== false; // Case-insensitive search
-});
-?>
+    // Filter the properties based on the search query
+    $preinspection = array_filter($preinspection, function ($preinspect) use ($searchQuery) {
+        return stripos($preinspect->name, $searchQuery) !== false; // Case-insensitive search
+    });
+    ?>
 <?php endif; ?>
 
 <div class="user_view-menu-bar">
@@ -23,7 +23,7 @@ $preinspection = array_filter($preinspection, function ($preinspect) use ($searc
                     <img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons">
                 </button>
             <?php else: ?>
-                <button class="search-btn" >
+                <button class="search-btn">
                     <img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons">
                 </button>
             <?php endif; ?>
@@ -33,7 +33,8 @@ $preinspection = array_filter($preinspection, function ($preinspect) use ($searc
 
 <div>
     <!-- <?php if (!empty($preinspection)): ?>
-        <?php $propertyCount = 1; // Initialize property counter ?>
+        <?php $propertyCount = 1; // Initialize property counter 
+        ?>
         <?php foreach ($preinspection as $preinspect): ?>
             <div class="preInspection">
                 <div class="preInspection-header">
@@ -70,11 +71,12 @@ $preinspection = array_filter($preinspection, function ($preinspect) use ($searc
                         </div>
                     </div>
                     <div>
-                        <img class="image-card" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',' , $preinspect->property_images)[0] ?>" alt="">
+                        <img class="image-card" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $preinspect->property_images)[0] ?>" alt="">
                     </div>
                 </div>
             </div>
-            <?php $propertyCount++; // Increment property count ?>
+            <?php $propertyCount++; // Increment property count 
+            ?>
         <?php endforeach; ?> 
     <?php else: ?>
         <p>No preInspection found.</p>
@@ -109,115 +111,120 @@ $preinspection = array_filter($preinspection, function ($preinspect) use ($searc
                         <td><?= $property->name ?></td>
                         <td><?= $property->owner_name ?></td>
                         <td class="AA__action-buttons">
-                            <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/inspectiondetails/<?= $property->property_id ?>'">View</button>
+                            <!-- <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/reportGen/<?= $property->property_id ?>'">View</button> -->
+                            <a href="<?= ROOT ?>/dashboard/preInspection/showReport/<?= $property->property_id ?>">
+                                <button class="btn btn-sm btn-primary">Generate Report</button>
+                            </a>
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+
     </div>
 
-    
+
 </div>
 
 <script>
-function searchProperty() {
-    let searchInput = document.getElementById("searchInput").value;
-    window.location.href = "?search=" + encodeURIComponent(searchInput);
-}
+    function searchProperty() {
+        let searchInput = document.getElementById("searchInput").value;
+        window.location.href = "?search=" + encodeURIComponent(searchInput);
+    }
 </script>
 
 
 <script>
-        // Search functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get search input and filter select
-            const searchInput = document.querySelector('.AA__search-box input');
-            const statusFilter = document.querySelector('.AA__filter-options select');
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get search input and filter select
+        const searchInput = document.querySelector('.AA__search-box input');
+        const statusFilter = document.querySelector('.AA__filter-options select');
 
-            // Add event listeners for search and filter
-            if (searchInput) {
-                searchInput.addEventListener('input', filterProperties);
-            }
+        // Add event listeners for search and filter
+        if (searchInput) {
+            searchInput.addEventListener('input', filterProperties);
+        }
 
-            if (statusFilter) {
-                statusFilter.addEventListener('change', filterProperties);
-            }
+        if (statusFilter) {
+            statusFilter.addEventListener('change', filterProperties);
+        }
 
-            // Add click event listener to document for closing expanded panels
-            document.addEventListener('click', function(event) {
-                // If click is not within an assignment panel or assign button
-                if (!event.target.closest('.AA__assignment-panel') &&
-                    !event.target.closest('.small-btn.blue')) {
-                    // Close all assignment panels
-                    document.querySelectorAll('.AA__assignment-panel').forEach(panel => {
-                        panel.classList.remove('AA__active');
-                    });
-                }
-            });
-
-            // Function to filter properties based on search and status filter
-            function filterProperties() {
-                const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                const statusValue = statusFilter ? statusFilter.value.toLowerCase() : '';
-
-                const propertyRows = document.querySelectorAll('.AA__property-row');
-
-                propertyRows.forEach(row => {
-                    const propertyName = row.getAttribute('data-name');
-                    const ownerName = row.getAttribute('data-owner');
-                    const status = row.getAttribute('data-status') || '';
-
-                    // Get the panel associated with this row
-                    const panelId = row.getAttribute('data-id');
-                    const panel = document.getElementById('panel-' + panelId);
-
-                    // Check if row matches search term and status filter
-                    const matchesSearch =
-                        propertyName.includes(searchTerm) ||
-                        ownerName.includes(searchTerm);
-
-                    const matchesStatus =
-                        statusValue === '' ||
-                        status === statusValue;
-
-                    // Show/hide row based on filters
-                    if (matchesSearch && matchesStatus) {
-                        row.style.display = '';
-                        if (panel) panel.style.display = ''; // Keep panel in DOM, but hidden unless active
-                    } else {
-                        row.style.display = 'none';
-                        if (panel) panel.style.display = 'none'; // Hide panel completely
-                    }
-                });
-
-                // Close all expanded panels when filtering
+        // Add click event listener to document for closing expanded panels
+        document.addEventListener('click', function(event) {
+            // If click is not within an assignment panel or assign button
+            if (!event.target.closest('.AA__assignment-panel') &&
+                !event.target.closest('.small-btn.blue')) {
+                // Close all assignment panels
                 document.querySelectorAll('.AA__assignment-panel').forEach(panel => {
                     panel.classList.remove('AA__active');
                 });
             }
         });
 
-        // Function to toggle assignment panel visibility
-        function toggleAssignPanel(event, propertyId) {
-            event.stopPropagation();
-            const panel = document.getElementById('panel-' + propertyId);
+        // Function to filter properties based on search and status filter
+        function filterProperties() {
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const statusValue = statusFilter ? statusFilter.value.toLowerCase() : '';
 
-            // Close all other open panels
-            document.querySelectorAll('.AA__assignment-panel').forEach(item => {
-                if (item.id !== 'panel-' + propertyId) {
-                    item.classList.remove('AA__active');
+            const propertyRows = document.querySelectorAll('.AA__property-row');
+
+            propertyRows.forEach(row => {
+                const propertyName = row.getAttribute('data-name');
+                const ownerName = row.getAttribute('data-owner');
+                const status = row.getAttribute('data-status') || '';
+
+                // Get the panel associated with this row
+                const panelId = row.getAttribute('data-id');
+                const panel = document.getElementById('panel-' + panelId);
+
+                // Check if row matches search term and status filter
+                const matchesSearch =
+                    propertyName.includes(searchTerm) ||
+                    ownerName.includes(searchTerm);
+
+                const matchesStatus =
+                    statusValue === '' ||
+                    status === statusValue;
+
+                // Show/hide row based on filters
+                if (matchesSearch && matchesStatus) {
+                    row.style.display = '';
+                    if (panel) panel.style.display = ''; // Keep panel in DOM, but hidden unless active
+                } else {
+                    row.style.display = 'none';
+                    if (panel) panel.style.display = 'none'; // Hide panel completely
                 }
             });
 
-            // Toggle the selected panel
-            panel.classList.toggle('AA__active');
-
-            // Add click handler to the panel to prevent closing when clicking inside
-            panel.onclick = function(e) {
-                e.stopPropagation();
-            };
+            // Close all expanded panels when filtering
+            document.querySelectorAll('.AA__assignment-panel').forEach(panel => {
+                panel.classList.remove('AA__active');
+            });
         }
-    </script>
+    });
+
+    // Function to toggle assignment panel visibility
+    function toggleAssignPanel(event, propertyId) {
+        event.stopPropagation();
+        const panel = document.getElementById('panel-' + propertyId);
+
+        // Close all other open panels
+        document.querySelectorAll('.AA__assignment-panel').forEach(item => {
+            if (item.id !== 'panel-' + propertyId) {
+                item.classList.remove('AA__active');
+            }
+        });
+
+        // Toggle the selected panel
+        panel.classList.toggle('AA__active');
+
+        // Add click handler to the panel to prevent closing when clicking inside
+        panel.onclick = function(e) {
+            e.stopPropagation();
+        };
+    }
+</script>
 
 <?php require_once 'agentFooter.view.php'; ?>

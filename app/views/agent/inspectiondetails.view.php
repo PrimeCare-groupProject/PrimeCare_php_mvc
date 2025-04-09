@@ -7,7 +7,7 @@
     <h2>Pre Inspection on : <span style="color: var(--green-color);"><?= $property->name ?></span></h2>
 </div>
 <div>
-    
+    <button onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/reportGen/<?= $property->property_id ?>'"></button>
 </div>
 
 <?php require_once 'agentFooter.view.php'; ?>
