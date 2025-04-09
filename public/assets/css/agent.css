@@ -640,3 +640,21 @@ body.popup-active .blur-container {
     width: 20px;
     height: 20px;
 }
+
+
+#loading-spinner {
+    display: none;
+    text-align: center;
+    font-size: 16px;
+}
+
+#loading-spinner::after {
+    content: '...';
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}

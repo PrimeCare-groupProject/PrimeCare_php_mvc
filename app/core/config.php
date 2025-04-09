@@ -24,4 +24,6 @@ defined('ROOTPATH') or exit('Access denied');
 
 //  true means show any errors
  define('DEBUG', true);
+ define('APPROOT', dirname(dirname(__FILE__))); // adjust if needed
+
  
