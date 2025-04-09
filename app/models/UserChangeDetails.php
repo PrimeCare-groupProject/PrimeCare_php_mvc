@@ -9,7 +9,6 @@ class UserChangeDetails {
         'pid',
         'fname',
         'lname',
-        'username',
         'email',
         'contact',
         'image_url',

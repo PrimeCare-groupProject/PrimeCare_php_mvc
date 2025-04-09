@@ -18,6 +18,32 @@ class Agent
     public function profile()
     {
         $user = new User();
+        // If the Account status is 3 show rejected flash or if 4 show accepted flash
+        if ($_SESSION['user']->AccountStatus == 3) {
+            // update data
+            $updateAcc = $user->update($_SESSION['user']->pid, [
+                'AccountStatus' => 1
+            ], 'pid');
+            // update session
+            if($updateAcc){
+                $_SESSION['user']->AccountStatus = 1;
+            }
+            // set message
+            $_SESSION['flash']['msg'] = "Your account update has been rejected.";
+            $_SESSION['flash']['type'] = "error";
+        } elseif ($_SESSION['user']->AccountStatus == 4) {
+            // update data
+            $updateAcc = $user->update($_SESSION['user']->pid, [
+                'AccountStatus' => 1
+            ], 'pid');
+            // update session
+            if($updateAcc){
+                $_SESSION['user']->AccountStatus = 1;
+            }
+            $_SESSION['flash']['msg'] = "Your account has been accepted.";
+            $_SESSION['flash']['type'] = "success";
+        }
+        
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['delete_account'])) {
                 $errors = [];

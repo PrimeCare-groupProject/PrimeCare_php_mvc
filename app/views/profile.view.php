@@ -264,5 +264,5 @@
         require_once 'manager/managerFooter.view.php'; 
         
     }
-    show($user);
+    // show($user);
 ?>
