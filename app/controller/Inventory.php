@@ -61,8 +61,44 @@ class Inventory{
         }
     }
 
-    
-
+    public function update(){
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST["action"])) {
+                if ($_POST["action"] == "save") {
+                    // Call Accept Controller
+                    $inventory1 =  new InventoryModel;
+                    $arr = [
+                        'inventory_name' => $_POST['inventory_name'],
+                        'date' => $_POST['date'],
+                        'unit_price' => $_POST['unit_price'],
+                        'quantity' => $_POST['quantity'],
+                        'description' => $_POST['description'],
+                        'seller_name' => $_POST['seller_name'],
+                        'seller_address' => $_POST['seller_address'],
+                        'property_id' => $_POST['property_id'],
+                        'property_name' => $_POST['property_name'],
+                        'inventory_type' => $_POST['inventory_type']
+                    ];
+                    $res = $inventory1->update($_POST['inventory_id'], $arr, 'inventory_id');
+                    $invent = new InventoryModel;
+                     $inventory = $invent->where(['inventory_id' => $_POST['inventory_id']])[0];
+                     if ($res) {
+                        // Set flash message in session
+                        $_SESSION['flash_message'] = 'Inventory Updated successfully!';
+        
+                    } else {
+                        // Handle failure (e.g., insert failed)
+                        $_SESSION['flash_message'] = 'Failed to update inventory. Please try again.';
+                    }
+                     $this->view('agent/editinventory', ['inventory' => $inventory]);
+                    exit;
+                } elseif ($_POST["action"] == "cancel") {
+                    redirect('/dashboard/inventory');
+                    exit;
+                }
+            }
+        }
+    }
 }
 
 

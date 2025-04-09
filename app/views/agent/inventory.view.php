@@ -29,7 +29,7 @@
         <tbody>
             <?php if (!empty($inventories)) : ?>
                 <?php foreach ($inventories as $inventory) : ?>
-                    <tr>
+                    <tr onclick="window.location.href='<?= ROOT ?>/dashboard/inventory/editinventory/<?= $inventory->inventory_id ?>'">
                         <td><?= $inventory->inventory_id ?></td>
                         <td><?= $inventory->inventory_name ?></td>
                         <td><?= $inventory->property_id ?></td>
@@ -64,5 +64,67 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    // Track sorting state for each column
+    const sortStates = Array(6).fill(null); // null = unsorted, 'asc' = ascending, 'desc' = descending
+    
+    function sortTable(columnIndex) {
+        const table = document.querySelector(".inventory-table");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const isDateColumn = columnIndex === 5; // Date column
+        const isPriceColumn = columnIndex === 4; // Price column
+        
+        // Toggle sort direction
+        sortStates[columnIndex] = sortStates[columnIndex] === 'asc' ? 'desc' : 'asc';
+        const sortDirection = sortStates[columnIndex];
+        
+        // Reset sort indicators on all headers
+        table.querySelectorAll("th").forEach((th, index) => {
+            if (index !== columnIndex) {
+                th.innerHTML = th.textContent.trim();
+                sortStates[index] = null;
+            }
+        });
+        
+        // Update sort indicator on current header
+        const currentHeader = table.querySelectorAll("th")[columnIndex];
+        currentHeader.innerHTML = `${currentHeader.textContent.trim()} `;
+        
+        // Sort rows
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex].textContent.trim();
+            const cellB = rowB.cells[columnIndex].textContent.trim();
+            
+            let valueA, valueB;
+            
+            if (isDateColumn) {
+                // Date comparison
+                valueA = new Date(cellA);
+                valueB = new Date(cellB);
+            } else if (isPriceColumn) {
+                // Price comparison (remove non-numeric characters)
+                valueA = parseFloat(cellA.replace(/[^0-9.]/g, "")) || 0;
+                valueB = parseFloat(cellB.replace(/[^0-9.]/g, "")) || 0;
+            } else if (columnIndex === 0 || columnIndex === 2) {
+                // ID columns (numeric comparison)
+                valueA = parseInt(cellA) || 0;
+                valueB = parseInt(cellB) || 0;
+            } else {
+                // Text comparison
+                valueA = cellA.toLowerCase();
+                valueB = cellB.toLowerCase();
+            }
+            
+            if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+            if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+        
+        // Re-append sorted rows
+        rows.forEach(row => tbody.appendChild(row));
+    }
+</script>
 
 <?php require_once 'agentFooter.view.php'; ?>

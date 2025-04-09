@@ -361,7 +361,7 @@ class Agent{
                 break;
             default:
                 $preinspection = new PropertyModel;
-                $inspection = $preinspection->where(['status' => 'pending']);
+                $inspection = $preinspection->where(['status' => 'pending'])[0];
                 $this->view('agent/preInspection', ['preinspection' => $inspection]);
                 break;
         }
@@ -376,6 +376,9 @@ class Agent{
             case 'newinventory': 
                 $this->newinventory();
                 break;
+            case 'editinventory':
+                $this->editinventory($c);
+                break;
             default:
             $invent = new InventoryModel;
             $inventories = $invent->findAll();
@@ -386,6 +389,12 @@ class Agent{
 
     public function newinventory(){
         $this->view('agent/newinventory');
+    }
+
+    public function editinventory($c){
+        $invent = new InventoryModel;
+        $inventory = $invent->where(['inventory_id' => $c])[0];
+        $this->view('agent/editinventory', ['inventory' => $inventory]);
     }
 
     public function manageBookings(){

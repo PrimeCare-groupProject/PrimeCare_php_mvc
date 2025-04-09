@@ -755,3 +755,11 @@ th.sortable:hover img {
 .inventory-table td:nth-child(7) {
     width: 80px;
 }
+
+.inventory-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+.inventory-table tbody tr:hover {
+    background-color: #eff0f5;
+    cursor: pointer;
+}
