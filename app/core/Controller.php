@@ -29,6 +29,18 @@ trait controller
         }
     }
 
+    public function report($name , $data = []){
+        if(!empty($data)) {
+            extract($data); //will make available to files below
+        }
+        $filename = "../app/reports/" . $name . ".report.php";
+        if(file_exists($filename)){
+            require $filename;
+        }else{
+            return;
+        }
+    }
+
     private function logout()
     {
         session_unset();
