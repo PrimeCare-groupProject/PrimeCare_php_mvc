@@ -4,6 +4,7 @@
 
 body {
     background-color: var(--background-color);
+    overflow-y: hidden;
 }
 
 .user_view-container {
@@ -271,7 +272,7 @@ hr {
     flex: 1;
     margin-left: 250px;
     padding: 15px 0;
-    /* overflow-y: auto; */
+    overflow-y: auto;
     height: calc(100vh - 60px);
     /* overflow: hidden;
     box-sizing: border-box; */
@@ -550,7 +551,7 @@ textarea .input-field{
     grid-template-columns: repeat(3, 1fr);
     /* 3 columns */
     gap: 0px;
-    padding: 0px;
+    padding: 0 0 20px 0;
 }
 
 @media screen and (max-width: 768px) {
@@ -680,6 +681,13 @@ textarea .input-field{
 .gap{
     width: 2vw;
 }
+
+.PL__filter_container{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
 .toggle_wrapper{
     display: flex;
     justify-content: center;

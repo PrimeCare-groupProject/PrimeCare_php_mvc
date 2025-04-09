@@ -84,7 +84,7 @@
                                     <?= $property->name ?>
                                 </div>
                                 <div class="price">
-                                    <?= $property->rent_on_basis ?> /Month
+                                    <?= $property->rental_price ?> /Month
                                 </div>
                             </div>
                             <div class="units-diplays">

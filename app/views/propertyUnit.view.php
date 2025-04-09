@@ -67,7 +67,7 @@
                                     </div>
                                 </div>
                                 <div class="PL__pricing">
-                                    <span><?= $property->rent_on_basis ?> LKR</span>
+                                    <span><?= $property->rental_price ?> LKR</span>
                                     <small>PER MONTH</small>
                                 </div>
                             </div>

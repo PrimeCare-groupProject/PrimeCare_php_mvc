@@ -254,7 +254,7 @@ trait Model{//similar to a class but can be inherited by other classes
             }
         }
         $results = $this->instance->query($query, $data);
-        // show($results);
+        // var_dump($results);
         return $results ? true : false ;
 
     }

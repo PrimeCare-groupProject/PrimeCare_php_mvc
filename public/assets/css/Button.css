@@ -76,10 +76,11 @@
 }
 
 .small-btn {
-    padding: 5px 10px !important;
+    padding: 5px 15px !important;
     font-size: 16px;
     cursor: pointer;
     text-align: center;
+    border-radius: 15px;
 }
 
 .border-button {
@@ -158,6 +159,16 @@
     background-color: rgba(var(--link-color-rgb), 0.20);
     color: var(--link-color);
     border: 1px solid var(--link-color);
+}
+
+.blue-solid{
+    background-color: var(--link-color);
+    color: var(--white-color);
+    border: 1px solid var(--link-color);
+}
+
+.blue-solid:hover{
+    background-color: rgba(var(--link-color-rgb) , 0.80);
 }
 
 .blue:hover{

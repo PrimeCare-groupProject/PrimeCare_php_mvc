@@ -106,6 +106,17 @@ class User {
         return empty($this->errors);
     }
 
+    public function findByMultiplePids(array $pids) {
+        if (empty($pids)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $query = "SELECT * FROM {$this->table} WHERE {$this->order_column} IN ($placeholders)";
+        
+        return $this->instance->query($query, $pids);
+    }
+
     // public function findAll(){//search rows depending on the data passed
     //     $columnsString = "" . implode(", ", $this->allowedColumns) . "";
     //     $columnsString = rtrim($columnsString, ", ");

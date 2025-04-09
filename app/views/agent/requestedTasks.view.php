@@ -49,7 +49,7 @@
           const selectedYear = yearFilter.value;
           const selectedMonth = monthFilter.value;
           
-          const cards = Array.from(container.getElementsByClassName('repair-card-box'));
+          const cards = Array.from(container.getElementsByClassName('preInspection'));
           
           cards.forEach(card => {
             const cardDate = new Date(card.dataset.date);
@@ -97,21 +97,84 @@
         if (empty($services)) {
             echo "<p>No service requests found</p>";
         } else {
+            $serviceCount = 1; // Initialize service counter
             foreach ($services as $service) {
+                // Find the current provider image if a provider is selected
+                $currentProviderImage = null;
+                if (!empty($service->service_provider_id)) {
+                    foreach ($data['service_providers'] as $provider) {
+                        if ($provider->pid == $service->service_provider_id) {
+                            $currentProviderImage = $provider->image_url;
+                            break;
+                        }
+                    }
+                }
+                // Default to first provider's image if no match found
+                if (empty($currentProviderImage) && !empty($data['service_providers'])) {
+                    $currentProviderImage = $data['service_providers'][0]->image_url;
+                }
+                
+                // Determine property image path
+                $propertyImage = 'listing_alt.jpg'; // Default image
+                
+                // Check if property has an image
+                if (!empty($service->property_image)) {
+                    $propertyImagePath = ROOT . '/assets/images/' . $service->property_image;
+                    // Use the property image if it exists, otherwise use default
+                    $propertyImage = $service->property_image;
+                }
                 ?>
-                <div class="repair-card-box" data-date="<?= $service->date ?>">
-                    <div class="repair-card">
-                        <div class="repair-left-content">
-                            <h3><?= $service->service_type ?></h3>
-                            <div class="detail-fields">
-                                <div class="detail-fields-aligned">
-                                    <span class="details-labels-aligend"><strong>Property ID:</strong></span>
-                                    <span class="details-field-small"><?= $service->property_id ?></span>
+                <div class="preInspection" data-date="<?= $service->date ?>">
+                    <div class="preInspection-header">
+                        <h3><?= $service->service_type ?> Request <?= $serviceCount ?></h3>
+                        <div style="display: flex; gap: 10px;">
+                            <form method="POST">
+                                <input type="hidden" name="service_id" value="<?= $service->service_id ?>">
+                                <input type="hidden" name="service_provider_select" value="">
+                                <button type="submit" class="accept-btn" onclick="submitForm(this.form)">Accept</button>
+                            </form>
+
+                            <form method="POST">
+                                <input type="hidden" name="delete_service_id" value="<?=$service->service_id?>">
+                                <button type="submit" class="decline-btn">Decline</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="input-group1">
+                        <div class="input-group2">
+                            <div class="input-group">
+                                <div class="input-group-aligned">
+                                    <span class="input-label-aligend1"><strong>Property ID:</strong></span>
+                                    <input class="input-field2" value="<?= $service->property_id ?>" readonly>
                                 </div>
-                                <div class="detail-fields-aligned">
-                                    <span class="details-labels-aligend"><strong>Service Provider:</strong></span>
-                                    <div class="details-field-small" style="display: flex; align-items: center; gap: 10px;">
-                                        <select name="service_provider" class="details-field-small" style="border: none;" onchange="updateProviderImage(this, <?= $service->service_id ?>)">
+                                <div class="input-group-aligned">
+                                    <span class="input-label-aligend1"><strong>Date:</strong></span>
+                                    <input class="input-field2" value="<?= date('Y/m/d', strtotime($service->date)) ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-aligned">
+                                    <span class="input-label-aligend1"><strong>Property Name:</strong></span>
+                                    <input class="input-field2" value="<?= $service->property_name ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-aligned">
+                                    <span class="input-label-aligend1"><strong>Service Type:</strong></span>
+                                    <input class="input-field2" value="<?= $service->service_type ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-aligned">
+                                    <span class="input-label-aligend1"><strong>Description:</strong></span>
+                                    <input class="input-field2" value="<?= $service->service_description ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-aligned">
+                                    <span class="input-label-aligend1"><strong>Service Provider:</strong></span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->service_id ?>)">
                                             <?php foreach($data['service_providers'] as $provider): ?>
                                                 <option value="<?= $provider->pid ?>" 
                                                     data-image="<?= ROOT ?>/assets/images/<?= $provider->image_url ?>"
@@ -121,74 +184,165 @@
                                             <?php endforeach; ?>
                                         </select>
                                         <img id="providerImage_<?= $service->service_id ?>" 
-                                             src="<?= ROOT ?>/assets/images/<?= $service->provider_image ?? $data['service_providers'][0]->image_url ?>" 
+                                             src="<?= ROOT ?>/assets/images/<?= $currentProviderImage ?? 'Agent.png' ?>" 
                                              alt="Service Provider" 
-                                             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+                                             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
                                     </div>
                                 </div>
-                                <script>
-                                function updateProviderImage(selectElement, serviceId) {
-                                    const selectedOption = selectElement.options[selectElement.selectedIndex];
-                                    const imageUrl = selectedOption.getAttribute('data-image');
-                                    document.getElementById('providerImage_' + serviceId).src = imageUrl;
-                                }
-                                </script>
-                            </div>
-                            <div class="detail-fields">
-                                <div class="detail-fields-aligned">
-                                    <span class="details-labels-aligend"><strong>Date:</strong></span>
-                                    <span class="details-field-small"><?= date('Y/m/d', strtotime($service->date)) ?></span>
-                                </div>
-                            </div>
-                            <div class="detail-fields">
-                                <div class="detail-fields-aligned">
-                                    <span class="details-labels-aligend"><strong>Property Name:</strong></span>
-                                    <span class="details-field-small"><?= $service->property_name ?></span>
-                                </div>
-                            </div>
-                            <div class="detail-fields">
-                                <div class="detail-fields-aligned">
-                                    <span class="details-labels-aligend"><strong>Service Type:</strong></span>
-                                    <span class="details-field-small"><?= $service->service_type ?></span>
-                                </div>
-                            </div>
-                            <div class="detail-fields">
-                                <div class="detail-fields-aligned">
-                                    <span class="details-labels-aligend"><strong>Description:</strong></span>
-                                    <span class="details-field-small"><?= $service->service_description ?></span>
-                                </div>
                             </div>
                         </div>
-                        <div class="approval-right-content">
-                            <form method="POST" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                                <input type="hidden" name="service_id" value="<?= $service->service_id ?>">
-                                <input type="hidden" name="service_provider_select" value="">
-                                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 10px;">
-                                    <button type="submit" class="accept-btn" onclick="submitForm(this.form)" style="width: 215px;">Accept</button>
-                                </div>
-                            </form>
-
-                            <form method="POST" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                                <input type="hidden" name="delete_service_id" value="<?=$service->service_id?>">
-                                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 10px;">
-                                    <button type="submit" class="decline-btn" style="width: 215px;">Decline</button>
-                                </div>
-                            </form>
-                            <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="repair-prop-img">
-
+                        <div class="image-area">
+                            <div class="property-image-container">
+                                <img class="property-image zoom-on-hover" src="<?= ROOT ?>/assets/images/<?= $propertyImage ?>" alt="property">
+                            </div>
                         </div>
-                        <script>
-                            function submitForm(form) {
-                                // Get selected service provider ID from the select element
-                                const providerSelect = document.querySelector('select[name="service_provider"]');
-                                form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
-                            }
-                        </script>
                     </div>
                 </div>
                 <?php
+                $serviceCount++; // Increment service counter
             }
         }
         ?>
     </div>
 </div>
+
+<script>
+function updateProviderImage(selectElement, serviceId) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const imageUrl = selectedOption.getAttribute('data-image');
+    const imageElement = document.getElementById('providerImage_' + serviceId);
+    imageElement.src = imageUrl;
+    
+    // Add a small animation to indicate the change
+    imageElement.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+        imageElement.style.transform = 'scale(1)';
+    }, 300);
+}
+
+// Initialize provider images when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const selects = document.querySelectorAll('select[name="service_provider"]');
+    selects.forEach(select => {
+        const serviceId = select.closest('.preInspection').querySelector('input[name="service_id"]').value;
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption) {
+            const imageUrl = selectedOption.getAttribute('data-image');
+            if (imageUrl) {
+                document.getElementById('providerImage_' + serviceId).src = imageUrl;
+            }
+        }
+    });
+});
+
+function submitForm(form) {
+    // Get selected service provider ID from the select element
+    const providerSelect = form.closest('.preInspection').querySelector('select[name="service_provider"]');
+    form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
+}
+</script>
+
+<style>
+.zoom-on-hover {
+  transition: transform 0.3s ease;
+}
+
+.zoom-on-hover:hover {
+  transform: scale(1.1);
+}
+
+/* Fixed image container styling */
+.image-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  padding: 0 20px 0 10px;
+  box-sizing: border-box;
+}
+
+.property-image-container {
+  width: 170px;
+  height: 170px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.property-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.preInspection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px 8px 0 0;
+}
+
+.preInspection {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.input-group1 {
+  display: flex;
+  padding: 15px;
+  gap: 0; /* Removed gap to have better control of spacing */
+}
+
+.input-group2 {
+  flex: 1;
+  padding-right: 10px;
+}
+
+/* Button styles remain unchanged */
+.accept-btn {
+  max-width: 200px;
+  min-width: 150px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: var(--white-color);
+  font-size: 16px;
+  font-weight: 500;
+  border: 2px solid #1e7e34;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.accept-btn:hover {
+  background-color: #218838;
+}
+
+.decline-btn {
+  max-width: 200px;
+  min-width: 150px;
+  padding: 10px 20px;
+  background-color: #D22B2B;
+  color: var(--white-color);
+  font-size: 16px;
+  font-weight: 500;
+  border: 2px solid #c82333;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.decline-btn:hover {
+  background-color: #bd2130;
+}
+</style>
+
+<?php require_once 'agentFooter.view.php'; ?>

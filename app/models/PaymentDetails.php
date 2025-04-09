@@ -11,7 +11,7 @@ class PaymentDetails
         'account_no',
         'bank',//10
         'branch',//20
-        'pid'
+        'pid'// foreign key
     ];
 
     public $errors = [];

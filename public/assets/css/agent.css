@@ -762,4 +762,19 @@ th.sortable:hover img {
 .inventory-table tbody tr:hover {
     background-color: #eff0f5;
     cursor: pointer;
+
+#loading-spinner {
+    display: none;
+    text-align: center;
+    font-size: 16px;
 }
+
+#loading-spinner::after {
+    content: '...';
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }

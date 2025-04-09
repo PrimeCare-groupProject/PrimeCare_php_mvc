@@ -6,6 +6,25 @@
 
 <div class="dashboard">
     <div class="top-section">
+        <div class="card_pic my_property">
+            <img src="<?= ROOT ?>/assets/images/my_properties.jpg" alt="">
+            <h3 class="card_pic_h3">Rented Properties</h3>
+        </div>
+        <div class="card_pic add_property" onclick="location.href='<?= ROOT ?>/dashboard/propertyListing/addproperty'">
+            <img src="<?= ROOT ?>/assets/images/my_property.jpg" alt="">
+            <h3 class="card_pic_h3">Add Property</h3>
+        </div>
+        <div class="card_pic request_service">
+            <img src="<?= ROOT ?>/assets/images/services.jpg" alt="">
+            <h3 class="card_pic_h3">Request Service</h3>
+        </div>
+        <!-- <div class="card_pic total-expense">
+            <img src="<?= ROOT ?>/assets/images/my_property.jpg" alt="">
+            <h3 class="card_pic_h3">Add Property</h3>
+        </div> -->
+    </div>
+
+    <div class="top-section">
         <div class="card total-property">
             <h3>Total Property</h3>
             <span>45</span>
@@ -88,57 +107,57 @@
     </div>
 
     <div class="RS__reviews-container">
-    <div class="RS__stats-container">
-        <div class="RS__stat-box">
-            <div class="RS__total-number">10</div>
-            <div class="RS__stat-label">Reviews on this year</div>
-        </div>
+        <div class="RS__stats-container">
+            <div class="RS__stat-box">
+                <div class="RS__total-number">10</div>
+                <div class="RS__stat-label">Reviews on this year</div>
+            </div>
 
-        <div class="RS__stat-box">
-            <div class="RS__total-number">4.0</div>
-            <div class="RS__rating-stars">★★★★☆</div>
-            <div class="RS__stat-label">Average rating on this year</div>
-        </div>
+            <div class="RS__stat-box">
+                <div class="RS__total-number">4.0</div>
+                <div class="RS__rating-stars">★★★★☆</div>
+                <div class="RS__stat-label">Average rating on this year</div>
+            </div>
 
-        <div class="RS__stat-box">
-            <div class="RS__rating-distribution">
-                <span>5</span>
-                <div class="RS__rating-bar">
-                    <div class="RS__rating-bar-fill" style="width: 80%"></div>
+            <div class="RS__stat-box">
+                <div class="RS__rating-distribution">
+                    <span>5</span>
+                    <div class="RS__rating-bar">
+                        <div class="RS__rating-bar-fill" style="width: 80%"></div>
+                    </div>
+                    <span class="RS__rating-count">2.0k</span>
                 </div>
-                <span class="RS__rating-count">2.0k</span>
-            </div>
-            <div class="RS__rating-distribution">
-                <span>4</span>
-                <div class="RS__rating-bar">
-                    <div class="RS__rating-bar-fill" style="width: 60%"></div>
+                <div class="RS__rating-distribution">
+                    <span>4</span>
+                    <div class="RS__rating-bar">
+                        <div class="RS__rating-bar-fill" style="width: 60%"></div>
+                    </div>
+                    <span class="RS__rating-count">2.0k</span>
                 </div>
-                <span class="RS__rating-count">2.0k</span>
-            </div>
-            <div class="RS__rating-distribution">
-                <span>3</span>
-                <div class="RS__rating-bar">
-                    <div class="RS__rating-bar-fill" style="width: 50%"></div>
+                <div class="RS__rating-distribution">
+                    <span>3</span>
+                    <div class="RS__rating-bar">
+                        <div class="RS__rating-bar-fill" style="width: 50%"></div>
+                    </div>
+                    <span class="RS__rating-count">2.0k</span>
                 </div>
-                <span class="RS__rating-count">2.0k</span>
-            </div>
-            <div class="RS__rating-distribution">
-                <span>2</span>
-                <div class="RS__rating-bar">
-                    <div class="RS__rating-bar-fill" style="width: 40%"></div>
+                <div class="RS__rating-distribution">
+                    <span>2</span>
+                    <div class="RS__rating-bar">
+                        <div class="RS__rating-bar-fill" style="width: 40%"></div>
+                    </div>
+                    <span class="RS__rating-count">2.0k</span>
                 </div>
-                <span class="RS__rating-count">2.0k</span>
-            </div>
-            <div class="RS__rating-distribution">
-                <span>1</span>
-                <div class="RS__rating-bar">
-                    <div class="RS__rating-bar-fill" style="width: 20%"></div>
+                <div class="RS__rating-distribution">
+                    <span>1</span>
+                    <div class="RS__rating-bar">
+                        <div class="RS__rating-bar-fill" style="width: 20%"></div>
+                    </div>
+                    <span class="RS__rating-count">2.0k</span>
                 </div>
-                <span class="RS__rating-count">2.0k</span>
+                <!-- Repeat for other ratings -->
             </div>
-            <!-- Repeat for other ratings -->
         </div>
-    </div>
     </div>
 </div>
 <?php require_once 'ownerFooter.view.php'; ?>

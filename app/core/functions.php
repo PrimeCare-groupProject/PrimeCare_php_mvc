@@ -326,7 +326,7 @@ function upload_image(
 ): array {
     $errors = [];
     $defaults = [
-        'allowed_ext' => ['jpg', 'jpeg', 'png' , 'pdf' , 'docx', 'doc' , 'txt'],
+        'allowed_ext' => ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc', 'txt'],
         'prefix' => 'file',
         'url_field' => 'image_url',
         'fk_field' => 'property_id',
@@ -404,7 +404,7 @@ function upload_image(
             error_log("Failed to save the file: " . esc($filename));
         }
     }
-    
+
     return $errors;
 }
 
@@ -418,3 +418,36 @@ function format_bytes($bytes, $precision = 2): string
     $bytes /= (1 << (10 * $pow));
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
+
+
+function compareSetsItems($currentData, $key = [])
+{
+    if (empty($currentData) || empty($key)) {
+        return '';
+    } else {
+        $currentData = explode(',', $currentData);
+        if (in_array($key, $currentData)) {
+            return 'checked_blue';
+        } else {
+            return '';
+        }
+    }
+}
+
+function checkboxesStates($currentData, $newData, $key)
+{
+    if (in_array($key, $currentData) && in_array($key, $newData)) {
+        return 'checked';
+    } elseif (in_array($key, $currentData) && !in_array($key, $newData)) {
+        return 'checked class="checked_red"';
+    } elseif (!in_array($key, $currentData) && in_array($key, $newData)) {
+        return 'checked class="checked_blue"';
+    } else {
+        return '';
+    }
+}
+
+
+// require '../app/libraries/PHPMailer/send.php'; //send email
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'send.php';
+include_once SENDMAIL_PATH ;

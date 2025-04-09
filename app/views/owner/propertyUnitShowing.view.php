@@ -10,8 +10,19 @@
                 <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>
             </div>
         </div>
-        <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>'">Request Repair</button>
         <div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/engineering.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>'">
+                <span class="tooltip-text">Get Service</span>
+            </div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/house-owner.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
+                <span class="tooltip-text">Tenants</span>
+            </div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/rating.png" alt="Print" class="small-icons align-to-right color_purple" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/review/<?= $property->property_id ?>'">
+                <span class="tooltip-text">Reviews</span>
+            </div>
             <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Financial Report</span>
@@ -177,7 +188,7 @@
                 <td class="PL__table_data"><?= $property->purpose ?></td>
             </tr>
 
-            <?php if($property->purpose == 'Rent'){ ?>
+            <?php if ($property->purpose == 'Rent') { ?>
                 <tr>
                     <td>Year Built:</td>
                     <td class="PL__table_data"><?= $property->year_built ?></td>
@@ -194,7 +205,7 @@
 
         </table>
 
-        <?php if($property->purpose == 'Rent'){ ?>
+        <?php if ($property->purpose == 'Rent') { ?>
 
             <h2>Overview</h2>
             <div class="overview overview-more-width">
@@ -262,7 +273,7 @@
                 }
                 echo "</div>";
             }
-        } 
+        }
 
         ?>
 
@@ -389,7 +400,7 @@
         }
         ?>
 
-
+        <!-- 
         <?php
         if ($property->purpose == 'Rent') {
             echo "<div class='agreement'>
@@ -402,56 +413,56 @@
         ?>
 
 
-        <?php if($property->purpose == 'Rent') { ?>
+        <?php if ($property->purpose == 'Rent') { ?>
 
-        <h2>Reviews</h2>
-        <div class="review101">
-            <div class="reviews-section">
-                <div class="review">
-                    <div class="review-header">
-                        <div class="user-info">
-                            <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/673051d1f4182__nimna@gmail.com.jpg" alt="User Image" class="user-img" />
-                            <div>
-                                <h3 class="user-name">Alexander Rity</h3>
-                                <p class="review-date">4 months ago</p>
+            <h2>Reviews</h2>
+            <div class="review101">
+                <div class="reviews-section">
+                    <div class="review">
+                        <div class="review-header">
+                            <div class="user-info">
+                                <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/673051d1f4182__nimna@gmail.com.jpg" alt="User Image" class="user-img" />
+                                <div>
+                                    <h3 class="user-name">Alexander Rity</h3>
+                                    <p class="review-date">4 months ago</p>
+                                </div>
+                            </div>
+                            <div class="rating">
+                                <span class="rating-score">5.0</span>
+                                <span class="stars">★★★★★</span>
                             </div>
                         </div>
-                        <div class="rating">
-                            <span class="rating-score">5.0</span>
-                            <span class="stars">★★★★★</span>
-                        </div>
+                        <p class="review-text">
+                            Easy booking, great value! Cozy rooms at a reasonable price in Sheffield's vibrant center.
+                            Surprisingly quiet with nearby Traveller’s accommodations. Highly recommended!
+                        </p>
                     </div>
-                    <p class="review-text">
-                        Easy booking, great value! Cozy rooms at a reasonable price in Sheffield's vibrant center.
-                        Surprisingly quiet with nearby Traveller’s accommodations. Highly recommended!
-                    </p>
-                </div>
 
-                <div class="review">
-                    <div class="review-header">
-                        <div class="user-info">
-                            <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/673051d1f4182__nimna@gmail.com.jpg" alt="User Image" class="user-img" />
-                            <div>
-                                <h3 class="user-name">Emma Creight</h3>
-                                <p class="review-date">4 months ago</p>
+                    <div class="review">
+                        <div class="review-header">
+                            <div class="user-info">
+                                <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/673051d1f4182__nimna@gmail.com.jpg" alt="User Image" class="user-img" />
+                                <div>
+                                    <h3 class="user-name">Emma Creight</h3>
+                                    <p class="review-date">4 months ago</p>
+                                </div>
+                            </div>
+                            <div class="rating">
+                                <span class="rating-score">4.0</span>
+                                <span class="stars">★★★★☆</span>
                             </div>
                         </div>
-                        <div class="rating">
-                            <span class="rating-score">4.0</span>
-                            <span class="stars">★★★★☆</span>
-                        </div>
+                        <p class="review-text">
+                            Effortless booking, unbeatable affordability! Small yet comfortable rooms in the heart of
+                            Sheffield's nightlife hub. Surrounded by elegant housing, it's a peaceful gem. Thumbs up!
+                        </p>
                     </div>
-                    <p class="review-text">
-                        Effortless booking, unbeatable affordability! Small yet comfortable rooms in the heart of
-                        Sheffield's nightlife hub. Surrounded by elegant housing, it's a peaceful gem. Thumbs up!
-                    </p>
+                    <a href="#" class="read-more">Read all reviews</a>
                 </div>
-                <a href="#" class="read-more">Read all reviews</a>
+
             </div>
 
-        </div>
-
-        <?php } ?>
+        <?php } ?> -->
 
 
     </div>
