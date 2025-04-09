@@ -17,8 +17,7 @@
                         $statusTextColor = '#fff';
                         $statusIcon = 'fa-hourglass-half';
                         break;
-                    case 'in-progress':
-                    case 'in progress':
+                    case 'ongoing':
                         $statusGradient = 'linear-gradient(135deg, #29B6F6 0%, #0288D1 100%)';
                         $statusTextColor = '#fff';
                         $statusIcon = 'fa-spinner fa-spin';
@@ -28,7 +27,7 @@
                         $statusTextColor = '#fff';
                         $statusIcon = 'fa-check-circle';
                         break;
-                    case 'cancelled':
+                    case 'rejected':
                         $statusGradient = 'linear-gradient(135deg, #EF5350 0%, #D32F2F 100%)';
                         $statusTextColor = '#fff';
                         $statusIcon = 'fa-times-circle';
@@ -105,7 +104,7 @@
             <!-- Payment Button -->
             <?php if (strtolower($serviceLog->status ?? '') === 'done'): ?>
             <div style="margin-top: 15px; display: flex; justify-content: flex-end; padding-top: 15px; border-top: 1px solid #eee;">
-                <a href="<?= ROOT ?>dashboard/payment/<?= $serviceLog->service_id ?>" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); color: white; padding: 12px 25px; border-radius: 30px; text-decoration: none; transition: all 0.2s; font-weight: 600; box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);" onmouseover="this.style.backgroundColor='#218838'; this.style.color='white'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 8px rgba(40, 167, 69, 0.3)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 6px rgba(40, 167, 69, 0.2)';">
+                <a href="<?= ROOT ?>/dashboard/payment/<?= $serviceLog->service_id ?>" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); color: white; padding: 12px 25px; border-radius: 30px; text-decoration: none; transition: all 0.2s; font-weight: 600; box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);" onmouseover="this.style.backgroundColor='#218838'; this.style.color='white'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 8px rgba(40, 167, 69, 0.3)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 6px rgba(40, 167, 69, 0.2)';">
                     Proceed to Payment <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
                 </a>
             </div>

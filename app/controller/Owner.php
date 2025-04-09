@@ -1016,59 +1016,9 @@ class Owner
 
     public function payment($serviceId = '')
     {
+        // Check if service ID is provided
         if (empty($serviceId)) {
-            redirect('dashboard/maintenance');
-            return;
-        }
-
-        // Get service log details
-        $serviceLog = new ServiceLog();
-        $serviceDetails = $serviceLog->first(['service_id' => $serviceId]);
-        
-        if (!$serviceDetails) {
-            $_SESSION['errors'] = ['Service not found'];
-            redirect('dashboard/maintenance');
-            return;
-        }
-        
-        // Check if the service belongs to the current user's property
-        $ownerId = $_SESSION['user']->pid;
-        
-        // Check if the service is in "done" status
-        if (strtolower($serviceDetails->status) !== 'done') {
-            $_SESSION['errors'] = ['Payment can only be processed for completed services'];
-            redirect('dashboard/maintenance');
-            return;
-        }
-        
-        $this->view('owner/payment', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? '',
-            'serviceLog' => $serviceDetails
-        ]);
-        
-        // Clear session messages after displaying
-        unset($_SESSION['errors']);
-        unset($_SESSION['status']);
-    }
-
-    public function processPayment()
-    {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            redirect('dashboard/maintenance');
-            return;
-        }
-        
-        // Get POST data
-        $serviceId = $_POST['service_id'] ?? '';
-        $amount = $_POST['amount'] ?? 0;
-        $paymentMethod = $_POST['payment_method'] ?? '';
-        
-        // Basic validation
-        if (empty($serviceId) || empty($paymentMethod) || $amount <= 0) {
-            $_SESSION['errors'] = ['Invalid payment details'];
-            redirect('dashboard/payment/' . $serviceId);
+            redirect('/dashboard/maintenance');
             return;
         }
         
@@ -1077,40 +1027,18 @@ class Owner
         $serviceDetails = $serviceLog->first(['service_id' => $serviceId]);
         
         if (!$serviceDetails) {
-            $_SESSION['errors'] = ['Service not found'];
-            redirect('dashboard/maintenance');
+            $_SESSION['flash']['msg'] = "Service not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('/dashboard/maintenance');
             return;
         }
         
-        // In a real application, you would process the payment here
-        // For this example, we'll just mark the service as paid
-        
-        // Update service status to "paid"
-        $updated = $serviceLog->update($serviceId, [
-            'status' => 'Paid',
-            'payment_date' => date('Y-m-d H:i:s'),
-            'payment_method' => $paymentMethod
-        ], 'service_id');
-        
-        if ($updated) {
-            // Record the payment in a payments table
-            $payment = new Payment(); // You would need to create this model
-            $paymentData = [
-                'service_id' => $serviceId,
-                'amount' => $amount,
-                'payment_method' => $paymentMethod,
-                'payment_date' => date('Y-m-d H:i:s'),
-                'status' => 'Completed',
-                'user_id' => $_SESSION['user']->pid
-            ];
-            
-            $payment->insert($paymentData);
-            
-            $_SESSION['status'] = 'Payment processed successfully!';
-            redirect('dashboard/maintenance');
-        } else {
-            $_SESSION['errors'] = ['Failed to process payment. Please try again.'];
-            redirect('dashboard/payment/' . $serviceId);
-        }
+        // Pass the service details to the payment view
+        $this->view('owner/payment', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLog' => $serviceDetails
+        ]);
     }
 }
