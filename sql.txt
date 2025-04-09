@@ -247,3 +247,24 @@ CREATE TABLE agent_property (
     FOREIGN KEY (agent_id) REFERENCES person(pid),
     FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
 );
+
+CREATE TABLE pre_inspection (
+    pre_inspection_id INT AUTO_INCREMENT PRIMARY KEY,
+    agent_id INT NOT NULL,
+    property_id INT NOT NULL,
+    provided_details ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    title_deed ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    utility_bills ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    owner_id_copy ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    lease_agreement ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    property_condition ('Good' , 'Average' , 'Poor' , 'Not_Checked') DEFAULT 'Not_Checked',
+    Maintenance_issues TEXT,
+    owner_present ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    notes TEXT,
+    recommendation ENUM('Approved' , 'Requires_Fixes' , 'Rejected' , 'Not_Checked') DEFAULT 'Not_Checked',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (agent_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
+);
