@@ -44,10 +44,28 @@ class Owner
 
     public function maintenance()
     {
+        // Get the current user's ID
+        $ownerId = $_SESSION['user']->pid;
+        
+        // Instantiate the ServiceLog model
+        $serviceLog = new ServiceLog();
+        
+        // Get all service logs for properties owned by the current user
+        // This assumes property_id in ServiceLog can be linked to properties owned by this user
+        $serviceLogs = $serviceLog->findAll();
+        
+        // Calculate total expenses
+        $totalExpenses = 0;
+        foreach ($serviceLogs as $log) {
+            $totalExpenses += ($log->cost_per_hour * $log->total_hours);
+        }
+        
         $this->view('owner/maintenance', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLogs' => $serviceLogs,
+            'totalExpenses' => $totalExpenses
         ]);
     }
 
@@ -1115,5 +1133,33 @@ class Owner
         }
         // Redirect to the property listing page
         redirect('property/propertyListing');
+    }
+
+    public function payment($serviceId = '')
+    {
+        // Check if service ID is provided
+        if (empty($serviceId)) {
+            redirect('/dashboard/maintenance');
+            return;
+        }
+        
+        // Get service details
+        $serviceLog = new ServiceLog();
+        $serviceDetails = $serviceLog->first(['service_id' => $serviceId]);
+        
+        if (!$serviceDetails) {
+            $_SESSION['flash']['msg'] = "Service not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('/dashboard/maintenance');
+            return;
+        }
+        
+        // Pass the service details to the payment view
+        $this->view('owner/payment', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLog' => $serviceDetails
+        ]);
     }
 }
