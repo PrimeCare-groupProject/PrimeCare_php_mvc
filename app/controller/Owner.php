@@ -1217,4 +1217,84 @@ class Owner
             'serviceLog' => $serviceDetails
         ]);
     }
+
+    public function trackOrder($propertyId)
+    {
+        // Get property details
+        $property = new PropertyConcat;
+        $propertyDetails = $property->where(['property_id' => $propertyId])[0];
+        
+        // Get service logs for this property
+        $serviceLog = new ServiceLog();
+        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        
+        // Apply status filtering
+        if (!empty($_GET['status_filter'])) {
+            $status = $_GET['status_filter'];
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                if (strtolower($log->status) == strtolower($status)) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+
+        // Apply date range filtering
+        if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
+            $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
+            $dateTo = !empty($_GET['date_to']) ? strtotime($_GET['date_to'] . ' 23:59:59') : null;
+            
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                $logDate = strtotime($log->date);
+                
+                // Check if the log date is within the specified range
+                $includeLog = true;
+                if ($dateFrom && $logDate < $dateFrom) $includeLog = false;
+                if ($dateTo && $logDate > $dateTo) $includeLog = false;
+                
+                if ($includeLog) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+        
+        // Apply sorting
+        if (!empty($_GET['sort'])) {
+            $sort = $_GET['sort'];
+            
+            usort($serviceLogs, function($a, $b) use ($sort) {
+                switch ($sort) {
+                    case 'date_asc':
+                        return strtotime($a->date) - strtotime($b->date);
+                    case 'date_desc':
+                        return strtotime($b->date) - strtotime($a->date);
+                    default:
+                        return strtotime($b->date) - strtotime($a->date); // Default: newest first
+                }
+            });
+        }
+        
+        // Calculate total cost and pending count
+        $totalCost = 0;
+        $pendingCount = 0;
+        foreach ($serviceLogs as $log) {
+            $totalCost += ($log->cost_per_hour * $log->total_hours);
+            if (strtolower($log->status) == 'pending' || strtolower($log->status) == 'in progress') {
+                $pendingCount++;
+            }
+        }
+        
+        $this->view('owner/trackOrder', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'property' => $propertyDetails,
+            'serviceLogs' => $serviceLogs,
+            'totalCost' => $totalCost,
+            'pendingCount' => $pendingCount
+        ]);
+    }
 }
