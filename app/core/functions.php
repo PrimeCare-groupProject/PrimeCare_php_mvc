@@ -451,3 +451,34 @@ function checkboxesStates($currentData, $newData, $key)
 // require '../app/libraries/PHPMailer/send.php'; //send email
 require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'send.php';
 include_once SENDMAIL_PATH ;
+
+
+function covertTimeToReadableForm($time) {
+    $time_ago = strtotime($time);
+    $current_time = time();
+    $time_difference = $current_time - $time_ago;
+
+    $seconds = $time_difference;
+    $minutes = round($seconds / 60);
+    $hours = round($seconds / 3600);
+    $days = round($seconds / 86400);
+    $weeks = round($seconds / 604800);
+    $months = round($seconds / 2592000); // approx. 30 days
+    $years = round($seconds / 31536000); // 365 days
+
+    if ($seconds <= 60) {
+        return 'just now';
+    } elseif ($minutes <= 60) {
+        return $minutes == 1 ? 'one minute ago' : "$minutes minutes ago";
+    } elseif ($hours <= 24) {
+        return $hours == 1 ? 'one hour ago' : "$hours hours ago";
+    } elseif ($days <= 7) {
+        return $days == 1 ? 'one day ago' : "$days days ago";
+    } elseif ($days <= 30) {
+        return "$days days ago";
+    } elseif ($months <= 12) {
+        return $months == 1 ? 'one month ago' : "$months months ago";
+    } else {
+        return $years == 1 ? 'one year ago' : "$years years ago";
+    }
+}

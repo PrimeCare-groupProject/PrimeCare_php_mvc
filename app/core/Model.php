@@ -325,4 +325,11 @@ trait Model{//similar to a class but can be inherited by other classes
         }
         return $this->instance->query($query);
     }
+
+    public function setReadNotification($user_id) {
+        $query = "UPDATE $this->table SET is_read = 1 WHERE user_id = :user_id";
+        $parameters = ['user_id' => $user_id]; // properly structured array
+        return $this->instance->query($query, $parameters);
+    }
+    
 }
