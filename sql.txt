@@ -268,3 +268,57 @@ CREATE TABLE pre_inspection (
     FOREIGN KEY (agent_id) REFERENCES person(pid),
     FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
 );
+
+CREATE TABLE rental_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    person_id INT NOT NULL,
+    property_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    rental_period_start DATE,
+    rental_period_end DATE,
+    transaction_id VARCHAR(255), 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (person_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
+);
+
+CREATE TABLE share_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    person_id INT NOT NULL,
+    property_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    rental_period_start DATE,
+    rental_period_end DATE,
+    transaction_id VARCHAR(255), 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (person_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
+);
+
+CREATE TABLE service_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    service_id INT NOT NULL,
+    service_provider_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    invoice_number VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (service_provider_id) REFERENCES person(pid),
+    FOREIGN KEY (service_id) REFERENCES serviceLog(service_id)
+);
+
+CREATE TABLE salary_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    salary_amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    paid_month VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (employee_id) REFERENCES person(pid)
+);
