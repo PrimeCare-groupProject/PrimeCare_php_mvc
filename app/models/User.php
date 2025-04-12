@@ -6,6 +6,7 @@ class User {
     protected $table = 'person';
     protected $order_column = "pid";
     protected $allowedColumns = [
+        'pid',
         'fname',
         'lname',
         'username',
@@ -106,17 +107,50 @@ class User {
         return empty($this->errors);
     }
 
-    public function findByMultiplePids(array $pids) {
+    // public function findByMultiplePids(array $pids) {
+    //     if (empty($pids)) {
+    //         return [];
+    //     }
+
+    //     $placeholders = implode(',', array_fill(0, count($pids), '?'));
+    //     $query = "SELECT * FROM {$this->table} WHERE {$this->order_column} IN ($placeholders)";
+        
+    //     return $this->instance->query($query, $pids);
+    // }
+
+    public function findByMultiplePids(array $pids, array $data = []) {
         if (empty($pids)) {
             return [];
         }
-
-        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+    
+        // Build named parameters for the IN clause
+        $inParams = [];
+        foreach ($pids as $i => $pid) {
+            $paramName = ":pid_" . $i;
+            $inParams[$paramName] = $pid;
+        }
+        $placeholders = implode(',', array_keys($inParams));
+    
+        // Build AND conditions (named parameters)
+        $andConditions = [];
+        $parameters = [];
+        foreach ($data as $key => $value) {
+            $paramName = ":" . $key;
+            $andConditions[] = "$key = $paramName";
+            $parameters[$paramName] = $value;
+        }
+    
+        // Construct the query
         $query = "SELECT * FROM {$this->table} WHERE {$this->order_column} IN ($placeholders)";
-        
-        return $this->instance->query($query, $pids);
+        if (!empty($andConditions)) {
+            $query .= " AND " . implode(' AND ', $andConditions);
+        }
+    
+        // Merge all parameters (IN + AND conditions)
+        $params = array_merge($inParams, $parameters);
+    
+        return $this->instance->query($query, $params);
     }
-
     // public function findAll(){//search rows depending on the data passed
     //     $columnsString = "" . implode(", ", $this->allowedColumns) . "";
     //     $columnsString = rtrim($columnsString, ", ");

@@ -1,6 +1,6 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
-<style>
+<!-- <style>
     .UR__container {
         display: flex;
         gap: 30px;
@@ -52,14 +52,14 @@
         opacity: 1;
         visibility: visible;
     }
-</style>
+</style> -->
 
 <div class="user_view-menu-bar">
     <div class="gap"></div>
-    <h2>Manage Providers</h2>
+    <h2>Management</h2>
 </div>
-<div style="padding-top: 20px;" class="UR__container">
-    <div class="UR__side_containers">
+<!-- <div style="padding-top: 20px;" class="UR__container"> -->
+    <!-- <div class="UR__side_containers">
         <a href="<?= ROOT ?>/dashboard/manageProviders/serviceproviders">
             <div class="UR__image_container">
                 <img src="<?= ROOT ?>/assets/images/empmanage.jpg" alt="Owner">
@@ -71,9 +71,9 @@
             </div>
         </a>
         <div class="popup">Manage all service providers</div>
-    </div>
+    </div> -->
 
-    <div class="UR__side_containers">
+    <!-- <div class="UR__side_containers">
         <a href="<?= ROOT ?>/dashboard/manageProviders/payments">
             <div class="UR__image_container">
                 <img src="<?= ROOT ?>/assets/images/paymentManage.png" alt="Owner">
@@ -85,6 +85,45 @@
             </div>
         </a>
         <div class="popup">Manage all payments</div>
+    </div> -->
+<!-- </div> -->
+
+<div class="MM__cards_container">
+    <a href="<?= ROOT ?>/dashboard/manageProviders/serviceproviders">
+        <div class="MM__cards">
+            <div class="MM__text">
+                <h2>Service Providers</h2>
+            </div>
+            <div class="management-icon">
+                <img src="<?= ROOT ?>/assets/images/empmanage.jpg" alt="Owner" class="MM__img">
+            </div>
+        </div>
+    </a>
+
+    <a href="<?= ROOT ?>/dashboard/manageProviders/payments">
+        <div class="MM__cards">
+            <div class="MM__text">
+                <h2>Payment Management</h2>
+            </div>
+            <div class="management-icon">
+                <img src="<?= ROOT ?>/assets/images/paymentManage.png" alt="Owner" class="MM__img">
+            </div>
+        </div>
+    </a>
+
+    <a href="<?= ROOT ?>/dashboard/manageProviders/propertyowners">
+        <div class="MM__cards">
+            <div class="MM__text">
+                <h2>Property Owners</h2>
+            </div>
+            <div class="management-icon">
+                <img src="<?= ROOT ?>/assets/images/BookProperty.jpg" alt="Finance Management" class="MM__img">
+            </div>
+        </div>
+    </a>
+
+    <div class="loader-container" style="display: none;">
+        <div class="spinner-loader"></div>
     </div>
 </div>
 

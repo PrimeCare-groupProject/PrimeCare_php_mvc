@@ -729,7 +729,7 @@ class Manager {
                         if ($action === 'approve') {
                             // Handle approval logic
                             $newDetails = $userDetail->first(['pid' => $pid]);
-                            show($newDetails);
+                            // show($newDetails);
                             if($newDetails) {
                                 $oldUserDetails = $user->first(['pid' => $pid]);
                                 // Update database
@@ -797,43 +797,43 @@ class Manager {
 
             $totalPages = ceil($countWithTerms / $limit);
             $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
-            $offset = ($currentPage - 1) * $limit; // Corrected offset calculation
+            $offset = ($currentPage - 1) * $limit;
 
             $newUser->setOffset($offset);
             $new = $newUser->where([], [], $searchterm);
 
             $pids = [];
             $old = [];
+            
             if (!empty($new)) {
                 $pids = array_map(function($user) {
                     return $user->pid;
                 }, $new);
 
-                $old = $user->findByMultiplePids($pids);
+                $old = $user->findByMultiplePids($pids, ['user_lvl' => 3]);
 
-                // Reorder $old to match the order of $new
-                $old = array_reduce($old, function($carry, $oldUser) use ($pids) {
-                    $carry[array_search($oldUser->pid, $pids)] = $oldUser;
-                    return $carry;
-                }, []);
-                ksort($old);
+                if(!empty($old)) {
+                    $old = array_reduce($old, function($carry, $oldUser) use ($pids) {
+                        $carry[array_search($oldUser->pid, $pids)] = $oldUser;
+                        return $carry;
+                    }, []);
+                    ksort($old);
 
-                foreach ($old as $oldUser) {
-                    unset($oldUser->password);
-                    unset($oldUser->nic);
-                    unset($oldUser->user_lvl);
-                    unset($oldUser->username);
-                    unset($oldUser->created_date);
-                    unset($oldUser->reset_code);
-                    unset($oldUser->AccountStatus);
-                }
-                // show($old);
-                // show($new);
-                // die;
+                    foreach ($old as $oldUser) {
+                        unset($oldUser->password);
+                        unset($oldUser->nic);
+                        unset($oldUser->user_lvl);
+                        unset($oldUser->username);
+                        unset($oldUser->created_date);
+                        unset($oldUser->reset_code);
+                        unset($oldUser->AccountStatus);
+                    }
+                } 
             }
+
             $pagination = new Pagination($currentPage, $totalPages, 2);
             $paginationLinks = $pagination->generateLinks();
-
+            
             $this->view('manager/agentManagement', [
                 'paginationLinks' => $paginationLinks,
                 'new' => $new ?? [],

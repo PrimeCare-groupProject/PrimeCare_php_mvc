@@ -31,25 +31,43 @@ class Database{
     }
     
     public function query($query, $data = []){
-        $con = $this->getConnection();
-        $stm = $con->prepare($query);
-        $check = $stm->execute($data);
-        
-        // For INSERT, UPDATE, DELETE queries, return the boolean execution rerult
-        if ((stripos($query, 'select') === false) and (stripos($query, 'SHOW') === false) ) {
-            return $check;  // Return true if executed successfully, false otherwise
-        }
-    
-        // For SELECT queries, fetch the result
-        if ($check) {
-            $result = $stm->fetchAll(PDO::FETCH_OBJ);
-            if (is_array($result) && count($result)) {
-                return $result;
+        try {
+            $con = $this->getConnection();
+            $stm = $con->prepare($query);
+            // show($stm);
+            // show($data);
+            // die();
+            $check = $stm->execute($data);
+            // var_dump($check);
+            // die();
+            
+            // For INSERT, UPDATE, DELETE queries, return the boolean execution result
+            if ((stripos($query, 'select') === false) and (stripos($query, 'SHOW') === false) ) {
+                return $check;  // Return true if executed successfully, false otherwise
             }
+        
+            // For SELECT queries, fetch the result
+            if ($check) {
+                $result = $stm->fetchAll(PDO::FETCH_OBJ);
+                if (is_array($result) && count($result)) {
+                    return $result;
+                }
+            }
+        
+            return false;  // No results or query failed
+        } catch (PDOException $e) {
+            // Handle database exceptions
+            show($stm);
+            show($data);
+            echo "Database error: " . $e->getMessage();
+            die();
+            return false;
+        } catch (Exception $e) {
+            // Handle general exceptions
+            echo "Error: " . $e->getMessage();
+            die();
+            return false;
         }
-    
-    
-        return false;  // No results or query failed
     }
     
 

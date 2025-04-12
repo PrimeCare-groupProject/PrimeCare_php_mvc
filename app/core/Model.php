@@ -135,7 +135,6 @@ trait Model{//similar to a class but can be inherited by other classes
         // Execute the query
         $query .= " ORDER BY $this->order_column $this->order_type LIMIT $this->limit OFFSET $this->offset";
         $result = $this->instance->query($query, $parameters);
-    
         if ($result) {
             return $result[0]->total;
         }
