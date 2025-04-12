@@ -1,10 +1,10 @@
 <?php require_once 'agentHeader.view.php'; $booking = $bookings[0];?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/bookings'>
+    <a href='<?= ROOT ?>/dashboard/bookings/history'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Bookings</h2>
+    <h2>Booking History Details</h2>
 </div>
 
 <form method="POST" action="<?= ROOT ?>/Booking/update" enctype="multipart/form-data">
@@ -14,8 +14,6 @@
             <img src="<?= ROOT ?>/assets/images/booking1.png" alt="Back" class="bookingimg">
 
             <input type="hidden" name="booking_id" value="<?=  $booking->booking_id ?>">
-
-            <input type="hidden" name="accepteddate" value="<?php echo date('Y-m-d'); ?>">
 
             <label class="input-label">Property Name</label>
             <input type="text" name="propertyname" value="<?=  $booking->name ?>" class="input-field" readonly>
@@ -32,12 +30,12 @@
             <label class="input-label">Address</label>
             <input type="text" name="address" value="<?= $booking->address?>" class="input-field" readonly>
 
+            <label class="input-label">Customer Name</label>
+            <input type="text" name="customername" value="<?= $booking->fname?> <?= $booking->lname?>" class="input-field" readonly>
+
         </div>
 
         <div class="owner-addProp-form-right">
-
-            <label class="input-label">Customer Name</label>
-            <input type="text" name="customername" value="<?= $booking->fname?> <?= $booking->lname?>" class="input-field" readonly>
 
             <label class="input-label">Customer ID</label>
             <input type="text" name="customerId" value="<?= $booking->pid?>" class="input-field" readonly>
@@ -63,6 +61,12 @@
             <label class="input-label">Payment Status</label>
             <input type="email" name="Paymentstatus" value="<?= $booking->payment_status?>" class="input-field" readonly>
 
+            <label class="input-label">Confirmed Status</label>
+            <input type="email" name="AcceptStatus" value="<?= $booking->accept_status?>" class="input-field" readonly>
+
+            <label class="input-label">Confirmed Date</label>
+            <input type="email" name="Accepteddate" value="<?= $booking->accepted_date?>" class="input-field" readonly>
+
             <!--<label class="input-label">Upload Profile Image</label>
             <div class="owner-addProp-file-upload">
                 <input type="file" name="property_image[]" id="property_image" class="input-field" multiple required>
@@ -82,18 +86,7 @@
                     <button type="button" class="primary-btn" onclick="document.getElementById('property_image').click()">Choose File</button>
                 </div>
             </div>
-            -->
-            <div class="buttons-to-right">
-                <button type="submit" name="action" value="accept" class="primary-btn">Accept</button>
-                <button type="submit" name="action" value="reject" class="secondary-btn">Reject</button>
-            </div>
-
-            <?php if (isset($_SESSION['flash_message'])): ?>
-               <div class="flash-message">
-                    <?= $_SESSION['flash_message']; ?>
-                    <?php unset($_SESSION['flash_message']); ?> <!-- Clear the message after displaying -->
-               </div>
-            <?php endif; ?>
+            -->            
         </div>
     </div>
 </form>

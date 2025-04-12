@@ -92,4 +92,10 @@ class InventoryModel
         // Return true if no errors, otherwise false
         return empty($this->errors);
     }
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+        return null;
+    }
 }
