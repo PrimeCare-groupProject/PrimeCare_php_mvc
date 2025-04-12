@@ -280,4 +280,11 @@ class PropertyModelTemp
 
         return false; // No changes found
     }
+
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+        return null;
+    }
 }
