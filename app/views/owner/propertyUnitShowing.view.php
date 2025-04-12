@@ -10,7 +10,7 @@
                 <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>
             </div>
         </div>
-        <div>
+        <div class="right-content">
             <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/engineering.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>'">
                 <span class="tooltip-text">Get Service</span>
@@ -18,6 +18,11 @@
             <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/house-owner.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Tenants</span>
+            </div>
+            <!-- Add Track Maintenance button here -->
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/maintenance.png" alt="Track" class="small-icons align-to-right color_info" onclick="window.location.href='<?= ROOT ?>/dashboard/trackOrder/<?= $property->property_id ?>'">
+                <span class="tooltip-text">Track Maintenance</span>
             </div>
             <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/rating.png" alt="Print" class="small-icons align-to-right color_purple" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/review/<?= $property->property_id ?>'">
