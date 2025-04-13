@@ -482,3 +482,53 @@ function covertTimeToReadableForm($time) {
         return $years == 1 ? 'one year ago' : "$years years ago";
     }
 }
+
+
+/** Queue Data Structure for Notifications */
+function enqueueNotification($message, $title = 'Notification', $toWhom) {
+    if (isset($_SESSION['user'])) {
+        $notificationModel = new NotificationModel();
+        $notificationModel->setLimit(25);
+
+        $newNotificationId = $notificationModel->insert([
+            'title' => $title,
+            'message' => $message,
+            'user_id' => $toWhom,
+            'is_read' => 0,
+            'created_at' => date("Y-m-d H:i:s")
+        ]);
+
+        $notifications = $notificationModel->where(['user_id' => $toWhom]);
+        $queue = [];
+        foreach ($notifications as $notification) {
+            enqueue([
+                'notification_id' => $notification->notification_id,
+                'title' => $notification->title,
+                'message' => $notification->message,
+                'is_read' => $notification->is_read,
+                'created_at' => $notification->created_at
+            ], $queue);
+        }
+
+        //show($queue); 
+        $queue = array_reverse($queue); // Reverse the queue to maintain order
+
+        while (count($queue) > 10) {
+            $popped = dequeue($queue);
+            //show("Dequeued: " . $popped); 
+            $notificationModel->delete($popped , 'notification_id');
+        }
+    }
+}
+
+function enqueue($data, &$array) {
+    array_unshift($array, $data); // Add to front
+    show("Enqueued: " . $data['notification_id']); // Display the ID of the enqueued notification
+    return $array;
+}
+
+function dequeue(&$array) {
+    $popped = array_pop($array); // Remove from back
+    show('Dequeued: ' . $popped['notification_id']); // Display the ID of the dequeued notification
+    return $popped['notification_id']; // Return ID for deletion
+}
