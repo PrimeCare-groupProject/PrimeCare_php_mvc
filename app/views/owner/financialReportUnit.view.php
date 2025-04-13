@@ -18,12 +18,15 @@
     <div class="sidebar">
         <div class="menu-card">
             <p>Current User:</p>
-            <img src="<?= ROOT ?>/assets/images/<?= $_SESSION['user']->image_url ?? 'serPro1.png' ?>" alt="Owner">
+            <?php if ($user && isset($user->image_url) && !empty($user->image_url)): ?>
+                <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $user->image_url ?>" alt="Owner">
+            <?php else: ?>
+                <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Owner">
+            <?php endif; ?>
 
             <a href="<?= ROOT ?>/owner/profile" class="menu-item">
                 Profile
             </a>
-
         </div>
 
         <div class="savings-card">
@@ -36,7 +39,19 @@
                         <?php if($booking->accept_status === 'accepted'): ?>
                             <div class="tenant">
                                 <div class="tenant-avatar">
-                                    <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Tenant Avatar" />
+                                    <?php 
+                                    // Get tenant user data if available
+                                    $tenantUser = null;
+                                    if(isset($booking->tenant_id)) {
+                                        $tenantModel = new User();
+                                        $tenantUser = $tenantModel->where(['pid' => $booking->tenant_id])[0] ?? null;
+                                    }
+                                    ?>
+                                    <?php if ($tenantUser && isset($tenantUser->image_url) && !empty($tenantUser->image_url)): ?>
+                                        <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $tenantUser->image_url ?>" alt="Tenant Avatar" />
+                                    <?php else: ?>
+                                        <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Tenant Avatar" />
+                                    <?php endif; ?>
                                 </div>
                                 <div class="tenant-info">
                                     <div class="tenant-main">
