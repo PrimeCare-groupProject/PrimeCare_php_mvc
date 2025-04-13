@@ -43,4 +43,11 @@ class Services {
     public function searchByName($searchTerm) {
         return $this->query("SELECT * FROM $this->table WHERE name LIKE ?", ["%$searchTerm%"]);
     }
+
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+        return null;
+    }
 }

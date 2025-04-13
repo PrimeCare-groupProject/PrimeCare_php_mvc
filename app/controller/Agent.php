@@ -480,11 +480,11 @@ class Agent
                 break;
             default:
                 $service = new ServiceLog;
-                $services = new Services;
-                $condition = [
-                    'service_id' => 'services_id',      // `users.id` should match `posts.user_id`
-                ];
-                $tasks = $services->join($service, $condition);
+                $services = new Services;    
+                $tasks = $services->selecttwotables($service->table,
+                                                   'service_id', 
+                                                   'services_id',
+                                                   );
                 $this->view('agent/tasks', ['tasks' => $tasks]);
                 break;
         }
@@ -556,7 +556,7 @@ class Agent
             case 'showReport':
                 $this->showReport($property_id = $c);
                 return;
-            default:
+            default :   
                 $preinspection = new PropertyConcat;
                 $inspection = $preinspection->where(['status' => 'pending', 'agent_id' => $_SESSION['user']->pid]);
                 $this->view('agent/preInspection', ['preinspection' => $inspection]);
@@ -593,8 +593,13 @@ class Agent
             case 'newinventory':
                 $this->newinventory();
                 break;
+            case 'editinventory':
+                $this->editinventory($c);
+                break;
             default:
-                $this->view('agent/inventory');
+            $invent = new InventoryModel;
+            $inventories = $invent->findAll();
+            $this->view('agent/inventory',['inventories' => $inventories]); 
                 break;
         }
     }
@@ -602,6 +607,12 @@ class Agent
     public function newinventory()
     {
         $this->view('agent/newinventory');
+    }
+
+    public function editinventory($c){
+        $invent = new InventoryModel;
+        $inventory = $invent->where(['inventory_id' => $c])[0];
+        $this->view('agent/editinventory', ['inventory' => $inventory]);
     }
 
     public function manageBookings()
@@ -812,17 +823,98 @@ class Agent
     {
         switch ($b) {
             case 'bookingaccept':
-                $this->bookingAccept();
+                $this->bookingAccept($c);
+                break;
+            case 'history':
+                $this->bookinghistory($c,$d);
                 break;
             default:
-                $this->view('agent/booking');
+                $book = new BookingModel;
+                $property = new Property;
+                $bookings = $book->selecttwotables($property->table,
+                                                   'property_id', 
+                                                   'property_id',
+                                                   'accept_status',
+                                                   '\'pending\'');
+                /*echo "<pre>";
+        print_r($bookings);
+        echo "</pre>";*/
+                $this->view('agent/booking',['bookings'=> $bookings]);
                 break;
         }
     }
 
-    public function bookingAccept()
+    public function bookingAccept($c)
     {
-        $this->view('agent/bookingaccept');
+        $book = new BookingModel;
+        $property = new Property;
+        $person = new User; 
+        $pid = $book->where(['booking_id' => $c],)[0];
+        $bookings = $book->selecthreetables($property->table,
+                                            'property_id', 
+                                            'property_id', 
+                                            $person->table,
+                                            'customer_id', 
+                                            'pid',
+                                            'booking_id',
+                                            $c,
+                                            'AND',
+                                            'customer_id',
+                                            $pid->customer_id
+                                            );
+        $this->view('agent/bookingaccept',['bookings'=> $bookings]);
+        
+    }
+
+    public function bookinghistory($c,$d)
+    {
+        switch ($c) {
+            case 'showhistory':
+                $this->showhistory($d);
+                break;
+            default:
+            $book = new BookingModel;
+            /*echo "<pre>";
+        print_r($book);
+        echo "</pre>";*/
+            $property = new Property;
+            $person = new User;
+            $bookings = $book->selecthreetables($property->table,
+                                                'property_id', 
+                                                'property_id', 
+                                                $person->table,
+                                                'customer_id', 
+                                                'pid',
+                                                'accept_status',
+                                                '\'accepted\'',
+                                                'OR',
+                                                'accept_status',
+                                                '\'rejected\''
+                                                );
+            $this->view('agent/bookinghistory',['bookings'=> $bookings]);
+        }
+    }
+
+    public function showhistory($d)
+    {
+        $book = new BookingModel;
+        $property = new Property;
+        $person = new User; 
+        $pid = $book->where(['booking_id' => $d],)[0];
+        $bookings = $book->selecthreetables($property->table,
+                                            'property_id', 
+                                            'property_id', 
+                                            $person->table,
+                                            'customer_id', 
+                                            'pid',
+                                            'booking_id',
+                                            $d,
+                                            'AND',
+                                            'customer_id',
+                                            $pid->customer_id
+                                            );
+        $this->view('agent/showhistory',['bookings'=> $bookings]);
+        
     }
 
     private function logout()

@@ -151,6 +151,14 @@ class User {
     
         return $this->instance->query($query, $params);
     }
+
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+        return null;
+    }
+
     // public function findAll(){//search rows depending on the data passed
     //     $columnsString = "" . implode(", ", $this->allowedColumns) . "";
     //     $columnsString = rtrim($columnsString, ", ");

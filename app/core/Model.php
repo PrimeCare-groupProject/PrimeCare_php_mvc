@@ -153,6 +153,7 @@ trait Model{//similar to a class but can be inherited by other classes
         if(!empty($keys) || !empty($keys_not) || strlen($searchTerm) > 0){
             $query .= "WHERE ";
         }
+        
         // Add conditions for the data array (exact match)
         if (!empty($keys)) {
             foreach ($keys as $key) {
@@ -160,7 +161,7 @@ trait Model{//similar to a class but can be inherited by other classes
                 $parameters[$key] = $data[$key];  // Bind the parameter value
             }
         }
-    
+        
         // Add conditions for the data_not array (not equal)
         if (!empty($keys_not)) {
             foreach ($keys_not as $key) {
@@ -168,7 +169,7 @@ trait Model{//similar to a class but can be inherited by other classes
                 $parameters[$key] = $data_not[$key];  // Bind the parameter value
             }
         }
-    
+        
         // If a search term is provided, add LIKE conditions for each column
         if (!empty($searchTerm)) {
             $searchQuery = $this->searchWithTerm($searchTerm); // Use the searchWithTerm function
@@ -286,24 +287,48 @@ trait Model{//similar to a class but can be inherited by other classes
         
         return $result !== false;
     }
-
-    public function join($joinTable, $joinCondition, $columns = "*", $joinType = "INNER", $order = null) {
-
-        $conditionArray = [];
-        foreach ($joinCondition as $column1 => $column2) {
-            $conditionArray[] = "$this->table.$column1 = $joinTable->table.$column2";
-        }
-        $query = "SELECT $columns FROM $this->table $joinType JOIN $joinTable->table ON ";
-        $query .= implode(' AND ', $conditionArray);
-        
-        
-        // Add an additional join for the $order table if provided
-        if ($order !== null) {
-            $query .= " $joinType JOIN {$order->table} ON {$order->joinCondition}";
-        }
     
-        $query .= " ORDER BY $this->table.$this->order_column $this->order_type";
+    // Add this to your BaseModel or one of your specific models
+    public function selecttwotables($otherModel, $thisColumn, $otherColumn,$filterColumn1 = null, $filterValue1 = null,$filterColumn2 = null, $filterValue2 = null) {
+        $query = "SELECT t1.*, t2.* 
+                FROM {$this->table} t1 
+                JOIN {$otherModel} t2 
+                ON t1.{$thisColumn} = t2.{$otherColumn}";
+        
+        if ($filterValue1 !== null || $filterColumn1) {
+            $query .= " WHERE t1.{$filterColumn1} = {$filterValue1}";
+        }
+        if ($filterValue2 !== null || $filterColumn2) {
+            $query .= " AND t1.{$filterColumn2} = {$filterValue2}";
+        }
+        //show($query);
         return $this->instance->query($query);
+    }
+
+    public function selecthreetables($otherModel1, $thisColumn, $otherColumn1,$otherModel2,$othercolumn2,$otherColumn3,$filterColumn1 = null,$filterValue1 = null,$connection1 = null,$filterColumn2 = null, $filterValue2 = null,$connection2 = null,$filterColumn3 = null, $filterValue3 = null) {
+        $query = "SELECT t1.*, t2.*, t3.*
+                FROM {$this->table} t1 
+                JOIN {$otherModel1} t2 
+                ON t1.{$thisColumn} = t2.{$otherColumn1}
+                JOIN {$otherModel2} t3 
+                ON t1.{$othercolumn2} = t3.{$otherColumn3}";
+        
+        if ($filterValue1 !== null || $filterColumn1) {
+            $query .= " WHERE t1.{$filterColumn1} = {$filterValue1}";
+        }
+        if ($filterValue2 !== null || $filterColumn2) {
+            $query .= " {$connection1} t1.{$filterColumn2} = {$filterValue2}";
+        }
+        if ($filterValue3 !== null || $filterColumn3) {
+            $query .= " {$connection2} t3.{$filterColumn3} = {$filterValue3}";
+        }
+        return $this->instance->query($query);
+    }
+
+    public function setReadNotification($user_id) {
+        $query = "UPDATE $this->table SET is_read = 1 WHERE user_id = :user_id";
+        $parameters = ['user_id' => $user_id]; // properly structured array
+        return $this->instance->query($query, $parameters);
     }
     
 }
