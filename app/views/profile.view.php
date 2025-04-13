@@ -20,9 +20,21 @@
         }
     }
 ?>
-<div class="user_view-menu-bar full-width-for-content">
+<div class="user_view-menu-bar">
     <div class="gap"></div>
-    <h2>PROFILE</h2>
+    <h2>Profile</h2>
+    <div class="flex-bar">
+        <div class="tooltip-container">
+            <form action="<?= ROOT ?>/resetPassword" method="post" style="display: inline;">
+                <input type="hidden" name="email_submission" value="1">
+                <input type="hidden" name="email" value="<?= esc($user->email) ?>">
+                <button type="submit" class="add-btn">
+                    <i class="fa-solid fa-unlock-keyhole"></i>
+                </button>
+            </form>
+            <span class="tooltip-text">Change password</span>
+        </div>
+    </div>
 </div>
 
 <form id="profile-edit-form" class="profile-container lur-overlay" method="post" enctype="multipart/form-data">

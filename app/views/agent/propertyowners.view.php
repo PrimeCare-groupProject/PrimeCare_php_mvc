@@ -4,23 +4,23 @@
     <a href='<?= ROOT ?>/dashboard/manageProviders'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Service Providers</h2>
+    <h2>Property Owners</h2>
     <div class="flex-bar">
-        <form class="search-container" method="GET">
+    <form class="search-container" method="GET">
             <input 
                 type="text" 
                 class="search-input" 
                 name="searchterm" 
                 value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : "" ?>" 
-                placeholder="Search Provider ..."
+                placeholder="Search Owner ..."
             >
             <button class="search-btn" type="submit">
                 <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
             </button>
         </form>
         <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/manageProviders/serviceproviders/addserviceprovider'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
-            <span class="tooltip-text">Add new service provider</span>
+            <a href='<?= ROOT ?>/dashboard/managementhome/agentmanagement/addagent'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
+            <span class="tooltip-text">Add new property owner</span>
         </div>
     </div>
 </div>
@@ -41,7 +41,7 @@
 ?>
             <div class="content_wrapper" style="height: auto;">
                 <div class="employee-details-container">
-                    <form method="POST" action="<?= ROOT ?>/dashboard/manageProviders/serviceproviders/approval">
+                    <form method="POST" action="<?= ROOT ?>/dashboard/manageProviders/propertyowners/approval">
                         <div class="listing-table-for-customer-payments" style="display: flex; align-items: flex-start;">
                             <!-- Images -->
                             <div style="flex-shrink: 0; display: flex; padding: 10px 25px 5px 20px; flex-direction: column; gap: 0px;">

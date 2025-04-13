@@ -783,11 +783,135 @@ class Agent
     public function propertyOwners($c, $d)
     {
         switch ($c) {
+            case 'addpropertyowner':
+                $this->addServiceProvider();
+                break;
             case 'spremove':
                 $this->spremove();
                 break;
+            case 'approval':
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['changes'])) {
+                    foreach ($_POST['changes'] as $change) {
+                        $pid = $change['pid'] ?? null;
+                        $action = $change['action'] ?? null;
+    
+                        if ($pid && $action) {
+                            $userDetail = new UserChangeDetails;
+                            $user = new User;
+                            if ($action === 'approve') {
+                                // Handle approval logic
+                                $newDetails = $userDetail->first(['pid' => $pid]);
+                                if ($newDetails) {
+                                    $oldUserDetails = $user->first(['pid' => $pid]);
+                                    // Update database
+                                    $updateStatus = $user->update($pid, [
+                                        'fname' => $newDetails->fname,
+                                        'lname' => $newDetails->lname,
+                                        'email' => $newDetails->email,
+                                        'contact' => $newDetails->contact,
+                                        'image_url' => $newDetails->image_url,
+                                        'AccountStatus' => 4
+                                    ], 'pid');
+    
+                                    $result = $userDetail->delete($pid, 'pid');
+                                    if ($updateStatus && $result) {
+                                        $_SESSION['flash']['msg'] = "Changes approved successfully!";
+                                        $_SESSION['flash']['type'] = "success";
+    
+                                        // Delete the old image in the user table
+                                        if ($oldUserDetails && !empty($oldUserDetails->image_url)) {
+                                            $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $oldUserDetails->image_url;
+                                            if (file_exists($profilePicturePath)) {
+                                                unlink($profilePicturePath);
+                                            }
+                                        }
+                                    } else {
+                                        $_SESSION['flash']['msg'] = "Failed to approve changes. Please try again.";
+                                        $_SESSION['flash']['type'] = "error";
+                                    }
+                                }
+                            } elseif ($action === 'reject') {
+                                // Handle rejection logic
+                                $newDetails = $userDetail->first(['pid' => $pid]);
+                                $result = $userDetail->delete($pid, 'pid');
+                                $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); // Rejected
+    
+                                if ($result) {
+                                    $_SESSION['flash']['msg'] = "Changes rejected successfully!";
+                                    $_SESSION['flash']['type'] = "success";
+    
+                                    // Delete the image in the user details table
+                                    if ($newDetails && !empty($newDetails->image_url)) {
+                                        $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $newDetails->image_url;
+                                        if (file_exists($profilePicturePath)) {
+                                            unlink($profilePicturePath);
+                                        }
+                                    }
+                                } else {
+                                    $_SESSION['flash']['msg'] = "Failed to reject changes. Please try again.";
+                                    $_SESSION['flash']['type'] = "error";
+                                }
+                            }
+                        }
+                    }
+                    $this->view('agent/propertyowners');
+                }
+                break;
             default:
-                $this->view('agent/serviceproviders');
+                $user = new User;
+                $newUser = new UserChangeDetails;
+                
+                $newUser->setLimit(7);
+
+                $searchterm = $_GET['searchterm'] ?? "";
+                $limit = $newUser->getLimit();
+                $countWithTerms = $newUser->getTotalCountWhere([], [], $searchterm);
+
+                $totalPages = ceil($countWithTerms / $limit);
+                $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+                $offset = ($currentPage - 1) * $limit;
+
+                $newUser->setOffset($offset);
+                $new = $newUser->where([], [], $searchterm);
+
+                $pids = [];
+                $old = [];
+                
+                if (!empty($new)) {
+                    $pids = array_map(function($user) {
+                        return $user->pid;
+                    }, $new);
+
+                    $old = $user->findByMultiplePids($pids, ['user_lvl' => 1]);
+
+                    if (!empty($old)) {
+                        $old = array_reduce($old, function($carry, $oldUser) use ($pids) {
+                            $carry[array_search($oldUser->pid, $pids)] = $oldUser;
+                            return $carry;
+                        }, []);
+                        ksort($old);
+
+                        foreach ($old as $oldUser) {
+                            unset($oldUser->password);
+                            unset($oldUser->nic);
+                            unset($oldUser->user_lvl);
+                            unset($oldUser->username);
+                            unset($oldUser->created_date);
+                            unset($oldUser->reset_code);
+                            unset($oldUser->AccountStatus);
+                        }
+                    }
+                }
+
+                $pagination = new Pagination($currentPage, $totalPages, 2);
+                $paginationLinks = $pagination->generateLinks();
+                
+                $this->view('agent/propertyowners', [
+                    'paginationLinks' => $paginationLinks,
+                    'new' => $new ?? [],
+                    'old' => $old ?? [],
+                    'tot' => $totalPages
+                ]);
                 break;
         }
     }

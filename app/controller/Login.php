@@ -13,7 +13,9 @@ class Login {
             $password = trim($_POST['password'] ?? '');
 
             if (empty($email) || empty($password)) {
-                $user->errors['auth'] = 'Email and password are required.';
+                $_SESSION['flash']['msg'] = 'Email and password are required.';
+                $_SESSION['flash']['type'] = 'error';
+                // $user->errors['auth'] = 'Email and password are required.';
                 $this->view('login', ['user' => $user]);
                 return;
             }
@@ -73,16 +75,30 @@ class Login {
                     // Store user data in session
                     $_SESSION['user'] = $result;
 
+                    // Set welcome message
+                    $_SESSION['flash'] = [
+                        'msg' => "Welcome to Primcare!",
+                        'type' => "welcome"
+                    ];
+
                     // Redirect to home page
                     redirect('home');
                     return;
                 } else {
                     // Password doesn't match
-                    $user->errors['auth'] = 'Invalid email or password.';
+                    $_SESSION['flash'] = [
+                        'msg' => "Invalid email or password.",
+                        'type' => "error"
+                    ];
+                    // $user->errors['auth'] = 'Invalid email or password.';
                 }
             } else {
                 // User not found
-                $user->errors['auth'] = 'Invalid credentials.';
+                $_SESSION['flash'] = [
+                    'msg' => "Invalid credentials.",
+                    'type' => "error"
+                ];
+                // $user->errors['auth'] = 'Invalid credentials.';
             }
 
             // Display login page with errors

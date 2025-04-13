@@ -34,15 +34,16 @@ class Signup {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Check for existing email
             // show($_POST);
-            $arr['email'] = $_POST['email'];
-            $arr['nic'] = $_POST['nic'];
-            $result = $user->first($arr, []);
-            if ($result && isset($result->email)) {
-                $user->errors['email'] = 'Email or NIC already exists';
-                // show($user->errors);
-                // echo "if1";
-                $this->view('signup',['user' => $user]); // Re-render signup view with error
-                return; // Exit if email exists
+            $emailExists = $user->first(['email' => $_POST['email']], []);
+            $nicExists = $user->first(['nic' => $_POST['nic']], []);
+
+            if ($emailExists || $nicExists) {
+                $_SESSION['flash'] = [
+                    'msg' => "Email or NIC already exists.",
+                    'type' => "error"
+                ];
+                $this->view('signup', ['user' => $user]); // Re-render signup view with error
+                return; // Exit if email or NIC exists
             }
 
             // Validate the form data
@@ -75,12 +76,22 @@ class Signup {
                 $updatedUser = $user->first(['email' => $arr['email']], []);
                 unset($updatedUser->password); // Remove password from the user object
                 $_SESSION['user'] = $updatedUser; // Store user data in session
+                
+                $_SESSION['flash'] = [
+                    'msg' => "Welcome to Primcare!",
+                    'type' => "welcome"
+                ];
+
                 redirect('home'); // Use a full URL or a path as necessary
                 exit; // Good practice to call exit after header
             } else {
                 // Handle the error case if insertion fails
                 // You can add error handling here if needed
-                $user->errors['insert'] = 'Failed to create account. Please try again.';
+                $_SESSION['flash'] = [
+                    'msg' => "Failed to create account. Please try again.",
+                    'type' => "error"
+                ];
+                // $user->errors['insert'] = 'Failed to create account. Please try again.';
                 // show($user->errors);
                 $this->view('signup',['user' => $user]);
             }

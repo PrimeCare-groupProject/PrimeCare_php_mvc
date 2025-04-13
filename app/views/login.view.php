@@ -31,7 +31,7 @@
             <!-- Login Form -->
             <form action="<?= ROOT ?>/login" method="post" class="login-form__fields">
                 <label for="email" class="login-form__label">Email</label>
-                <input type="email" name="email" id="email" class="login-form__input" placeholder="Enter email" required>
+                <input type="email" name="email" id="email" class="login-form__input" placeholder="Enter email" value="<?= old_value('email') ?>" required>
 
                 <label for="password" class="login-form__label">Password</label>
                 <input type="password" name="password" id="password" class="login-form__input" placeholder="Enter Password" required>

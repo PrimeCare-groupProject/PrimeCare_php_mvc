@@ -6,11 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/signup.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <title>PrimeCare</title>
 </head>
 
 <body>
+    <?php
+        if (isset($_SESSION['flash'])) {
+            flash_message();
+        }
+    ?>
     <div class="signup-container">
         <div class="signup-form">
             <img class="signup-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
@@ -23,27 +29,27 @@
             <!-- Sign-Up Form -->
             <form action="<?= ROOT ?>/signup" method="post" class="signup-form__fields">
                 <label for="email" class="signup-form__label">Email Address</label>
-                <input type="email" name="email" id="email" class="signup-form__input" placeholder="johndoe@gmail.com" required>
-        	    
+                <input type="email" name="email" id="email" class="signup-form__input" placeholder="johndoe@gmail.com" value="<?= old_value('email') ?>" required>
+                
                 <div class="signup-form__name-fields">
                     <div class="signup-form__name-field">
                         <label for="phoneNo" class="signup-form__label">Contact Number</label>
-                        <input type="text" name="contact" id="phoneNo" class="signup-form__input" placeholder="076XXXXXXX" required>
+                        <input type="text" name="contact" id="phoneNo" class="signup-form__input" placeholder="076XXXXXXX" value="<?= old_value('contact') ?>" required>
                     </div>
                     <div class="signup-form__name-field">
                         <label for="nic" class="signup-form__label">NIC</label>
-                        <input type="text" name="nic" id="nic" class="signup-form__input" placeholder="0000000000" required>
+                        <input type="text" name="nic" id="nic" class="signup-form__input" placeholder="0000000000" value="<?= old_value('nic') ?>" required>
                     </div>
                 </div>
                 <!-- First and Last Name Fields in Flex Layout -->
                 <div class="signup-form__name-fields">
                     <div class="signup-form__name-field">
                         <label for="fname" class="signup-form__label">First Name</label>
-                        <input type="text" name="fname" id="fname" class="signup-form__input" placeholder="john" required>
+                        <input type="text" name="fname" id="fname" class="signup-form__input" placeholder="john" value="<?= old_value('fname') ?>" required>
                     </div>
                     <div class="signup-form__name-field">
                         <label for="lname" class="signup-form__label">Last Name</label>
-                        <input type="text" name="lname" id="lname" class="signup-form__input" placeholder="doe" required>
+                        <input type="text" name="lname" id="lname" class="signup-form__input" placeholder="doe" value="<?= old_value('lname') ?>" required>
                     </div>
                 </div>
 
