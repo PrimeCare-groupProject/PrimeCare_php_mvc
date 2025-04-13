@@ -56,4 +56,9 @@ class Notification
             echo json_encode(['status' => 'success']);
         }
     }
+
+
+    public function testQueue(){
+        enqueueNotification("test" , "Message" , '79');
+    }
 }
