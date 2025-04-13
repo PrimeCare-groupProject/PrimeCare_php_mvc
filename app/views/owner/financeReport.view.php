@@ -10,6 +10,7 @@ $activeBookings = $activeBookings ?? 0;
 $bookings = $bookings ?? [];
 $serviceLogs = $serviceLogs ?? [];
 $monthlyData = $monthlyData ?? [];
+$user = $user ?? null;
 
 // Prevent divide by zero errors
 $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
@@ -20,8 +21,8 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
         <div class="left-content">
             <a href="javascript:history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
-                <h2><?= $property->name ?? 'Property Name' ?></h2>
-                <p><span>Maintained By: </span><?= $agent->fname ?? '' ?> <?= $agent->lname ?? "Agent's Name" ?></p>
+                <h2>Financial Overview</h2>
+                <p><span>All Properties</span></p>
             </div>
         </div>
     </div>
@@ -29,82 +30,115 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 <div class="container">
-    <!-- Left Sidebar -->
-    <div class="sidebar">
-        <div class="menu-card">
-            <p>Current User:</p>
-            <img src="<?= ROOT ?>/assets/images/<?= $_SESSION['user']->image_url ?? 'serPro1.png' ?>" alt="Owner">
-
-            <a href="<?= ROOT ?>/owner/profile" class="menu-item">
-                Profile
-            </a>
-
-        </div>
-
-        <div class="savings-card">
-            <div class="card-header">
-                <span>Tenants</span>
+    <!-- Left sidebar with horizontal layout -->
+    <div class="L_idebar">
+        <!-- Wrapper for horizontal layout -->
+        <div class="sidebar-flex-container">
+            <!-- Owner profile section on the left -->
+            <div class="sidebar-left">
+                <!-- Replace the current profile card with vertical layout -->
+                <div class="owner-profile-card">
+                    <!-- Image on top -->
+                    <div class="profile-image-container">
+                        <?php if ($user && isset($user->image_url) && !empty($user->image_url)): ?>
+                            <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $user->image_url ?>" alt="Owner">
+                        <?php else: ?>
+                            <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Owner">
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Details below the image -->
+                    <div class="profile-details">
+                        <h3 class="profile-name"><?= $user->name ?? 'Property Owner' ?></h3>
+                        <span class="profile-role">Property Owner</span>
+                    </div>
+                    
+                    <!-- Stats positioned right below details -->
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Properties</div>
+                            <div class="stat-value"><?= count($properties) ?></div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Tenants</div>
+                            <div class="stat-value"><?= $activeBookings ?? 0 ?></div>
+                        </div>
+                    </div>
+                    
+                    <a href="<?= ROOT ?>/dashboard/profile" class="profile-action">
+                        View Profile
+                    </a>
+                </div>
             </div>
-            <div class="tenants-list">
-                <?php if (!empty($bookings)): ?>
-                    <?php foreach($bookings as $booking): ?>
-                        <?php if($booking->accept_status === 'accepted'): ?>
+            
+            <!-- Tenant and Financial Summary sections on the right -->
+            <div class="sidebar-right">
+                <div class="savings-card">
+                    <div class="card-header">
+                        <span>Tenants</span>
+                    </div>
+                    <div class="tenants-list">
+                        <?php if (!empty($bookings)): ?>
+                            <?php foreach($bookings as $booking): ?>
+                                <?php if($booking->accept_status === 'accepted'): ?>
+                                    <div class="tenant">
+                                        <div class="tenant-avatar">
+                                            <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Tenant Avatar" />
+                                        </div>
+                                        <div class="tenant-info">
+                                            <div class="tenant-main">
+                                                <h4>Tenant #<?= $booking->tenant_id ?></h4>
+                                            </div>
+                                            <div class="tenant-details">
+                                                <div class="detail-item">
+                                                    <span>Since: <?= date('M Y', strtotime($booking->start_date)) ?></span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span>Duration: <?= $booking->renting_period ?? '1' ?> months</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span>Rent: Rs. <?= number_format($booking->price, 2) ?></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                             <div class="tenant">
-                                <div class="tenant-avatar">
-                                    <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Tenant Avatar" />
-                                </div>
                                 <div class="tenant-info">
                                     <div class="tenant-main">
-                                        <h4>Tenant #<?= $booking->tenant_id ?></h4>
-                                    </div>
-                                    <div class="tenant-details">
-                                        <div class="detail-item">
-                                            <span>Since: <?= date('M Y', strtotime($booking->start_date)) ?></span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span>Duration: <?= $booking->renting_period ?? '1' ?> months</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span>Rent: Rs. <?= number_format($booking->price, 2) ?></span>
-                                        </div>
+                                        <h4>No active tenants</h4>
                                     </div>
                                 </div>
                             </div>
                         <?php endif; ?>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="tenant">
-                        <div class="tenant-info">
-                            <div class="tenant-main">
-                                <h4>No active tenants</h4>
-                            </div>
+                    </div>
+                </div>
+
+                <!-- Financial Summary Card -->
+                <div class="financial-summary-card">
+                    <div class="card-header">
+                        <span>Financial Summary</span>
+                    </div>
+                    <div class="summary-details">
+                        <div class="summary-item">
+                            <span class="label">Occupancy Rate:</span>
+                            <span class="value"><?= number_format($occupancyRate, 1) ?>%</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Total Bookings:</span>
+                            <span class="value"><?= count($bookings) ?></span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Active Bookings:</span>
+                            <span class="value"><?= isset($activeBookings) ? $activeBookings : 0 ?></span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Maintenance Requests:</span>
+                            <span class="value"><?= count($serviceLogs) ?></span>
                         </div>
                     </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Financial Summary Card -->
-        <div class="financial-summary-card">
-            <div class="card-header">
-                <span>Financial Summary</span>
-            </div>
-            <div class="summary-details">
-                <div class="summary-item">
-                    <span class="label">Occupancy Rate:</span>
-                    <span class="value"><?= number_format($occupancyRate, 1) ?>%</span>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Total Bookings:</span>
-                    <span class="value"><?= count($bookings) ?></span>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Active Bookings:</span>
-                    <span class="value"><?= isset($activeBookings) ? $activeBookings : 0 ?></span>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Maintenance Requests:</span>
-                    <span class="value"><?= count($serviceLogs) ?></span>
                 </div>
             </div>
         </div>
@@ -112,6 +146,71 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Add Property Income Section at the top -->
+        <div class="property-income-card">
+            <div class="card-header">
+                <h3>Monthly Income by Property</h3>
+            </div>
+            <div class="property-income-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <!-- Added a Month column -->
+                            <th>Month</th>
+                            <th>Property</th>
+                            <th>Income</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php 
+                $propertyIncomes = [];
+                // Calculate income for each property
+                if (!empty($properties)) {
+                    foreach ($properties as $property) {
+                        $income = 0;
+                        if (!empty($bookings)) {
+                            foreach ($bookings as $booking) {
+                                if ($booking->property_id == $property->property_id) {
+                                    $income += $booking->price;
+                                }
+                            }
+                        }
+                        $propertyIncomes[] = [
+                            'name' => $property->name ?? ('Property #' . $property->property_id),
+                            'income' => $income
+                        ];
+                    }
+                }
+
+                if (!empty($propertyIncomes)):
+                    foreach ($propertyIncomes as $propertyIncome):
+                ?>
+                <tr>
+                    <!-- Display the current month/year here as an example -->
+                    <td><?= date('F Y') ?></td>
+                    <td title="<?= htmlspecialchars($propertyIncome['name']) ?>">
+                        <?= strlen($propertyIncome['name']) > 20 
+                            ? htmlspecialchars(substr($propertyIncome['name'], 0, 20) . '...') 
+                            : htmlspecialchars($propertyIncome['name']) ?>
+                    </td>
+                    <td>Rs. <?= number_format($propertyIncome['income'], 2) ?></td>
+                </tr>
+                <?php endforeach; else: ?>
+                <tr>
+                    <td colspan="3">No property data</td>
+                </tr>
+                <?php endif; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td><strong>Rs. <?= number_format($totalIncome, 2) ?></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
         <div class="stats-cards">
             <div class="stat-card earnings">
                 <h3 class="positive">Earnings</h3>
@@ -295,7 +394,7 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                         <tr>
                             <td><?= date('Y-m-d', strtotime($transaction['date'])) ?></td>
                             <td><?= htmlspecialchars($transaction['description']) ?></td>
-                            <td><?= $transaction['category'] ?></td>
+                            <td><span class="category-badge <?= strtolower($transaction['category']) ?>"><?= $transaction['category'] ?></span></td>
                             <td class="<?= $transaction['amount'] >= 0 ? 'positive' : 'negative' ?>">
                                 Rs. <?= number_format(abs($transaction['amount']), 2) ?>
                             </td>
@@ -514,174 +613,6 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
         });
     });
 </script>
-
-<style>
-/* Add new CSS for enhanced financial report */
-.stats-cards {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.stat-card {
-    flex: 1;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card.earnings {
-    background-color: #f0f8f1;
-    border-left: 4px solid #4CAF50;
-}
-
-.stat-card.spendings {
-    background-color: #fff9f0;
-    border-left: 4px solid #FCA311;
-}
-
-.stat-card.profit {
-    background-color: #f0f4ff;
-    border-left: 4px solid #2196F3;
-}
-
-.stat-amount {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 10px 0;
-}
-
-.positive {
-    color: #4CAF50;
-}
-
-.negative {
-    color: #F44336;
-}
-
-.detailed-analytics {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.analytics-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-}
-
-.analytics-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.analytics-content {
-    display: flex;
-}
-
-.pie-chart-container {
-    flex: 1;
-    height: 200px;
-}
-
-.analytics-details {
-    flex: 1;
-    padding-left: 20px;
-}
-
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.transactions-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.transactions-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.view-all {
-    color: #2196F3;
-    font-size: 14px;
-    text-decoration: none;
-}
-
-.transactions-table {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.transactions-table table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.transactions-table th,
-.transactions-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-}
-
-.transactions-table th {
-    background-color: #f9f9f9;
-    font-weight: 600;
-}
-
-.financial-summary-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    overflow: hidden;
-}
-
-.summary-details {
-    padding: 15px;
-}
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.summary-item:last-child {
-    border-bottom: none;
-}
-
-.summary-item .label {
-    color: #666;
-}
-
-.summary-item .value {
-    font-weight: 600;
-}
-
-@media (max-width: 768px) {
-    .stats-cards,
-    .detailed-analytics {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
+<link rel="stylesheet" href="<?= ROOT ?>/assets/css/finance-report.css">
 
 <?php require_once 'ownerFooter.view.php'; ?>
