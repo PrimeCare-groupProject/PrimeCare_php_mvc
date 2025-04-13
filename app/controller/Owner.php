@@ -126,11 +126,135 @@ class Owner
 
     public function financeReport()
     {
-        $this->view('owner/financeReport', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
-        ]);
+        // Get the current user's ID
+        $ownerId = $_SESSION['user']->pid ?? 0;
+        
+        // Get user details from the User model
+        $userModel = new User();
+        $userData = $userModel->where(['pid' => $ownerId])[0] ?? null;
+        
+        // Initialize models
+        $property = new PropertyConcat;
+        $booking = new BookingModel();
+        $serviceLog = new ServiceLog();
+        
+        // Get all properties owned by current user
+        $properties = $property->where(['person_id' => $ownerId]);
+        $propertyIds = [];
+        
+        if(!empty($properties)) {
+            foreach($properties as $prop) {
+                $propertyIds[] = $prop->property_id;
+            }
+        }
+        
+        // Initialize data
+        $bookings = [];
+        $serviceLogs = [];
+        $totalIncome = 0;
+        $totalExpenses = 0;
+        $activeBookings = 0;
+        $totalUnits = 0;
+        
+        // Calculate monthly data for the last 6 months
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        
+        $monthlyData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
+            $year = ($currentMonth - $i) > 0 ? $currentYear : ($currentYear - 1);
+            
+            $monthName = date('M', mktime(0, 0, 0, $month, 1, $year));
+            $monthlyData[$monthName] = [
+                'income' => 0,
+                'expense' => 0,
+                'profit' => 0,
+                'occupancy_rate' => 0
+            ];
+        }
+        
+        // Get data for all properties
+        if(!empty($propertyIds)) {
+            // Get all bookings for owner's properties
+            foreach($propertyIds as $propId) {
+                $propertyBookings = $booking->where(['property_id' => $propId]);
+                if(!empty($propertyBookings)) {
+                    foreach($propertyBookings as $b) {
+                        $bookings[] = $b;
+                        
+                        // Calculate income
+                        $totalIncome += $b->price;
+                        
+                        // Track active bookings
+                        if(isset($b->status) && $b->status === 'active') {
+                            $activeBookings++;
+                        }
+                        
+                        // Add to monthly data
+                        if(isset($b->start_date)) {
+                            $bookingMonth = date('M', strtotime($b->start_date));
+                            if(isset($monthlyData[$bookingMonth])) {
+                                $monthlyData[$bookingMonth]['income'] += $b->price;
+                            }
+                        }
+                    }
+                }
+                
+                // Get service logs for this property
+                $propertyLogs = $serviceLog->where(['property_id' => $propId]);
+                if(!empty($propertyLogs)) {
+                    foreach($propertyLogs as $log) {
+                        $serviceLogs[] = $log;
+                        
+                        // Calculate expenses
+                        $cost = $log->cost_per_hour * $log->total_hours;
+                        $totalExpenses += $cost;
+                        
+                        // Add to monthly data
+                        if(isset($log->date)) {
+                            $logMonth = date('M', strtotime($log->date));
+                            if(isset($monthlyData[$logMonth])) {
+                                $monthlyData[$logMonth]['expense'] += $cost;
+                            }
+                        }
+                    }
+                }
+                
+                // Track total units for occupancy calculation
+                $prop = $property->where(['property_id' => $propId])[0] ?? null;
+                if($prop && isset($prop->units)) {
+                    $totalUnits += $prop->units;
+                }
+            }
+        }
+        
+        // Calculate profit and occupancy rate
+        $profit = $totalIncome - $totalExpenses;
+        $occupancyRate = ($totalUnits > 0) ? (($activeBookings / $totalUnits) * 100) : 0;
+        
+        foreach ($monthlyData as $month => &$data) {
+            $data['profit'] = $data['income'] - $data['expense'];
+            $data['occupancy_rate'] = $occupancyRate;
+        }
+        
+        // Prepare data for the view
+        $viewData = [
+            'user' => $userData,  // Add user data to the view
+            'status' => $_SESSION['status'] ?? '',
+            'properties' => $properties,
+            'bookings' => $bookings,
+            'serviceLogs' => $serviceLogs,
+            'totalIncome' => $totalIncome,
+            'totalExpenses' => $totalExpenses,
+            'profit' => $profit,
+            'occupancyRate' => $occupancyRate,
+            'monthlyData' => $monthlyData,
+            'activeBookings' => $activeBookings,
+            'totalUnits' => $totalUnits
+        ];
+        
+        $this->view('owner/financeReport', $viewData);
     }
 
     public function tenants()
@@ -738,13 +862,112 @@ class Owner
         ]);
     }
 
-    private function financialReportUnit()
+    private function financialReportUnit($propertyId = null)
     {
-        $this->view('owner/financialReportUnit', [
-            'user' => $_SESSION['user'],
+        if (!$propertyId) {
+            redirect('owner/financeReport');
+            return;
+        }
+
+        // Get user details from the User model
+        $userModel = new User();
+        $userData = $userModel->where(['pid' => $_SESSION['user']->pid])[0] ?? null;
+        
+        // Get property details
+        $property = new PropertyConcat;
+        $propertyDetails = $property->where(['property_id' => $propertyId])[0] ?? null;
+        
+        if (!$propertyDetails) {
+            $_SESSION['flash']['msg'] = "Property not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('owner/financeReport');
+            return;
+        }
+        
+        // Get agent details
+        $agent = new User;
+        $agentDetails = $agent->where(['pid' => $propertyDetails->agent_id])[0] ?? null;
+        
+        // Get all bookings/rentals (income) for this property
+        $booking = new BookingModel();
+        $bookings = $booking->where(['property_id' => $propertyId]);
+        
+        // Get all service logs (expenses) for this property
+        $serviceLog = new ServiceLog();
+        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        
+        // Calculate monthly income and expenses for the last 6 months
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        
+        $monthlyData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
+            $year = ($currentMonth - $i) > 0 ? $currentYear : ($currentYear - 1);
+            
+            $monthName = date('M', mktime(0, 0, 0, $month, 1, $year));
+            $monthlyData[$monthName] = [
+                'income' => 0,
+                'expense' => 0,
+                'profit' => 0,
+                'occupancy_rate' => 0
+            ];
+        }
+        
+        // Calculate total income from bookings
+        $totalIncome = 0;
+        $activeBookings = 0;
+        foreach ($bookings as $booking) {
+            $bookingMonth = date('M', strtotime($booking->start_date));
+            if (isset($monthlyData[$bookingMonth])) {
+                $monthlyData[$bookingMonth]['income'] += $booking->price;
+            }
+            $totalIncome += $booking->price;
+            
+            if ($booking->status === 'active') {
+                $activeBookings++;
+            }
+        }
+        
+        // Calculate total expenses from service logs
+        $totalExpenses = 0;
+        foreach ($serviceLogs as $log) {
+            $cost = $log->cost_per_hour * $log->total_hours;
+            $logMonth = date('M', strtotime($log->date));
+            if (isset($monthlyData[$logMonth])) {
+                $monthlyData[$logMonth]['expense'] += $cost;
+            }
+            $totalExpenses += $cost;
+        }
+        
+        // Calculate profit and occupancy rate
+        $occupancyRate = ($propertyDetails->units > 0) ? 
+            (($activeBookings / $propertyDetails->units) * 100) : 0;
+        
+        foreach ($monthlyData as $month => &$data) {
+            $data['profit'] = $data['income'] - $data['expense'];
+            // Simplified occupancy calculation (will be more accurate with real data)
+            $data['occupancy_rate'] = isset($bookingCounts[$month]) && $propertyDetails->units > 0 ? 
+                ($bookingCounts[$month] / $propertyDetails->units) * 100 : $occupancyRate;
+        }
+        
+        // Prepare data for the view
+        $viewData = [
+            'user' => $userData,  // Use the user data from the model
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
-        ]);
+            'status' => $_SESSION['status'] ?? '',
+            'property' => $propertyDetails,
+            'agent' => $agentDetails,
+            'totalIncome' => $totalIncome,
+            'totalExpenses' => $totalExpenses,
+            'profit' => $totalIncome - $totalExpenses,
+            'occupancyRate' => $occupancyRate,
+            'monthlyData' => $monthlyData,
+            'bookings' => $bookings,
+            'serviceLogs' => $serviceLogs
+        ];
+        
+        $this->view('owner/financialReportUnit', $viewData);
     }
 
     public function showReviews()
