@@ -127,7 +127,11 @@ class Owner
     public function financeReport()
     {
         // Get the current user's ID
-        $ownerId = $_SESSION['user']->pid;
+        $ownerId = $_SESSION['user']->pid ?? 0;
+        
+        // Get user details from the User model
+        $userModel = new User();
+        $userData = $userModel->where(['pid' => $ownerId])[0] ?? null;
         
         // Initialize models
         $property = new PropertyConcat;
@@ -236,16 +240,18 @@ class Owner
         
         // Prepare data for the view
         $viewData = [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
+            'user' => $userData,  // Add user data to the view
             'status' => $_SESSION['status'] ?? '',
+            'properties' => $properties,
+            'bookings' => $bookings,
+            'serviceLogs' => $serviceLogs,
             'totalIncome' => $totalIncome,
             'totalExpenses' => $totalExpenses,
             'profit' => $profit,
             'occupancyRate' => $occupancyRate,
             'monthlyData' => $monthlyData,
-            'bookings' => $bookings,
-            'serviceLogs' => $serviceLogs
+            'activeBookings' => $activeBookings,
+            'totalUnits' => $totalUnits
         ];
         
         $this->view('owner/financeReport', $viewData);
@@ -831,6 +837,10 @@ class Owner
             return;
         }
 
+        // Get user details from the User model
+        $userModel = new User();
+        $userData = $userModel->where(['pid' => $_SESSION['user']->pid])[0] ?? null;
+        
         // Get property details
         $property = new PropertyConcat;
         $propertyDetails = $property->where(['property_id' => $propertyId])[0] ?? null;
@@ -911,7 +921,7 @@ class Owner
         
         // Prepare data for the view
         $viewData = [
-            'user' => $_SESSION['user'],
+            'user' => $userData,  // Use the user data from the model
             'errors' => $_SESSION['errors'] ?? [],
             'status' => $_SESSION['status'] ?? '',
             'property' => $propertyDetails,
