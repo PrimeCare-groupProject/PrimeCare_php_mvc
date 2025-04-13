@@ -355,6 +355,7 @@ hr {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    gap: 20px;
     width: 85%; /* Reduce width for better centering */
     margin: 0px auto; /* Adjusted margin for better spacing */
     padding: 30px; /* Increased padding for breathing space */
@@ -365,18 +366,44 @@ hr {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 35%; /* Adjusted width for balance */
+    width: 25%; /* Adjusted width for balance */
     text-align: center; /* Ensure text is centered */
     padding: 30px;
+    background-color: var(--white-color);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
 }
 
 .profile-details img {
-    width: 250px; /* Avatar size */
-    height: 250px; 
-    border-radius: 50%; /* Circular avatar */
-    object-fit: cover; /* Fit avatar inside circle */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Avatar shadow */
+    width: 100%; 
+    height: auto; 
+    max-width: 220px; 
+    max-height: 220px; 
+    min-width: 150px; 
+    min-height: 150px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    aspect-ratio: 1 / 1;
 }
+
+.profile-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 5px;
+    color: #333;
+    margin-top: 20px;
+  }
+  
+  .profile-role {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #FFA000;
+    margin: 5px 0px 15px 0px;
+    padding: 5px 12px;
+    background-color: rgba(255, 160, 0, 0.1);
+    border-radius: 20px;
+  }
 
 .profile-edit-form {
     display: flex;

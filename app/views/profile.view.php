@@ -20,21 +20,9 @@
         }
     }
 ?>
-<div class="user_view-menu-bar">
+<div class="user_view-menu-bar full-width-for-content">
     <div class="gap"></div>
-    <h2>Profile</h2>
-    <div class="flex-bar">
-        <div class="tooltip-container">
-            <form action="<?= ROOT ?>/resetPassword" method="post" style="display: inline;">
-                <input type="hidden" name="email_submission" value="1">
-                <input type="hidden" name="email" value="<?= esc($user->email) ?>">
-                <button type="submit" class="add-btn">
-                    <i class="fa-solid fa-unlock-keyhole"></i>
-                </button>
-            </form>
-            <span class="tooltip-text">Change password</span>
-        </div>
-    </div>
+    <h2>PROFILE</h2>
 </div>
 
 <form id="profile-edit-form" class="profile-container lur-overlay" method="post" enctype="multipart/form-data">
@@ -47,8 +35,8 @@
         <img src="<?= get_img($user->image_url)?>" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
 
         <!-- User details -->
-        <h2><?= $user->fname .' '. $user->lname ?></h2>
-        <p class="profile-id">PID - <?= $user->pid ?></p>
+        <h2 class="profile-name"><?= $user->fname .' '. $user->lname ?></h2>
+        <p class="profile-role ">PID - <?= $user->pid ?></p>
     </div>
 
     <!-- Right side: Editable Form -->
