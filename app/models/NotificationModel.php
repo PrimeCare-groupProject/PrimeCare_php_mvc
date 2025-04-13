@@ -11,6 +11,8 @@ class NotificationModel
         'user_id',
         'title',
         'message',
+        'link',
+        'color',
         'is_read',
         'created_at'
     ];

@@ -4,6 +4,7 @@
     top: 60px;
     right: 10px;
     width: 400px;
+    max-height: 50vh;
     overflow-y: auto;
     z-index: 10000;
     background-color: var(--background-color);
@@ -91,7 +92,7 @@
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 5px;
-    border-right: 5px solid var(--green-color);
+    /* border-right: 5px solid var(--green-color); */
 }
 
 .NSA__item p {
@@ -102,7 +103,7 @@
 .NSA__item:hover {
     transition: 0.3s ease-in-out;
     cursor: pointer;
-    background-color: rgba(var(--green-color-rgb), 0.2);
+    /* background-color: rgba(var(--green-color-rgb), 0.2); */
     color: var(--green-color);
 }
 
@@ -116,8 +117,22 @@
 }
 
 .NSA__item_time {
-    align-self: flex-end;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
     font-size: 12px;
+}
+
+.NSA__item_time i{
+    font-size: 12px;
+    color: var(--dark-grey-color);
+}
+
+.NSA__item_time i:hover{
+    color: var(--link-color)!important;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: 0.3s ease-in-out;
 }
 
 .NSA__item_time p {
@@ -130,12 +145,56 @@
     position: relative;
     content: '';
     display: block;
-    width: 5px;
-    height: 5px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--green-color);
-    right: 0;
-    top: -10px;
+    right: -340px;
+    top: -50px;
     z-index: 100;
     transition: width .3s;
 }
+
+/** Colors of notifications */
+.Notification_grey{
+    border-right: 5px solid var(--dark-grey-color)!important;
+}
+
+.Notification_grey:hover{
+    background-color: rgba(var(--dark-grey-color-rgb), 0.2)!important;
+    transition: 0.3s ease-in-out;
+}
+
+.Notification_green{
+    border-right: 5px solid var(--green-color)!important;
+}
+
+.Notification_green:hover{
+    background-color: rgba(var(--green-color-rgb), 0.2)!important;
+}
+
+.Notification_red{
+    border-right: 5px solid var(--red-color)!important;
+}
+
+.Notification_red:hover{
+    background-color: rgba(var(--red-color-rgb), 0.2)!important;
+}
+
+.Notification_blue{
+    border-right: 5px solid var(--link-color)!important;
+}
+
+.Notification_blue:hover{
+    background-color: rgba(var(--link-color-rgb), 0.2)!important;
+}
+
+.Notification_yellow{
+    border-right: 5px solid var(--primary-color)!important;
+}
+
+.Notification_yellow:hover{
+    background-color: rgba(var(--primary-color-rgb), 0.2)!important;
+}
+
+

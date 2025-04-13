@@ -450,10 +450,11 @@ function checkboxesStates($currentData, $newData, $key)
 
 // require '../app/libraries/PHPMailer/send.php'; //send email
 require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'send.php';
-include_once SENDMAIL_PATH ;
+include_once SENDMAIL_PATH;
 
 
-function covertTimeToReadableForm($time) {
+function covertTimeToReadableForm($time)
+{
     $time_ago = strtotime($time);
     $current_time = time();
     $time_difference = $current_time - $time_ago;
@@ -485,14 +486,20 @@ function covertTimeToReadableForm($time) {
 
 
 /** Queue Data Structure for Notifications */
-function enqueueNotification($message, $title = 'Notification', $toWhom) {
+function enqueueNotification($message, $title = 'Notification', $link = '', $color = 'Notification_blue', $toWhom = '')
+{
     if (isset($_SESSION['user'])) {
+        if ($toWhom == '') {
+            $toWhom = $_SESSION['user']->pid;
+        }
         $notificationModel = new NotificationModel();
         $notificationModel->setLimit(25);
 
         $newNotificationId = $notificationModel->insert([
             'title' => $title,
             'message' => $message,
+            'link' => $link,
+            'color' => $color,
             'user_id' => $toWhom,
             'is_read' => 0,
             'created_at' => date("Y-m-d H:i:s")
@@ -501,34 +508,41 @@ function enqueueNotification($message, $title = 'Notification', $toWhom) {
         $notifications = $notificationModel->where(['user_id' => $toWhom]);
         $queue = [];
         foreach ($notifications as $notification) {
-            enqueue([
-                'notification_id' => $notification->notification_id,
-                'title' => $notification->title,
-                'message' => $notification->message,
-                'is_read' => $notification->is_read,
-                'created_at' => $notification->created_at
-            ], $queue);
+            enqueue(['notification_id' => $notification->notification_id], $queue);
         }
 
-        //show($queue); 
+        show($queue); 
         $queue = array_reverse($queue); // Reverse the queue to maintain order
 
         while (count($queue) > 10) {
             $popped = dequeue($queue);
             //show("Dequeued: " . $popped); 
-            $notificationModel->delete($popped , 'notification_id');
+            $notificationModel->delete($popped, 'notification_id');
         }
     }
 }
 
-function enqueue($data, &$array) {
+function enqueue($data, &$array)
+{
     array_unshift($array, $data); // Add to front
-    show("Enqueued: " . $data['notification_id']); // Display the ID of the enqueued notification
+    //show("Enqueued: " . $data['notification_id']); // Display the ID of the enqueued notification
     return $array;
 }
 
-function dequeue(&$array) {
+function dequeue(&$array)
+{
     $popped = array_pop($array); // Remove from back
-    show('Dequeued: ' . $popped['notification_id']); // Display the ID of the dequeued notification
+    //show('Dequeued: ' . $popped['notification_id']); // Display the ID of the dequeued notification
     return $popped['notification_id']; // Return ID for deletion
 }
+
+/** Notification function use Details  */
+
+// enqueueNotification("Title", "Message", "Link" , "Color" , "User"); 
+
+// Colors:
+// Notification_blue
+// Notification_green
+// Notification_red
+// Notification_grey
+// Notification_orange
