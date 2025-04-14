@@ -960,10 +960,12 @@ class Agent
                                                    'property_id',
                                                    'accept_status',
                                                    '\'pending\'');
+                $image1 = new PropertyImageModel;
+                $images = $image1->findAll(); 
                 /*echo "<pre>";
-        print_r($bookings);
-        echo "</pre>";*/
-                $this->view('agent/booking',['bookings'=> $bookings]);
+                print_r($images);
+                echo "</pre>";*/
+                $this->view('agent/booking',['bookings'=> $bookings,'images' => $images]);
                 break;
         }
     }
@@ -974,6 +976,8 @@ class Agent
         $property = new Property;
         $person = new User; 
         $pid = $book->where(['booking_id' => $c],)[0];
+        $image1 = new PropertyImageModel;
+        $images = $image1->findAll(); 
         $bookings = $book->selecthreetables($property->table,
                                             'property_id', 
                                             'property_id', 
@@ -986,8 +990,7 @@ class Agent
                                             'customer_id',
                                             $pid->customer_id
                                             );
-        $this->view('agent/bookingaccept',['bookings'=> $bookings]);
-        
+        $this->view('agent/bookingaccept',['bookings'=> $bookings ,'images' => $images]);
     }
 
     public function bookinghistory($c,$d)
@@ -1002,7 +1005,7 @@ class Agent
         print_r($book);
         echo "</pre>";*/
             $property = new Property;
-            $person = new User;
+            $person = new User; 
             $bookings = $book->selecthreetables($property->table,
                                                 'property_id', 
                                                 'property_id', 
@@ -1025,6 +1028,8 @@ class Agent
         $property = new Property;
         $person = new User; 
         $pid = $book->where(['booking_id' => $d],)[0];
+        $image1 = new PropertyImageModel;
+        $images = $image1->findAll(); 
         $bookings = $book->selecthreetables($property->table,
                                             'property_id', 
                                             'property_id', 
@@ -1037,8 +1042,7 @@ class Agent
                                             'customer_id',
                                             $pid->customer_id
                                             );
-        $this->view('agent/showhistory',['bookings'=> $bookings]);
-        
+        $this->view('agent/showhistory',['bookings'=> $bookings,'images' => $images]);
     }
 
     private function logout()

@@ -18,20 +18,20 @@
     <div class="property-listing-grid1">
         <?php if (!empty($bookings)): ?>
             <?php foreach ($bookings as $booking): ?>
+                <?php foreach ($images as $image): ?>
+                <?php if ($booking->property_id == $image->property_id): ?>
                 <div class="compact-booking-card">
-                    <img class="compact-card__img" src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Property">
+                    <img class="compact-card__img" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Property">
                     <div class="compact-card__content">
                         <h4 class="compact-card__title"><?= $booking->name?></h4>
-                
                         <div class="compact-card__details">
                             <div class="compact-detail">
                                 <span class="compact-icon">💰</span>
                                 <span><?= $booking->price?> LKR</span>
                             </div>
-                    
                             <div class="compact-detail">
                                 <span class="compact-icon">📅</span>
-                                <span><?= $booking->renting_period?> monts</span>
+                                <span><?= $booking->renting_period?> months</span>
                             </div>
                         </div>
                         <a href="<?=ROOT?>/dashboard/bookings/bookingaccept/<?= $booking->booking_id ?>">
@@ -39,6 +39,8 @@
                         </a>
                     </div>
                 </div>
+                <?php endif; ?>
+                <?php endforeach; ?>
             <?php endforeach; ?> 
         <?php else: ?>
             <p>No Booking found.</p>
