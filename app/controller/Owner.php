@@ -160,6 +160,7 @@ class Owner
         $currentMonth = date('n');
         $currentYear = date('Y');
         
+        // Initialize monthly data structure
         $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
@@ -174,7 +175,7 @@ class Owner
             ];
         }
         
-        // Get data for all properties
+        // Get data only for properties owned by the current user
         if(!empty($propertyIds)) {
             // Get all bookings for owner's properties
             foreach($propertyIds as $propId) {
@@ -186,8 +187,11 @@ class Owner
                         // Calculate income
                         $totalIncome += $b->price;
                         
-                        // Track active bookings
-                        if(isset($b->status) && $b->status === 'active') {
+                        // Track active bookings - UPDATED LOGIC
+                        if(isset($b->status) && strtolower($b->status) === 'active') {
+                            $activeBookings++;
+                        } else if(isset($b->accept_status) && strtolower($b->accept_status) === 'accepted') {
+                            // Also count bookings with 'accepted' status if they don't have an explicit 'active' status
                             $activeBookings++;
                         }
                         
@@ -229,6 +233,30 @@ class Owner
             }
         }
         
+        // UFetch tenant details using customer_id from the booking table
+        $tenantDetails = [];
+        if(!empty($bookings)) {
+            // Collect all unique customer_ids from bookings
+            $customerIds = [];
+            foreach($bookings as $booking) {
+                if(isset($booking->customer_id) && !in_array($booking->customer_id, $customerIds)) {
+                    $customerIds[] = $booking->customer_id;
+                }
+            }
+            
+            // Get tenant details using findByMultiplePids method
+            if(!empty($customerIds)) {
+                $tenants = $userModel->findByMultiplePids($customerIds);
+                
+                if($tenants) {
+                    foreach($tenants as $tenant) {
+                        // Create an association by pid for easier lookup
+                        $tenantDetails[$tenant->pid] = $tenant;
+                    }
+                }
+            }
+        }
+        
         // Calculate profit and occupancy rate
         $profit = $totalIncome - $totalExpenses;
         $occupancyRate = ($totalUnits > 0) ? (($activeBookings / $totalUnits) * 100) : 0;
@@ -240,7 +268,8 @@ class Owner
         
         // Prepare data for the view
         $viewData = [
-            'user' => $userData,  // Add user data to the view
+            'user' => $userData,
+            'tenantDetails' => $tenantDetails,
             'status' => $_SESSION['status'] ?? '',
             'properties' => $properties,
             'bookings' => $bookings,
