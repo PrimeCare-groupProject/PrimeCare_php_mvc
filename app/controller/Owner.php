@@ -953,7 +953,8 @@ class Owner
             }
             $totalIncome += $booking->price;
             
-            if ($booking->status === 'active') {
+            if ((isset($booking->status) && strtolower($booking->status) === 'active') || 
+                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')) {
                 $activeBookings++;
             }
         }
