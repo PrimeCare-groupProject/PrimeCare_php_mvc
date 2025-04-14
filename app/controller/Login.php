@@ -82,7 +82,10 @@ class Login {
                     ];
 
                     // Redirect to home page
-                    redirect('home');
+                    $nxtUrl = $_SESSION['redirect_url'];
+                    unset($_SESSION['redirect_url']); 
+                    redirect($nxtUrl);
+                    // redirect('home');
                     return;
                 } else {
                     // Password doesn't match
