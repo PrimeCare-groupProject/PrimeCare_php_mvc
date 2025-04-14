@@ -8,10 +8,12 @@
 </div>
 
 <form method="POST" action="<?= ROOT ?>/Booking/update" enctype="multipart/form-data">
+<?php foreach ($images as $image): ?>
+    <?php if ($booking->property_id == $image->property_id): ?>
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
 
-            <img src="<?= ROOT ?>/assets/images/booking1.png" alt="Back" class="bookingimg">
+            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Back" class="bookingimg">
 
             <input type="hidden" name="booking_id" value="<?=  $booking->booking_id ?>">
 
@@ -89,6 +91,8 @@
             -->            
         </div>
     </div>
+    <?php endif; ?>
+    <?php endforeach; ?>
 </form>
 
 <?php require_once 'agentFooter.view.php'; ?>
