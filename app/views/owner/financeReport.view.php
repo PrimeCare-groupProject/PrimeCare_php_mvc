@@ -125,49 +125,49 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                         break;
                     default:
                         $statusClass = 'status-other';
-                }
-        ?>
-        <div class="tenant <?= $statusClass ?>">
-            <div class="tenant-avatar">
-                <img src="<?= $tenantImage ?>" alt="<?= htmlspecialchars($tenantName) ?>">
-            </div>
-            <div class="tenant-info">
-                <div class="tenant-main">
-                    <h4><?= htmlspecialchars($tenantName) ?></h4>
-                    <!-- Status badge displayed separately -->
-                    <span class="tenant-status <?= $statusClass ?>"><?= ucfirst($status) ?></span>
-                </div>
-                <div class="tenant-details">
-                    <div class="detail-item">
-                        <span>Since: <?= date('M Y', strtotime($booking->start_date ?? $booking->booked_date ?? date('Y-m-d'))) ?></span>
-                    </div>
-                    <?php if(isset($booking->renting_period)): ?>
-                    <div class="detail-item">
-                        <span>Duration: <?= $booking->renting_period ?> months</span>
-                    </div>
+                                }
+                        ?>
+                        <div class="tenant <?= $statusClass ?>">
+                            <div class="tenant-avatar">
+                                <img src="<?= $tenantImage ?>" alt="<?= htmlspecialchars($tenantName) ?>">
+                            </div>
+                            <div class="tenant-info">
+                                <div class="tenant-main">
+                                    <h4><?= htmlspecialchars($tenantName) ?></h4>
+                                    <!-- Status badge displayed separately -->
+                                    <span class="tenant-status <?= $statusClass ?>"><?= ucfirst($status) ?></span>
+                                </div>
+                                <div class="tenant-details">
+                                    <div class="detail-item">
+                                        <span>Since: <?= date('M Y', strtotime($booking->start_date ?? $booking->booked_date ?? date('Y-m-d'))) ?></span>
+                                    </div>
+                                    <?php if(isset($booking->renting_period)): ?>
+                                    <div class="detail-item">
+                                        <span>Duration: <?= $booking->renting_period ?> months</span>
+                                    </div>
+                                    <?php endif; ?>
+                                    <div class="detail-item">
+                                        <span>Rent: Rs. <?= number_format($booking->price ?? 0, 2) ?></span>
+                                    </div>
+                                    <?php if($tenant && isset($tenant->contact) && !empty($tenant->contact)): ?>
+                                    <div class="detail-item">
+                                        <span>Contact: <?= htmlspecialchars($tenant->contact) ?></span>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="tenant">
+                            <div class="tenant-info">
+                                <div class="tenant-main">
+                                    <h4>No active tenants</h4>
+                                </div>
+                            </div>
+                        </div>
                     <?php endif; ?>
-                    <div class="detail-item">
-                        <span>Rent: Rs. <?= number_format($booking->price ?? 0, 2) ?></span>
-                    </div>
-                    <?php if($tenant && isset($tenant->contact) && !empty($tenant->contact)): ?>
-                    <div class="detail-item">
-                        <span>Contact: <?= htmlspecialchars($tenant->contact) ?></span>
-                    </div>
-                    <?php endif; ?>
                 </div>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <div class="tenant">
-            <div class="tenant-info">
-                <div class="tenant-main">
-                    <h4>No active tenants</h4>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
 
                 </div>
             </div>
@@ -677,8 +677,7 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
             // In a real application, this would filter the data based on the selected time period
         });
     });
-</script>
-<script>
+
 document.addEventListener('DOMContentLoaded', function() {
     // Create the statistics chart
     const ctx = document.getElementById('statisticsChart').getContext('2d');
@@ -754,6 +753,217 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Existing chart initialization code ---
+    
+    // Income Sources Pie Chart with Filter Functionality
+    const incomeCtx = document.getElementById('incomeSourcesChart').getContext('2d');
+    
+    // Data for different time periods (to be populated from server)
+    const incomeSourcesData = {
+        'all': { rent: <?= $totalIncome * 0.9 ?>, other: <?= $totalIncome * 0.1 ?> },
+        '6': { rent: <?= $last6MonthsIncome * 0.9 ?? $totalIncome * 0.9 ?>, other: <?= $last6MonthsIncome * 0.1 ?? $totalIncome * 0.1 ?> },
+        '3': { rent: <?= $last3MonthsIncome * 0.9 ?? $totalIncome * 0.7 ?>, other: <?= $last3MonthsIncome * 0.1 ?? $totalIncome * 0.3 ?> },
+        '1': { rent: <?= $currentMonthIncome * 0.9 ?? $totalIncome * 0.85 ?>, other: <?= $currentMonthIncome * 0.1 ?? $totalIncome * 0.15 ?> }
+    };
+    
+    // Initialize income chart with default data
+    const incomePieChart = new Chart(incomeCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Rent', 'Other Income'],
+            datasets: [{
+                data: [incomeSourcesData.all.rent, incomeSourcesData.all.other],
+                backgroundColor: ['#4CAF50', '#FFC107'],
+                hoverBackgroundColor: ['#388E3C', '#FFB300'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { boxWidth: 12 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return label + ': ' + percentage + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Expense Breakdown Pie Chart with Filter Functionality
+    const expenseCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
+    
+    // Process expense data for different time periods
+    <?php 
+    // Prepare expense data for different periods
+    $allExpenseTypes = [];
+    $last6MonthsExpenseTypes = [];
+    $last3MonthsExpenseTypes = [];
+    $currentMonthExpenseTypes = [];
+    
+    foreach($serviceLogs as $log) {
+        $type = $log->service_type;
+        $cost = $log->cost_per_hour * $log->total_hours;
+        $logDate = strtotime($log->date);
+        $sixMonthsAgo = strtotime('-6 months');
+        $threeMonthsAgo = strtotime('-3 months');
+        $currentMonthStart = strtotime(date('Y-m-01'));
+        
+        // All time expenses
+        if(!isset($allExpenseTypes[$type])) $allExpenseTypes[$type] = 0;
+        $allExpenseTypes[$type] += $cost;
+        
+        // Last 6 months expenses
+        if($logDate >= $sixMonthsAgo) {
+            if(!isset($last6MonthsExpenseTypes[$type])) $last6MonthsExpenseTypes[$type] = 0;
+            $last6MonthsExpenseTypes[$type] += $cost;
+        }
+        
+        // Last 3 months expenses
+        if($logDate >= $threeMonthsAgo) {
+            if(!isset($last3MonthsExpenseTypes[$type])) $last3MonthsExpenseTypes[$type] = 0;
+            $last3MonthsExpenseTypes[$type] += $cost;
+        }
+        
+        // Current month expenses
+        if($logDate >= $currentMonthStart) {
+            if(!isset($currentMonthExpenseTypes[$type])) $currentMonthExpenseTypes[$type] = 0;
+            $currentMonthExpenseTypes[$type] += $cost;
+        }
+    }
+    ?>
+    
+    // Store expense data for different periods
+    const expenseData = {
+        'all': <?= json_encode($allExpenseTypes) ?>,
+        '6': <?= json_encode($last6MonthsExpenseTypes) ?>,
+        '3': <?= json_encode($last3MonthsExpenseTypes) ?>,
+        '1': <?= json_encode($currentMonthExpenseTypes) ?>
+    };
+    
+    // Format expense data for the chart
+    function formatExpenseData(data) {
+        // Use default data if nothing available
+        if (Object.keys(data).length === 0) {
+            return {
+                labels: ['Maintenance', 'Repairs', 'Utilities', 'Other'],
+                values: [40, 30, 20, 10],
+                colors: ['#FF5722', '#9C27B0', '#2196F3', '#607D8B'],
+                hoverColors: ['#E64A19', '#7B1FA2', '#1976D2', '#455A64']
+            };
+        }
+        
+        // Format the real data
+        return {
+            labels: Object.keys(data).map(type => type.charAt(0).toUpperCase() + type.slice(1)),
+            values: Object.values(data),
+            colors: ['#FF5722', '#9C27B0', '#2196F3', '#607D8B', '#FF9800', '#795548', '#009688', '#673AB7'],
+            hoverColors: ['#E64A19', '#7B1FA2', '#1976D2', '#455A64', '#F57C00', '#5D4037', '#00796B', '#512DA8']
+        };
+    }
+    
+    // Initialize with default 'all time' data
+    const defaultExpenseData = formatExpenseData(expenseData.all);
+    
+    const expensePieChart = new Chart(expenseCtx, {
+        type: 'pie',
+        data: {
+            labels: defaultExpenseData.labels,
+            datasets: [{
+                data: defaultExpenseData.values,
+                backgroundColor: defaultExpenseData.colors.slice(0, defaultExpenseData.labels.length),
+                hoverBackgroundColor: defaultExpenseData.hoverColors.slice(0, defaultExpenseData.labels.length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { boxWidth: 12 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return label + ': Rs. ' + value.toFixed(2) + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Event handlers for the filter selects
+    document.querySelector('#incomeFilter').addEventListener('change', function(e) {
+        const period = e.target.value;
+        const selectedData = incomeSourcesData[period];
+        
+        // Update the chart data
+        incomePieChart.data.datasets[0].data = [selectedData.rent, selectedData.other];
+        
+        // Update the detail rows below the chart
+        document.querySelector('.analytics-details .detail-row:nth-child(1) .value').textContent = 
+            'Rs. ' + selectedData.rent.toFixed(2);
+        document.querySelector('.analytics-details .detail-row:nth-child(2) .value').textContent = 
+            'Rs. ' + selectedData.other.toFixed(2);
+        
+        incomePieChart.update();
+    });
+    
+    document.querySelector('#expenseFilter').addEventListener('change', function(e) {
+        const period = e.target.value;
+        const formattedData = formatExpenseData(expenseData[period]);
+        
+        // Update the chart data
+        expensePieChart.data.labels = formattedData.labels;
+        expensePieChart.data.datasets[0].data = formattedData.values;
+        expensePieChart.data.datasets[0].backgroundColor = formattedData.colors.slice(0, formattedData.labels.length);
+        expensePieChart.data.datasets[0].hoverBackgroundColor = formattedData.hoverColors.slice(0, formattedData.labels.length);
+        
+        // Update the expense details section
+        const detailsContainer = document.querySelector('.analytics-card:nth-child(2) .analytics-details');
+        detailsContainer.innerHTML = '';
+        
+        if(formattedData.labels.length > 0) {
+            formattedData.labels.forEach((label, index) => {
+                detailsContainer.innerHTML += `
+                    <div class="detail-row">
+                        <span class="label">${label}:</span>
+                        <span class="value">Rs. ${formattedData.values[index].toFixed(2)}</span>
+                    </div>
+                `;
+            });
+        } else {
+            detailsContainer.innerHTML = `
+                <div class="detail-row">
+                    <span class="label">No expense data available</span>
+                </div>
+            `;
+        }
+        
+        expensePieChart.update();
     });
 });
 </script>
