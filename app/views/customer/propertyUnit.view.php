@@ -36,13 +36,43 @@
             <button class="next" onclick="nextSlide()">&#10095;</button>
         </div>
 
-
-        <div class="reviews-section">
-            <label class="bolder-text">Reviews</label>
-            <?php for ($i = 0; $i < 3; $i++): ?>
-                <?php require __DIR__ . '/../components/reviewfiled1.php'; ?>
-            <?php endfor; ?>
+        <div class="custom-reviews-container">
+    <label class="custom-title">Reviews</label>
+    <?php 
+        $hasReview = false;
+        if (!empty($reviews)): 
+            foreach ($reviews as $review):
+                if ($review->property_id == $property->property_id): 
+                    $hasReview = true;
+    ?>
+        <div class="custom-review-card">
+            <div class="custom-review-author">
+                <label><?= $review->customer_name ?></label>
+            </div>
+            <div class="custom-review-rating">
+                <?php
+                    $stars = intval($review->rating);
+                    for ($i = 1; $i <= 5; $i++) {
+                        echo $i <= $stars ? '★' : '☆';
+                    }
+                ?>
+                (<?= $review->rating ?>/5)
+            </div>
+            <div class="custom-review-text">
+                <span><?= $review->description ?></span>
+            </div>
         </div>
+    <?php 
+                endif;
+            endforeach;
+        endif;
+
+        if (!$hasReview): 
+    ?>
+        <p class="custom-no-reviews">No Reviews found.</p>
+    <?php endif; ?>
+</div>
+
     </div>
 
 
@@ -119,15 +149,41 @@
             <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/repairlisting?property_name=<?= urlencode($property->property_name ?? 'Oceanview Retreat') ?>&property_id=<?= urlencode($_GET['id'] ?? '') ?>'">Request Repair</button>
         </div>
 
+        <div class="custom-review-form-wrapper">
+        <h3 class="custom-review-form-title">Leave a Review</h3>
+
+        <form method="POST" action="<?= ROOT ?>/Review/review" enctype="multipart/form-data">
+            <input type="hidden" name="property_id" value="<?= $property->property_id ?>">
+
+            <div class="custom-review-form-group">
+                <label for="reviewer_name" class="custom-review-label">Your Name</label>
+                <input type="text" id="reviewer_name" name="reviewer_name" class="custom-review-input" required>
+            </div>
+
+            <div class="custom-review-form-group">
+                <label for="rating" class="custom-review-label">Rating</label>
+                <select id="rating" name="rating" class="custom-review-select" required>
+                    <option value="5">🌟🌟🌟🌟🌟 - Excellent</option>
+                    <option value="4">🌟🌟🌟🌟 - Good</option>
+                    <option value="3">🌟🌟🌟 - Average</option>
+                    <option value="2">🌟🌟 - Fair</option>
+                    <option value="1">🌟 - Poor</option>
+                </select>
+            </div>
+
+            <div class="custom-review-form-group">
+                <label for="review" class="custom-review-label">Your Review</label>
+                <textarea id="review" name="review" rows="4" class="custom-review-textarea" required></textarea>
+            </div>
+
+            <button type="submit" class="custom-review-submit-btn">Submit Review</button>
+        </form>
+    </div>
     </div>
 
 </div>
 
-
-
 </div>
-
-
 <script>
     let currentIndex = 0;
 
