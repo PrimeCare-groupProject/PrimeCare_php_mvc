@@ -31,6 +31,7 @@ class Manager {
     private function addAgent() {
         $user = new User();
         $payment_details = new PaymentDetails();
+        $location = new UserLocation();
         $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -38,7 +39,9 @@ class Manager {
             // Validate and sanitize personal details
             $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
             if (!$email) {
-                $errors['email'] = "Invalid email format.";
+                $_SESSION['flash']['msg'] = "Invalid email format.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['email'] = "Invalid email format.";
             }
 
             $contact = esc($_POST['contact'] ?? null);
@@ -52,7 +55,9 @@ class Manager {
 
             if (($resultUser && !empty($resultUser->email)) || $nicUser && !empty($nicUser->email)) {
                 //update user class errors
-                $errors['email'] = 'Email or NIC already exists';
+                $_SESSION['flash']['msg'] = "Email or NIC already exists.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['email'] = 'Email or NIC already exists';
                 $this->view('manager/addAgent',[
                     'user' => $resultUser, 
                     'errors' => $errors, 
@@ -61,7 +66,6 @@ class Manager {
                 unset($errors['email']); // Clear the error after displaying it
                 return; // Exit if email exists
             }
-            
             //generatepassword
             $password = bin2hex(random_bytes(4)); // Generates an 8-character password
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -83,27 +87,46 @@ class Manager {
             if (!$user->validate($personalDetails)) {
                 // show($user->errors);
                 // echo "if2";
+                $_SESSION['flash']['msg'] = is_array($user->errors) ? implode("\n", $user->errors) : (string)$user->errors;
+                $_SESSION['flash']['type'] = "error";
                 $this->view('manager/addAgent',[
                     'user' => $resultUser, 
-                    'errors' => $user->errors, 
+                    // 'errors' => $user->errors, 
                     'message' => '']); // Re-render signup view with errors
 
                 unset($user->errors); // Clear the error after displaying it
                 return; // Exit if validation fails
             }
             // echo "user details validated:<br>";
-            // show($user->errors);
 
             unset($personalDetails['confirmPassword']);
+            
+
+            // Validate and sanitize location details
+            if (!$location->validateLocation($_POST)) {
+                $_SESSION['flash']['msg'] = is_array($location->errors) ? implode("\n", $location->errors) : (string)$location->errors;
+                $_SESSION['flash']['type'] = "error";
+                $this->view('manager/addAgent',[
+                    'user' => $resultUser, 
+                    'errors' => $errors, 
+                    'message' => '']); // Re-render signup view with errors
+
+                unset($location->errors); // Clear the error after displaying it
+                return; // Exit if validation fails
+            }
+            
 
             $personalDetails['password'] = $hashedPassword;//set hashed password
             // echo "inserting user details<br>";
             // show($personalDetails);
 
             $userStatus = $user->insert($personalDetails);
+
             if (!$userStatus) {
                 // echo "user details insertion failed<br>"; 
-                $errors['auth'] = "Failed to add agent. Please try again.";
+                $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('manager/addAgent', [
                     'user' => $resultUser, 
                     'errors' => $errors, 
@@ -113,6 +136,7 @@ class Manager {
                 return;
             }else{
                 // echo "user details inserted<br>"; 
+                
             }
 
             // Validate and sanitize bank details
@@ -121,23 +145,48 @@ class Manager {
             $branch = esc($_POST['branch'] ?? null);
             $bankName = esc($_POST['bankName'] ?? null);
 
+            //location data
+            $province = esc($_POST['province'] ?? null);
+            $district = esc($_POST['district'] ?? null);
+            $city = esc($_POST['city'] ?? null);
+            $address = esc($_POST['address'] ?? null);
+
             // echo "Inside if bank details<br>";
             if (empty($user->errors) && $userStatus) {
                 $userDetails = $user->where(['email' => $email]);
                 $userId = $userDetails[0]->pid;
                 // var_dump($userId);
                 if ($userStatus) {
-                     
-                    $personalDetails['branch'] = 1;
-                    $personalDetails['bank'] = 1;
 
+                    if ($userId) {
+                        $locationStatus = $location->insert([
+                            'pid' => $userId,
+                            'province' => $province,
+                            'district' => $district,
+                            'city' => $city,
+                            'address' => $address
+                        ]);
+                        
+                        if (!$locationStatus) {
+                            $_SESSION['flash']['msg'] = "Failed to save location details. Please try again.";
+                            $_SESSION['flash']['type'] = "error";
+                            $user->delete($userId, 'pid'); // Rollback user creation
+                            $this->view('manager/addAgent', [
+                                'errors' => $errors,
+                                'message' => ''
+                            ]);
+                            return;
+                        }
+                    }
+                     
                     //check if payment details already exist
                     $paymentDetails = $payment_details->first(['pid' => $userId, 'account_no' => $accountNo]);
                     // echo "checking if payment details exist<br>";
                     if ($paymentDetails) {
                         $user->delete($personalDetails['pid'], 'pid'); 
-
-                        $errors['payment'] = "Payment details already exist for this account number.";
+                        $_SESSION['flash']['msg'] = "Payment details already exist for this account number.";
+                        $_SESSION['flash']['type'] = "error";
+                        // $errors['payment'] = "Payment details already exist for this account number.";
                         $this->view('manager/addAgent',[
                             'user' => $resultUser, 
                             'errors' => $errors, 
@@ -183,25 +232,33 @@ class Manager {
                         ");
                         if(!$status['error']){
                             $message = "Agent added successfully!. Password has been sent to email";
+                            $_SESSION['flash']['msg'] = $message;
+                            $_SESSION['flash']['type'] = "success";
                             // echo "mail sent<br>";
                         }else{
                             $message = "Agent added successfully!. Failed to send email. Contact Agent at {$contact}";
+                            $_SESSION['flash']['msg'] = $message;
+                            $_SESSION['flash']['type'] = "success";
                             // echo "mail could not be sent<br>";
                         }
                     } else {
                         $message = "Failed to add Agent Payement Details. Please try again.";
+                        $_SESSION['flash']['msg'] = $message;
+                        $_SESSION['flash']['type'] = "error";
                         $user->delete($personalDetails['pid'], 'pid'); 
                         // echo "payment details insertion failed<br>";
                     }
 
                     $this->view('manager/addAgent', [
                         'user' => $resultUser, 
-                        'errors' => $errors, 
-                        'message' => $message]);
+                        'errors' => $errors 
+                        ]);
                     
                     return;
                 } else {
-                    $errors['auth'] = "Failed to add agent. Please try again.";
+                    $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                    
                     $this->view('manager/addAgent', [
                         'user' => $resultUser, 
                         'errors' => $errors, 
@@ -211,8 +268,8 @@ class Manager {
                     return;
                 }
             }
-            $errors['auth'] = "Failed to add agent. Please try again.";
-
+            $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+            $_SESSION['flash']['type'] = "error";
             $user->delete($personalDetails['pid'], 'pid'); 
 
             $this->view('manager/addAgent', [

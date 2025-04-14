@@ -324,6 +324,16 @@ a .management-card .management-icon img {
     height: 600px;
 }
 
+.subpart-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 10px 10px;
+    color: #333;
+  }
+
+.input-field {
+    margin: 8px 0 !important;
+}
 .profile_pic_large {
     width: 250px;
     /* Avatar size */
