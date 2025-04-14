@@ -154,6 +154,7 @@
 .tenant-avatar {
     margin-right: 15px;
     flex-shrink: 0;
+    position: relative; /* Make it relative for absolute positioning of badge */
 }
 
 .tenant-avatar img {
@@ -169,10 +170,14 @@
     flex: 1;
 }
 
+.tenant-main {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
 .tenant-main h4 {
-    margin: 0 0 5px 0;
-    font-size: 15px;
-    color: var(--dark-text);
+    margin: 0;
 }
 
 .tenant-details {
@@ -182,6 +187,81 @@
 
 .detail-item {
     margin-bottom: 3px;
+}
+
+
+.tenant .status-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.status-badge.status-accepted {
+    background-color: #4CAF50;
+}
+
+.status-badge.status-pending {
+    background-color: #FFC107;
+    color: #333;
+}
+
+.status-badge.status-rejected {
+    background-color: #F44336;
+}
+
+.status-badge.status-other {
+    background-color: #9E9E9E;
+}
+
+/* Optional: Add a subtle border for each status */
+.tenant.status-accepted {
+    border-left: 3px solid #4CAF50;
+}
+
+.tenant.status-pending {
+    border-left: 3px solid #FFC107;
+}
+
+.tenant.status-rejected {
+    border-left: 3px solid #F44336;
+}
+
+.tenant.status-other {
+    border-left: 3px solid #9E9E9E;
+}
+
+/* Style for the tenant status indicator */
+.tenant-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 10px;
+    color: white;
+}
+
+.tenant-status.status-accepted {
+    background-color: #4CAF50;
+}
+
+.tenant-status.status-pending {
+    background-color: #FFC107;
+    color: #333;
+}
+
+.tenant-status.status-rejected {
+    background-color: #F44336;
+}
+
+.tenant-status.status-other {
+    background-color: #9E9E9E;
 }
 
 /* ===== IMPROVED FINANCIAL SUMMARY ===== */
@@ -1211,7 +1291,6 @@ tbody tr:last-child td {
     }
 }
 
-/* Add this to your existing CSS */
 
 /* Property Income Card Styles */
 .property-income-card {
