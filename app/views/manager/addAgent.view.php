@@ -316,59 +316,6 @@
     ?>
 </div>
 
-<!-- floating search box -->
-<!-- <div id="searchUserForm" style="display: none; height: 600px;">
-    <form id="find-user" method="get" action="<?= ROOT ?>/dashboard/managementhome/agentmanagement/addagent">
-        <input type="hidden" name="find_user" value="1">
-        <div class="SearchBox">
-            <button class="close_btn" id="close-btn" onclick="removeSearchBox(event)">X</button>
-            <div class="flex-bar">
-                <div name="search-bar" class="search-container">
-                    <input 
-                        type="text" 
-                        class="search-input" 
-                        name="searchterm" 
-                        value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : "" ?>" 
-                        placeholder="Search user..."
-                    >
-                    <button class="search-btn" type="submit" onclick="updateSearchTerm()">
-                        <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
-                    </button>
-                </div>
-            </div>
-            <div class="employee-details-container">
-                <table class="listing-table-for-customer-payments">
-                    <thead>
-                        <tr>
-                            <th>Created Date</th>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th class="last">Image</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                            // if (isset($userlist) && count($userlist) > 0) {
-                            //     foreach ($userlist as $user) {
-                            //         echo "<tr>
-                            //             <td>" . date('Y-m-d H:i:s', strtotime($user->created_date)) . "</td>
-                            //             <td>{$user->pid}</td>
-                            //             <td>{$user->fname} {$user->lname}</td>
-                            //             <td>{$user->email}</td>
-                            //             <td><img class='header-profile-picture' src=" . get_img($user->image_url) . "></td>
-                            //         </tr>";
-                            //     }
-                            // } else {
-                            //     echo "<tr><td colspan='5'>No users found</td></tr>";
-                            // }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </form>
-</div> -->
 
 <div class="loader-container" style="display: none;">
     <div class="spinner-loader"></div>
@@ -391,13 +338,6 @@
         }
     });
 
-    // function updateSearchTerm() {
-    //     var searchTerm = document.querySelector('input[name="searchterm"]').value;
-    //     var form = document.getElementById('find-user');
-    //     form.action = '<?= ROOT ?>/dashboard/managementhome/agentmanagement/finduser?searchterm=' + encodeURIComponent(searchTerm);
-    //     form.submit();
-    // }
-
     function showPersonalDetails() {
         document.getElementById('personalDetailsView').style.display = 'block';
         document.getElementById('bankDetailsView').style.display = 'none';
@@ -408,16 +348,6 @@
         document.getElementById('bankDetailsView').style.display = 'block';
     }
 
-    // function showSearchBox() {
-    //     document.getElementById('searchUserForm').style.display = 'block';
-    //     document.getElementById('formContainer').classList.add('blurred-background');
-    // }
-
-    // function removeSearchBox(event) {
-    //     event.preventDefault();
-    //     document.getElementById('searchUserForm').style.display = 'none';
-    //     document.getElementById('formContainer').classList.remove('blurred-background');
-    // }
     const districtOptions = {
         "Western": ["Colombo", "Gampaha", "Kalutara"],
         "Central": ["Kandy", "Matale", "Nuwara Eliya"],

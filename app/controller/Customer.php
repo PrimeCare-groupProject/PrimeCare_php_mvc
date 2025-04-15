@@ -35,6 +35,20 @@ class Customer
 
     public function profile(){
         $user = new User();
+
+        if ($_SESSION['user']->AccountStatus == -4) {// Approve delete
+            // update data
+            $updateAcc = $user->update($_SESSION['user']->pid, [
+                'AccountStatus' => 1
+            ], 'pid');
+            // update session
+            if($updateAcc){
+                $_SESSION['user']->AccountStatus = 1;
+            }
+            $_SESSION['flash']['msg'] = "Welcome back to Primecare.";
+            $_SESSION['flash']['type'] = "welcome";
+        }
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['delete_account'])) {
                 $errors = [];
@@ -400,7 +414,7 @@ class Customer
 
     public function updateToOwner(){
         $user = new User();
-        if ($_SESSION['user']->user_lvl != '4') {
+        if ($_SESSION['user']->user_lvl == 0) {
             if ($user->update($_SESSION['user']->pid, ['user_lvl' => '1'], 'pid')) {
             $_SESSION['user']->user_lvl = '1';
             $_SESSION['flash']['msg'] = "Role updated successfully";
@@ -423,7 +437,7 @@ class Customer
 
     public function updateToSerPro(){
         $user = new User();
-        if ($_SESSION['user']->user_lvl != '4') {
+        if ($_SESSION['user']->user_lvl == 0) {
             if ($user->update($_SESSION['user']->pid, ['user_lvl' => '2'], 'pid')) {
             $_SESSION['user']->user_lvl = '2';
             $_SESSION['flash']['msg'] = "Role updated successfully";

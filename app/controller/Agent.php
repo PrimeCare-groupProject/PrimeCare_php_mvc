@@ -19,8 +19,9 @@ class Agent
     public function profile()
     {
         $user = new User();
-        // If the Account status is 3 show rejected flash or if 4 show accepted flash
-        if ($_SESSION['user']->AccountStatus == 3) {
+
+        // notifications
+        if ($_SESSION['user']->AccountStatus == 3) {// reject update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
@@ -32,7 +33,7 @@ class Agent
             // set message
             $_SESSION['flash']['msg'] = "Your account update has been rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == 4) {
+        } elseif ($_SESSION['user']->AccountStatus == 4) {// Approved update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
@@ -43,7 +44,37 @@ class Agent
             }
             $_SESSION['flash']['msg'] = "Your account has been accepted.";
             $_SESSION['flash']['type'] = "success";
-        }
+        } elseif ($_SESSION['user']->AccountStatus == -3) {// Reject delete
+            // update data
+            $updateAcc = $user->update($_SESSION['user']->pid, [
+                'AccountStatus' => 1
+            ], 'pid');
+            // update session
+            if($updateAcc){
+                $_SESSION['user']->AccountStatus = 1;
+            }
+            $_SESSION['flash']['msg'] = "Account removal was Rejected.";
+            $_SESSION['flash']['type'] = "error";
+        } elseif ($_SESSION['user']->AccountStatus == -4) {// Approve delete
+            // update data
+            $updateAcc = $user->update($_SESSION['user']->pid, [
+                'AccountStatus' => 1
+            ], 'pid');
+            // update session
+            if($updateAcc){
+                $_SESSION['user']->AccountStatus = 1;
+            }
+            $_SESSION['flash']['msg'] = "Account removal was Rejected.";
+            $_SESSION['flash']['type'] = "error";
+        } elseif ($_SESSION['user']->AccountStatus == 2) {// update pending
+            
+            $_SESSION['flash']['msg'] = "Account update request is pending.";
+            $_SESSION['flash']['type'] = "warning";
+        } elseif ($_SESSION['user']->AccountStatus == -2) {// Delete pending
+            
+            $_SESSION['flash']['msg'] = "Account removal request is pending.";
+            $_SESSION['flash']['type'] = "warning";
+        } // 0 for deleted in home page
         
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['delete_account'])) {
@@ -54,41 +85,20 @@ class Agent
 
                 // Update the user's Account Status to 0 instead od deleting accounnt
                 $updated = $user->update($userId, [
-                    'AccountStatus' => 0
+                    'AccountStatus' => -2 //pending deletion
                 ], 'pid');
+
                 if ($updated) {
-                    // Clear the user session data
-                    session_unset();
-                    session_destroy();
-                    // Redirect to the home page or login page
-                    redirect('home');
-                    exit;
+                    $_SESSION['user']->AccountStatus = -2; // Assuming 0 indicates a deleted account
+
+                    $_SESSION['flash']['msg'] = "Deletion Request sent.Please wait for appoval.";
+                    $_SESSION['flash']['type'] = "success";
+
                 } else {
-                    $_SESSION['flash']['msg'] = "Failed to delete account. Please try again.";
+                    $_SESSION['flash']['msg'] = "Failed to request deletion of account. Please try again.";
                     $_SESSION['flash']['type'] = "error";
                     // $errors[] = "Failed to delete account. Please try again.";
                 }
-                // Delete the user from the database
-                // $user = new User();
-                // $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
-
-                // if ($deleted) {
-                //     // Delete the user's profile picture if it exists
-                //     $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $_SESSION['user']->image_url;
-                //     if (!empty($_SESSION['user']->image_url) && file_exists($profilePicturePath)) {
-                //         unlink($profilePicturePath);
-                //     }
-
-                //     // Clear the user session data
-                //     session_unset();
-                //     session_destroy();
-
-                //     // Redirect to the home page or login page
-                //     redirect('home');
-                //     exit;
-                // } else {
-                //     $errors[] = "Failed to delete account. Please try again.";
-                // }
 
                 // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
@@ -650,7 +660,9 @@ class Agent
                 $this->addServiceProvider();
                 break;
             case 'spremove':
-                $this->spremove();
+                echo "inside service preovideer remove";
+                die;
+                $this->removeproviders();
                 break;
             case 'approval':
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['changes'])) {
@@ -783,11 +795,8 @@ class Agent
     public function propertyOwners($c, $d)
     {
         switch ($c) {
-            case 'addpropertyowner':
-                $this->addServiceProvider();
-                break;
-            case 'spremove':
-                $this->spremove();
+            case 'removeproviders':
+                $this->removeproviders();
                 break;
             case 'approval':
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['changes'])) {
@@ -921,16 +930,272 @@ class Agent
         $this->view('agent/payments');
     }
 
-    public function addserviceprovider()
-    {
-        $this->view('agent/addserviceprovider');
+    private function addserviceprovider() {
+        $user = new User();
+        $payment_details = new PaymentDetails();
+        $location = new UserLocation();
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // Validate and sanitize personal details
+            $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
+            if (!$email) {
+                $_SESSION['flash']['msg'] = "Invalid email format.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['email'] = "Invalid email format.";
+            }
+
+            $contact = esc($_POST['contact'] ?? null);
+            $fname = esc($_POST['fname'] ?? null);
+            $lname = esc($_POST['lname'] ?? null);
+            $nic = esc($_POST['nic'] ?? null);
+
+            // echo "checking if user exist <br>";
+            $resultUser = $user->first(['email' => $email], []);
+            $nicUser = $user->first(['nic' => $nic ], []);
+
+            if (($resultUser && !empty($resultUser->email)) || $nicUser && !empty($nicUser->email)) {
+                //update user class errors
+                $_SESSION['flash']['msg'] = "Email or NIC already exists.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['email'] = 'Email or NIC already exists';
+                $this->view('agent/addserviceprovider',[
+                    'user' => $resultUser, 
+                    'errors' => $errors, 
+                    'message' => ''] ); // Re-render signup view with error
+                
+                unset($errors['email']); // Clear the error after displaying it
+                return; // Exit if email exists
+            }
+            //generatepassword
+            $password = bin2hex(random_bytes(4)); // Generates an 8-character password
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+            $personalDetails = [
+                'nic' => $nic,
+                'fname' => $fname,
+                'lname' => $lname,
+                'email' => $email,
+                'contact' => $contact,
+                'password' => $password, // Hash the password before saving
+                'confirmPassword' =>$password,
+                'user_lvl' => 2,
+                // 'username' => $this->generateUsername($_POST['fname']),
+            ];
+            // echo "validating user details<br>";
+
+            // Validate the form data
+            if (!$user->validate($personalDetails)) {
+                // show($user->errors);
+                // echo "if2";
+                $_SESSION['flash']['msg'] = is_array($user->errors) ? implode("\n", $user->errors) : (string)$user->errors;
+                $_SESSION['flash']['type'] = "error";
+                $this->view('agent/addserviceprovider',[
+                    'user' => $resultUser, 
+                    // 'errors' => $user->errors, 
+                    'message' => '']); // Re-render signup view with errors
+
+                unset($user->errors); // Clear the error after displaying it
+                return; // Exit if validation fails
+            }
+            // echo "user details validated:<br>";
+
+            unset($personalDetails['confirmPassword']);
+            
+
+            // Validate and sanitize location details
+            if (!$location->validateLocation($_POST)) {
+                $_SESSION['flash']['msg'] = is_array($location->errors) ? implode("\n", $location->errors) : (string)$location->errors;
+                $_SESSION['flash']['type'] = "error";
+                $this->view('agent/addserviceprovider',[
+                    'user' => $resultUser, 
+                    'errors' => $errors, 
+                    'message' => '']); // Re-render signup view with errors
+
+                unset($location->errors); // Clear the error after displaying it
+                return; // Exit if validation fails
+            }
+            
+
+            $personalDetails['password'] = $hashedPassword;//set hashed password
+            // echo "inserting user details<br>";
+            // show($personalDetails);
+
+            $userStatus = $user->insert($personalDetails);
+
+            if (!$userStatus) {
+                // echo "user details insertion failed<br>"; 
+                $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['auth'] = "Failed to add agent. Please try again.";
+                $this->view('agent/addserviceprovider', [
+                    'user' => $resultUser, 
+                    'errors' => $errors, 
+                    'message' => '']);
+
+                unset($errors['auth']); // Clear the error after displaying it
+                return;
+            }else{
+                // echo "user details inserted<br>"; 
+                
+            }
+
+            // Validate and sanitize bank details
+            $cardName = esc($_POST['cardName'] ?? null);
+            $accountNo = esc($_POST['accountNo'] ?? null);
+            $branch = esc($_POST['branch'] ?? null);
+            $bankName = esc($_POST['bankName'] ?? null);
+
+            //location data
+            $province = esc($_POST['province'] ?? null);
+            $district = esc($_POST['district'] ?? null);
+            $city = esc($_POST['city'] ?? null);
+            $address = esc($_POST['address'] ?? null);
+
+            // echo "Inside if bank details<br>";
+            if (empty($user->errors) && $userStatus) {
+                $userDetails = $user->where(['email' => $email]);
+                $userId = $userDetails[0]->pid;
+                // var_dump($userId);
+                if ($userStatus) {
+
+                    if ($userId) {
+                        $locationStatus = $location->insert([
+                            'pid' => $userId,
+                            'province' => $province,
+                            'district' => $district,
+                            'city' => $city,
+                            'address' => $address
+                        ]);
+                        
+                        if (!$locationStatus) {
+                            $_SESSION['flash']['msg'] = "Failed to save location details. Please try again.";
+                            $_SESSION['flash']['type'] = "error";
+                            $user->delete($userId, 'pid'); // Rollback user creation
+                            $this->view('agent/addserviceprovider', [
+                                'errors' => $errors,
+                                'message' => ''
+                            ]);
+                            return;
+                        }
+                    }
+                     
+                    //check if payment details already exist
+                    $paymentDetails = $payment_details->first(['pid' => $userId, 'account_no' => $accountNo]);
+                    // echo "checking if payment details exist<br>";
+                    if ($paymentDetails) {
+                        $user->delete($personalDetails['pid'], 'pid'); 
+                        $_SESSION['flash']['msg'] = "Payment details already exist for this account number.";
+                        $_SESSION['flash']['type'] = "error";
+                        // $errors['payment'] = "Payment details already exist for this account number.";
+                        $this->view('agent/addserviceprovider',[
+                            'user' => $resultUser, 
+                            'errors' => $errors, 
+                            'message' => '']); // Re-render signup view with error
+                        unset($errors['payment']); // Clear the error after displaying it
+                        return; // Exit if payment details already exist
+                    }
+                    // Save payment details
+                    // echo "inserting payment details<br>";
+                    // var_dump([
+                    //     'card_name' => $cardName,
+                    //     'account_no' => $accountNo,
+                    //     'bank' => $bankName,
+                    //     'branch' => $branch,
+                    //     'pid' => $userId,
+                    // ]);
+
+                    $paymentDetailStatus = $payment_details->insert([
+                        'card_name' => $cardName,
+                        'account_no' => $accountNo,
+                        'bank' => $bankName,
+                        'branch' => $branch,
+                        'pid' => $userId,
+                    ]);
+                    
+                    // show($paymentDetailStatus);
+                    // echo "payment details inserted<br>";
+
+                    if($paymentDetailStatus){
+                        // echo "payment done, now sending mail<br>";
+                        $status = sendMail(
+                            $email ,
+                            'Primecare Agent Registration', "
+                            <div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px;\">
+                                <h1 style=\"color: #4CAF50;\">Agent Registration</h1>
+                                <p>Hello, $fname $lname</p>
+                                <p>Your account has been created successfully. Your temporary password is:</p>
+                                <h3 style=\"color: #4CAF50;\">$password</h3>
+                                <p>If you did not request this, please ignore this email.</p>
+                                <br>
+                                <p>Best regards,<br>PrimeCare Support Team</p>
+                            </div>
+                        ");
+                        if(!$status['error']){
+                            $message = "Agent added successfully!. Password has been sent to email";
+                            $_SESSION['flash']['msg'] = $message;
+                            $_SESSION['flash']['type'] = "success";
+                            // echo "mail sent<br>";
+                        }else{
+                            $message = "Agent added successfully!. Failed to send email. Contact Agent at {$contact}";
+                            $_SESSION['flash']['msg'] = $message;
+                            $_SESSION['flash']['type'] = "success";
+                            // echo "mail could not be sent<br>";
+                        }
+                    } else {
+                        $message = "Failed to add Agent Payement Details. Please try again.";
+                        $_SESSION['flash']['msg'] = $message;
+                        $_SESSION['flash']['type'] = "error";
+                        $user->delete($personalDetails['pid'], 'pid'); 
+                        // echo "payment details insertion failed<br>";
+                    }
+
+                    $this->view('agent/addserviceprovider', [
+                        'user' => $resultUser, 
+                        'errors' => $errors 
+                        ]);
+                    
+                    return;
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                    
+                    $this->view('agent/addserviceprovider', [
+                        'user' => $resultUser, 
+                        'errors' => $errors, 
+                        'message' => '']);
+
+                    unset($errors['auth']); // Clear the error after displaying it
+                    return;
+                }
+            }
+            $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+            $user->delete($personalDetails['pid'], 'pid'); 
+
+            $this->view('agent/addserviceprovider', [
+                'user' => $resultUser, 
+                'errors' => $errors, 
+                'message' => '']);
+
+            unset($errors['auth']); // Clear the error after displaying it
+            return;
+        }
+        
+
+        $this->view('agent/addserviceprovider',[
+            'errors' => $errors, 
+            'message' => '']
+        );
+        return;
     }
 
     public function removeserviceprovider($c, $d)
     {
         switch ($d) {
-            case 'spremove':
-                $this->spremove();
+            case 'removeproviders':
+                $this->removeproviders();
                 break;
             default:
                 $this->view('agent/removeserviceprovider');
@@ -938,7 +1203,7 @@ class Agent
         }
     }
 
-    public function spremove()
+    public function removeproviders()
     {
         $this->view('agent/spremove');
     }

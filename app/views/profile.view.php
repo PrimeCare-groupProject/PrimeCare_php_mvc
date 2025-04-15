@@ -99,7 +99,9 @@
 
         </div>
         <?php if ($_SESSION['user']->AccountStatus == 2): ?>
-            <p class="status-message" style="text-align: right; margin-bottom:-15px; color: var(--primary-color);">Pending details change request</p>
+            <p class="status-message" style="text-align: right; margin-bottom:-20px; color: var(--primary-color);">Pending details change request</p>
+        <?php elseif ($_SESSION['user']->AccountStatus == -2): ?>
+            <p class="status-message" style="text-align: right; margin-bottom:-20px; color: var(--red-color);">Account removal ongoing</p>
         <?php endif; ?>
     </div>
 </form>

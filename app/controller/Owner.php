@@ -536,8 +536,9 @@ class Owner
 
     public function profile(){
         $user = new User();
-        // If the Account status is 3 show rejected flash or if 4 show accepted flash
-        if ($_SESSION['user']->AccountStatus == 3) {
+        
+        // notifications
+        if ($_SESSION['user']->AccountStatus == 3) {// reject update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
@@ -549,7 +550,7 @@ class Owner
             // set message
             $_SESSION['flash']['msg'] = "Your account update has been rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == 4) {
+        } elseif ($_SESSION['user']->AccountStatus == 4) {// Approved update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
@@ -560,7 +561,37 @@ class Owner
             }
             $_SESSION['flash']['msg'] = "Your account has been accepted.";
             $_SESSION['flash']['type'] = "success";
-        }
+        } elseif ($_SESSION['user']->AccountStatus == -3) {// Reject delete
+            // update data
+            $updateAcc = $user->update($_SESSION['user']->pid, [
+                'AccountStatus' => 1
+            ], 'pid');
+            // update session
+            if($updateAcc){
+                $_SESSION['user']->AccountStatus = 1;
+            }
+            $_SESSION['flash']['msg'] = "Account removal was Rejected.";
+            $_SESSION['flash']['type'] = "error";
+        } elseif ($_SESSION['user']->AccountStatus == -4) {// Approve delete
+            // update data
+            $updateAcc = $user->update($_SESSION['user']->pid, [
+                'AccountStatus' => 1
+            ], 'pid');
+            // update session
+            if($updateAcc){
+                $_SESSION['user']->AccountStatus = 1;
+            }
+            $_SESSION['flash']['msg'] = "Account removal was Rejected.";
+            $_SESSION['flash']['type'] = "error";
+        } elseif ($_SESSION['user']->AccountStatus == 2) {// update pending
+            
+            $_SESSION['flash']['msg'] = "Account update request is pending.";
+            $_SESSION['flash']['type'] = "warning";
+        }elseif ($_SESSION['user']->AccountStatus == -2) {// Delete pending
+            
+            $_SESSION['flash']['msg'] = "Account removal request is pending.";
+            $_SESSION['flash']['type'] = "warning";
+        } // 0 for deleted in home page
         
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['delete_account'])) {

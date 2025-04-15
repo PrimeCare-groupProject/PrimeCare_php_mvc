@@ -195,14 +195,6 @@ class Manager {
                         return; // Exit if payment details already exist
                     }
                     // Save payment details
-                    // echo "inserting payment details<br>";
-                    // var_dump([
-                    //     'card_name' => $cardName,
-                    //     'account_no' => $accountNo,
-                    //     'bank' => $bankName,
-                    //     'branch' => $branch,
-                    //     'pid' => $userId,
-                    // ]);
 
                     $paymentDetailStatus = $payment_details->insert([
                         'card_name' => $cardName,
@@ -288,6 +280,7 @@ class Manager {
         );
         return;
     }
+    
 
     public function profile(){
         $user = new User();
@@ -300,43 +293,7 @@ class Manager {
                 
                 $_SESSION['flash']['msg'] = "Managers are not allowed to delete Accounts.";
                 $_SESSION['flash']['type'] = "error";
-                // Update the user's Account Status to 0 instead od deleting accounnt
-                // $updated = $user->update($userId, [
-                //     'AccountStatus' => 0
-                // ], 'pid');
-                // if ($updated) {
-                //     // Clear the user session data
-                //     session_unset();
-                //     session_destroy();
-                //     // Redirect to the home page or login page
-                //     redirect('home');
-                //     exit;
-                // } else {
-                //     $_SESSION['flash']['msg'] = "Failed to delete account. Please try again.";
-                //     $_SESSION['flash']['type'] = "error";
-                //     // $errors[] = "Failed to delete account. Please try again.";
-                // }
-                // Delete the user from the database
-                // $user = new User();
-                // $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
-    
-                // if ($deleted) {
-                //     // Delete the user's profile picture if it exists
-                //     $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $_SESSION['user']->image_url;
-                //     if (!empty($_SESSION['user']->image_url) && file_exists($profilePicturePath)) {
-                //         unlink($profilePicturePath);
-                //     }
-    
-                //     // Clear the user session data
-                //     session_unset();
-                //     session_destroy();
-    
-                //     // Redirect to the home page or login page
-                //     redirect('home');
-                //     exit;
-                // } else {
-                //     $errors[] = "Failed to delete account. Please try again.";
-                // }
+                
     
                 // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
@@ -771,9 +728,80 @@ class Manager {
         $this->view('manager/agentsToProperty' , ['properties' => $properties , 'agents' => $agents]);
     }
 
+    private function removeAgents(){
+        $user = new User();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pid'], $_POST['action'])) {
+            $pid = intval($_POST['pid']);
+            $action = $_POST['action'];
+
+            if ($action === 'approve') {
+                // Set active status to 0 and user level to 0
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -4,
+                    'user_lvl' => 0
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal successful!";
+                    $_SESSION['flash']['type'] = "success";
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to approve user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            } elseif ($action === 'reject') {
+                // Set active status to 3
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -3,
+                    'user_lvl' => 3
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal rejected successfully!";
+                    $_SESSION['flash']['type'] = "success";
+
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to reject user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            }
+        } 
+
+        $user->setLimit(7);
+
+        $searchterm = $_GET['searchterm'] ?? "";
+        $limit = $user->getLimit();
+        $countWithTerms = $user->getTotalCountWhere(['AccountStatus' => -2, 'user_lvl' => 3], [], $searchterm);
+
+        $totalPages = ceil($countWithTerms / $limit);
+        $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $offset = ($currentPage - 1) * $limit;
+
+        $user->setOffset($offset);
+        $users = $user->where(['AccountStatus' => -2, 'user_lvl' => 3], [], $searchterm);
+
+        $pagination = new Pagination($currentPage, $totalPages, 2);
+        $paginationLinks = $pagination->generateLinks();
+
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                unset($user->password); // Remove password from result
+            }
+        }
+        // show($users);
+        // die;
+        $this->view('manager/removeAgents', [
+            'paginationLinks' => $paginationLinks,
+            'users' => $users ?? [],
+            'tot' => $totalPages
+        ]);
+
+    }
+
     public function agentManagement($b = ''){
         if($b == 'addagent'){
             $this->addAgent();
+        }else if($b == 'removeagents'){
+            $this->removeAgents();
         }else if($b == 'approval'){
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['changes'])) {
                 foreach ($_POST['changes'] as $change) {

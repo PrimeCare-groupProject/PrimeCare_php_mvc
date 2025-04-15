@@ -22,6 +22,10 @@
             <a href='<?= ROOT ?>/dashboard/manageProviders/serviceproviders/addserviceprovider'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Add new service provider</span>
         </div>
+        <div class="tooltip-container">
+            <a href='<?= ROOT ?>/dashboard/manageProviders/propertyowners/removeproviders'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/delete.png" alt="Add" class="navigate-icons"></button></a>
+            <span class="tooltip-text">Approve Removal</span>
+        </div>
     </div>
 </div>
 
