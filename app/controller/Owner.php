@@ -917,18 +917,15 @@ class Owner
         $agent = new User;
         $agentDetails = $agent->where(['pid' => $propertyDetails->agent_id])[0] ?? null;
         
-        // Get all bookings/rentals (income) for this property
-        $booking = new BookingModel();
-        $bookings = $booking->where(['property_id' => $propertyId]);
+        // Initialize variables before using them
+        $totalIncome = 0;
+        $activeBookings = 0;
         
-        // Get all service logs (expenses) for this property
-        $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
-        
-        // Calculate monthly income and expenses for the last 6 months
+        // Calculate monthly data for the last 6 months
         $currentMonth = date('n');
         $currentYear = date('Y');
         
+        // Initialize monthly data structure
         $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
@@ -942,6 +939,38 @@ class Owner
                 'occupancy_rate' => 0
             ];
         }
+        
+        // Get all bookings/rentals (income) for this property
+        $booking = new BookingModel();
+        $bookings = $booking->where(['property_id' => $propertyId]);
+        if (!is_array($bookings) && !is_object($bookings)) {
+            $bookings = []; // Ensure $bookings is always iterable
+        }
+
+        // Now the foreach loop will work even if no bookings are found
+        foreach ($bookings as $booking) {
+            $bookingMonth = date('M', strtotime($booking->start_date));
+            if (isset($monthlyData[$bookingMonth])) {
+                $monthlyData[$bookingMonth]['income'] += $booking->price;
+            }
+            $totalIncome += $booking->price;
+            
+            if ((isset($booking->status) && strtolower($booking->status) === 'active') || 
+                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')) {
+                $activeBookings++;
+            }
+        }
+        
+        // Get all service logs (expenses) for this property
+        $serviceLog = new ServiceLog();
+        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        if (!is_array($serviceLogs) && !is_object($serviceLogs)) {
+            $serviceLogs = []; // Ensure $serviceLogs is always iterable
+        }
+        
+        // Calculate monthly income and expenses for the last 6 months
+        $currentMonth = date('n');
+        $currentYear = date('Y');
         
         // Calculate total income from bookings
         $totalIncome = 0;
