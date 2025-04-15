@@ -534,9 +534,10 @@ class Owner
         unset($_SESSION['status']);
     }
 
-    public function profile(){
+    public function profile()
+    {
         $user = new User();
-        
+
         // notifications
         if ($_SESSION['user']->AccountStatus == 3) {// reject update
             // update data
@@ -587,7 +588,7 @@ class Owner
             
             $_SESSION['flash']['msg'] = "Account update request is pending.";
             $_SESSION['flash']['type'] = "warning";
-        }elseif ($_SESSION['user']->AccountStatus == -2) {// Delete pending
+        } elseif ($_SESSION['user']->AccountStatus == -2) {// Delete pending
             
             $_SESSION['flash']['msg'] = "Account removal request is pending.";
             $_SESSION['flash']['type'] = "warning";
@@ -602,17 +603,17 @@ class Owner
 
                 // Update the user's Account Status to 0 instead od deleting accounnt
                 $updated = $user->update($userId, [
-                    'AccountStatus' => 0
+                    'AccountStatus' => -2 //pending deletion
                 ], 'pid');
+
                 if ($updated) {
-                    // Clear the user session data
-                    session_unset();
-                    session_destroy();
-                    // Redirect to the home page or login page
-                    redirect('home');
-                    exit;
+                    $_SESSION['user']->AccountStatus = -2; // Assuming 0 indicates a deleted account
+
+                    $_SESSION['flash']['msg'] = "Deletion Request sent.Please wait for appoval.";
+                    $_SESSION['flash']['type'] = "success";
+
                 } else {
-                    $_SESSION['flash']['msg'] = "Failed to delete account. Please try again.";
+                    $_SESSION['flash']['msg'] = "Failed to request deletion of account. Please try again.";
                     $_SESSION['flash']['type'] = "error";
                     // $errors[] = "Failed to delete account. Please try again.";
                 }
@@ -620,7 +621,6 @@ class Owner
                 // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
                 redirect('dashboard/profile');
-                exit;
             } else if (isset($_POST['logout'])) {
                 $this->logout();
             }

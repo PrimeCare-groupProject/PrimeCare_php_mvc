@@ -1,10 +1,10 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/manageProviders/serviceproviders'>
+    <a href='<?= ROOT ?>/dashboard/manageProviders/propertyowners'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Service Provider Removal </h2>
+    <h2>Owner Removal </h2>
     <div class="flex-bar">
         <form class="search-container" method="GET">
             <input 
@@ -87,7 +87,7 @@
     } else { 
 ?>
         <div class="employee-details-container" style="margin-top: 10px;">
-            <p style="text-align: center; margin: 0px; color: #484848FF;">No removal request to display.</p>
+            <p style="text-align: center; margin: 0px; color: #484848FF;">No users to display.</p>
         </div>
 <?php 
     } 

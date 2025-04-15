@@ -103,7 +103,6 @@ class Agent
                 // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
                 redirect('dashboard/profile');
-                exit;
             } else if (isset($_POST['logout'])) {
                 $this->logout();
             }
@@ -659,9 +658,7 @@ class Agent
             case 'addserviceprovider':
                 $this->addServiceProvider();
                 break;
-            case 'spremove':
-                echo "inside service preovideer remove";
-                die;
+            case 'removeproviders':
                 $this->removeproviders();
                 break;
             case 'approval':
@@ -791,12 +788,82 @@ class Agent
                 break;
         }
     }
+    
+    private function removeOwners($c, $d){
+        $user = new User();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pid'], $_POST['action'])) {
+            $pid = intval($_POST['pid']);
+            $action = $_POST['action'];
+
+            if ($action === 'approve') {
+                // Set active status to 0 and user level to 0
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -4,
+                    'user_lvl' => 0
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal successful!";
+                    $_SESSION['flash']['type'] = "success";
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to approve user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            } elseif ($action === 'reject') {
+                // Set active status to 3
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -3,
+                    'user_lvl' => 1
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal rejected successfully!";
+                    $_SESSION['flash']['type'] = "success";
+
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to reject user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            }
+        } 
+
+        $user->setLimit(7);
+
+        $searchterm = $_GET['searchterm'] ?? "";
+        $limit = $user->getLimit();
+        $countWithTerms = $user->getTotalCountWhere(['AccountStatus' => -2, 'user_lvl' => 1], [], $searchterm);
+
+        $totalPages = ceil($countWithTerms / $limit);
+        $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $offset = ($currentPage - 1) * $limit;
+
+        $user->setOffset($offset);
+        $users = $user->where(['AccountStatus' => -2, 'user_lvl' => 1], [], $searchterm);
+
+        $pagination = new Pagination($currentPage, $totalPages, 2);
+        $paginationLinks = $pagination->generateLinks();
+
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                unset($user->password); // Remove password from result
+            }
+        }
+        // show($users);
+        // die;
+        $this->view('agent/removeowners', [
+            'paginationLinks' => $paginationLinks,
+            'users' => $users ?? [],
+            'tot' => $totalPages
+        ]);
+
+        $this->view('agent/removeowners');
+    }
 
     public function propertyOwners($c, $d)
     {
         switch ($c) {
-            case 'removeproviders':
-                $this->removeproviders();
+            case 'removeowners':
+                $this->removeOwners($c, $d);
                 break;
             case 'approval':
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['changes'])) {
@@ -1191,20 +1258,73 @@ class Agent
         return;
     }
 
-    public function removeserviceprovider($c, $d)
-    {
-        switch ($d) {
-            case 'removeproviders':
-                $this->removeproviders();
-                break;
-            default:
-                $this->view('agent/removeserviceprovider');
-                break;
-        }
-    }
+    public function removeproviders(){   
+        $user = new User();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pid'], $_POST['action'])) {
+            $pid = intval($_POST['pid']);
+            $action = $_POST['action'];
 
-    public function removeproviders()
-    {
+            if ($action === 'approve') {
+                // Set active status to 0 and user level to 0
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -4,
+                    'user_lvl' => 0
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal successful!";
+                    $_SESSION['flash']['type'] = "success";
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to approve user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            } elseif ($action === 'reject') {
+                // Set active status to 3
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -3,
+                    'user_lvl' => 2
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal rejected successfully!";
+                    $_SESSION['flash']['type'] = "success";
+
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to reject user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            }
+        } 
+
+        $user->setLimit(7);
+
+        $searchterm = $_GET['searchterm'] ?? "";
+        $limit = $user->getLimit();
+        $countWithTerms = $user->getTotalCountWhere(['AccountStatus' => -2, 'user_lvl' => 2], [], $searchterm);
+
+        $totalPages = ceil($countWithTerms / $limit);
+        $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $offset = ($currentPage - 1) * $limit;
+
+        $user->setOffset($offset);
+        $users = $user->where(['AccountStatus' => -2, 'user_lvl' => 2], [], $searchterm);
+
+        $pagination = new Pagination($currentPage, $totalPages, 2);
+        $paginationLinks = $pagination->generateLinks();
+
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                unset($user->password); // Remove password from result
+            }
+        }
+        // show($users);
+        // die;
+        $this->view('agent/spremove', [
+            'paginationLinks' => $paginationLinks,
+            'users' => $users ?? [],
+            'tot' => $totalPages
+        ]);
+
         $this->view('agent/spremove');
     }
 

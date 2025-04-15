@@ -19,7 +19,7 @@
             </button>
         </form>
         <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/manageProviders/propertyowners/removeproviders'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/delete.png" alt="Add" class="navigate-icons"></button></a>
+            <a href='<?= ROOT ?>/dashboard/manageProviders/propertyowners/removeowners'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/delete.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Approve Removal</span>
         </div>
     </div>
@@ -97,23 +97,4 @@
     } 
 ?>
  
-<!-- <div>
-    <div>
-        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
-        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
-        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
-        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
-        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
-        <?php require __DIR__ . '/../components/serviceProviderCard.php'; ?>
-    </div>
-</div> -->
-
-<!-- Pagination Buttons -->
-<!-- <div class="pagination">
-    <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
-    <span class="current-page">1</span>
-    <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
-</div> -->
-
-
 <?php require_once 'agentFooter.view.php'; ?>

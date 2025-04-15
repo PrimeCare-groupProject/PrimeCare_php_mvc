@@ -7,18 +7,26 @@ const closeSerPro = document.getElementById('close_serpro');
 const updateSerProBtn = document.getElementById('serpro_btn');
 const updateOwnerBtn = document.getElementById('owner_btn');
 
-updateOwnerBtn.addEventListener('click', () => {
-    hiddenMsgOwner.style.display = 'block';
-});
+if (updateOwnerBtn) {
+    updateOwnerBtn.addEventListener('click', () => {
+        hiddenMsgOwner.style.display = 'block';
+    });
+}
 
-updateSerProBtn.addEventListener('click', () => {
-    hiddenMsgSerPro.style.display = 'block';
-});
+if (updateSerProBtn) {
+    updateSerProBtn.addEventListener('click', () => {
+        hiddenMsgSerPro.style.display = 'block';
+    });
+}
 
-closeOwner.addEventListener('click', () => {
-    hiddenMsgOwner.style.display = 'none';
-});
+if (closeOwner) {
+    closeOwner.addEventListener('click', () => {
+        hiddenMsgOwner.style.display = 'none';
+    });
+}
 
-closeSerPro.addEventListener('click', () => {
-    hiddenMsgSerPro.style.display = 'none';
-});
+if (closeSerPro) {
+    closeSerPro.addEventListener('click', () => {
+        hiddenMsgSerPro.style.display = 'none';
+    });
+}

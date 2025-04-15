@@ -428,7 +428,7 @@ class Customer
             exit;
             }
         } else {
-            $_SESSION['flash']['msg'] = "Managers are not allowed to update role.";
+            $_SESSION['flash']['msg'] = "Only customers are allowed to update role.";
             $_SESSION['flash']['type'] = "error";
             redirect('dashboard/updateRole');
             exit;
@@ -451,7 +451,7 @@ class Customer
             exit;
             }
         } else {
-            $_SESSION['flash']['msg'] = "Managers are not allowed to update role.";
+            $_SESSION['flash']['msg'] = "Only customers are allowed to update role.";
             $_SESSION['flash']['type'] = "error";
             redirect('dashboard/updateRole');
             exit;

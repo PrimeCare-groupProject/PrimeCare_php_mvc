@@ -211,12 +211,12 @@
             <div class="input-group-group">
                 <label for="cardName" class="input-label">Name on Card</label>
                 <input type="text" name="cardName" id="cardName" class="input-field" 
-                    placeholder="John Doe" value="<?= old_value('email') ?>" required>
+                    placeholder="John Doe" value="<?= old_value('cardName') ?>" required>
             </div>
             <div class="input-group-group">
                 <label for="accountNo" class="input-label">Account Number</label>
                 <input type="text" name="accountNo" id="accountNo" class="input-field" 
-                    placeholder="123456789" value="<?= old_value('email') ?>" required>
+                    placeholder="123456789" value="<?= old_value('accountNo') ?>" required>
             </div>
             <div class="input-group">
                 <div class="input-group-group">
