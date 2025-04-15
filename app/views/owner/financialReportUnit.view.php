@@ -725,6 +725,7 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    margin-bottom: 40px;
 }
 
 .sidebar {
@@ -1042,6 +1043,7 @@
 .property-info-card{
     background: white;
     border-radius: 15px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.05);
 }
 
 .transactions-table table {
@@ -1320,6 +1322,7 @@
 .property-info-card{
     background: white;
     border-radius: 15px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.05);
 }
 
 .transactions-table table {
