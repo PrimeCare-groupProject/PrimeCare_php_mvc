@@ -16,6 +16,7 @@
 <div class="container">
     <!-- Left Sidebar -->
     <div class="sidebar">
+        <!-- Profile Card (Keep in sidebar) -->
         <div class="menu-card">
             <p>Current User:</p>
             <?php if ($user && isset($user->image_url) && !empty($user->image_url)): ?>
@@ -24,67 +25,37 @@
                 <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Owner">
             <?php endif; ?>
 
-            <a href="<?= ROOT ?>/owner/profile" class="menu-item">
+            <a href="<?= ROOT ?>/dashboard/profile/" class="menu-item">
                 Profile
             </a>
         </div>
 
-        <div class="savings-card">
+        <!-- Property Details Card (MOVED FROM MAIN CONTENT TO SIDEBAR) -->
+        <div class="property-info-card">
             <div class="card-header">
-                <span>Tenants</span>
+                <span>Property Details</span>
             </div>
-            <div class="tenants-list">
-                <?php if (is_array($bookings) && !empty($bookings)): ?>
-                    <?php foreach($bookings as $booking): ?>
-                        <?php if($booking->accept_status === 'accepted'): ?>
-                            <div class="tenant">
-                                <div class="tenant-avatar">
-                                    <?php 
-                                    // Get tenant user data if available
-                                    $tenantUser = null;
-                                    if(isset($booking->tenant_id)) {
-                                        $tenantModel = new User();
-                                        $tenantUser = $tenantModel->where(['pid' => $booking->tenant_id])[0] ?? null;
-                                    }
-                                    ?>
-                                    <?php if ($tenantUser && isset($tenantUser->image_url) && !empty($tenantUser->image_url)): ?>
-                                        <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $tenantUser->image_url ?>" alt="Tenant Avatar" />
-                                    <?php else: ?>
-                                        <img src="<?= ROOT ?>/assets/images/serPro1.png" alt="Tenant Avatar" />
-                                    <?php endif; ?>
-                                </div>
-                                <div class="tenant-info">
-                                    <div class="tenant-main">
-                                        <h4>Tenant #<?= $booking->tenant_id ?></h4>
-                                    </div>
-                                    <div class="tenant-details">
-                                        <div class="detail-item">
-                                            <span>Since: <?= date('M Y', strtotime($booking->start_date)) ?></span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span>Duration: <?= $booking->renting_period ?? '1' ?> months</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span>Rent: Rs. <?= number_format($booking->price, 2) ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="tenant">
-                        <div class="tenant-info">
-                            <div class="tenant-main">
-                                <h4>No active tenants</h4>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
+            <div class="property-details">
+                <div class="detail-row">
+                    <span class="label">Address:</span>
+                    <span class="value"><?= htmlspecialchars($property->address ?? 'N/A') ?>, <?= htmlspecialchars($property->city ?? '') ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Units:</span>
+                    <span class="value"><?= $property->units ?? 'N/A' ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Property Type:</span>
+                    <span class="value"><?= htmlspecialchars($property->type ?? 'N/A') ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Size:</span>
+                    <span class="value"><?= number_format($property->size_sqr_ft ?? 0) ?> sq ft</span>
+                </div>
             </div>
         </div>
 
-        <!-- Financial Summary Card -->
+        <!-- Financial Summary Card (Keep in sidebar) -->
         <div class="financial-summary-card">
             <div class="card-header">
                 <span>Financial Summary</span>
@@ -112,31 +83,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Property Information Card -->
-        <div class="property-info-card">
-            <div class="card-header">
-                <h3>Property Details</h3>
-            </div>
-            <div class="property-details">
-                <div class="detail-row">
-                    <span class="label">Address:</span>
-                    <span class="value"><?= htmlspecialchars($property->address ?? 'N/A') ?>, <?= htmlspecialchars($property->city ?? '') ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="label">Units:</span>
-                    <span class="value"><?= $property->units ?? 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="label">Property Type:</span>
-                    <span class="value"><?= htmlspecialchars($property->type ?? 'N/A') ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="label">Size:</span>
-                    <span class="value"><?= number_format($property->size_sqr_ft ?? 0) ?> sq ft</span>
-                </div>
-            </div>
-        </div>
-
+        <!-- Stats Cards (Keep in main content) -->
         <div class="stats-cards">
             <div class="stat-card earnings">
                 <h3 class="positive">Earnings</h3>
@@ -165,8 +112,106 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Tenant Details Card (MOVED FROM SIDEBAR TO MAIN CONTENT) -->
+        <div class="Tenant-table">
+            <div class="card-header">
+                <h3>Active Tenants</h3>
+            </div>
+            <div class="Ttenant-card">
 
-        <!-- Move Transaction History here (after stats cards, before charts) -->
+                <div class="tenants-list">
+                    <div class="tenant-header-row">
+                        <div class="tenant-header-cell">Avatar</div>
+                        <div class="tenant-header-cell">Tenant Info</div>
+                        <div class="tenant-header-cell">Rent</div>
+                        <div class="tenant-header-cell">Duration</div>
+                    </div>
+                    <?php if (is_array($bookings) && !empty($bookings)): ?>
+                        <?php 
+                        $acceptedBookings = false;
+                        foreach($bookings as $booking): 
+                            if(isset($booking->accept_status) && $booking->accept_status === 'accepted'): 
+                                $acceptedBookings = true;
+                        ?>
+                            <div class="tenant">
+                                <?php 
+                                // Get tenant user data using customer_id from booking table
+                                $tenantUser = null;
+                                if(isset($booking->customer_id) && !empty($booking->customer_id)) {
+                                    $tenantModel = new User();
+                                    $tenantUser = $tenantModel->where(['pid' => $booking->customer_id])[0] ?? null;
+                                }
+                                ?>
+                                <div class="tenant-avatar">
+                                    <?php if ($tenantUser && isset($tenantUser->image_url) && !empty($tenantUser->image_url)): ?>
+                                        <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $tenantUser->image_url ?>" alt="Tenant Photo" />
+                                    <?php else: ?>
+                                        <div class="avatar-placeholder">
+                                            <?php 
+                                            $initials = '';
+                                            if ($tenantUser) {
+                                                $initials = substr($tenantUser->fname ?? '', 0, 1) . substr($tenantUser->lname ?? '', 0, 1);
+                                            } else {
+                                                $initials = 'T';
+                                            }
+                                            echo htmlspecialchars($initials); 
+                                            ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="tenant-info-cell">
+                                    <div class="tenant-main">
+                                        <?php if ($tenantUser): ?>
+                                            <h4><?= $tenantUser->fname ?? '' ?> <?= $tenantUser->lname ?? '' ?></h4>
+                                        <?php else: ?>
+                                            <h4>Tenant #<?= $booking->customer_id ?? 'N/A' ?></h4>
+                                        <?php endif; ?>
+                                        <div class="tenant-badge">Active</div>
+                                    </div>
+                                    <div class="tenant-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">📅</span>
+                                            <span>Since: <?= date('M Y', strtotime($booking->start_date)) ?></span>
+                                        </div>
+                                        <?php if($tenantUser && !empty($tenantUser->contact)): ?>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">📞</span>
+                                            <span><?= $tenantUser->contact ?></span>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="tenant-rent-cell">
+                                    Rs. <?= number_format($booking->price, 2) ?>
+                                </div>
+                                <div class="tenant-duration-cell">
+                                    <div class="tenant-duration-badge">
+                                        <?= $booking->renting_period ?? '1' ?> months
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+
+                        <?php if (!$acceptedBookings): ?>
+                            <div class="tenant-empty-state">
+                                <div class="empty-icon">👤</div>
+                                <div class="empty-text">No active tenants</div>
+                            </div>
+                        <?php endif; ?>
+
+                    <?php else: ?>
+                        <div class="tenant-empty-state">
+                            <div class="empty-icon">👤</div>
+                            <div class="empty-text">No active tenants</div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History Card (Keep in main content) -->
         <div class="card-transactions-history-card">
             <div class="lcard-header">
                 <h3>Transaction History</h3>
@@ -768,10 +813,21 @@
     text-align: center;
     transition: background-color 0.2s;
     margin-top: 10px;
+    width: 50%;
+    background: #FCA311;
+}
+.menu-item:hover {
+    background-color: #e89200;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 8px rgba(252, 163, 17, 0.3);
+    transition: all 0.3s ease;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.menu-item:hover {
-    background-color: #3d8b40;
+.menu-item {
+    /* Existing styles kept */
+    transition: all 0.3s ease;
 }
 
 /* TENANTS LIST */
@@ -783,7 +839,7 @@
 
 .tenant {
     display: flex;
-    padding: 10px;
+    padding: 5px;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -792,15 +848,78 @@
 }
 
 .tenant-avatar {
-    margin-right: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 16px;
+    position: relative;
+    width: 60px;
+    height: 60px;
 }
 
 .tenant-avatar img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%; 
     object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    z-index: 2;
 }
+
+.tenant-avatar img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-color: #f0f8ff;
+}
+
+.tenant-avatar::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: radial-gradient(circle, rgba(252,163,17,0.15) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.avatar-placeholder {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    border: 3px solid white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+
+/* Hover effect for placeholder */
+.avatar-placeholder:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Fix cell alignment in tenant grid */
+.tenant {
+    display: grid;
+    grid-template-columns: 70px minmax(250px, 2fr) 100px 100px;
+    align-items: center;
+    padding: 14px 16px;
+}
+
 
 .tenant-info {
     flex: 1;
@@ -817,7 +936,10 @@
 }
 
 .detail-item {
-    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    padding: 2px 0;
 }
 
 /* FINANCIAL SUMMARY */
@@ -973,6 +1095,12 @@
     word-break: break-word;
 }
 
+.savings-card{
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+}
+
 .category-badge {
     display: inline-flex;
     align-items: center;
@@ -1008,6 +1136,12 @@
 .status-completed {
     background-color: #e8f5e9;
     color: #2e7d32;
+}
+
+.financial-summary-card{
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    background-color: white;
 }
 
 .status-pending {
@@ -1157,7 +1291,7 @@
     
     .analytics-details {
         width: 100%;
-        padding-left: 0;
+        padding: 10px ;
     }
     
     .transactions-table table {
@@ -1432,7 +1566,7 @@
     
     .analytics-details {
         width: 100%;
-        padding-left: 0;
+        padding-left: 20px;
     }
     
     .transactions-table table {
@@ -1639,6 +1773,7 @@
     height: 400px;
     width: 100%;
     position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 .card-transactions-history-card{
     background: white;
@@ -1753,7 +1888,7 @@
     
     .analytics-details {
         width: 100%;
-        padding-left: 0;
+        padding-left: 20px;
     }
     
     .transactions-table table {
@@ -1822,6 +1957,648 @@
 /* Fix redundant Recent Transactions section */
 .transactions-card {
     display: none; /* Hide redundant transaction table */
+}
+
+.analytics-card{
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08)
+}
+
+/* Enhanced Tenant Card Styling
+.tenant-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+ */
+
+.Ttenant-card{
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    border-radius: top 15px;
+}
+
+.tenant-table-caption h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.Tenant-table{
+    background-color: white;
+    border-radius: 15px;
+}
+
+.tenant-table-caption {
+    padding: 16px 20px;
+    background: linear-gradient(to right, #f8f9fa, #f2f4f6);
+    border-bottom: 1px solid #eaeef2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/*.tenant-card .card-header {
+    padding: 16px 20px;
+    background: linear-gradient(to right, #f8f9fa, #f2f4f6);
+    border-bottom: 1px solid #eaeef2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tenant-card .card-header span {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}*/
+
+.tenants-list {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f1f5f9;
+}
+
+.tenants-list::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.tenants-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.tenants-list::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 8px;
+    border: 2px solid #f1f5f9;
+}
+
+/* Individual Tenant Styling */
+.tenant {
+    display: grid;
+    grid-template-columns: 70px minmax(250px, 2fr) 100px 100px;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+}
+.tenant:hover {
+    background-color: #f9fbfd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tenant:last-child {
+    border-bottom: none;
+}
+
+/* Tenant Avatar */
+.tenant-avatar {
+    margin-right: 16px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.tenant-avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.tenant:hover .tenant-avatar img {
+    transform: scale(1.05);
+}
+
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tenant Info */
+.tenant-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.tenant-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.tenant-main h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.tenant-badge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(46, 125, 50, 0.2);
+}
+
+/* Tenant Details */
+.tenant-details {
+    font-size: 13px;
+    color: #666;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.detail-icon {
+    margin-right: 6px;
+    opacity: 0.8;
+    font-size: 14px;
+}
+
+/* Empty State */
+.tenant-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: #718096;
+}
+
+.empty-icon {
+    font-size: 36px;
+    margin-bottom: 15px;
+    opacity: 0.6;
+}
+
+.empty-text {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tenant-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .tenant {
+        padding: 12px;
+    }
+    
+    .tenant-avatar img,
+    .avatar-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tenant {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .tenant-avatar {
+        margin-right: 0;
+        margin-bottom: 12px;
+    }
+    
+    .tenant-main {
+        flex-direction: column;
+    }
+    
+    .tenant-badge {
+        margin-top: 8px;
+    }
+    
+    .tenant-details {
+        justify-items: center;
+    }
+}
+
+/* Table-like Enhancements for Tenant Section */
+.tenant-card {
+    background: white;
+    border-radius: 15px;
+    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); */
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+/* Table header row styling */
+.tenant-header-row {
+    display: grid;
+    grid-template-columns: 70px minmax(250px, 2fr) 100px 100px;
+    padding: 12px 16px;
+    background: #f1f5f9;
+    font-weight: 600;
+    color: #4a5568;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+    border-radius: 15px;
+    position: relative;
+}
+
+.tenant-header-cell {
+    padding: 8px 12px;
+    text-align: left;
+    position: relative;
+
+}
+
+.tenant-header-cell:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background-color: #d1d5db;
+}
+
+/* Convert tenant items to table-like rows */
+.tenant {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 120px;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+/* Add divider for avatar column */
+.tenant > div:nth-child(1)::after {
+    content: '';
+    position: absolute;
+    left: 70px;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background-color: #e2e8f0;
+}
+
+/* Add divider for info column */
+.tenant > div:nth-child(2)::after {
+    content: '';
+    position: absolute;
+    right: 220px;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background-color: #e2e8f0;
+}
+
+/* Add divider for rent column */
+.tenant > div:nth-child(3)::after {
+    content: '';
+    position: absolute;
+    right: 100px;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background-color: #e2e8f0;
+}
+
+.tenant:hover {
+    background-color: rgba(249, 251, 253, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Fixed width for avatar column */
+.tenant-avatar {
+    margin-right: 0;
+    width: 60px;
+}
+
+/* Main tenant info cell */
+.tenant-info-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Rent amount cell */
+.tenant-rent-cell {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 600;
+    color: #2e7d32;
+    text-align: right;
+    padding-right: 15px;
+}
+
+/* Duration cell */
+.tenant-duration-cell {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.tenant-duration-badge {
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background-color: #f0f4ff;
+    color: #4361ee;
+    font-size: 12px;
+    font-weight: 600;
+    align-items: center;
+}
+
+/* Tenant details restructured for better tabular alignment */
+.tenant-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+
+/* Alternating row colors */
+.tenant:nth-child(even) {
+    background-color: #fafbfd;
+}
+
+.tenant:nth-child(even):hover {
+    background-color: rgba(249, 251, 253, 0.8);
+}
+
+/* Empty state adjustments */
+.tenant-empty-state {
+    padding: 30px;
+    border-radius: 0;
+}
+
+/* Scrollable container with fixed headers */
+.tenants-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+/* Add these sorting controls to the header */
+.tenant-sort-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.tenant-sort-select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* Enhanced Tenant Table Styling */
+.Tenant-table {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+/* Match transaction table's card header styling */
+.card-header {
+    padding: 18px 20px;
+    background: linear-gradient(to right, #f8f9fa, #f2f4f6);
+    border-bottom: 1px solid #eaeef2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+/* Improved tenant table header row */
+.tenant-header-row {
+    display: grid;
+    grid-template-columns: 70px minmax(250px, 2fr) 100px 100px;
+    padding: 14px 16px;
+    background: linear-gradient(to bottom, #f9fafb, #f1f5f9);
+    font-weight: 600;
+    color: #4a5568;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+}
+
+/* Better tenant list container with matching scrollbar */
+.tenants-list {
+    max-height: 350px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f1f5f9;
+    padding: 0;
+    background: white;
+}
+
+/* Scrollbar styling to match transaction table */
+.tenants-list::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tenants-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.tenants-list::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 8px;
+    border: 2px solid #f1f5f9;
+}
+
+.tenants-list::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* Improved tenant row styling */
+.tenant {
+    display: grid;
+    grid-template-columns: 70px minmax(250px, 2fr) 100px 100px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f4f8;
+    transition: all 0.2s ease;
+    align-items: center;
+}
+
+/* Subtle hover effect like transaction table */
+.tenant:hover {
+    background-color: #f8fafd;
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+/* Alternating row colors like transaction table */
+.tenant:nth-child(even) {
+    background-color: #f9fafc;
+}
+
+.tenant:nth-child(even):hover {
+    background-color: #f3f6fa;
+}
+
+/* Last row styling */
+.tenant:last-child {
+    border-bottom: none;
+}
+
+/* Improved tenant info cell styling */
+.tenant-info-cell {
+    padding: 0 10px;
+}
+
+.tenant-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.tenant-main h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Enhanced badge styling */
+.tenant-badge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: 1px solid rgba(46, 125, 50, 0.15);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+/* Better tenant details styling */
+.tenant-details {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: #718096;
+    margin-top: 5px;
+}
+
+.detail-item {
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+}
+
+.detail-icon {
+    margin-right: 6px;
+    opacity: 0.7;
+    font-size: 14px;
+    color: #4a5568;
+    width: 16px;
+    text-align: center;
+}
+
+/* Enhanced tenant rent and duration cells */
+.tenant-rent-cell {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 600;
+    color: #2e7d32;
+    text-align: right;
+    font-size: 14px;
+}
+
+.tenant-duration-cell {
+    display: flex;
+    justify-content: center;
+}
+
+.tenant-duration-badge {
+    display: inline-flex;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background-color: #f0f4ff;
+    color: #4361ee;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(67, 97, 238, 0.15);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    margin-left: 30px;
+}
+
+/* Empty state styling to match transaction table */
+.tenant-empty-state {
+    padding: 30px 20px;
+    text-align: center;
+    color: #718096;
+    background-color: #fafbfc;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.empty-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.6;
+    color: #a0aec0;
+}
+
+.empty-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #718096;
 }
 </style>
 
