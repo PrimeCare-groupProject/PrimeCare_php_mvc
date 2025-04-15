@@ -13,7 +13,7 @@ trait Model{//similar to a class but can be inherited by other classes
     // public $table = 'users'; //table name which can inherit
     // public $order_column = "id";
     
-    protected $limit        = 10;
+    protected $limit        = 100;
     protected $offset       = 0;
     protected $order_type   = "desc";
     public    $errors       = [];
@@ -70,7 +70,7 @@ trait Model{//similar to a class but can be inherited by other classes
             limit $this->limit 
             offset $this->offset
             ";
-        // show($query);
+         //show($query);
         return $this->instance->query($query);
     }
     

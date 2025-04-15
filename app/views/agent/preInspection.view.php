@@ -104,21 +104,26 @@
             </thead>
             <tbody id="AA__properties-table-body">
                 <?php
-                foreach ($preinspection as $property):
+                if (empty($preinspection)) {
+                    echo "<tr><td colspan='4'>No pre-inspection properties found.</td></tr>";
+                } else {
+                    foreach ($preinspection as $property):
                 ?>
-                    <tr class="AA__property-row" data-id="<?= $property->property_id ?>" data-name="<?= strtolower($property->name) ?>" data-owner="<?= strtolower($property->owner_name) ?>">
-                        <td><?= $property->property_id ?></td>
-                        <td><?= $property->name ?></td>
-                        <td><?= $property->owner_name ?></td>
-                        <td class="AA__action-buttons">
-                            <!-- <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/reportGen/<?= $property->property_id ?>'">View</button> -->
-                            <a href="<?= ROOT ?>/dashboard/preInspection/showReport/<?= $property->property_id ?>">
-                                <button class="btn btn-sm btn-primary">Generate Report</button>
-                            </a>
+                        <tr class="AA__property-row" data-id="<?= $property->property_id ?>" data-name="<?= strtolower($property->name) ?>" data-owner="<?= strtolower($property->owner_name) ?>">
+                            <td><?= $property->property_id ?></td>
+                            <td><?= $property->name ?></td>
+                            <td><?= $property->owner_name ?></td>
+                            <td class="AA__action-buttons">
+                                <!-- <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/reportGen/<?= $property->property_id ?>'">View</button> -->
+                                <a href="<?= ROOT ?>/dashboard/preInspection/showReport/<?= $property->property_id ?>">
+                                    <button class="btn btn-sm btn-primary">Generate Report</button>
+                                </a>
 
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
+                            </td>
+                        </tr>
+                <?php endforeach;
+                } 
+                ?>
             </tbody>
         </table>
 

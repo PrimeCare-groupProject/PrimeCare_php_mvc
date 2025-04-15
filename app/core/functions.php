@@ -519,6 +519,8 @@ function enqueueNotification($message, $title = 'Notification', $link = '', $col
             //show("Dequeued: " . $popped); 
             $notificationModel->delete($popped, 'notification_id');
         }
+
+        return $queue; // Return the queue for further processing if needed
     }
 }
 

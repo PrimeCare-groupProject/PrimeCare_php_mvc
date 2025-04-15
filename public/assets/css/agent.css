@@ -762,6 +762,7 @@ th.sortable:hover img {
 .inventory-table tbody tr:hover {
     background-color: #eff0f5;
     cursor: pointer;
+}
 
 #loading-spinner {
     display: none;
@@ -778,3 +779,93 @@ th.sortable:hover img {
     50% {
         opacity: 0;
     }
+}
+
+/*.flash-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.flash-popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.flash-popup {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    width: 90%;
+    max-width: 400px;
+    padding: 25px;
+    text-align: center;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.flash-popup-overlay.active .flash-popup {
+    transform: translateY(0);
+}
+
+.flash-popup.success {
+    border-top: 4px solid #4CAF50;
+}
+
+.flash-popup.error {
+    border-top: 4px solid #f44336;
+}
+
+.flash-popup-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.success .flash-popup-icon {
+    color: #4CAF50;
+}
+
+.error .flash-popup-icon {
+    color: #f44336;
+}
+
+.flash-popup h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+.flash-popup p {
+    margin: 0 0 20px;
+    color: #666;
+    font-size: 16px;
+}
+
+.flash-popup-button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.flash-popup-button:hover {
+    opacity: 0.9;
+}
+
+.error .flash-popup-button {
+    background: #f44336;
+}*/

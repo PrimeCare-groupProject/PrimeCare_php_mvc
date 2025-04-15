@@ -14,6 +14,7 @@
         </div>
     </div>
 </div>
+
 <div class="blur-container">
 <div class="listing-the-property">
     <!-- Property Listings -->

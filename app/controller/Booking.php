@@ -27,15 +27,25 @@ class Booking
                     $res = $book->update($_POST['booking_id'], ['accept_status' => 'accepted','accepted_date' => $_POST['accepteddate']], 'booking_id');
                      if ($res) {
                         // Set flash message in session
-                        $_SESSION['flash_message'] = 'Booking Accepted successfully!';
+                        //$_SESSION['flash_message'] = 'Booking Accepted successfully!';
+                        $_SESSION['flash_message'] = [
+                            'type' => 'success',
+                            'message' => 'Booking accepted successfully!'
+                        ];
         
                     } else {
                         // Handle failure (e.g., insert failed)
-                        $_SESSION['flash_message'] = 'Failed to update booking. Please try again.';
+                        //$_SESSION['flash_message'] = 'Failed to update booking. Please try again.';
+                        $_SESSION['flash_message'] = [
+                            'type' => 'success', 
+                            'message' => 'Failed to reject booking. Please try again!'
+                        ];
                     }
                     $property = new Property;
                     $person = new User; 
                     $pid = $book->where(['booking_id' => $_POST['booking_id']],)[0];
+                    $image1 = new PropertyImageModel;
+                    $images = $image1->findAll(); 
                     $bookings = $book->selecthreetables($property->table,
                                                         'property_id', 
                                                         'property_id', 
@@ -48,23 +58,31 @@ class Booking
                                                         'customer_id',
                                                         $pid->customer_id
                                                         );
-                    $this->view('agent/bookingaccept',['bookings'=> $bookings]);
+                    $this->view('agent/bookingaccept',['bookings'=> $bookings,'images' => $images]);
                     exit;
                 } elseif ($_POST["action"] == "reject") {
                     // Call Accept Controller
                     $book =  new BookingModel;
                     $res = $book->update($_POST['booking_id'], ['accept_status' => 'rejected'], 'booking_id');
                      if ($res) {
-                        // Set flash message in session
-                        $_SESSION['flash_message'] = 'Booking Rejected successfully!';
+                        $_SESSION['flash_message'] = [
+                            'type' => 'error',
+                            'message' => 'Booking rejected successfully!'
+                        ];
         
                     } else {
                         // Handle failure (e.g., insert failed)
-                        $_SESSION['flash_message'] = 'Failed to reject booking. Please try again.';
+                        //$_SESSION['flash_message'] = 'Failed to reject booking. Please try again.';
+                        $_SESSION['flash_message'] = [
+                            'type' => 'error',
+                            'message' => 'Failed to reject booking. Please try again.'
+                        ];
                     }
                     $property = new Property;
                     $person = new User; 
                     $pid = $book->where(['booking_id' => $_POST['booking_id']],)[0];
+                    $image1 = new PropertyImageModel;
+                    $images = $image1->findAll(); 
                     $bookings = $book->selecthreetables($property->table,
                                                         'property_id', 
                                                         'property_id', 
@@ -77,7 +95,7 @@ class Booking
                                                         'customer_id',
                                                         $pid->customer_id
                                                         );
-                    $this->view('agent/bookingaccept',['bookings'=> $bookings]);
+                    $this->view('agent/bookingaccept',['bookings'=> $bookings,'images' => $images]);
                     exit;
                 }
             }

@@ -160,6 +160,7 @@ class Owner
         $currentMonth = date('n');
         $currentYear = date('Y');
         
+        // Initialize monthly data structure
         $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
@@ -174,7 +175,7 @@ class Owner
             ];
         }
         
-        // Get data for all properties
+        // Get data only for properties owned by the current user
         if(!empty($propertyIds)) {
             // Get all bookings for owner's properties
             foreach($propertyIds as $propId) {
@@ -186,8 +187,11 @@ class Owner
                         // Calculate income
                         $totalIncome += $b->price;
                         
-                        // Track active bookings
-                        if(isset($b->status) && $b->status === 'active') {
+                        // Track active bookings - UPDATED LOGIC
+                        if(isset($b->status) && strtolower($b->status) === 'active') {
+                            $activeBookings++;
+                        } else if(isset($b->accept_status) && strtolower($b->accept_status) === 'accepted') {
+                            // Also count bookings with 'accepted' status if they don't have an explicit 'active' status
                             $activeBookings++;
                         }
                         
@@ -229,6 +233,30 @@ class Owner
             }
         }
         
+        // UFetch tenant details using customer_id from the booking table
+        $tenantDetails = [];
+        if(!empty($bookings)) {
+            // Collect all unique customer_ids from bookings
+            $customerIds = [];
+            foreach($bookings as $booking) {
+                if(isset($booking->customer_id) && !in_array($booking->customer_id, $customerIds)) {
+                    $customerIds[] = $booking->customer_id;
+                }
+            }
+            
+            // Get tenant details using findByMultiplePids method
+            if(!empty($customerIds)) {
+                $tenants = $userModel->findByMultiplePids($customerIds);
+                
+                if($tenants) {
+                    foreach($tenants as $tenant) {
+                        // Create an association by pid for easier lookup
+                        $tenantDetails[$tenant->pid] = $tenant;
+                    }
+                }
+            }
+        }
+        
         // Calculate profit and occupancy rate
         $profit = $totalIncome - $totalExpenses;
         $occupancyRate = ($totalUnits > 0) ? (($activeBookings / $totalUnits) * 100) : 0;
@@ -240,7 +268,8 @@ class Owner
         
         // Prepare data for the view
         $viewData = [
-            'user' => $userData,  // Add user data to the view
+            'user' => $userData,
+            'tenantDetails' => $tenantDetails,
             'status' => $_SESSION['status'] ?? '',
             'properties' => $properties,
             'bookings' => $bookings,
@@ -919,18 +948,15 @@ class Owner
         $agent = new User;
         $agentDetails = $agent->where(['pid' => $propertyDetails->agent_id])[0] ?? null;
         
-        // Get all bookings/rentals (income) for this property
-        $booking = new BookingModel();
-        $bookings = $booking->where(['property_id' => $propertyId]);
+        // Initialize variables before using them
+        $totalIncome = 0;
+        $activeBookings = 0;
         
-        // Get all service logs (expenses) for this property
-        $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
-        
-        // Calculate monthly income and expenses for the last 6 months
+        // Calculate monthly data for the last 6 months
         $currentMonth = date('n');
         $currentYear = date('Y');
         
+        // Initialize monthly data structure
         $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
@@ -945,6 +971,38 @@ class Owner
             ];
         }
         
+        // Get all bookings/rentals (income) for this property
+        $booking = new BookingModel();
+        $bookings = $booking->where(['property_id' => $propertyId]);
+        if (!is_array($bookings) && !is_object($bookings)) {
+            $bookings = []; // Ensure $bookings is always iterable
+        }
+
+        // Now the foreach loop will work even if no bookings are found
+        foreach ($bookings as $booking) {
+            $bookingMonth = date('M', strtotime($booking->start_date));
+            if (isset($monthlyData[$bookingMonth])) {
+                $monthlyData[$bookingMonth]['income'] += $booking->price;
+            }
+            $totalIncome += $booking->price;
+            
+            if ((isset($booking->status) && strtolower($booking->status) === 'active') || 
+                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')) {
+                $activeBookings++;
+            }
+        }
+        
+        // Get all service logs (expenses) for this property
+        $serviceLog = new ServiceLog();
+        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        if (!is_array($serviceLogs) && !is_object($serviceLogs)) {
+            $serviceLogs = []; // Ensure $serviceLogs is always iterable
+        }
+        
+        // Calculate monthly income and expenses for the last 6 months
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        
         // Calculate total income from bookings
         $totalIncome = 0;
         $activeBookings = 0;
@@ -955,7 +1013,8 @@ class Owner
             }
             $totalIncome += $booking->price;
             
-            if ($booking->status === 'active') {
+            if ((isset($booking->status) && strtolower($booking->status) === 'active') || 
+                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')) {
                 $activeBookings++;
             }
         }
