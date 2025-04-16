@@ -684,9 +684,81 @@ class ServiceProvider {
     }
 
 
-    public function repairListing(){
-        $this->view('serviceprovider/repairListing');
+    public function repairListing() {
+    // Check if user is logged in
+    if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+        redirect('login');
+        return;
     }
+    
+    // Fetch all services from the database
+    $services = new Services();
+    $allServices = $services->getAllServices();
+    
+    $this->view('serviceprovider/repairListing', [
+        'services' => $allServices
+    ]);
+}
+
+public function serviceOverview() {
+    // Check if user is logged in
+    if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+        redirect('login');
+        return;
+    }
+    
+    $service_id = $_GET['service_id'] ?? null;
+    $service_name = $_GET['service_name'] ?? null;
+    
+    if (!$service_id && !$service_name) {
+        redirect('serviceprovider/repairListing');
+        return;
+    }
+    
+    // Get service details
+    $services = new Services();
+    $service = null;
+    
+    if ($service_id) {
+        $service = $services->getServiceById($service_id);
+    } else if ($service_name) {
+        $service = $services->first(['name' => $service_name]);
+    }
+    
+    if (!$service) {
+        $_SESSION['error'] = 'Service not found';
+        redirect('serviceprovider/repairListing');
+        return;
+    }
+    
+    // Get provider's previous tasks for this service type
+    $serviceLog = new ServiceLog();
+    $provider_id = $_SESSION['user']->pid;
+    
+    $previous_tasks = $serviceLog->where([
+        'service_provider_id' => $provider_id,
+        'service_type' => $service->name,
+        'status' => 'Done'
+    ]);
+    
+    // Ensure $previous_tasks is always an array
+    if (!is_array($previous_tasks)) {
+        $previous_tasks = [];
+    }
+    
+    // Sorting(newest first)
+    usort($previous_tasks, function($a, $b) {
+        return strtotime($b->date) - strtotime($a->date);
+    });
+    
+    // Prepare view data
+    $data = [
+        'service' => $service,
+        'previous_tasks' => $previous_tasks
+    ];
+    
+    $this->view('serviceprovider/serviceOverview', $data);
+}
 
     public function repairRequests() {
     // Check if user is logged in
