@@ -80,7 +80,7 @@ if ($grandTotalServices > 0) {
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Pending Tasks</div>
-                        <div class="stat-value"><?= $pendingWorks ?? 0 ?></div>
+                        <div class="stat-value"><?= $worksToDo ?? 0 ?></div>
                     </div>
                 </div>
             </div>
