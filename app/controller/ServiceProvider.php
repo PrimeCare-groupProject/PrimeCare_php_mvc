@@ -33,6 +33,7 @@ class ServiceProvider {
         $totalHoursWorked = 0;
         $completedWorks = 0;
         $pendingWorks = 0;
+        $worksToDo = 0;
         $ongoingWorks = [];
         $monthlyIncome = [];
         $serviceTypeDistribution = [];
@@ -58,13 +59,14 @@ class ServiceProvider {
             // Lowercase status for comparison
             $status = strtolower($service->status);
 
-            // Change these comparisons to match the capitalization in your database
+            //Comparisons in database
             if ($status === 'done' || $status === 'Done') {
                 $completedWorks++;
             } elseif ($status === 'pending' || $status === 'Pending') {
                 $pendingWorks++;
             } elseif ($status === 'ongoing' || $status === 'Ongoing') {
                 $ongoingWorks[] = $service;
+                $worksToDo++;
             }
 
             // Track monthly income if it matches current month/year
@@ -141,6 +143,7 @@ class ServiceProvider {
             'completedWorks' => $completedWorks,
             'pendingWorks' => $pendingWorks,
             'ongoingWorks' => $ongoingWorks,
+            'worksToDo' => $worksToDo,
             'totalWorks' => $totalWorks,
             'completionRate' => $completionRate,
             'currentMonthIncome' => $currentMonthIncome,
