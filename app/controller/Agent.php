@@ -646,8 +646,35 @@ class Agent
             case 'propertyowners':
                 $this->propertyOwners($c, $d);
                 break;
+            case 'managetenents':
+                $this->tenents($c, $d);
+                break;
             default:
                 $this->view('agent/manageProviders');
+                break;
+        }
+    }
+
+    public function tenents( $c = '', $d = '')
+    {
+        switch ($c) {
+            case 'bookingaccept':
+                $this->bookingAccept($c);
+                break;
+            case 'history':
+                $this->bookinghistory($c,$d);
+                break;
+            default:
+                $book = new BookingModel;
+                $property = new Property;
+                $properties = $property->findAll();
+                $bookings = $book->findAll();
+                $person1 = new User;
+                $persons = $person1->findAll();
+                /*echo "<pre>";
+                print_r($images);
+                echo "</pre>";*/
+                $this->view('agent/tenents',['bookings'=> $bookings,'persons' => $persons, 'properties' => $properties]);
                 break;
         }
     }
@@ -1327,6 +1354,7 @@ class Agent
 
         $this->view('agent/spremove');
     }
+
 
     public function bookings($b = '', $c = '', $d = '')
     {
