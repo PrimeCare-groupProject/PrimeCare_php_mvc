@@ -73,6 +73,60 @@ CREATE TABLE propertyTable (
     FOREIGN KEY (agent_id) REFERENCES person(pid) ON DELETE SET NULL
 );
 
+CREATE TABLE property_bookings (
+    booking_id INT PRIMARY KEY AUTO_INCREMENT,
+    property_id INT NOT NULL,
+    person_id INT NOT NULL,
+    
+    -- Rental type classification
+    rental_type ENUM('short_term', 'commercial', 'monthly') NOT NULL COMMENT '
+        short_term = hourly rentals, 
+        commercial = daily rentals, 
+        monthly = long-term rentals',
+    
+    -- Rental period
+    check_in DATETIME NOT NULL,
+    check_out DATETIME NOT NULL,
+    
+    -- Automatic duration calculation
+    duration_hours DECIMAL(10,2) GENERATED ALWAYS AS (
+        TIMESTAMPDIFF(HOUR, check_in, check_out)
+    ) STORED,
+    duration_days INT GENERATED ALWAYS AS (
+        DATEDIFF(check_out, check_in)
+    ) STORED,
+    
+    -- Pricing
+    base_rate DECIMAL(10,2) NOT NULL,
+    rate_unit ENUM('per_hour', 'per_day', 'per_month') NOT NULL,
+    cleaning_fee DECIMAL(10,2) DEFAULT 0.00,
+    security_deposit DECIMAL(10,2) DEFAULT 0.00,
+    total_amount DECIMAL(12,2) GENERATED ALWAYS AS (
+        CASE rate_unit
+            WHEN 'per_hour' THEN base_rate * duration_hours
+            WHEN 'per_day' THEN base_rate * duration_days
+            WHEN 'per_month' THEN base_rate * CEILING(duration_days/30)
+        END + cleaning_fee + security_deposit
+    ) STORED,
+    
+    -- Status tracking
+    booking_status ENUM('pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled') DEFAULT 'pending',
+    is_active BOOLEAN DEFAULT TRUE,
+    cancellation_reason TEXT,
+    
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign keys
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id),
+    FOREIGN KEY (person_id) REFERENCES person(pid),
+    
+    -- Indexes
+    INDEX idx_property_dates (property_id, check_in, check_out),
+    INDEX idx_person_bookings (person_id, check_in),
+    INDEX idx_booking_status (booking_status, is_active)
+);
 
 CREATE OR REPLACE VIEW propertyTable_with_images AS
 SELECT 
