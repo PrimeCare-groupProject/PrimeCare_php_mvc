@@ -122,6 +122,17 @@
         </div>
     </a>
 
+    <a href="<?= ROOT ?>/dashboard/manageProviders/ManageTenents">
+        <div class="MM__cards">
+            <div class="MM__text">
+                <h2>Tenents</h2>
+            </div>
+            <div class="management-icon">
+                <img src="<?= ROOT ?>/assets/images/reportform.jpg" alt="Manage Tenents" class="MM__img">
+            </div>
+        </div>
+    </a>
+
     <div class="loader-container" style="display: none;">
         <div class="spinner-loader"></div>
     </div>
