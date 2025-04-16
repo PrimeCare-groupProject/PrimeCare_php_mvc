@@ -80,7 +80,7 @@ if ($grandTotalServices > 0) {
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Pending Tasks</div>
-                        <div class="stat-value"><?= $pendingWorks ?? 0 ?></div>
+                        <div class="stat-value"><?= $worksToDo ?? 0 ?></div>
                     </div>
                 </div>
             </div>
@@ -110,7 +110,7 @@ if ($grandTotalServices > 0) {
                                             <span class="task-cost"><i class="fas fa-money-bill"></i> LKR <?= number_format($task->earnings ?? 0, 2) ?></span>
                                         </div>
                                     </div>
-                                    <a href="<?= ROOT ?>serviceprovider/addLogs?service_id=<?= $task->service_id ?? 0 ?>" class="task-action">
+                                    <a href="<?= ROOT ?>/serviceprovider/addLogs?service_id=<?= $task->service_id ?? 0 ?>" class="task-action">
                                         <i class="fas fa-pen"></i> Update
                                     </a>
                                 </li>
