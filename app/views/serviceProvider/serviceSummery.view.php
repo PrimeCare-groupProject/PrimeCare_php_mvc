@@ -104,17 +104,18 @@
             </div>
             
             <div class="info-card">
+                <!-- Usual Cost -->
                 <div class="info-row">
-                    <span class="info-label">Hourly Rate</span>
-                    <span class="info-value">LKR <?= number_format($cost_per_hour ?? 0, 2) ?></span>
+                    <span class="info-label">Usual Cost</span>
+                    <span class="info-value">LKR <?= number_format($usual_cost ?? (($total_hours ?? 0) * ($cost_per_hour ?? 0)), 2) ?></span>
                 </div>
                 
-                <div class="info-row">
-                    <span class="info-label">Labor Cost</span>
-                    <span class="info-value">LKR <?= number_format(($total_hours ?? 0) * ($cost_per_hour ?? 0), 2) ?></span>
-                </div>
-                
-                <?php if (!empty($additional_charges)): ?>
+                <!-- Additional Charges -->
+                <?php 
+                // Ensure additional_charges is properly initialized
+                $additional_charges = $additional_charges ?? 0;
+                if ($additional_charges > 0): 
+                ?>
                 <div class="info-row additional-charges">
                     <span class="info-label">Additional Charges</span>
                     <span class="info-value">LKR <?= number_format($additional_charges, 2) ?></span>
@@ -124,35 +125,23 @@
                     <span class="info-label">Charges Reason</span>
                     <span class="info-value"><?= htmlspecialchars($additional_charges_reason ?? 'Not specified') ?></span>
                 </div>
+                <?php else: ?>
+                <div class="info-row no-additional">
+                    <span class="info-label">Additional Charges</span>
+                    <span class="info-value">LKR 0.00</span>
+                </div>
                 <?php endif; ?>
                 
+                <!-- Total Earnings -->
                 <div class="info-row total">
                     <span class="info-label">Total Earnings</span>
-                    <span class="info-value">LKR <?= number_format($earnings, 2) ?></span>
-                </div>
-
-                <div class="info-row">
-                    <span class="info-label">Usual Service Cost</span>
-                    <span class="info-value">LKR <?= number_format($service_details->usual_cost ?? (($service_details->cost_per_hour ?? 0) * ($service_details->total_hours ?? 0)), 2) ?></span>
-                </div>
-
-                <?php if (!empty($service_details->additional_charges)): ?>
-                <div class="info-row additional-charges">
-                    <span class="info-label">Additional Charges</span>
-                    <span class="info-value">LKR <?= number_format($service_details->additional_charges, 2) ?></span>
-                </div>
-
-                <div class="info-row reason">
-                    <span class="info-label">Charges Reason</span>
-                    <span class="info-value"><?= htmlspecialchars($service_details->additional_charges_reason ?? 'Not specified') ?></span>
-                </div>
-                <?php endif; ?>
-
-                <div class="info-row total">
-                    <span class="info-label">Total Cost</span>
-                    <span class="info-value">LKR <?= number_format(
-                        ($usual_cost ?? 0) + ($additional_charges ?? 0), 2
-                    ) ?></span>
+                    <?php
+                    // Calculate usual cost with fallback
+                    $calculated_usual_cost = $usual_cost ?? (($total_hours ?? 0) * ($cost_per_hour ?? 0));
+                    // Calculate total earnings (usual cost + additional charges)
+                    $total_earnings = $calculated_usual_cost + $additional_charges;
+                    ?>
+                    <span class="info-value highlight-total">LKR <?= number_format($total_earnings, 2) ?></span>
                 </div>
             </div>
         </div>
@@ -245,6 +234,7 @@ if (totalSlides > 0) {
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 1px;
+    margin-right: 20px;
 }
 
 .done {
@@ -348,13 +338,43 @@ if (totalSlides > 0) {
     margin-top: 10px;
     padding-top: 15px;
     border-top: 2px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .info-row.total .info-label,
 .info-row.total .info-value {
     font-weight: 700;
+    font-size: 1.1em;
+    color: #2c3e50;
+}
+
+.info-row.total-with-service {
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.info-row.total-with-service .info-label,
+.info-row.total-with-service .info-value {
+    font-weight: 800;
     font-size: 1.2em;
     color: #f39c12;
+}
+
+.highlight-yellow {
+    color: #f1c40f !important;
+    font-weight: 600;
+}
+
+.highlight-total {
+    color: #2c3e50 !important;
+    font-weight: 700;
+    font-size: 1.2em;
+}
+
+.info-row.no-additional {
+    color: #888;
+    font-style: italic;
 }
 
 /* Description styling */
