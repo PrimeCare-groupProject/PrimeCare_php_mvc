@@ -525,6 +525,8 @@ class ServiceProvider {
             $service_id = $_POST['service_id'] ?? null;
             $total_hours = $_POST['total_hours'] ?? null;
             $provider_description = $_POST['description'] ?? null;
+            $additional_charges = floatval($_POST['additional_charges'] ?? 0);
+            $additional_charges_reason = $_POST['additional_charges_reason'] ?? '';
     
             // Basic validation
             if (empty($service_id) || empty($total_hours) || empty($provider_description)) {
@@ -586,6 +588,17 @@ class ServiceProvider {
                 'service_provider_description' => $provider_description
             ];
     
+            // Handle additional charges
+            if ($additional_charges > 0) {
+                // Append additional charges information to the description
+                $charges_info = "\n\n--- Additional Charges: LKR" . number_format($additional_charges, 2) . " ---\n" . 
+                                "Reason: " . $additional_charges_reason;
+                                
+                $update_data['service_provider_description'] = $provider_description . $charges_info;
+                $update_data['additional_charges'] = $additional_charges;
+                $update_data['additional_charges_reason'] = $additional_charges_reason;
+            }
+    
             // Add images if any were uploaded
             if (!empty($uploaded_images)) {
                 $update_data['service_images'] = json_encode($uploaded_images);
@@ -593,7 +606,7 @@ class ServiceProvider {
     
             // Update the service log
             $update_result = $serviceLog->update($service_id, $update_data, 'service_id');
-
+    
             if ($update_result) {
                 // Fetch the property details to get owner information
                 if (!empty($existing_log->property_id)) {
@@ -601,14 +614,26 @@ class ServiceProvider {
                     $propertyDetails = $property->first(['property_id' => $existing_log->property_id]);
                     
                     if ($propertyDetails && !empty($propertyDetails->person_id)) {
+                        // Calculate total cost including additional charges
+                        $totalCost = ($existing_log->cost_per_hour * $total_hours) + $additional_charges;
+                        
+                        // Create notification message with additional charges if applicable
+                        $notificationMessage = "The " . ($existing_log->service_type ?? "maintenance") . 
+                                               " service for " . ($propertyDetails->name ?? "your property") . 
+                                               " has been completed.";
+                        
+                        // Add additional charges information to notification if applicable
+                        if ($additional_charges > 0) {
+                            $notificationMessage .= " Additional charges of LKR" . number_format($additional_charges, 2) . 
+                                                   " were applied for " . $additional_charges_reason . ".";
+                        }
+                        
                         // Create notification for property owner
                         $notificationModel = new NotificationModel();
                         $ownerNotificationData = [
                             'user_id' => $propertyDetails->person_id,
                             'title' => "Service Completed",
-                            'message' => "The " . ($existing_log->service_type ?? "maintenance") . 
-                                        " service for " . ($propertyDetails->name ?? "your property") . 
-                                        " has been completed.",
+                            'message' => $notificationMessage,
                             'color' => 'Notification_green',
                             'is_read' => 0,
                             'link' => ROOT . 'dashboard/maintenance',
