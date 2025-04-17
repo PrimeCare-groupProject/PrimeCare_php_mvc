@@ -759,14 +759,20 @@ class ServiceProvider {
             return;
         }
 
-        // Prepare view data
+        // Pass ALL needed fields directly from service_details to the view
         $view_data = [
             'service_id' => $service_id,
             'property_id' => $service_details->property_id ?? null,
             'property_name' => $service_details->property_name ?? null,
             'service_type' => $service_details->service_type ?? null,
             'status' => $service_details->status ?? null,
-            'earnings' => $service_details->cost_per_hour * ($service_details->total_hours ?? 0),
+            'cost_per_hour' => $service_details->cost_per_hour ?? 0,
+            'total_hours' => $service_details->total_hours ?? 0,
+            'usual_cost' => $service_details->usual_cost ?? 0,
+            'additional_charges' => $service_details->additional_charges ?? 0,
+            'additional_charges_reason' => $service_details->additional_charges_reason ?? '',
+            'total_cost' => $service_details->total_cost ?? 0,
+            'date' => $service_details->date ?? null,
             'service_images' => json_decode($service_details->service_images ?? '[]'),
             'service_provider_description' => $service_details->service_provider_description ?? '',
         ];
