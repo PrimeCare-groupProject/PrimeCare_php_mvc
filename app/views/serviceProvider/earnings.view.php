@@ -39,6 +39,34 @@
     </div>
 </div>
 
+<!-- Total Earnings Summary Section -->
+<div class="total-earnings-summary">
+    <div class="total-earnings-card">
+        <div class="total-earnings-icon">
+            <i class="fa fa-money-bill-wave"></i>
+        </div>
+        <div class="total-earnings-content">
+            <h3>Total Earnings</h3>
+            <div class="time-period" id="earnings-time-period">All Time</div>
+            <div class="total-amount" id="total-earnings-amount">LKR 0.00</div>
+        </div>
+    </div>
+    <div class="total-earnings-stats">
+        <div class="stat-item">
+            <div class="stat-label">Services Completed</div>
+            <div class="stat-value" id="total-services">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Total Hours</div>
+            <div class="stat-value" id="total-hours">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Avg. Earnings/Hour</div>
+            <div class="stat-value" id="avg-hourly-rate">LKR 0.00</div>
+        </div>
+    </div>
+</div>
+
 <div class="chart-container" style="width: 90%; max-width: 800px; margin: 30px auto; padding: 20px; background: #ffffff; border-radius: 10px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);">
     <h2 style="text-align: center; margin-bottom: 20px; font-family: 'Roboto', sans-serif; font-size: 24px; color: #444;">Earnings Overview (LKR)</h2>
     <canvas id="earningsChart" style="max-height: 400px;"></canvas>
@@ -157,9 +185,11 @@
 <style>
     /* Filter Container */
     .filter-container {
-        width: 90%;
-        max-width: 800px;
-        margin: 20px auto;
+        width: 95%;
+        max-width: none;
+        margin: 20px 0;
+        margin-left: auto;
+        margin-right: auto;
         padding: 20px;
         background: #ffffff;
         border-radius: 10px;
@@ -546,6 +576,94 @@
         background-color: #FFF9C4;
         padding: 0 2px;
     }
+
+    /* Total Earnings Summary Styles */
+    .total-earnings-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        width: 97%;
+        margin: 10px 0;
+        padding: 20px;
+        justify-content: center;
+    }
+
+    .total-earnings-card {
+        flex: 1 1 300px;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #FDD835, #FFEB3B);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .total-earnings-icon {
+        font-size: 40px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-right: 20px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .total-earnings-content {
+        flex-grow: 1;
+    }
+
+    .total-earnings-content h3 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .time-period {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 10px;
+    }
+
+    .total-amount {
+        font-size: 32px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .total-earnings-stats {
+        flex: 2 1 500px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .stat-item {
+        flex: 1;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    @media (max-width: 768px) {
+        .total-earnings-summary {
+            flex-direction: column;
+        }
+        
+        .total-earnings-stats {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -632,6 +750,39 @@
             }
         }
         
+        // Add function to update earnings summary based on filtered data
+        function updateEarningsSummary(filteredData) {
+            // Calculate totals from filtered data
+            let totalEarnings = 0;
+            let totalServices = filteredData.length;
+            let totalHours = 0;
+            
+            filteredData.forEach(service => {
+                totalEarnings += parseFloat(service.totalEarnings) || 0;
+                totalHours += parseFloat(service.total_hours) || 0;
+            });
+            
+            // Calculate average hourly rate
+            const avgHourlyRate = totalHours > 0 ? totalEarnings / totalHours : 0;
+            
+            // Update the summary sections
+            document.getElementById('total-earnings-amount').textContent = 'LKR ' + totalEarnings.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            document.getElementById('total-services').textContent = totalServices;
+            document.getElementById('total-hours').textContent = totalHours.toLocaleString(undefined, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+            
+            document.getElementById('avg-hourly-rate').textContent = 'LKR ' + avgHourlyRate.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
         // Filter services based on date range
         function filterServices(startDate, endDate) {
             console.log('Filtering with dates:', startDate, endDate);
@@ -646,6 +797,9 @@
                     visibleCount++;
                 });
                 filteredData = [...chartData];
+                
+                // Update time period display
+                document.getElementById('earnings-time-period').textContent = 'All Time';
             } else {
                 serviceCards.forEach(card => {
                     const cardDateStr = card.getAttribute('data-date');
@@ -668,7 +822,21 @@
                         card.style.display = 'none';
                     }
                 });
+                
+                // Update time period display with date range
+                if (startDate && endDate) {
+                    const startStr = startDate.toLocaleDateString();
+                    const endStr = endDate.toLocaleDateString();
+                    document.getElementById('earnings-time-period').textContent = `${startStr} - ${endStr}`;
+                } else if (startDate) {
+                    document.getElementById('earnings-time-period').textContent = `From ${startDate.toLocaleDateString()}`;
+                } else if (endDate) {
+                    document.getElementById('earnings-time-period').textContent = `Until ${endDate.toLocaleDateString()}`;
+                }
             }
+            
+            // Update earnings summary with filtered data
+            updateEarningsSummary(filteredData);
             
             // Update no results message visibility
             if (noFilteredServices) {
@@ -748,6 +916,24 @@
                 
                 // Apply filtering
                 filterServices(startDate, endDate);
+                
+                // Set text for the earnings time period based on filter
+                switch(period) {
+                    case 'week':
+                        document.getElementById('earnings-time-period').textContent = 'Last 7 Days';
+                        break;
+                    case 'month':
+                        document.getElementById('earnings-time-period').textContent = 'Last 30 Days';
+                        break;
+                    case 'quarter':
+                        document.getElementById('earnings-time-period').textContent = 'Last 3 Months';
+                        break;
+                    case 'year':
+                        document.getElementById('earnings-time-period').textContent = 'Last Year';
+                        break;
+                    default:
+                        document.getElementById('earnings-time-period').textContent = 'All Time';
+                }
             });
         });
         
@@ -815,55 +1001,79 @@
             });
         }
         
-        // Search function
+        // Replace the existing performSearch function with this fixed version
         function performSearch(query) {
             query = query.trim().toLowerCase();
             
-            if (query === '') {
-                // Reset to current filter if search is empty
-                const activeFilter = document.querySelector('.filter-btn.active');
-                if (activeFilter) {
-                    activeFilter.click();
+            // First, reset all cards to respect only date filters
+            const currentFilter = document.querySelector('.filter-btn.active');
+            const startDate = startDateInput.value ? parseDate(startDateInput.value) : null;
+            const endDate = endDateInput.value ? parseDate(endDateInput.value) : null;
+            
+            // Reset cards based on current date filter only (not previous search results)
+            const allCards = document.querySelectorAll('.service-card');
+            allCards.forEach(card => {
+                const cardDateStr = card.getAttribute('data-date');
+                const cardDate = parseDate(cardDateStr);
+                
+                // Apply only date filtering first
+                if ((!startDate && !endDate) || 
+                    (cardDate && 
+                     (!startDate || cardDate >= startDate) && 
+                     (!endDate || cardDate <= endDate))) {
+                    card.style.display = 'block'; // Make all date-valid cards visible
                 } else {
-                    filterServices(null, null);
+                    card.style.display = 'none';
                 }
+            });
+            
+            // If empty query, just show all cards that match date filter
+            if (query === '') {
+                let visibleCount = 0;
+                let filteredData = [];
+                
+                allCards.forEach((card, index) => {
+                    if (card.style.display === 'block') {
+                        visibleCount++;
+                        if (chartData[index]) {
+                            filteredData.push(chartData[index]);
+                        }
+                    }
+                });
+                
+                // Update display
+                updateResultsInfo(currentFilter);
+                updateEarningsSummary(filteredData);
+                updateChart(filteredData);
                 return;
             }
             
-            // Get currently visible cards (respecting date filters)
-            const allCards = document.querySelectorAll('.service-card');
+            // Then apply search filtering on the visible cards
             let visibleCount = 0;
             let filteredData = [];
             
             allCards.forEach((card, index) => {
-                // Check if card should be visible based on current date filters
-                const isVisibleByDate = card.style.display !== 'none';
-                
-                if (!isVisibleByDate) {
-                    return; // Skip cards already hidden by date filter
-                }
-                
-                // Get searchable text from card (name and property)
-                const serviceName = card.getAttribute('data-name') || '';
-                const propertyName = card.getAttribute('data-property') || '';
-                const cardText = (serviceName + ' ' + propertyName).toLowerCase();
-                
-                // Check if card matches search
-                const matches = cardText.includes(query);
-                
-                if (matches) {
-                    card.style.display = 'block';
-                    visibleCount++;
+                if (card.style.display === 'block') { // Only search among date-filtered cards
+                    // Get searchable text from card
+                    const serviceName = card.getAttribute('data-name') || '';
+                    const propertyName = card.getAttribute('data-property') || '';
+                    const cardText = (serviceName + ' ' + propertyName).toLowerCase();
                     
-                    // Add to filtered data for chart
-                    if (chartData[index]) {
-                        filteredData.push(chartData[index]);
+                    // Check if card matches search
+                    const matches = cardText.includes(query);
+                    
+                    if (matches) {
+                        // Keep it visible
+                        visibleCount++;
+                        if (chartData[index]) {
+                            filteredData.push(chartData[index]);
+                        }
+                        
+                        // Highlight matching text
+                        highlightMatches(card, query);
+                    } else {
+                        card.style.display = 'none'; // Hide non-matching cards
                     }
-                    
-                    // Highlight matching text
-                    highlightMatches(card, query);
-                } else {
-                    card.style.display = 'none';
                 }
             });
             
@@ -875,19 +1085,9 @@
             document.getElementById('no-filtered-services').style.display = 
                 visibleCount > 0 ? 'none' : 'block';
             
-            // Update chart with filtered data
-            if (earningsChart && filteredData.length > 0) {
-                const labels = filteredData.map(data => data.name || 'Unknown');
-                const values = filteredData.map(data => parseFloat(data.totalEarnings) || 0);
-                
-                earningsChart.data.labels = labels;
-                earningsChart.data.datasets[0].data = values;
-                earningsChart.update();
-            } else if (earningsChart) {
-                earningsChart.data.labels = [];
-                earningsChart.data.datasets[0].data = [];
-                earningsChart.update();
-            }
+            // Update chart and earnings summary
+            updateChart(filteredData);
+            updateEarningsSummary(filteredData);
         }
         
         // Function to highlight matching text
@@ -914,6 +1114,45 @@
                     element.innerHTML = text.replace(regex, '<span class="highlight">$1</span>');
                 }
             });
+        }
+        
+        // Add this helper function to update the chart
+        function updateChart(filteredData) {
+            if (earningsChart && filteredData.length > 0) {
+                const labels = filteredData.map(data => data.name || 'Unknown');
+                const values = filteredData.map(data => parseFloat(data.totalEarnings) || 0);
+                
+                earningsChart.data.labels = labels;
+                earningsChart.data.datasets[0].data = values;
+                earningsChart.update();
+            } else if (earningsChart) {
+                earningsChart.data.labels = [];
+                earningsChart.data.datasets[0].data = [];
+                earningsChart.update();
+            }
+        }
+        
+        // Add this helper function to update results info based on filter
+        function updateResultsInfo(activeFilter) {
+            if (!activeFilter) return;
+            
+            const period = activeFilter.getAttribute('data-period');
+            switch(period) {
+                case 'week':
+                    filteredResultsInfo.textContent = 'Showing services from the last week';
+                    break;
+                case 'month':
+                    filteredResultsInfo.textContent = 'Showing services from the last month';
+                    break;
+                case 'quarter':
+                    filteredResultsInfo.textContent = 'Showing services from the last 3 months';
+                    break;
+                case 'year':
+                    filteredResultsInfo.textContent = 'Showing services from the last year';
+                    break;
+                default:
+                    filteredResultsInfo.textContent = 'Showing all completed services';
+            }
         }
         
         // Service Summary button functionality
@@ -987,6 +1226,9 @@
                 modal.style.display = 'none';
             }
         });
+        
+        // Initialize earnings summary on page load
+        updateEarningsSummary(chartData);
     });
 </script>
 
