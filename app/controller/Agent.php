@@ -661,8 +661,8 @@ class Agent
             case 'edittenents':
                 $this->edittenents($c,$d);
                 break;
-            case 'deletetenents':
-                $this->deletetenents($c,$d);
+            case 'addtenents':
+                $this->view('agent/addtenents');
                 break;
             default:
                 $book = new BookingModel;
