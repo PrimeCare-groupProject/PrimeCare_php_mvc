@@ -1,10 +1,10 @@
 <?php require_once 'agentHeader.view.php'; $booking = $bookings[0];?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/bookings/history'>
+    <a href='<?= ROOT ?>/dashboard/manageProviders/managetenents'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Booking History Details</h2>
+    <h2>Tenents Details</h2>
 </div>
 
 <form method="POST" action="<?= ROOT ?>/Booking/update" enctype="multipart/form-data">
@@ -13,7 +13,7 @@
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
 
-            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Back" class="booking-img">
+            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Back" class="bookingimage">
 
             <input type="hidden" name="booking_id" value="<?=  $booking->booking_id ?>">
 
@@ -39,7 +39,10 @@
 
         <div class="owner-addProp-form-right">
 
-            <label class="input-label">Customer ID</label>
+            <label class="input-label">NIC</label>
+            <input type="text" name="customerId" value="<?= $booking->nic?>" class="input-field" readonly>
+
+            <label class="input-label">Tenent ID</label>
             <input type="text" name="customerId" value="<?= $booking->pid?>" class="input-field" readonly>
 
             <label class="input-label">Email</label>
@@ -60,14 +63,6 @@
             <label class="input-label">Rental (LKR)</label>
             <input type="email" name="rental" value="<?= $booking->price?>" class="input-field" readonly>
 
-            <label class="input-label">Payment Status</label>
-            <input type="email" name="Paymentstatus" value="<?= $booking->payment_status?>" class="input-field" readonly>
-
-            <label class="input-label">Confirmed Status</label>
-            <input type="email" name="AcceptStatus" value="<?= $booking->accept_status?>" class="input-field" readonly>
-
-            <label class="input-label">Confirmed Date</label>
-            <input type="email" name="Accepteddate" value="<?= $booking->accepted_date?>" class="input-field" readonly>
 
             <!--<label class="input-label">Upload Profile Image</label>
             <div class="owner-addProp-file-upload">
