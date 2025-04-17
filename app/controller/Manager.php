@@ -725,7 +725,7 @@ class Manager
                 'msg' => "Property assigned to agent successfully!",
                 'type' => "success"
             ];
-            enqueueNotification('Property assigned', 'Property has been assigned to you!', ROOT . 'dashboard/property/propertyView/' . $propertyID , 'Notification_green', $agentID);
+            enqueueNotification('Property assigned', 'Property has been assigned to you!', ROOT . '/dashboard/property/propertyView/' . $propertyID , 'Notification_green', $agentID);
         } else {
             $_SESSION['flash'] = [
                 'msg' => "Failed to assign property to agent. Please try again.",

@@ -16,6 +16,10 @@
                 <img src="<?= ROOT ?>/assets/images/delete_black.png" alt="edit" class="small-icons align-to-right color_caution" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/deleteView/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Remove</span>
             </div>
+            <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/docs.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.open('<?= ROOT ?>/assets/documents/uploads/property_documents/<?= $property->property_deed_images ?>', '_blank')">
+                <span class="tooltip-text">Deed Document</span>
+            </div>
         </div>
         <div id="contactPopup" class="PopupMessage__contact-popup PopupMessage__hidden">
             <div class="PL__owner_details_container">

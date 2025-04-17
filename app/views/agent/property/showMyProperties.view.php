@@ -34,6 +34,7 @@ if (empty($properties)) {
                         <th>Name</th>
                         <th>Owner Name</th>
                         <th class="AA__align_to_center">Actions</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="AA__properties-table-body">
@@ -48,6 +49,7 @@ if (empty($properties)) {
                                 <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/property/propertyView/<?= $property->property_id ?>'">View</button>
                                 <!-- <button class="small-btn orange" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $property->property_id ?>'">See Changes</button> -->
                             </td>
+                            <td><div class="small-btn <?= ($property->status == 'Pending') ? 'orange' : 'blue' ?>" style="max-width: 60px; align-self: center;"><?= $property->status ?></div></td>
                         </tr>
                 <?php endforeach;
                 } ?>
