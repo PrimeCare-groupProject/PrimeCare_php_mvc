@@ -95,7 +95,48 @@
         $services = $data['services'] ?? [];
         
         if (empty($services)) {
-            echo "<p>No service requests found</p>";
+            ?>
+            <div class="no-services-container">
+          <div class="no-services-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#c8c8c8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+            <path d="M9 9h6"></path>
+            <path d="M9 12h6"></path>
+            <path d="M9 15h4"></path>
+              </svg>
+          </div>
+          <h3>No Service Requests Found</h3>
+          <p>When new tasks are requested, they will appear here.</p>
+            </div>
+            <style>
+          .no-services-container {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 60px 20px;
+              background-color: white;
+              border-radius: 8px;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+              margin: 20px 0;
+              text-align: center;
+              min-height: 300px;
+          }
+          .no-services-icon {
+              margin-bottom: 20px;
+          }
+          .no-services-container h3 {
+              margin: 0 0 10px 0;
+              color: #333;
+              font-size: 24px;
+          }
+          .no-services-container p {
+              margin: 0;
+              color: #777;
+              font-size: 16px;
+          }
+            </style>
+            <?php
         } else {
             $serviceCount = 1; // Initialize service counter
             foreach ($services as $service) {
@@ -119,7 +160,7 @@
                 
                 // Check if property has an image
                 if (!empty($service->property_image)) {
-                    $propertyImagePath = ROOT . '/assets/images/' . $service->property_image;
+                    $propertyImagePath = ROOT . '/assets/images/uploads/property_images' . $service->property_image;
                     // Use the property image if it exists, otherwise use default
                     $propertyImage = $service->property_image;
                 }
@@ -177,7 +218,7 @@
                                         <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->service_id ?>)">
                                             <?php foreach($data['service_providers'] as $provider): ?>
                                                 <option value="<?= $provider->pid ?>" 
-                                                    data-image="<?= ROOT ?>/assets/images/<?= $provider->image_url ?>"
+                                                    data-image="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $provider->image_url ?>"
                                                     <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?>>
                                                     <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
                                                 </option>
@@ -193,7 +234,10 @@
                         </div>
                         <div class="image-area">
                             <div class="property-image-container">
-                                <img class="property-image zoom-on-hover" src="<?= ROOT ?>/assets/images/<?= $propertyImage ?>" alt="property">
+                                <img class="property-image zoom-on-hover" 
+                                     src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $propertyImage ?>" 
+                                     alt="property" 
+                                     onerror="this.src='<?= ROOT ?>/assets/images/listing_alt.jpg'">
                             </div>
                         </div>
                     </div>
