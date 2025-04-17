@@ -444,8 +444,11 @@ class Agent
             $provider_id = $_POST['service_provider_select'];
 
             if ($provider_id) {
+                // Create a new ServiceLog instance to ensure it's a model with where() method
+                $serviceModel = new ServiceLog();
+                
                 // Check again if provider hasn't exceeded limit
-                $ongoing_services = $service->where([
+                $ongoing_services = $serviceModel->where([
                     'service_provider_id' => $provider_id,
                     'status' => 'Ongoing'
                 ]);
@@ -457,15 +460,15 @@ class Agent
                     $_SESSION['error'] = "This service provider has reached their maximum service limit";
                 } else {
                     // Update service with assigned provider and change status to Ongoing
-                    $result = $service->update($service_id, [
+                    $result = $serviceModel->update($service_id, [
                         'service_provider_id' => $provider_id,
                         'status' => 'Ongoing'
                     ], 'service_id');
 
                     if ($result) {
                         // Get service details to include in notification
-                        $serviceDetails = $service->first(['service_id' => $service_id]);
-                 
+                        $serviceDetails = $serviceModel->first(['service_id' => $service_id]);
+                        
                         // Create notification for the service provider
                         $notificationModel = new NotificationModel();
                         $notificationData = [
