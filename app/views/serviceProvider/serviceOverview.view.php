@@ -339,7 +339,7 @@
     }
     
     .view-details-btn:hover {
-        background-color: #1976D2;
+        background-color: #FFD700;
     }
     
     .no-tasks {

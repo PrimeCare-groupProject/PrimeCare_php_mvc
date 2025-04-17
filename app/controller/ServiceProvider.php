@@ -637,30 +637,47 @@ class ServiceProvider {
     }
 
     public function earnings() {
-        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
-            redirect('login');
-            return;
-        }
-    
-        $serviceLog = new ServiceLog();
-        $provider_id = $_SESSION['user']->pid;
-    
-        // Fetch earnings from the serviceLog table
-        $conditions = ['service_provider_id' => $provider_id];
-        $earnings = $serviceLog->where($conditions);
-    
-        // Prepare chart data
-        $chartData = [];
-        foreach ($earnings as $service) {
-            $chartData[] = [
-                'name' => $service->service_type ?? 'Unknown', // Default if name is missing
-                'totalEarnings' => $service->cost_per_hour * $service->total_hours
-            ];
-        }
-    
-        // Pass data to the view
-        $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
-    }    
+    if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+        redirect('login');
+        return;
+    }
+
+    $serviceLog = new ServiceLog();
+    $provider_id = $_SESSION['user']->pid;
+
+    // Fetch completed services with earnings details
+    $conditions = [
+        'service_provider_id' => $provider_id,
+        'status' => 'Done'  // Only get completed services
+    ];
+    $completedServices = $serviceLog->where($conditions);
+
+    // Ensure $completedServices is always an array
+    if (!is_array($completedServices)) {
+        $completedServices = [];
+    }
+
+    // Prepare chart data and complete service details
+    $chartData = [];
+    foreach ($completedServices as $service) {
+        // Calculate earnings
+        $totalEarnings = $service->cost_per_hour * $service->total_hours;
+        
+        // Add to chart data
+        $chartData[] = [
+            'name' => $service->service_type ?? 'Unknown',
+            'totalEarnings' => $totalEarnings,
+            'property_name' => $service->property_name ?? 'Unknown Property',
+            'date' => $service->date,
+            'total_hours' => $service->total_hours,
+            'service_images' => $service->service_images ?? null,
+            'service_provider_description' => $service->service_provider_description ?? null  // Add this line
+        ];
+    }
+
+    // Pass data to the view
+    $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
+}
     
     public function serviceSummery(){
         $service_id = $_GET['service_id'] ?? null;
