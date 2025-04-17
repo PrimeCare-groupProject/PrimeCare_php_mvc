@@ -511,10 +511,10 @@ function enqueueNotification($message, $title = 'Notification', $link = '', $col
             enqueue(['notification_id' => $notification->notification_id], $queue);
         }
 
-        show($queue); 
+        //show($queue); 
         $queue = array_reverse($queue); // Reverse the queue to maintain order
 
-        while (count($queue) > 10) {
+        while (count($queue) > Notification_count) {
             $popped = dequeue($queue);
             //show("Dequeued: " . $popped); 
             $notificationModel->delete($popped, 'notification_id');
