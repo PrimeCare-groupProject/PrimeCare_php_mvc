@@ -48,10 +48,10 @@ class ServiceProvider {
         // Process each service
         foreach ($allServices as $service) {
             // Calculate cost
-            $serviceCost = $service->cost_per_hour * $service->total_hours;
+            $serviceCost = $service->total_cost;
             
             // Track totalProfit
-            $totalProfit += $serviceCost;
+            $totalProfit += $serviceCost - $service->usual_cost;
             
             // Track totalHours
             $totalHoursWorked += $service->total_hours;
@@ -114,7 +114,6 @@ class ServiceProvider {
             ? round($totalHoursWorked / $totalWorks, 1) 
             : 0;
 
-        // Inside your dashboard() method, after processing all services
 
         // Get 5 most recently completed tasks
         $recentCompletedTasks = [];
@@ -525,6 +524,8 @@ class ServiceProvider {
             $service_id = $_POST['service_id'] ?? null;
             $total_hours = $_POST['total_hours'] ?? null;
             $provider_description = $_POST['description'] ?? null;
+            $additional_charges = floatval($_POST['additional_charges'] ?? 0);
+            $additional_charges_reason = $_POST['additional_charges_reason'] ?? '';
     
             // Basic validation
             if (empty($service_id) || empty($total_hours) || empty($provider_description)) {
@@ -579,12 +580,37 @@ class ServiceProvider {
                 return;
             }
     
+            // Calculate the usual cost (hourly rate × hours worked)
+            $usual_cost = (float)$existing_log->cost_per_hour * (float)$total_hours;
+    
             // Prepare update data
             $update_data = [
                 'total_hours' => $total_hours,
                 'status' => 'Done',
-                'service_provider_description' => $provider_description
+                'service_provider_description' => $provider_description,
+                'usual_cost' => $usual_cost  
             ];
+    
+            // Handle additional charges
+            if ($additional_charges > 0) {
+                // Append additional charges information to the description
+                $charges_info = "\n\n--- Additional Charges: LKR" . number_format($additional_charges, 2) . " ---\n" . 
+                                "Reason: " . $additional_charges_reason;
+                                
+                $update_data['service_provider_description'] = $provider_description . $charges_info;
+                $update_data['additional_charges'] = $additional_charges;
+                $update_data['additional_charges_reason'] = $additional_charges_reason;
+            } else {
+                // Ensure additional charges is set to zero when not provided
+                $update_data['additional_charges'] = 0;
+                $update_data['additional_charges_reason'] = '';
+            }
+    
+            // Manually calculate and set total_cost
+            $update_data['total_cost'] = $usual_cost + (float)$additional_charges;
+    
+            // Debug output to see what's happening
+            error_log("DEBUG: Final calculation - Usual cost: {$usual_cost}, Additional: {$additional_charges}, Total: {$update_data['total_cost']}");
     
             // Add images if any were uploaded
             if (!empty($uploaded_images)) {
@@ -595,6 +621,43 @@ class ServiceProvider {
             $update_result = $serviceLog->update($service_id, $update_data, 'service_id');
     
             if ($update_result) {
+                // Fetch the property details to get owner information
+                if (!empty($existing_log->property_id)) {
+                    $property = new Property();
+                    $propertyDetails = $property->first(['property_id' => $existing_log->property_id]);
+                    
+                    if ($propertyDetails && !empty($propertyDetails->person_id)) {
+                        // Calculate total cost including additional charges
+                        $totalCost = ($existing_log->cost_per_hour * $total_hours) + $additional_charges;
+                        
+                        // Create notification message with additional charges if applicable
+                        $notificationMessage = "The " . ($existing_log->service_type ?? "maintenance") . 
+                                               " service for " . ($propertyDetails->name ?? "your property") . 
+                                               " has been completed.";
+                        
+                        // Add additional charges information to notification if applicable
+                        if ($additional_charges > 0) {
+                            $notificationMessage .= " Additional charges of LKR" . number_format($additional_charges, 2) . 
+                                                   " were applied for " . $additional_charges_reason . ".";
+                        }
+                        
+                        // Create notification for property owner
+                        $notificationModel = new NotificationModel();
+                        $ownerNotificationData = [
+                            'user_id' => $propertyDetails->person_id,
+                            'title' => "Service Completed",
+                            'message' => $notificationMessage,
+                            'color' => 'Notification_green',
+                            'is_read' => 0,
+                            'link' => ROOT . '/dashboard/maintenance',
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification for property owner
+                        $notificationModel->insert($ownerNotificationData);
+                    }
+                }
+                
                 $_SESSION['success'] = 'Service log updated successfully.';
                 redirect('serviceprovider/repairRequests');
                 return;
@@ -637,47 +700,47 @@ class ServiceProvider {
     }
 
     public function earnings() {
-    if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
-        redirect('login');
-        return;
-    }
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
 
-    $serviceLog = new ServiceLog();
-    $provider_id = $_SESSION['user']->pid;
+        $serviceLog = new ServiceLog();
+        $provider_id = $_SESSION['user']->pid;
 
-    // Fetch completed services with earnings details
-    $conditions = [
-        'service_provider_id' => $provider_id,
-        'status' => 'Done'  // Only get completed services
-    ];
-    $completedServices = $serviceLog->where($conditions);
-
-    // Ensure $completedServices is always an array
-    if (!is_array($completedServices)) {
-        $completedServices = [];
-    }
-
-    // Prepare chart data and complete service details
-    $chartData = [];
-    foreach ($completedServices as $service) {
-        // Calculate earnings
-        $totalEarnings = $service->cost_per_hour * $service->total_hours;
-        
-        // Add to chart data
-        $chartData[] = [
-            'name' => $service->service_type ?? 'Unknown',
-            'totalEarnings' => $totalEarnings,
-            'property_name' => $service->property_name ?? 'Unknown Property',
-            'date' => $service->date,
-            'total_hours' => $service->total_hours,
-            'service_images' => $service->service_images ?? null,
-            'service_provider_description' => $service->service_provider_description ?? null  // Add this line
+        // Fetch completed services with earnings details
+        $conditions = [
+            'service_provider_id' => $provider_id,
+            'status' => 'Done'  // Only get completed services
         ];
-    }
+        $completedServices = $serviceLog->where($conditions);
 
-    // Pass data to the view
-    $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
-}
+        // Ensure $completedServices is always an array
+        if (!is_array($completedServices)) {
+            $completedServices = [];
+        }
+
+        // Prepare chart data and complete service details
+        $chartData = [];
+        foreach ($completedServices as $service) {
+            // Calculate earnings
+            $totalEarnings = $service->total_cost;
+            
+            // Add to chart data
+            $chartData[] = [
+                'name' => $service->service_type ?? 'Unknown',
+                'totalEarnings' => $totalEarnings,
+                'property_name' => $service->property_name ?? 'Unknown Property',
+                'date' => $service->date,
+                'total_hours' => $service->total_hours,
+                'service_images' => $service->service_images ?? null,
+                'service_provider_description' => $service->service_provider_description ?? null  // Add this line
+            ];
+        }
+
+        // Pass data to the view
+        $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
+    }
     
     public function serviceSummery(){
         $service_id = $_GET['service_id'] ?? null;
@@ -696,14 +759,20 @@ class ServiceProvider {
             return;
         }
 
-        // Prepare view data
+        // Pass ALL needed fields directly from service_details to the view
         $view_data = [
             'service_id' => $service_id,
             'property_id' => $service_details->property_id ?? null,
             'property_name' => $service_details->property_name ?? null,
             'service_type' => $service_details->service_type ?? null,
             'status' => $service_details->status ?? null,
-            'earnings' => $service_details->cost_per_hour * ($service_details->total_hours ?? 0),
+            'cost_per_hour' => $service_details->cost_per_hour ?? 0,
+            'total_hours' => $service_details->total_hours ?? 0,
+            'usual_cost' => $service_details->usual_cost ?? 0,
+            'additional_charges' => $service_details->additional_charges ?? 0,
+            'additional_charges_reason' => $service_details->additional_charges_reason ?? '',
+            'total_cost' => $service_details->total_cost ?? 0,
+            'date' => $service_details->date ?? null,
             'service_images' => json_decode($service_details->service_images ?? '[]'),
             'service_provider_description' => $service_details->service_provider_description ?? '',
         ];

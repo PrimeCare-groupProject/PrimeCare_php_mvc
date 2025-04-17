@@ -406,6 +406,36 @@ class Agent
             }
         }
 
+        // Fetch property images for each service
+        if ($services) {
+            foreach ($services as $service) {
+                if (!empty($service->property_id)) {
+                    // Get property details
+                    $property = new Property();
+                    $propertyData = $property->first(['property_id' => $service->property_id]);
+                    
+                    if ($propertyData) {
+                        // Get property images from PropertyImageModel
+                        $propertyImage = new PropertyImageModel();
+                        $images = $propertyImage->where(['property_id' => $service->property_id]);
+                        
+                        // Assign the first image to the service object if available
+                        if ($images && is_array($images) && !empty($images) && !empty($images[0]->image_url)) {
+                            // Store the actual image URL from the property_image table
+                            $service->property_image = $images[0]->image_url;
+                        } else {
+                            // Set default image if no property images found
+                            $service->property_image = 'listing_alt.jpg';
+                        }
+                    } else {
+                        $service->property_image = 'listing_alt.jpg';
+                    }
+                } else {
+                    $service->property_image = 'listing_alt.jpg';
+                }
+            }
+        }
+
         $data = [
             'services' => $services,
             'service_providers' => $filtered_providers
@@ -419,8 +449,11 @@ class Agent
             $provider_id = $_POST['service_provider_select'];
 
             if ($provider_id) {
+                // Create a new ServiceLog instance to ensure it's a model with where() method
+                $serviceModel = new ServiceLog();
+                
                 // Check again if provider hasn't exceeded limit
-                $ongoing_services = $service->where([
+                $ongoing_services = $serviceModel->where([
                     'service_provider_id' => $provider_id,
                     'status' => 'Ongoing'
                 ]);
@@ -432,12 +465,57 @@ class Agent
                     $_SESSION['error'] = "This service provider has reached their maximum service limit";
                 } else {
                     // Update service with assigned provider and change status to Ongoing
-                    $result = $service->update($service_id, [
+                    $result = $serviceModel->update($service_id, [
                         'service_provider_id' => $provider_id,
                         'status' => 'Ongoing'
                     ], 'service_id');
 
                     if ($result) {
+                        // Get service details to include in notification
+                        $serviceDetails = $serviceModel->first(['service_id' => $service_id]);
+                        
+                        // Create notification for the service provider
+                        $notificationModel = new NotificationModel();
+                        $notificationData = [
+                            'user_id' => $provider_id,
+                            'title' => "New Task Assignment",
+                            'message' => "You have been assigned a new " . 
+                                         ($serviceDetails->service_type ?? "maintenance") . 
+                                         " task for property " . 
+                                         ($serviceDetails->property_name ?? "ID: " . $serviceDetails->property_id),
+                            'link' => "/php_mvc_backend/public/dashboard/repairRequests",
+                            'color' => 'Notification_green', 
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification for service provider
+                        $notificationModel->insert($notificationData);
+
+                        // Create notification for property owner
+                        if (!empty($serviceDetails->property_id)) {
+                            // Get property owner ID from property table
+                            $propertyModel = new Property();
+                            $propertyDetails = $propertyModel->first(['property_id' => $serviceDetails->property_id]);
+                            
+                            if (!empty($propertyDetails->person_id)) {
+                                $notificationModel = new NotificationModel();
+                                $ownerNotificationData = [
+                                    'user_id' => $propertyDetails->person_id, // Use person_id from property table
+                                    'title' => "Service Request Accepted",
+                                    'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
+                                                " service request has been accepted and assigned to a service provider.",
+                                    'link' => "/php_mvc_backend/public/dashboard/maintenance",
+                                    'color' => 'Notification_green',
+                                    'is_read' => 0,
+                                    'created_at' => date('Y-m-d H:i:s')
+                                ];
+                                
+                                // Insert notification for property owner
+                                $notificationModel->insert($ownerNotificationData);
+                            }
+                        }
+                        
                         $_SESSION['success'] = "Service request accepted and assigned successfully";
                         redirect('dashboard/requestedTasks');
                         exit; // Add exit here to prevent further execution
@@ -463,6 +541,32 @@ class Agent
             ], 'service_id');
 
             if ($result) {
+                // Get service details to include in notification
+                $serviceDetails = $service->first(['service_id' => $service_id]);
+                
+                // Create notification for property owner about rejection
+                if (!empty($serviceDetails->property_id)) {
+                    // Get property owner ID from property table
+                    $propertyModel = new Property();
+                    $propertyDetails = $propertyModel->first(['property_id' => $serviceDetails->property_id]);
+                    
+                    if (!empty($propertyDetails->person_id)) {
+                        $notificationModel = new NotificationModel();
+                        $ownerNotificationData = [
+                            'user_id' => $propertyDetails->person_id, // Use person_id from property table
+                            'title' => "Service Request Declined",
+                            'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
+                                        " service request has been declined. Please contact support for more information.",
+                            'link' => "/php_mvc_backend/public/dashboard/maintenance",
+                            'color' => 'Notification_red',
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification for property owner
+                        $notificationModel->insert($ownerNotificationData);
+                    }
+                }
                 $_SESSION['success'] = "Service request declined successfully";
                 redirect('dashboard/requestedTasks');
                 exit; // Add exit here to prevent further execution
