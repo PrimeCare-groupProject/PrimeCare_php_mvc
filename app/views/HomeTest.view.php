@@ -17,11 +17,11 @@
 
 <body>
     <?php
-        $flash = $_SESSION['flash'] ?? null;
-        // Show flash messages
-        if(isset($flash)){
-            flash_message($flash['msg'] , $flash['type']);
-        }
+    $flash = $_SESSION['flash'] ?? null;
+    // Show flash messages
+    if (isset($flash)) {
+        flash_message($flash['msg'], $flash['type']);
+    }
     ?>
 
     <!-- Header Section -->
@@ -75,7 +75,15 @@
                     <?php $properties = array_slice($properties, 0, 4); ?>
                     <?php foreach ($properties as $property): ?>
                         <div class="PL_property-card" style="height: auto;">
-                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
+                            <?php
+                            $images = explode(',', $property->property_images);
+                            if(file_exists(ROOT . '/assets/images/uploads/property_images/' . $images[0])){
+                                $firstImage = $images[0]; // Use the first image if it exists
+                            }else{
+                                $firstImage = 'default.png'; // Fallback to a default image if none exist
+                            }
+                            ?>
+                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $firstImage ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
                             <div class="content-section-of-card">
                                 <div class="address" style="padding: 0;">
                                     <?= $property->address ?>
@@ -480,7 +488,7 @@
             document.querySelector('.loader-container').style.display = '';
             //onclick="displayLoader()"
         }
-        
+
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', displayLoader);
         });

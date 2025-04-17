@@ -57,13 +57,15 @@
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/preInspection"><button class="btn"><i class="fa-solid fa-file-contract"></i>Pre Inspections</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/property"><button class="btn"><i class="fa-solid fa-house"></i>My Property</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><i class="fa-solid fa-list-check"></i>Tasks</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><i class="fa-solid fa-inbox"></i>Requested Tasks</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><i class="fa-solid fa-house"></i>Bookings</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><i class="fa-solid fa-book"></i>Bookings</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><i class="fa-solid fa-warehouse"></i>Inventory</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/manageProviders"><button class="btn" style="padding-right:0px;"><i class="fa-solid fa-list-check"></i>Management</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
+
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>

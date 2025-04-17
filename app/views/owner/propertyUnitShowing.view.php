@@ -4,7 +4,7 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/property/propertyListing"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="<?= ROOT ?>/dashboard/propertyListing"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <div>
                 <h2><?= $property->name ?></h2>
                 <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>

@@ -109,7 +109,7 @@ class Property
     }
 
     // update
-    public function update($propertyId)
+    public function updateN($propertyId)
     {
         $property = new PropertyModel;
 

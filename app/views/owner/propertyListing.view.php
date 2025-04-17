@@ -41,8 +41,13 @@
             <?php foreach ($properties as $property): ?>
                 <div class="property-card" data-status="<?= strtolower($property->status) ?>">
 
+                    <?php
+                        $images = explode(',', $property->property_images);
+                        $firstImage = !empty($images) ? $images[0] : 'default.png'; // Fallback to a default image if none exist
+                    ?>
+
                     <div class="property-image">
-                        <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a>
+                        <a href="<?= ROOT ?>/dashboard/propertyListing/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $firstImage ?>" alt="Property Image"></a>
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
