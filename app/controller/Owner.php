@@ -1042,7 +1042,7 @@ class Owner
         // Calculate total expenses from service logs
         $totalExpenses = 0;
         foreach ($serviceLogs as $log) {
-            $cost = $log->cost_per_hour * $log->total_hours;
+            $cost = $log->total_cost;
             $logMonth = date('M', strtotime($log->date));
             if (isset($monthlyData[$logMonth])) {
                 $monthlyData[$logMonth]['expense'] += $cost;
