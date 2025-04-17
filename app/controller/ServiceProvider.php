@@ -593,8 +593,33 @@ class ServiceProvider {
     
             // Update the service log
             $update_result = $serviceLog->update($service_id, $update_data, 'service_id');
-    
+
             if ($update_result) {
+                // Fetch the property details to get owner information
+                if (!empty($existing_log->property_id)) {
+                    $property = new Property();
+                    $propertyDetails = $property->first(['property_id' => $existing_log->property_id]);
+                    
+                    if ($propertyDetails && !empty($propertyDetails->person_id)) {
+                        // Create notification for property owner
+                        $notificationModel = new NotificationModel();
+                        $ownerNotificationData = [
+                            'user_id' => $propertyDetails->person_id,
+                            'title' => "Service Completed",
+                            'message' => "The " . ($existing_log->service_type ?? "maintenance") . 
+                                        " service for " . ($propertyDetails->name ?? "your property") . 
+                                        " has been completed.",
+                            'color' => 'Notification_green',
+                            'is_read' => 0,
+                            'link' => ROOT . 'dashboard/maintenance',
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification for property owner
+                        $notificationModel->insert($ownerNotificationData);
+                    }
+                }
+                
                 $_SESSION['success'] = 'Service log updated successfully.';
                 redirect('serviceprovider/repairRequests');
                 return;
