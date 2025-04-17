@@ -48,10 +48,10 @@ class ServiceProvider {
         // Process each service
         foreach ($allServices as $service) {
             // Calculate cost
-            $serviceCost = $service->cost_per_hour * $service->total_hours;
+            $serviceCost = $service->total_cost;
             
             // Track totalProfit
-            $totalProfit += $serviceCost;
+            $totalProfit += $serviceCost - $service->usual_cost;
             
             // Track totalHours
             $totalHoursWorked += $service->total_hours;
@@ -114,7 +114,6 @@ class ServiceProvider {
             ? round($totalHoursWorked / $totalWorks, 1) 
             : 0;
 
-        // Inside your dashboard() method, after processing all services
 
         // Get 5 most recently completed tasks
         $recentCompletedTasks = [];
@@ -701,47 +700,47 @@ class ServiceProvider {
     }
 
     public function earnings() {
-    if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
-        redirect('login');
-        return;
-    }
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
 
-    $serviceLog = new ServiceLog();
-    $provider_id = $_SESSION['user']->pid;
+        $serviceLog = new ServiceLog();
+        $provider_id = $_SESSION['user']->pid;
 
-    // Fetch completed services with earnings details
-    $conditions = [
-        'service_provider_id' => $provider_id,
-        'status' => 'Done'  // Only get completed services
-    ];
-    $completedServices = $serviceLog->where($conditions);
-
-    // Ensure $completedServices is always an array
-    if (!is_array($completedServices)) {
-        $completedServices = [];
-    }
-
-    // Prepare chart data and complete service details
-    $chartData = [];
-    foreach ($completedServices as $service) {
-        // Calculate earnings
-        $totalEarnings = $service->cost_per_hour * $service->total_hours;
-        
-        // Add to chart data
-        $chartData[] = [
-            'name' => $service->service_type ?? 'Unknown',
-            'totalEarnings' => $totalEarnings,
-            'property_name' => $service->property_name ?? 'Unknown Property',
-            'date' => $service->date,
-            'total_hours' => $service->total_hours,
-            'service_images' => $service->service_images ?? null,
-            'service_provider_description' => $service->service_provider_description ?? null  // Add this line
+        // Fetch completed services with earnings details
+        $conditions = [
+            'service_provider_id' => $provider_id,
+            'status' => 'Done'  // Only get completed services
         ];
-    }
+        $completedServices = $serviceLog->where($conditions);
 
-    // Pass data to the view
-    $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
-}
+        // Ensure $completedServices is always an array
+        if (!is_array($completedServices)) {
+            $completedServices = [];
+        }
+
+        // Prepare chart data and complete service details
+        $chartData = [];
+        foreach ($completedServices as $service) {
+            // Calculate earnings
+            $totalEarnings = $service->total_cost;
+            
+            // Add to chart data
+            $chartData[] = [
+                'name' => $service->service_type ?? 'Unknown',
+                'totalEarnings' => $totalEarnings,
+                'property_name' => $service->property_name ?? 'Unknown Property',
+                'date' => $service->date,
+                'total_hours' => $service->total_hours,
+                'service_images' => $service->service_images ?? null,
+                'service_provider_description' => $service->service_provider_description ?? null  // Add this line
+            ];
+        }
+
+        // Pass data to the view
+        $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
+    }
     
     public function serviceSummery(){
         $service_id = $_GET['service_id'] ?? null;

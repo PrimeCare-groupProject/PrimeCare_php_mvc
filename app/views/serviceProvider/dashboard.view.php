@@ -25,7 +25,7 @@ if ($grandTotalServices > 0) {
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="card-content">
-                <h3>Total Earnings</h3>
+                <h3>Total Profit</h3>
                 <span>LKR <?= number_format($totalProfit ?? 0, 2) ?></span>
             </div>
         </div>
