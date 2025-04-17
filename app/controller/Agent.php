@@ -433,6 +433,27 @@ class Agent
                     ], 'service_id');
 
                     if ($result) {
+                        // Get service details to include in notification
+                        $serviceDetails = $service->first(['service_id' => $service_id]);
+                        
+                        // Create notification for the service provider
+                        $notificationModel = new NotificationModel();
+                        $notificationData = [
+                            'user_id' => $provider_id,
+                            'title' => "New Task Assignment",
+                            'message' => "You have been assigned a new " . 
+                                         ($serviceDetails->service_type ?? "maintenance") . 
+                                         " task for property " . 
+                                         ($serviceDetails->property_name ?? "ID: " . $serviceDetails->property_id),
+                            'link' => "/php_mvc_backend/public/dashboard/repairRequests",
+                            'color' => 'primary', 
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification
+                        $notificationModel->insert($notificationData);
+                        
                         $_SESSION['success'] = "Service request accepted and assigned successfully";
                         redirect('dashboard/requestedTasks');
                         exit; // Add exit here to prevent further execution
