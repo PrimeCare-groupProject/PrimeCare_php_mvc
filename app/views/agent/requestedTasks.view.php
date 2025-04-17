@@ -225,9 +225,10 @@
                                             <?php endforeach; ?>
                                         </select>
                                         <img id="providerImage_<?= $service->service_id ?>" 
-                                             src="<?= ROOT ?>/assets/images/<?= $currentProviderImage ?? 'Agent.png' ?>" 
+                                             src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $currentProviderImage ?? 'Agent.png' ?>" 
                                              alt="Service Provider" 
-                                             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+                                             class="provider-image"
+                                             onerror="this.src='<?= ROOT ?>/assets/images/Agent.png'">
                                     </div>
                                 </div>
                             </div>
@@ -255,6 +256,8 @@ function updateProviderImage(selectElement, serviceId) {
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const imageUrl = selectedOption.getAttribute('data-image');
     const imageElement = document.getElementById('providerImage_' + serviceId);
+    
+    // Set new image source but maintain the error handling
     imageElement.src = imageUrl;
     
     // Add a small animation to indicate the change
@@ -262,31 +265,49 @@ function updateProviderImage(selectElement, serviceId) {
     setTimeout(() => {
         imageElement.style.transform = 'scale(1)';
     }, 300);
-}
+  }
 
-// Initialize provider images when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const selects = document.querySelectorAll('select[name="service_provider"]');
-    selects.forEach(select => {
-        const serviceId = select.closest('.preInspection').querySelector('input[name="service_id"]').value;
-        const selectedOption = select.options[select.selectedIndex];
-        if (selectedOption) {
-            const imageUrl = selectedOption.getAttribute('data-image');
-            if (imageUrl) {
-                document.getElementById('providerImage_' + serviceId).src = imageUrl;
-            }
-        }
-    });
-});
+  // Initialize provider images when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+      const selects = document.querySelectorAll('select[name="service_provider"]');
+      selects.forEach(select => {
+          const serviceId = select.closest('.preInspection').querySelector('input[name="service_id"]').value;
+          const selectedOption = select.options[select.selectedIndex];
+          if (selectedOption) {
+              const imageUrl = selectedOption.getAttribute('data-image');
+              if (imageUrl) {
+                  const imageElement = document.getElementById('providerImage_' + serviceId);
+                  imageElement.src = imageUrl;
+                  // Make sure the onerror attribute is preserved
+                  imageElement.onerror = function() {
+                      this.src = '<?= ROOT ?>/assets/images/Agent.png';
+                  };
+              }
+          }
+      });
+  });
 
-function submitForm(form) {
-    // Get selected service provider ID from the select element
-    const providerSelect = form.closest('.preInspection').querySelector('select[name="service_provider"]');
-    form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
-}
+  function submitForm(form) {
+      // Get selected service provider ID from the select element
+      const providerSelect = form.closest('.preInspection').querySelector('select[name="service_provider"]');
+      form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
+  }
 </script>
 
 <style>
+.provider-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
 .zoom-on-hover {
   transition: transform 0.3s ease;
 }
