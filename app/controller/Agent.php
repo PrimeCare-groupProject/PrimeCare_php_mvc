@@ -446,7 +446,7 @@ class Agent
                                          " task for property " . 
                                          ($serviceDetails->property_name ?? "ID: " . $serviceDetails->property_id),
                             'link' => "/php_mvc_backend/public/dashboard/repairRequests",
-                            'color' => 'primary', 
+                            'color' => 'Notification_green', 
                             'is_read' => 0,
                             'created_at' => date('Y-m-d H:i:s')
                         ];
@@ -468,7 +468,7 @@ class Agent
                                     'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
                                                 " service request has been accepted and assigned to a service provider.",
                                     'link' => "/php_mvc_backend/public/dashboard/maintenance",
-                                    'color' => 'success',
+                                    'color' => 'Notification_green',
                                     'is_read' => 0,
                                     'created_at' => date('Y-m-d H:i:s')
                                 ];
@@ -520,7 +520,7 @@ class Agent
                             'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
                                         " service request has been declined. Please contact support for more information.",
                             'link' => "/php_mvc_backend/public/dashboard/maintenance",
-                            'color' => 'danger',
+                            'color' => 'Notification_red',
                             'is_read' => 0,
                             'created_at' => date('Y-m-d H:i:s')
                         ];
