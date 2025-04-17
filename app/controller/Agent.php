@@ -435,7 +435,7 @@ class Agent
                     if ($result) {
                         // Get service details to include in notification
                         $serviceDetails = $service->first(['service_id' => $service_id]);
-                        
+                 
                         // Create notification for the service provider
                         $notificationModel = new NotificationModel();
                         $notificationData = [
@@ -451,8 +451,32 @@ class Agent
                             'created_at' => date('Y-m-d H:i:s')
                         ];
                         
-                        // Insert notification
+                        // Insert notification for service provider
                         $notificationModel->insert($notificationData);
+
+                        // Create notification for property owner
+                        if (!empty($serviceDetails->property_id)) {
+                            // Get property owner ID from property table
+                            $propertyModel = new Property();
+                            $propertyDetails = $propertyModel->first(['property_id' => $serviceDetails->property_id]);
+                            
+                            if (!empty($propertyDetails->person_id)) {
+                                $notificationModel = new NotificationModel();
+                                $ownerNotificationData = [
+                                    'user_id' => $propertyDetails->person_id, // Use person_id from property table
+                                    'title' => "Service Request Accepted",
+                                    'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
+                                                " service request has been accepted and assigned to a service provider.",
+                                    'link' => "/php_mvc_backend/public/dashboard/maintenance",
+                                    'color' => 'success',
+                                    'is_read' => 0,
+                                    'created_at' => date('Y-m-d H:i:s')
+                                ];
+                                
+                                // Insert notification for property owner
+                                $notificationModel->insert($ownerNotificationData);
+                            }
+                        }
                         
                         $_SESSION['success'] = "Service request accepted and assigned successfully";
                         redirect('dashboard/requestedTasks');
@@ -479,6 +503,32 @@ class Agent
             ], 'service_id');
 
             if ($result) {
+                // Get service details to include in notification
+                $serviceDetails = $service->first(['service_id' => $service_id]);
+                
+                // Create notification for property owner about rejection
+                if (!empty($serviceDetails->property_id)) {
+                    // Get property owner ID from property table
+                    $propertyModel = new Property();
+                    $propertyDetails = $propertyModel->first(['property_id' => $serviceDetails->property_id]);
+                    
+                    if (!empty($propertyDetails->person_id)) {
+                        $notificationModel = new NotificationModel();
+                        $ownerNotificationData = [
+                            'user_id' => $propertyDetails->person_id, // Use person_id from property table
+                            'title' => "Service Request Declined",
+                            'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
+                                        " service request has been declined. Please contact support for more information.",
+                            'link' => "/php_mvc_backend/public/dashboard/maintenance",
+                            'color' => 'danger',
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification for property owner
+                        $notificationModel->insert($ownerNotificationData);
+                    }
+                }
                 $_SESSION['success'] = "Service request declined successfully";
                 redirect('dashboard/requestedTasks');
                 exit; // Add exit here to prevent further execution
