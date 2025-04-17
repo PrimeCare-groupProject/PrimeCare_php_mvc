@@ -33,4 +33,31 @@ class PreInspection
         return null;
     }
 
+    public function isValidForRegister(){
+        $this->errors = [];
+
+        if(isset($this->provided_details) && $this->provided_detaile == 'False'){
+            $this->errors['provided_details'] = 'Provided Details is Must be true.';
+        }
+        if(isset($this->title_deed) && $this->title_deed == 'False'){
+            $this->errors['title_deed'] = 'Title Deed is Must be true.';
+        }
+        if(isset($this->utility_bills) && $this->utility_bills == 'False'){
+            $this->errors['utility_bills'] = 'Utility Bills is Must be true.';
+        }
+        if(isset($this->owner_id_copy) && $this->owner_id_copy == 'False'){
+            $this->errors['owner_id_copy'] = 'Owner ID Copy is Must be true.';
+        }
+        if(isset($this->lease_agreement) && $this->lease_agreement == 'False'){
+            $this->errors['lease_agreement'] = 'Lease Agreement is Must be true.';
+        }
+        if(isset($this->property_condition) && $this->property_condition == 'Bad'){
+            $this->errors['property_condition'] = 'Property Condition is Must be true.';
+        }
+        if(isset($this->recommendation) && $this->recommendation != 'Approved'){
+            $this->errors['recommendation'] = 'Recommendation is Must be true.';
+        }
+        return empty($this->errors);
+    }
+
 }

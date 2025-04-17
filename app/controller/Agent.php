@@ -572,12 +572,97 @@ class Agent
             case 'viewProperty':
                 $this->viewProperty($property_id = $c);
                 return;
+            case 'submitPreInspection':
+                $this->submitPreInspection($property_id = $c);
+                return;
             default:
                 $preinspection = new PropertyConcat;
-                $inspection = $preinspection->where(['status' => 'pending', 'agent_id' => $_SESSION['user']->pid]);
+                $inspection = $preinspection->where(['status' => 'Pending', 'agent_id' => $_SESSION['user']->pid]);
                 $this->view('agent/preInspection', ['preinspection' => $inspection]);
                 break;
         }
+    }
+
+    public function submitPreInspection($propertyID)
+    {
+        $preInspection = new PreInspection;
+        $propertyModel = new Property;
+        $property = $propertyModel->where(['property_id' => $propertyID])[0] ?? null;
+
+        //show($property);
+
+        if ($property) {
+            $data = [
+                'agent_id' => $_SESSION['user']->pid,
+                'property_id' => $propertyID,
+                'provided_details' => $_POST['provided_details'],
+                'title_deed' => $_POST['title_deed'],
+                'utility_bills' => $_POST['utility_bills'],
+                'owner_id_copy' => $_POST['owner_id_copy'],
+                'lease_agreement' => $_POST['lease_agreement'],
+                'property_condition' => $_POST['property_condition'],
+                'Maintenance_issues' => $_POST['Maintenance_issues'],
+                'owner_present' => $_POST['owner_present'],
+                'notes' => $_POST['notes'],
+                'recommendation' => $_POST['recommendation']
+            ];
+            $res = $preInspection->insert($data);
+
+            if (isset($_FILES['property_document']) && $_FILES['property_document']['error'] == 0) {
+                $uploadDir = 'uploads/preinspections/';
+                $fileName = uniqid() . '_' . basename($_FILES['property_document']['name']);
+                $uploadFile = $uploadDir . $fileName;
+            
+                // Make sure directory exists
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+            
+                if (move_uploaded_file($_FILES['property_document']['tmp_name'], $uploadFile)) {
+                    $data['document_path'] = $uploadFile;
+                } else {
+                    $_SESSION['flash'] = [
+                        'msg' => "Document upload failed.",
+                        'type' => "error"
+                    ];
+                    redirect('dashboard/preInspection');
+                    return;
+                }
+            }
+            
+            if ($res) {
+                if ($property->agent_id == $_SESSION['user']->pid && $preInspection->isValidForRegister()) {
+                    $isActive = $propertyModel->update($propertyID, ['status' => 'Active'], 'property_id');
+                    if ($isActive) {
+                        $_SESSION['flash'] = [
+                            'msg' => "Pre-Inspection submitted successfully!",
+                            'type' => "success"
+                        ];
+                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID , ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
+                        enqueueNotification('Pre-Inspection submitted', 'Pre-Inspection has been submitted on Property ID : ' . $propertyID, ROOT . '/dashboard/property/propertyView/' . $propertyID, 'Notification_green');
+                    } else {
+                        $_SESSION['flash'] = [
+                            'msg' => "Failed to update property status. Please try again.",
+                            'type' => "error"
+                        ];
+                        enqueueNotification('Failed to update property status', 'Failed to update property status on Property ID : ' . $propertyID, '', 'Notification_red');
+                    }
+                }
+            } else {
+                $_SESSION['flash'] = [
+                    'msg' => "Failed to submit Pre-Inspection. Please try again.",
+                    'type' => "error"
+                ];
+                enqueueNotification('Failed to submit Pre-Inspection', 'Failed to submit Pre-Inspection on Property ID : ' . $propertyID, '', 'Notification_red');
+            }
+        } else {
+            $_SESSION['flash'] = [
+                'msg' => "Property not found.",
+                'type' => "error"
+            ];
+            enqueueNotification('Property not found', 'Property not found on Property ID : ' . $propertyID, '', 'Notification_red');
+        }
+        redirect('dashboard/preInspection');
     }
 
     public function property($b = '', $c = '', $d = '')
@@ -616,10 +701,11 @@ class Agent
         }
     }
 
-    public function confirmDeletion($propertyID){
+    public function confirmDeletion($propertyID)
+    {
         $property = new DeleteRequests;
         $isSuccess = $property->update($propertyID, ['request_status' => 'Approved'], 'property_id');
-        if(!$isSuccess) {
+        if (!$isSuccess) {
             $_SESSION['flash'] = [
                 'msg' => "Failed to approve property request. Please try again.",
                 'type' => "error"
@@ -632,7 +718,7 @@ class Agent
         $originalRow = new Property;
         $originalRow = $originalRow->update($propertyID, ['status' => 'Inactive'], 'property_id');
 
-        if(!$originalRow) {
+        if (!$originalRow) {
             $_SESSION['flash'] = [
                 'msg' => "Failed to approve property request. Please try again.",
                 'type' => "error"
@@ -651,15 +737,16 @@ class Agent
             'type' => "success"
         ];
         $property->delete($propertyID, 'property_id');
-        enqueueNotification('Property Removel request approved', 'Property Removal request has been approved on ' . $propertyID . ' ' . $propertyName, '' , 'Notification_green', $ownerID);
+        enqueueNotification('Property Removel request approved', 'Property Removal request has been approved on ' . $propertyID . ' ' . $propertyName, '', 'Notification_green', $ownerID);
         enqueueNotification('Property Removel request approved', 'Property Removal request has been approved on Property ID : ' . $propertyID, '', 'Notification_grey');
         redirect('dashboard/property/removalRequests');
     }
 
-    public function rejectDeletion($property_id){
+    public function rejectDeletion($property_id)
+    {
         $property = new DeleteRequests;
         $isSuccess = $property->update($property_id, ['request_status' => 'Decline'], 'property_id');
-        if(!$isSuccess) {
+        if (!$isSuccess) {
             $_SESSION['flash'] = [
                 'msg' => "Failed to decline property request. Please try again.",
                 'type' => "error"
@@ -676,7 +763,7 @@ class Agent
             'type' => "warning"
         ];
         $property->delete($property_id, 'property_id');
-        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on ' . $property_id . ' ' . $propertyName, ROOT . '/dashboard/propertyListing/propertyunitowner/' . $property_id , 'Notification_red', $ownerID);
+        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on ' . $property_id . ' ' . $propertyName, ROOT . '/dashboard/propertyListing/propertyunitowner/' . $property_id, 'Notification_red', $ownerID);
         enqueueNotification('Property request rejected', 'Property Removal request has been rejected on Property ID : ' . $property_id, '', 'Notification_grey');
         redirect('dashboard/property/removalRequests');
     }
@@ -808,7 +895,7 @@ class Agent
     public function showMyProperties()
     {
         $property = new PropertyConcat;
-        $properties = $property->where(['agent_id' => $_SESSION['user']->pid]);
+        $properties = $property->where(['agent_id' => $_SESSION['user']->pid] , ['status' => 'Inactive']);
         $this->view('agent/property/showMyProperties', ['properties' => $properties]);
     }
 
