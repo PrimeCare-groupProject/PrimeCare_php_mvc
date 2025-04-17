@@ -47,12 +47,31 @@ class Owner
         // Get the current user's ID
         $ownerId = $_SESSION['user']->pid;
         
+        // Get all properties owned by the current user
+        $propertyModel = new Property();
+        $userProperties = $propertyModel->where(['person_id' => $ownerId]);
+        
+        // Extract property IDs
+        $propertyIds = [];
+        if (!empty($userProperties)) {
+            foreach ($userProperties as $prop) {
+                $propertyIds[] = $prop->property_id;
+            }
+        }
+        
         // Instantiate the ServiceLog model
         $serviceLog = new ServiceLog();
         
-        // Get all service logs for properties owned by the current user
-        // This assumes property_id in ServiceLog can be linked to properties owned by this user
-        $serviceLogs = $serviceLog->findAll();
+        // Get only service logs for properties owned by the current user
+        $serviceLogs = [];
+        if (!empty($propertyIds)) {
+            foreach ($propertyIds as $propId) {
+                $logs = $serviceLog->where(['property_id' => $propId]);
+                if (!empty($logs)) {
+                    $serviceLogs = array_merge($serviceLogs, $logs);
+                }
+            }
+        }
 
         // Apply status filtering
         if (!empty($_GET['status_filter'])) {
@@ -109,10 +128,11 @@ class Owner
             });
         }
         
-        // Calculate total expenses
+        // Calculate total expenses using total_cost field (which includes both usual cost and additional charges)
         $totalExpenses = 0;
         foreach ($serviceLogs as $log) {
-            $totalExpenses += ($log->cost_per_hour * $log->total_hours);
+            // Use total_cost which already includes both usual cost and additional charges
+            $totalExpenses += ($log->total_cost ?? 0);
         }
         
         $this->view('owner/maintenance', [
@@ -212,7 +232,7 @@ class Owner
                         $serviceLogs[] = $log;
                         
                         // Calculate expenses
-                        $cost = $log->cost_per_hour * $log->total_hours;
+                        $cost = $log->total_cost;
                         $totalExpenses += $cost;
                         
                         // Add to monthly data
