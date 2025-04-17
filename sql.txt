@@ -333,3 +333,16 @@ CREATE TABLE notifications (
 
     FOREIGN KEY (user_id) REFERENCES person(pid)
 );
+
+
+CREATE TABLE deleteRequests(
+    property_id INT PRIMARY KEY,
+    owner_id INT NOT NULL,
+    agent_id INT NOT NULL,
+    created_at DATETIME,
+    request_status ENUM('Pending' , 'Approved' , 'Decline') DEFAULT 'Pending',
+
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id),
+    FOREIGN KEY (owner_id) REFERENCES person(pid),
+    FOREIGN KEY (agent_id) REFERENCES person(pid)
+);
