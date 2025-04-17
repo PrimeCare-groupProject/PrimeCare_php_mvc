@@ -55,7 +55,7 @@
     <!-- Cards Grid -->
     <div class="service-cards-grid" id="service-cards-grid">
         <?php foreach($chartData as $service): ?>
-            <div class="service-card" data-date="<?= htmlspecialchars($service['date'] ?? '') ?>">
+            <div class="service-card" data-date="<?= htmlspecialchars($service['date'] ?? '') ?>" data-name="<?= htmlspecialchars($service['name'] ?? '') ?>" data-property="<?= htmlspecialchars($service['property_name'] ?? '') ?>">
                 <div class="service-image">
                     <?php 
                     $image = isset($service['service_images']) && !empty($service['service_images']) 
@@ -87,6 +87,8 @@
                         <i class="fa fa-clock"></i>
                         <span><?= htmlspecialchars($service['total_hours'] ?? 0) ?> hours</span>
                     </div>
+                    
+                    <button class="service-summary-btn" data-service-index="<?= $key ?? 0 ?>">Service Summary</button>
                 </div>
                 
                 <div class="earnings-badge">
@@ -97,7 +99,7 @@
         <?php endforeach; ?>
         
         <div id="no-filtered-services" class="no-services" style="display: none;">
-            <p>No services found for the selected time period.</p>
+            <p>No services found for the selected time period or search criteria.</p>
         </div>
         
         <?php if(empty($chartData)): ?>
@@ -105,6 +107,49 @@
                 <p>No completed services found.</p>
             </div>
         <?php endif; ?>
+    </div>
+</div>
+
+<!-- Service Summary Modal - Updated structure with description section -->
+<div id="service-modal" class="service-modal">
+    <div class="service-modal-content">
+        <span class="close-modal">&times;</span>
+        <div class="modal-header">
+            <h2 id="modal-service-name">Service Summary</h2>
+        </div>
+        <div class="modal-body">
+            <div class="modal-image">
+                <img id="modal-image" src="" alt="Service">
+            </div>
+            <div class="modal-info">
+                <div class="modal-info-row">
+                    <span class="info-label">Service:</span>
+                    <span id="modal-service-type" class="info-value"></span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="info-label">Property:</span>
+                    <span id="modal-property" class="info-value"></span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="info-label">Date:</span>
+                    <span id="modal-date" class="info-value"></span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="info-label">Hours Worked:</span>
+                    <span id="modal-hours" class="info-value"></span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="info-label">Earnings:</span>
+                    <span id="modal-earnings" class="info-value"></span>
+                </div>
+            </div>
+            
+            <!-- Added description section -->
+            <div class="modal-description">
+                <h3>Service Description</h3>
+                <div id="modal-description" class="description-content"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -322,6 +367,184 @@
         .apply-btn {
             width: 100%;
         }
+    }
+    
+    /* Add these new styles */
+    .service-summary-btn {
+        display: block;
+        width: 100%;
+        padding: 8px 0;
+        margin-top: 10px;
+        background-color: #FFEB3B;
+        border: none;
+        border-radius: 4px;
+        color: #333;
+        font-weight: 500;
+        font-family: 'Roboto', sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .service-summary-btn:hover {
+        background-color: #FDD835;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    /* Modal styles */
+    .service-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .service-modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 0;
+        width: 80%;
+        max-width: 800px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        animation: modalFadeIn 0.3s;
+        overflow: hidden;
+    }
+    
+    @keyframes modalFadeIn {
+        from {opacity: 0; transform: translateY(-20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+    
+    .close-modal {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        color: #666;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+    
+    .close-modal:hover {
+        color: #333;
+    }
+    
+    .modal-header {
+        padding: 15px 20px;
+        background-color: #FFEB3B;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .modal-header h2 {
+        margin: 0;
+        color: #333;
+    }
+    
+    .modal-body {
+        padding: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        align-items: flex-start; /* Align items at the top */
+    }
+    
+    .modal-image {
+        flex: 1 1 300px;
+        margin-right: 0;
+        margin-bottom: 0;
+        height: 240px; /* Fixed height */
+        overflow: hidden; /* Prevent overflow */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-image img {
+        max-width: 100%;
+        max-height: 100%; /* Limit height */
+        object-fit: contain; /* Maintain aspect ratio */
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .modal-info {
+        flex: 1 1 300px;
+        padding: 0 10px;
+    }
+    
+    .modal-info-row {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: baseline;
+    }
+    
+    .info-label {
+        font-weight: bold;
+        color: #666;
+        width: 140px;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    
+    .info-value {
+        color: #333;
+        flex-grow: 1;
+    }
+    
+    /* New styles for description section */
+    .modal-description {
+        flex-basis: 100%;
+        margin-top: 10px;
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+    }
+    
+    .modal-description h3 {
+        font-size: 18px;
+        margin: 0 0 15px 0;
+        color: #444;
+    }
+    
+    .description-content {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 6px;
+        color: #555;
+        line-height: 1.5;
+        white-space: pre-line;
+        min-height: 100px;
+    }
+    
+    @media (max-width: 768px) {
+        .service-modal-content {
+            width: 95%;
+            margin: 10% auto;
+        }
+        
+        .modal-body {
+            padding: 15px;
+            gap: 15px;
+        }
+        
+        .info-label {
+            width: 120px;
+        }
+        
+        .modal-image {
+            height: 200px; /* Smaller height on mobile */
+        }
+    }
+    
+    /* Highlight search results */
+    .highlight {
+        background-color: #FFF9C4;
+        padding: 0 2px;
     }
 </style>
 
@@ -571,6 +794,199 @@
                 filterServices(null, null);
             }
         }
+        
+        // Add search functionality
+        const searchInput = document.getElementById('service-search');
+        const searchBtn = document.getElementById('search-btn');
+        
+        // Handle search button click
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function() {
+                performSearch(searchInput.value);
+            });
+        }
+        
+        // Handle Enter key in search input
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch(searchInput.value);
+                }
+            });
+        }
+        
+        // Search function
+        function performSearch(query) {
+            query = query.trim().toLowerCase();
+            
+            if (query === '') {
+                // Reset to current filter if search is empty
+                const activeFilter = document.querySelector('.filter-btn.active');
+                if (activeFilter) {
+                    activeFilter.click();
+                } else {
+                    filterServices(null, null);
+                }
+                return;
+            }
+            
+            // Get currently visible cards (respecting date filters)
+            const allCards = document.querySelectorAll('.service-card');
+            let visibleCount = 0;
+            let filteredData = [];
+            
+            allCards.forEach((card, index) => {
+                // Check if card should be visible based on current date filters
+                const isVisibleByDate = card.style.display !== 'none';
+                
+                if (!isVisibleByDate) {
+                    return; // Skip cards already hidden by date filter
+                }
+                
+                // Get searchable text from card (name and property)
+                const serviceName = card.getAttribute('data-name') || '';
+                const propertyName = card.getAttribute('data-property') || '';
+                const cardText = (serviceName + ' ' + propertyName).toLowerCase();
+                
+                // Check if card matches search
+                const matches = cardText.includes(query);
+                
+                if (matches) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                    
+                    // Add to filtered data for chart
+                    if (chartData[index]) {
+                        filteredData.push(chartData[index]);
+                    }
+                    
+                    // Highlight matching text
+                    highlightMatches(card, query);
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update results info
+            document.getElementById('filtered-results-info').textContent = 
+                `Found ${visibleCount} services matching "${query}"`;
+            
+            // Show no results message if needed
+            document.getElementById('no-filtered-services').style.display = 
+                visibleCount > 0 ? 'none' : 'block';
+            
+            // Update chart with filtered data
+            if (earningsChart && filteredData.length > 0) {
+                const labels = filteredData.map(data => data.name || 'Unknown');
+                const values = filteredData.map(data => parseFloat(data.totalEarnings) || 0);
+                
+                earningsChart.data.labels = labels;
+                earningsChart.data.datasets[0].data = values;
+                earningsChart.update();
+            } else if (earningsChart) {
+                earningsChart.data.labels = [];
+                earningsChart.data.datasets[0].data = [];
+                earningsChart.update();
+            }
+        }
+        
+        // Function to highlight matching text
+        function highlightMatches(card, query) {
+            // Remove any existing highlights first
+            const highlights = card.querySelectorAll('.highlight');
+            highlights.forEach(el => {
+                el.outerHTML = el.innerHTML;
+            });
+            
+            // Find text nodes that match the query
+            const elements = [
+                card.querySelector('h3'),
+                card.querySelector('.property-info span')
+            ];
+            
+            elements.forEach(element => {
+                if (!element) return;
+                
+                const text = element.innerHTML;
+                const regex = new RegExp('(' + query + ')', 'gi');
+                
+                if (text.toLowerCase().includes(query.toLowerCase())) {
+                    element.innerHTML = text.replace(regex, '<span class="highlight">$1</span>');
+                }
+            });
+        }
+        
+        // Service Summary button functionality
+        const summaryButtons = document.querySelectorAll('.service-summary-btn');
+        const modal = document.getElementById('service-modal');
+        const closeBtn = document.querySelector('.close-modal');
+        
+        summaryButtons.forEach((button, index) => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event bubbling
+                
+                const serviceIndex = parseInt(button.getAttribute('data-service-index')) || index;
+                const serviceData = chartData[serviceIndex];
+                
+                // Populate modal with service data
+                document.getElementById('modal-service-name').textContent = serviceData.name || 'Service Details';
+                document.getElementById('modal-service-type').textContent = serviceData.name || 'Unknown';
+                document.getElementById('modal-property').textContent = serviceData.property_name || 'Not available';
+                document.getElementById('modal-date').textContent = serviceData.date ? 
+                    new Date(serviceData.date).toLocaleDateString() : 'Not available';
+                document.getElementById('modal-hours').textContent = (serviceData.total_hours || 0) + ' hours';
+                document.getElementById('modal-earnings').textContent = 'LKR ' + 
+                    parseFloat(serviceData.totalEarnings).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                
+                // Display service provider description
+                const descriptionElement = document.getElementById('modal-description');
+                if (descriptionElement) {
+                    if (serviceData.service_provider_description) {
+                        descriptionElement.textContent = serviceData.service_provider_description;
+                    } else {
+                        descriptionElement.textContent = 'No description provided for this service.';
+                    }
+                }
+                
+                // Set image
+                const card = button.closest('.service-card');
+                const cardImage = card.querySelector('.service-image img');
+                const modalImage = document.getElementById('modal-image');
+                
+                if (cardImage && modalImage) {
+                    modalImage.src = cardImage.src;
+                } else {
+                    modalImage.src = '<?= ROOT ?>/assets/images/service-placeholder.png';
+                }
+                
+                // Show modal
+                modal.style.display = 'block';
+            });
+        });
+        
+        // Close modal functionality
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'block') {
+                modal.style.display = 'none';
+            }
+        });
     });
 </script>
 

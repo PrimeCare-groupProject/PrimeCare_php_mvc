@@ -670,7 +670,8 @@ class ServiceProvider {
             'property_name' => $service->property_name ?? 'Unknown Property',
             'date' => $service->date,
             'total_hours' => $service->total_hours,
-            'service_images' => $service->service_images ?? null
+            'service_images' => $service->service_images ?? null,
+            'service_provider_description' => $service->service_provider_description ?? null  // Add this line
         ];
     }
 
