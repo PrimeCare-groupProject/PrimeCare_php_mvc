@@ -33,7 +33,8 @@
                          <?php foreach ($properties as $property) : ?>
                          <?php if ($booking-> customer_id == $person -> pid) : ?>
                               <?php if ($booking-> property_id == $property -> property_id) : ?>
-                    <tr onclick="window.location.href='<?= ROOT ?>/dashboard/inventory/editinventory/<?= $booking->booking_id ?>'">
+                                <?php if ($booking-> accept_status == 'accepted') : ?>
+                    <tr onclick="window.location.href='<?= ROOT ?>/dashboard/manageProviders/managetenents/edittenents/<?= $booking->booking_id ?>'">
                         <td><?= $booking->booking_id ?></td>
                         <td><?= $person->fname ?> <?= $person->lname ?></td>
                         <td><?= $booking->property_id ?></td>
@@ -41,6 +42,7 @@
                         <td><?= $booking->price ?></td>
                         <td><?= $booking->renting_period ?></td>
                     </tr>
+                    <?php endif; ?>
                     <?php endif; ?>
                     <?php endif; ?>
                 <?php endforeach; ?>

@@ -658,11 +658,11 @@ class Agent
     public function tenents( $c = '', $d = '')
     {
         switch ($c) {
-            case 'bookingaccept':
-                $this->bookingAccept($c);
+            case 'edittenents':
+                $this->edittenents($c);
                 break;
-            case 'history':
-                $this->bookinghistory($c,$d);
+            case 'deletetenents':
+                $this->deletetenents($c,$d);
                 break;
             default:
                 $book = new BookingModel;
@@ -677,6 +677,22 @@ class Agent
                 $this->view('agent/tenents',['bookings'=> $bookings,'persons' => $persons, 'properties' => $properties]);
                 break;
         }
+    }
+
+    public function edittenents( $c = '', $d = '')
+    {
+                $book = new BookingModel;
+                $property = new Property;
+                $properties = $property->findAll();
+                $bookings = $book->findAll();
+                $person1 = new User;
+                $persons = $person1->findAll();
+                $image1 = new PropertyImageModel;
+                $images = $image1->findAll();
+                /*echo "<pre>";
+                print_r($images);
+                echo "</pre>";*/
+                $this->view('agent/edittenents',['bookings'=> $bookings,'persons' => $persons, 'properties' => $properties, 'images' => $images]);
     }
 
     public function serviceProviders($c, $d)
