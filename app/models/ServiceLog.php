@@ -18,7 +18,9 @@ class ServiceLog {
         'service_provider_description', 
         'service_images',
         'additional_charges',         
-        'additional_charges_reason'   
+        'additional_charges_reason',
+        'usual_cost',       
+        'total_cost'         
     ];
 
     public $errors = [];
