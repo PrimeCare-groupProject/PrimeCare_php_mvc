@@ -1,8 +1,10 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
-<div class="agent-menu-bar">
-    <div class="agent-gap"></div>
-    <h2><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h2>
+<div class="user_view-menu-bar">
+    <div class="user_view-menu-bar">
+        <div class="gap"></div>
+        <h2>Dashboard</h2>
+    </div>
 </div>
 
 <div class="agent-dashboard-container">
@@ -52,15 +54,7 @@
         </div>
     </div>
 
-    <div class="agent-chart-section">
-        <div class="agent-chart-box">
-            <h3><i class="fas fa-chart-line"></i> Monthly Activity</h3>
-            <div class="agent-chart-placeholder">
-                <!-- This would be replaced with an actual chart in implementation -->
-                <img src="https://via.placeholder.com/600x250?text=Monthly+Activity+Chart" alt="Monthly Activity Chart">
-            </div>
-        </div>
-    </div>
+    
 
     <div class="agent-tables-row">
         <div class="agent-repair-table">
@@ -148,22 +142,23 @@
     <div class="agent-actions-section">
         <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
         <div class="agent-action-buttons">
-            <button class="agent-action-btn">
+            <a href="<?=ROOT?>/dashboard/inventory/newinventory" class="agent-action-btn">
                 <i class="fas fa-plus-circle"></i>
-                <span>Add Property</span>
-            </button>
-            <button class="agent-action-btn">
+                <span>Add Inventory</span>
+            </a>
+            <a href="<?=ROOT?>/dashboard/manageProviders/serviceproviders/addserviceprovider" class="agent-action-btn">
                 <i class="fas fa-user-plus"></i>
                 <span>Add Service Provider</span>
-            </button>
-            <button class="agent-action-btn">
+            </a>
+            <a href="<?=ROOT?>/dashboard/tasks" class="agent-action-btn">
                 <i class="fas fa-tools"></i>
                 <span>Request Repair</span>
-            </button>
-            <button class="agent-action-btn">
+            </a>
+
+            <a href="<?=ROOT?>/dashboard/preInspection" class="agent-action-btn">
                 <i class="fas fa-calendar-plus"></i>
                 <span>Schedule Inspection</span>
-            </button>
+            </a>
         </div>
     </div>
 </div>
