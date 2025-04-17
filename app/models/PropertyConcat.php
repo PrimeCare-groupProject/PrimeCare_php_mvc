@@ -68,4 +68,16 @@ class PropertyConcat
         }
         return null;
     }
+
+    public function getByPropertyIds(array $propertyIds)
+    {
+        if (empty($propertyIds)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($propertyIds), '?'));
+        $query = "SELECT * FROM {$this->table} WHERE property_id IN ($placeholders)";
+        
+        return $this->instance->query($query, $propertyIds);
+    }
 }

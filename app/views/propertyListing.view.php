@@ -32,12 +32,12 @@
         </div>
         <div class="PL_filter-section">
             <div class="PL__filter">
-                <form action="<?= ROOT ?>/propertyListing" method="POST">
+            <form action="<?= ROOT ?>/propertyListing/showListing" method="POST">
                     <div class="PL_form_main-filters">
                         <div class="flex-bar">
                             <img src="<?= ROOT ?>/assets/images/setting.png" alt="see" id="toggleFilters" class="small-icons" style="filter: invert(1); margin-left: 5px;" onclick="toggleFilters()">
                             <div class="search-container">
-                                <input type="text" class="search-input" placeholder="Search Anything...">
+                                <input type="text" name="searchTerm" id="searchTerm" class="search-input" placeholder="Search Anything..." value="<?= old_value('searchTerm') ?>">
                                 <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
                             </div>
                         </div>
@@ -45,48 +45,67 @@
                     <div class="PL_form_filters" id="PL_form_filters" style="display: none;">
                         <div class="filter-menu">
                             <div class="filter-row-instance">
-                                <div class="half-of-the-row">
-                                    <label>Type:
-                                        <select>
-                                            <option value="">Select Type</option>
-                                            <option value="apartment">Apartment</option>
-                                            <option value="house">House</option>
-                                        </select>
-                                    </label>
-                                </div>
-                                <div class="half-of-the-row">
-                                    <label>Status:
-                                        <select>
-                                            <option value="available">Available</option>
-                                            <option value="occupied">Occupied</option>
-                                            <option value="maintenance">Under Maintenance</option>
-                                        </select>
-                                    </label>
-                                </div>
+                                <!-- Sort By -->
                                 <div class="half-of-the-row">
                                     <label>Sort By:
-                                        <select>
-                                            <option value="price-asc">Price Low to High</option>
-                                            <option value="price-desc">Price High to Low</option>
-                                            <option value="newest">Newest</option>
+                                        <select id="sort_by" name="sort_by">
+                                            <option value="" <?= old_select('sort_by', '') ?>>-- Select --</option>
+                                            <option value="price-asc" <?= old_select('sort_by', 'price-asc') ?>>Price Low to High</option>
+                                            <option value="price-desc" <?= old_select('sort_by', 'price-desc') ?>>Price High to Low</option>
+                                            <option value="newest" <?= old_select('sort_by', 'newest') ?>>Newest</option>
+                                            <option value="oldest" <?= old_select('sort_by', 'oldest') ?>>Oldest</option>
+                                            <option value="size-asc" <?= old_select('sort_by', 'size-asc') ?>>Size (Small to Large)</option>
+                                            <option value="size-desc" <?= old_select('sort_by', 'size-desc') ?>>Size (Large to Small)</option>
                                         </select>
                                     </label>
                                 </div>
+                                
+                                <!-- Price Range -->
                                 <div class="half-of-the-row">
                                     <label>Price Range:
                                         <div class="inline-block-inputs">
-                                            <input type="number" placeholder="Min" class="short-box">
-                                            <input type="number" placeholder="Max" class="short-box">
+                                            <input type="number" id="min_price" name="min_price" placeholder="Min" class="short-box" value="<?= old_value('min_price') ?>">
+                                            <input type="number" id="max_price" name="max_price" placeholder="Max" class="short-box" value="<?= old_value('max_price') ?>">
                                         </div>
                                     </label>
                                 </div>
+                                
                                 <div class="half-of-the-row">
-                                    <label>Rooms:
-                                        <input type="number" placeholder="Rooms">
+                                    <label>Check-in Date:
+                                        <input type="date" id="check_in_date" name="check_in" placeholder="Check-in Date" value="<?= old_date('check_in', date('Y-m-d')) ?>">
                                     </label>
                                 </div>
-                                <div class="half-of-the-row" style="display: none;">
-                                    <button type="button" onclick="applyFilters()" class="primary-btn">Apply Filters</button>
+                                
+                                <!-- Check-out Date -->
+                                <div class="half-of-the-row">
+                                    <label>Check-out Date:
+                                        <input type="date" id="check_out_date" name="check_out" placeholder="Check-out Date" value="<?= old_date('check_out', date('Y-m-d')) ?>">
+                                    </label>
+                                </div>
+
+                                <!-- Location Filters -->
+                                <div class="half-of-the-row">
+                                    <label>City:
+                                        <input type="text" id="city" name="city" placeholder="City" value="<?= old_value('city') ?>">
+                                    </label>
+                                </div>
+
+                                <div class="half-of-the-row">
+                                    <label>State/Province:
+                                        <input type="text" id="state" name="state" placeholder="State/Province" value="<?= old_value('state') ?>">
+                                    </label>
+                                </div>
+                                
+                                <!-- Apply Filters Button -->
+                                <div class="half-of-the-row" style="display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+                                    <button type="submit" 
+                                        style="width: 100px; padding: 5px; border-radius: 12px; background-color: orange; color: white; border: none; cursor: pointer; ">
+                                        Apply Filters
+                                    </button>
+                                    <button type="button" onclick="resetFilters()" 
+                                        style="width: 100px; padding: 5px; border-radius: 12px; background-color: white; color: black; border: 1px solid #ccc; cursor: pointer;">
+                                        Reset Filters
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -158,8 +177,19 @@
         </div>
     </div>
 
-    <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>
+    <!-- <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script> -->
     <script>
+        const toggleButton = document.getElementById('toggleFilters');
+        const filters = document.getElementById('PL_form_filters');
+
+        toggleButton.addEventListener('click', function() {
+            if(filters.style.display === 'none' || filters.style.display === '') {
+                filters.style.display = 'block';
+            } else {
+                filters.style.display = 'none';
+            }
+        });
+
         let currentPage = 1;
         const listingsPerPage = 9;
         const listings = document.querySelectorAll('.property-listing-grid .property-component');
@@ -199,6 +229,28 @@
 
         // Initial page load
         showPage(currentPage);
+        function resetFilters() {
+            // Reset dropdown selections
+            document.getElementById('sort_by').selectedIndex = 0;
+            
+            // Reset price range inputs
+            document.getElementById('min_price').value = '';
+            document.getElementById('max_price').value = '';
+            
+            // Reset date inputs
+            document.getElementById('check_in_date').value = '';
+            document.getElementById('check_out_date').value = '';
+            
+            // Reset location inputs
+            document.getElementById('city').value = '';
+            document.getElementById('state').value = '';
+            
+            // Reset search term
+            document.getElementById('searchTerm').value = '';
+            
+            // Optionally refresh the listing
+            // applyFilters(); // Uncomment this if you want to refresh listings after reset
+        }
     </script>
 </body>
 

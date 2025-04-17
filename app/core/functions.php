@@ -156,6 +156,23 @@ function old_select(string $key, mixed $value, mixed $default = '', string $mode
 }
 
 /**
+ * Returns the old date value of a form field after refresh.
+ *
+ * @param string $key The key of the form field.
+ * @param mixed $default The default value if the key is not set.
+ * @param string $mode The request method ('post' or 'get').
+ * @return mixed The old date value of the form field.
+ */
+function old_date(string $key, mixed $default = '', string $mode = 'post'): mixed
+{
+    $POST = ($mode == 'post') ? $_POST : $_GET;
+    if (isset($POST[$key])) {
+        return $POST[$key];
+    }
+    return $default;
+}
+
+/**
  * Converts dates into a user-readable format.
  *
  * @param string $date The date string to be formatted.
