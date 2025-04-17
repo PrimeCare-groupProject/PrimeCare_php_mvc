@@ -1,10 +1,10 @@
 <?php require_once 'agentHeader.view.php'; $booking = $bookings[0];?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/bookings/history'>
+    <a href='<?= ROOT ?>/dashboard/manageProviders/managetenents'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Booking History Details</h2>
+    <h2>Tenents Details</h2>
 </div>
 
 <form method="POST" action="<?= ROOT ?>/Booking/update" enctype="multipart/form-data">
@@ -13,7 +13,7 @@
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
 
-            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Back" class="bookingimg">
+            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Back" class="bookingimage">
 
             <input type="hidden" name="booking_id" value="<?=  $booking->booking_id ?>">
 
