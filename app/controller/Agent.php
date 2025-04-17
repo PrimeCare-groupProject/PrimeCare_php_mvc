@@ -661,6 +661,7 @@ class Agent
             case 'edittenents':
                 $this->edittenents($c,$d);
                 break;
+
             case 'addtenents':
                 $this->view('agent/addtenents');
                 break;
