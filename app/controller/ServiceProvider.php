@@ -581,11 +581,15 @@ class ServiceProvider {
                 return;
             }
     
+            // Calculate the usual cost (hourly rate × hours worked)
+            $usual_cost = (float)$existing_log->cost_per_hour * (float)$total_hours;
+    
             // Prepare update data
             $update_data = [
                 'total_hours' => $total_hours,
                 'status' => 'Done',
-                'service_provider_description' => $provider_description
+                'service_provider_description' => $provider_description,
+                'usual_cost' => $usual_cost  
             ];
     
             // Handle additional charges
@@ -597,7 +601,17 @@ class ServiceProvider {
                 $update_data['service_provider_description'] = $provider_description . $charges_info;
                 $update_data['additional_charges'] = $additional_charges;
                 $update_data['additional_charges_reason'] = $additional_charges_reason;
+            } else {
+                // Ensure additional charges is set to zero when not provided
+                $update_data['additional_charges'] = 0;
+                $update_data['additional_charges_reason'] = '';
             }
+    
+            // Manually calculate and set total_cost
+            $update_data['total_cost'] = $usual_cost + (float)$additional_charges;
+    
+            // Debug output to see what's happening
+            error_log("DEBUG: Final calculation - Usual cost: {$usual_cost}, Additional: {$additional_charges}, Total: {$update_data['total_cost']}");
     
             // Add images if any were uploaded
             if (!empty($uploaded_images)) {
@@ -636,7 +650,7 @@ class ServiceProvider {
                             'message' => $notificationMessage,
                             'color' => 'Notification_green',
                             'is_read' => 0,
-                            'link' => ROOT . 'dashboard/maintenance',
+                            'link' => ROOT . '/dashboard/maintenance',
                             'created_at' => date('Y-m-d H:i:s')
                         ];
                         
