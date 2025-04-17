@@ -21,61 +21,61 @@ class Agent
         $user = new User();
 
         // notifications
-        if ($_SESSION['user']->AccountStatus == 3) {// reject update
+        if ($_SESSION['user']->AccountStatus == 3) { // reject update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             // set message
             $_SESSION['flash']['msg'] = "Your account update has been rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == 4) {// Approved update
+        } elseif ($_SESSION['user']->AccountStatus == 4) { // Approved update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             $_SESSION['flash']['msg'] = "Your account has been accepted.";
             $_SESSION['flash']['type'] = "success";
-        } elseif ($_SESSION['user']->AccountStatus == -3) {// Reject delete
+        } elseif ($_SESSION['user']->AccountStatus == -3) { // Reject delete
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             $_SESSION['flash']['msg'] = "Account removal was Rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == -4) {// Approve delete
+        } elseif ($_SESSION['user']->AccountStatus == -4) { // Approve delete
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             $_SESSION['flash']['msg'] = "Account removal was Rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == 2) {// update pending
-            
+        } elseif ($_SESSION['user']->AccountStatus == 2) { // update pending
+
             $_SESSION['flash']['msg'] = "Account update request is pending.";
             $_SESSION['flash']['type'] = "warning";
-        } elseif ($_SESSION['user']->AccountStatus == -2) {// Delete pending
-            
+        } elseif ($_SESSION['user']->AccountStatus == -2) { // Delete pending
+
             $_SESSION['flash']['msg'] = "Account removal request is pending.";
             $_SESSION['flash']['type'] = "warning";
         } // 0 for deleted in home page
-        
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['delete_account'])) {
                 $errors = [];
@@ -93,7 +93,6 @@ class Agent
 
                     $_SESSION['flash']['msg'] = "Deletion Request sent.Please wait for appoval.";
                     $_SESSION['flash']['type'] = "success";
-
                 } else {
                     $_SESSION['flash']['msg'] = "Failed to request deletion of account. Please try again.";
                     $_SESSION['flash']['type'] = "error";
@@ -489,11 +488,12 @@ class Agent
                 break;
             default:
                 $service = new ServiceLog;
-                $services = new Services;    
-                $tasks = $services->selecttwotables($service->table,
-                                                   'service_id', 
-                                                   'services_id',
-                                                   );
+                $services = new Services;
+                $tasks = $services->selecttwotables(
+                    $service->table,
+                    'service_id',
+                    'services_id',
+                );
                 $this->view('agent/tasks', ['tasks' => $tasks]);
                 break;
         }
@@ -518,8 +518,9 @@ class Agent
         $this->view('agent/taskremoval');
     }
 
-    public function services($b = '', $c = '', $d = ''){
-        switch($b){
+    public function services($b = '', $c = '', $d = '')
+    {
+        switch ($b) {
             case 'editservices':
                 $this->editservices($c);
                 break;
@@ -565,7 +566,13 @@ class Agent
             case 'showReport':
                 $this->showReport($property_id = $c);
                 return;
-            default :   
+            case 'submitReport':
+                $this->submitReport($property_id = $c);
+                return;
+            case 'viewProperty':
+                $this->viewProperty($property_id = $c);
+                return;
+            default:
                 $preinspection = new PropertyConcat;
                 $inspection = $preinspection->where(['status' => 'pending', 'agent_id' => $_SESSION['user']->pid]);
                 $this->view('agent/preInspection', ['preinspection' => $inspection]);
@@ -573,12 +580,266 @@ class Agent
         }
     }
 
-    public function showReport($property_id){
+    public function property($b = '', $c = '', $d = '')
+    {
+        switch ($b) {
+            case 'changeRequests':
+                $this->ChangeRequests($c);
+                break;
+            case 'propertyView':
+                $this->propertyView($c);
+                break;
+            case 'showMyProperties':
+                $this->showMyProperties();
+                break;
+            case 'removalRequests':
+                $this->removalRequests($c);
+                break;
+            case 'comparePropertyUpdate':
+                $this->comparePropertyUpdate($c);
+                break;
+            case 'confirmUpdate':
+                $this->confirmUpdate($c);
+                break;
+            case 'rejectUpdate':
+                $this->rejectUpdate($c);
+                break;
+            case 'confirmDeletion':
+                $this->confirmDeletion($c);
+                break;
+            case 'rejectDeletion':
+                $this->rejectDeletion($c);
+                break;
+            default:
+                $this->view('agent/property/propertyHome');
+                break;
+        }
+    }
+
+    public function confirmDeletion($propertyID){
+        $property = new DeleteRequests;
+        $isSuccess = $property->update($propertyID, ['request_status' => 'Approved'], 'property_id');
+        if(!$isSuccess) {
+            $_SESSION['flash'] = [
+                'msg' => "Failed to approve property request. Please try again.",
+                'type' => "error"
+            ];
+            enqueueNotification('Failed to Approve removal request', 'Property Removal request has been failed to Approve on Property ID : ' . $propertyID, '', 'Notification_grey');
+            redirect('dashboard/property/removalRequests');
+            return;
+        }
+
+        $originalRow = new Property;
+        $originalRow = $originalRow->update($propertyID, ['status' => 'Inactive'], 'property_id');
+
+        if(!$originalRow) {
+            $_SESSION['flash'] = [
+                'msg' => "Failed to approve property request. Please try again.",
+                'type' => "error"
+            ];
+            enqueueNotification('Failed to Approve removal request', 'Property Removal request has been failed to Approve on Property ID : ' . $propertyID, '', 'Notification_grey');
+            redirect('dashboard/property/removalRequests');
+            return;
+        }
+
+        $OriginalProperty = new Property;
+        $OriginalProperty = $OriginalProperty->first(['property_id' => $propertyID]);
+        $ownerID = $OriginalProperty->person_id;
+        $propertyName = $OriginalProperty->name;
+        $_SESSION['flash'] = [
+            'msg' => "Property Removal request approved successfully!",
+            'type' => "success"
+        ];
+        $property->delete($propertyID, 'property_id');
+        enqueueNotification('Property Removel request approved', 'Property Removal request has been approved on ' . $propertyID . ' ' . $propertyName, '' , 'Notification_green', $ownerID);
+        enqueueNotification('Property Removel request approved', 'Property Removal request has been approved on Property ID : ' . $propertyID, '', 'Notification_grey');
+        redirect('dashboard/property/removalRequests');
+    }
+
+    public function rejectDeletion($property_id){
+        $property = new DeleteRequests;
+        $isSuccess = $property->update($property_id, ['request_status' => 'Decline'], 'property_id');
+        if(!$isSuccess) {
+            $_SESSION['flash'] = [
+                'msg' => "Failed to decline property request. Please try again.",
+                'type' => "error"
+            ];
+            enqueueNotification('Property request rejected', 'Property Removal request has been rejected on Property ID : ' . $property_id, '', 'Notification_grey');
+            redirect('dashboard/property/removalRequests');
+            return;
+        }
+        $originalRow = new Property;
+        $ownerID = $originalRow->first(['property_id' => $property_id])->person_id;
+        $propertyName = $originalRow->first(['property_id' => $property_id])->name;
+        $_SESSION['flash'] = [
+            'msg' => "Property request rejected successfully!",
+            'type' => "warning"
+        ];
+        $property->delete($property_id, 'property_id');
+        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on ' . $property_id . ' ' . $propertyName, ROOT . '/dashboard/propertyListing/propertyunitowner/' . $property_id , 'Notification_red', $ownerID);
+        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on Property ID : ' . $property_id, '', 'Notification_grey');
+        redirect('dashboard/property/removalRequests');
+    }
+
+
+    public function confirmUpdate($propertyID)
+    {
+        $updatedProperty = new PropertyModelTemp;
+        $currentProperty = new Property;
+
+        $property = $updatedProperty->first(['property_id' => $propertyID]);
+        if ($property->request_status == 'pending') {
+            $data = [
+                'name' => $property->name,
+                'type' => $property->type,
+                'description' => $property->description,
+                'address' => $property->address,
+                'zipcode' => $property->zipcode,
+                'city' => $property->city,
+                'state_province' => $property->state_province,
+                'country' => $property->country,
+                'year_built' => $property->year_built,
+                'size_sqr_ft' => $property->size_sqr_ft,
+                'number_of_floors' => $property->number_of_floors,
+                'floor_plan' => $property->floor_plan,
+                'units' => $property->units,
+                'bedrooms' => $property->bedrooms,
+                'bathrooms' => $property->bathrooms,
+                'kitchen' => $property->kitchen,
+                'living_room' => $property->living_room,
+                'furnished' => $property->furnished,
+                'furniture_description' => $property->furniture_description,
+                'parking' => $property->parking,
+                'parking_slots' => $property->parking_slots,
+                'type_of_parking' => $property->type_of_parking,
+                'utilities_included' => $property->utilities_included,
+                'additional_utilities' => $property->additional_utilities,
+                'additional_amenities' => $property->additional_amenities,
+                'security_features' => $property->security_features,
+                'purpose' => $property->purpose,
+                'rental_period' => $property->rental_period,
+                'rental_price' => $property->rental_price,
+                'owner_name' => $property->owner_name,
+                'owner_email' => $property->owner_email,
+                'owner_phone' => $property->owner_phone,
+                'additional_contact' => $property->additional_contact,
+                'special_instructions' => $property->special_instructions,
+                'legal_details' => $property->legal_details,
+                'status' => $property->status,
+                'person_id' => $property->person_id,
+                'agent_id' => $property->agent_id,
+                'duration' => $property->duration,
+                'start_date' => $property->start_date,
+                'end_date' => $property->end_date
+            ];
+
+            $res = $currentProperty->update($propertyID, $data, 'property_id');
+            if ($res) {
+                $updatedProperty->update($propertyID, ['request_status' => 'accept'], 'property_id');
+                $ownerID = $updatedProperty->first(['property_id' => $propertyID])->person_id;
+                $propertyName = $updatedProperty->first(['property_id' => $propertyID])->name;
+                $_SESSION['flash'] = [
+                    'msg' => "Property request approved successfully!",
+                    'type' => "success"
+                ];
+                enqueueNotification('Property request approved', 'Property Update request has been approved on ' . $propertyID . ' ' . $propertyName, '', 'Notification_green', $ownerID);
+                enqueueNotification('Property request approved', 'Property Update request has been approved on Property ID : ' . $propertyID, '', 'Notification_grey');
+                $updatedProperty->delete($propertyID, 'property_id');
+                redirect('dashboard/managementhome/propertymanagement/requestapproval');
+            } else {
+                $_SESSION['flash'] = [
+                    'msg' => "Failed to approve property request. Please try again.",
+                    'type' => "error"
+                ];
+                redirect('dashboard/managementhome/propertymanagement/requestapproval');
+            }
+        } else {
+            $_SESSION['flash'] = [
+                'msg' => "Property request already approved.",
+                'type' => "warning"
+            ];
+            redirect('dashboard/managementhome/propertymanagement/requestapproval');
+        }
+    }
+
+    public function rejectUpdate($propertyID)
+    {
+        $updatedProperty = new PropertyModelTemp;
+        $res = $updatedProperty->update($propertyID, ['request_status' => 'decline'], 'property_id');
+        if ($res) {
+            $ownerID = $updatedProperty->first(['property_id' => $propertyID])->person_id;
+            $propertyName = $updatedProperty->first(['property_id' => $propertyID])->name;
+            $_SESSION['flash'] = [
+                'msg' => "Property request rejected successfully!",
+                'type' => "warning"
+            ];
+            enqueueNotification('Property request rejected', 'Property Update request has been rejected on ' . $propertyID . ' ' . $propertyName, '', 'Notification_red', $ownerID);
+            enqueueNotification('Property request rejected', 'Property Update request has been rejected on Property ID : ' . $propertyID, '', 'Notification_grey');
+
+            $updatedProperty->delete($propertyID, 'property_id');
+            redirect('dashboard/managementhome/propertymanagement/requestapproval');
+        }
+    }
+
+
+    public function comparePropertyUpdate($propertyID)
+    {
+        $property = new PropertyConcat;
+        $propertyUpdate = new PropertyConcatTemp;
+        $property = $property->first(['property_id' => $propertyID]);
+        $propertyUpdate = $propertyUpdate->first(['property_id' => $propertyID]);
+        $this->view('agent/property/comparePropertyUpdate', ['property' => $property, 'propertyUpdate' => $propertyUpdate]);
+    }
+
+    public function removalRequests()
+    {
+        $propertyToDelete = new DeleteRequests;
+        $property = $propertyToDelete->where(['agent_id' => $_SESSION['user']->pid]);
+        $this->view('agent/property/removalRequests', ['properties' => $property]);
+    }
+
+    public function propertyView($property_id)
+    {
+        $property = new PropertyConcat;
+        $property = $property->where(['property_id' => $property_id])[0];
+        $this->view('agent/property/propertyView', ['property' => $property]);
+    }
+
+    public function showMyProperties()
+    {
+        $property = new PropertyConcat;
+        $properties = $property->where(['agent_id' => $_SESSION['user']->pid]);
+        $this->view('agent/property/showMyProperties', ['properties' => $properties]);
+    }
+
+    public function ChangeRequests($property_id)
+    {
+        $property = new PropertyModelTemp;
+        $requests = $property->where(['request_status' => 'pending', 'agent_id' => $_SESSION['user']->pid]);
+        $this->view('agent/property/changeRequests', ['requests' => $requests]);
+    }
+
+    public function viewProperty($property_id)
+    {
+        $property = new PropertyConcat;
+        $property = $property->where(['property_id' => $property_id])[0];
+        $this->view('agent/viewProperty', ['property' => $property]);
+    }
+
+    public function submitReport($property_id)
+    {
+        $property = new Property;
+        $property = $property->where(['property_id' => $property_id])[0];
+        $this->view('agent/submitReport', ['property' => $property]);
+    }
+
+    public function showReport($property_id)
+    {
         $property = new Property;
         $agent = new User;
         $property = $property->where(['property_id' => $property_id])[0];
         $agent = $agent->where(['pid' => $_SESSION['user']->pid])[0];
-        
+
         $this->view('agent/showReport', [
             'property' => $property,
             'agent' => $agent
@@ -606,9 +867,9 @@ class Agent
                 $this->editinventory($c);
                 break;
             default:
-            $invent = new InventoryModel;
-            $inventories = $invent->findAll();
-            $this->view('agent/inventory',['inventories' => $inventories]); 
+                $invent = new InventoryModel;
+                $inventories = $invent->findAll();
+                $this->view('agent/inventory', ['inventories' => $inventories]);
                 break;
         }
     }
@@ -618,7 +879,8 @@ class Agent
         $this->view('agent/newinventory');
     }
 
-    public function editinventory($c){
+    public function editinventory($c)
+    {
         $invent = new InventoryModel;
         $inventory = $invent->where(['inventory_id' => $c])[0];
         $this->view('agent/editinventory', ['inventory' => $inventory]);
@@ -666,7 +928,7 @@ class Agent
                     foreach ($_POST['changes'] as $change) {
                         $pid = $change['pid'] ?? null;
                         $action = $change['action'] ?? null;
-    
+
                         if ($pid && $action) {
                             $userDetail = new UserChangeDetails;
                             $user = new User;
@@ -674,7 +936,7 @@ class Agent
                                 // Handle approval logic
                                 $newDetails = $userDetail->first(['pid' => $pid]);
                                 // show($newDetails);
-                                if($newDetails) {
+                                if ($newDetails) {
                                     $oldUserDetails = $user->first(['pid' => $pid]);
                                     // Update database
                                     $updateStatus = $user->update($pid, [
@@ -685,12 +947,12 @@ class Agent
                                         'image_url' => $newDetails->image_url,
                                         'AccountStatus' => 4
                                     ], 'pid');
-    
+
                                     $result = $userDetail->delete($pid, 'pid');
                                     if ($updateStatus && $result) {
                                         $_SESSION['flash']['msg'] = "Changes approved successfully!";
                                         $_SESSION['flash']['type'] = "success";
-    
+
                                         // Delete the old image in the user table
                                         if ($oldUserDetails && !empty($oldUserDetails->image_url)) {
                                             $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $oldUserDetails->image_url;
@@ -701,18 +963,18 @@ class Agent
                                     } else {
                                         $_SESSION['flash']['msg'] = "Failed to approve changes. Please try again.";
                                         $_SESSION['flash']['type'] = "error";
-                                    }  
+                                    }
                                 }
                             } elseif ($action === 'reject') {
                                 // Handle rejection logic
                                 $newDetails = $userDetail->first(['pid' => $pid]);
                                 $result = $userDetail->delete($pid, 'pid');
                                 $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); // Rejected
-    
+
                                 if ($result) {
                                     $_SESSION['flash']['msg'] = "Changes rejected successfully!";
                                     $_SESSION['flash']['type'] = "success";
-    
+
                                     // Delete the image in the user details table
                                     if ($newDetails && !empty($newDetails->image_url)) {
                                         $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $newDetails->image_url;
@@ -727,13 +989,13 @@ class Agent
                             }
                         }
                     }
-                    $this->view('agent/serviceproviders');   
+                    $this->view('agent/serviceproviders');
                 }
                 break;
             default:
                 $user = new User;
                 $newUser = new UserChangeDetails;
-                
+
                 $newUser->setLimit(7);
 
                 $searchterm = $_GET['searchterm'] ?? "";
@@ -749,16 +1011,16 @@ class Agent
 
                 $pids = [];
                 $old = [];
-                
+
                 if (!empty($new)) {
-                    $pids = array_map(function($user) {
+                    $pids = array_map(function ($user) {
                         return $user->pid;
                     }, $new);
 
                     $old = $user->findByMultiplePids($pids, ['user_lvl' => 2]);
 
-                    if(!empty($old)) {
-                        $old = array_reduce($old, function($carry, $oldUser) use ($pids) {
+                    if (!empty($old)) {
+                        $old = array_reduce($old, function ($carry, $oldUser) use ($pids) {
                             $carry[array_search($oldUser->pid, $pids)] = $oldUser;
                             return $carry;
                         }, []);
@@ -773,12 +1035,12 @@ class Agent
                             unset($oldUser->reset_code);
                             unset($oldUser->AccountStatus);
                         }
-                    } 
+                    }
                 }
 
                 $pagination = new Pagination($currentPage, $totalPages, 2);
                 $paginationLinks = $pagination->generateLinks();
-                
+
                 $this->view('agent/serviceproviders', [
                     'paginationLinks' => $paginationLinks,
                     'new' => $new ?? [],
@@ -788,8 +1050,9 @@ class Agent
                 break;
         }
     }
-    
-    private function removeOwners($c, $d){
+
+    private function removeOwners($c, $d)
+    {
         $user = new User();
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pid'], $_POST['action'])) {
             $pid = intval($_POST['pid']);
@@ -819,13 +1082,12 @@ class Agent
                 if ($updateStatus) {
                     $_SESSION['flash']['msg'] = "User removal rejected successfully!";
                     $_SESSION['flash']['type'] = "success";
-
                 } else {
                     $_SESSION['flash']['msg'] = "Failed to reject user removal. Please try again.";
                     $_SESSION['flash']['type'] = "error";
                 }
             }
-        } 
+        }
 
         $user->setLimit(7);
 
@@ -870,7 +1132,7 @@ class Agent
                     foreach ($_POST['changes'] as $change) {
                         $pid = $change['pid'] ?? null;
                         $action = $change['action'] ?? null;
-    
+
                         if ($pid && $action) {
                             $userDetail = new UserChangeDetails;
                             $user = new User;
@@ -888,12 +1150,12 @@ class Agent
                                         'image_url' => $newDetails->image_url,
                                         'AccountStatus' => 4
                                     ], 'pid');
-    
+
                                     $result = $userDetail->delete($pid, 'pid');
                                     if ($updateStatus && $result) {
                                         $_SESSION['flash']['msg'] = "Changes approved successfully!";
                                         $_SESSION['flash']['type'] = "success";
-    
+
                                         // Delete the old image in the user table
                                         if ($oldUserDetails && !empty($oldUserDetails->image_url)) {
                                             $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $oldUserDetails->image_url;
@@ -911,11 +1173,11 @@ class Agent
                                 $newDetails = $userDetail->first(['pid' => $pid]);
                                 $result = $userDetail->delete($pid, 'pid');
                                 $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); // Rejected
-    
+
                                 if ($result) {
                                     $_SESSION['flash']['msg'] = "Changes rejected successfully!";
                                     $_SESSION['flash']['type'] = "success";
-    
+
                                     // Delete the image in the user details table
                                     if ($newDetails && !empty($newDetails->image_url)) {
                                         $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $newDetails->image_url;
@@ -936,7 +1198,7 @@ class Agent
             default:
                 $user = new User;
                 $newUser = new UserChangeDetails;
-                
+
                 $newUser->setLimit(7);
 
                 $searchterm = $_GET['searchterm'] ?? "";
@@ -952,16 +1214,16 @@ class Agent
 
                 $pids = [];
                 $old = [];
-                
+
                 if (!empty($new)) {
-                    $pids = array_map(function($user) {
+                    $pids = array_map(function ($user) {
                         return $user->pid;
                     }, $new);
 
                     $old = $user->findByMultiplePids($pids, ['user_lvl' => 1]);
 
                     if (!empty($old)) {
-                        $old = array_reduce($old, function($carry, $oldUser) use ($pids) {
+                        $old = array_reduce($old, function ($carry, $oldUser) use ($pids) {
                             $carry[array_search($oldUser->pid, $pids)] = $oldUser;
                             return $carry;
                         }, []);
@@ -981,7 +1243,7 @@ class Agent
 
                 $pagination = new Pagination($currentPage, $totalPages, 2);
                 $paginationLinks = $pagination->generateLinks();
-                
+
                 $this->view('agent/propertyowners', [
                     'paginationLinks' => $paginationLinks,
                     'new' => $new ?? [],
@@ -997,7 +1259,8 @@ class Agent
         $this->view('agent/payments');
     }
 
-    private function addserviceprovider() {
+    private function addserviceprovider()
+    {
         $user = new User();
         $payment_details = new PaymentDetails();
         $location = new UserLocation();
@@ -1020,18 +1283,19 @@ class Agent
 
             // echo "checking if user exist <br>";
             $resultUser = $user->first(['email' => $email], []);
-            $nicUser = $user->first(['nic' => $nic ], []);
+            $nicUser = $user->first(['nic' => $nic], []);
 
             if (($resultUser && !empty($resultUser->email)) || $nicUser && !empty($nicUser->email)) {
                 //update user class errors
                 $_SESSION['flash']['msg'] = "Email or NIC already exists.";
                 $_SESSION['flash']['type'] = "error";
                 // $errors['email'] = 'Email or NIC already exists';
-                $this->view('agent/addserviceprovider',[
-                    'user' => $resultUser, 
-                    'errors' => $errors, 
-                    'message' => ''] ); // Re-render signup view with error
-                
+                $this->view('agent/addserviceprovider', [
+                    'user' => $resultUser,
+                    'errors' => $errors,
+                    'message' => ''
+                ]); // Re-render signup view with error
+
                 unset($errors['email']); // Clear the error after displaying it
                 return; // Exit if email exists
             }
@@ -1046,7 +1310,7 @@ class Agent
                 'email' => $email,
                 'contact' => $contact,
                 'password' => $password, // Hash the password before saving
-                'confirmPassword' =>$password,
+                'confirmPassword' => $password,
                 'user_lvl' => 2,
                 // 'username' => $this->generateUsername($_POST['fname']),
             ];
@@ -1058,10 +1322,11 @@ class Agent
                 // echo "if2";
                 $_SESSION['flash']['msg'] = is_array($user->errors) ? implode("\n", $user->errors) : (string)$user->errors;
                 $_SESSION['flash']['type'] = "error";
-                $this->view('agent/addserviceprovider',[
-                    'user' => $resultUser, 
+                $this->view('agent/addserviceprovider', [
+                    'user' => $resultUser,
                     // 'errors' => $user->errors, 
-                    'message' => '']); // Re-render signup view with errors
+                    'message' => ''
+                ]); // Re-render signup view with errors
 
                 unset($user->errors); // Clear the error after displaying it
                 return; // Exit if validation fails
@@ -1069,23 +1334,24 @@ class Agent
             // echo "user details validated:<br>";
 
             unset($personalDetails['confirmPassword']);
-            
+
 
             // Validate and sanitize location details
             if (!$location->validateLocation($_POST)) {
                 $_SESSION['flash']['msg'] = is_array($location->errors) ? implode("\n", $location->errors) : (string)$location->errors;
                 $_SESSION['flash']['type'] = "error";
-                $this->view('agent/addserviceprovider',[
-                    'user' => $resultUser, 
-                    'errors' => $errors, 
-                    'message' => '']); // Re-render signup view with errors
+                $this->view('agent/addserviceprovider', [
+                    'user' => $resultUser,
+                    'errors' => $errors,
+                    'message' => ''
+                ]); // Re-render signup view with errors
 
                 unset($location->errors); // Clear the error after displaying it
                 return; // Exit if validation fails
             }
-            
 
-            $personalDetails['password'] = $hashedPassword;//set hashed password
+
+            $personalDetails['password'] = $hashedPassword; //set hashed password
             // echo "inserting user details<br>";
             // show($personalDetails);
 
@@ -1097,15 +1363,16 @@ class Agent
                 $_SESSION['flash']['type'] = "error";
                 // $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('agent/addserviceprovider', [
-                    'user' => $resultUser, 
-                    'errors' => $errors, 
-                    'message' => '']);
+                    'user' => $resultUser,
+                    'errors' => $errors,
+                    'message' => ''
+                ]);
 
                 unset($errors['auth']); // Clear the error after displaying it
                 return;
-            }else{
+            } else {
                 // echo "user details inserted<br>"; 
-                
+
             }
 
             // Validate and sanitize bank details
@@ -1135,7 +1402,7 @@ class Agent
                             'city' => $city,
                             'address' => $address
                         ]);
-                        
+
                         if (!$locationStatus) {
                             $_SESSION['flash']['msg'] = "Failed to save location details. Please try again.";
                             $_SESSION['flash']['type'] = "error";
@@ -1147,19 +1414,20 @@ class Agent
                             return;
                         }
                     }
-                     
+
                     //check if payment details already exist
                     $paymentDetails = $payment_details->first(['pid' => $userId, 'account_no' => $accountNo]);
                     // echo "checking if payment details exist<br>";
                     if ($paymentDetails) {
-                        $user->delete($personalDetails['pid'], 'pid'); 
+                        $user->delete($personalDetails['pid'], 'pid');
                         $_SESSION['flash']['msg'] = "Payment details already exist for this account number.";
                         $_SESSION['flash']['type'] = "error";
                         // $errors['payment'] = "Payment details already exist for this account number.";
-                        $this->view('agent/addserviceprovider',[
-                            'user' => $resultUser, 
-                            'errors' => $errors, 
-                            'message' => '']); // Re-render signup view with error
+                        $this->view('agent/addserviceprovider', [
+                            'user' => $resultUser,
+                            'errors' => $errors,
+                            'message' => ''
+                        ]); // Re-render signup view with error
                         unset($errors['payment']); // Clear the error after displaying it
                         return; // Exit if payment details already exist
                     }
@@ -1180,15 +1448,16 @@ class Agent
                         'branch' => $branch,
                         'pid' => $userId,
                     ]);
-                    
+
                     // show($paymentDetailStatus);
                     // echo "payment details inserted<br>";
 
-                    if($paymentDetailStatus){
+                    if ($paymentDetailStatus) {
                         // echo "payment done, now sending mail<br>";
                         $status = sendMail(
-                            $email ,
-                            'Primecare Agent Registration', "
+                            $email,
+                            'Primecare Agent Registration',
+                            "
                             <div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px;\">
                                 <h1 style=\"color: #4CAF50;\">Agent Registration</h1>
                                 <p>Hello, $fname $lname</p>
@@ -1198,13 +1467,14 @@ class Agent
                                 <br>
                                 <p>Best regards,<br>PrimeCare Support Team</p>
                             </div>
-                        ");
-                        if(!$status['error']){
+                        "
+                        );
+                        if (!$status['error']) {
                             $message = "Agent added successfully!. Password has been sent to email";
                             $_SESSION['flash']['msg'] = $message;
                             $_SESSION['flash']['type'] = "success";
                             // echo "mail sent<br>";
-                        }else{
+                        } else {
                             $message = "Agent added successfully!. Failed to send email. Contact Agent at {$contact}";
                             $_SESSION['flash']['msg'] = $message;
                             $_SESSION['flash']['type'] = "success";
@@ -1214,24 +1484,25 @@ class Agent
                         $message = "Failed to add Agent Payement Details. Please try again.";
                         $_SESSION['flash']['msg'] = $message;
                         $_SESSION['flash']['type'] = "error";
-                        $user->delete($personalDetails['pid'], 'pid'); 
+                        $user->delete($personalDetails['pid'], 'pid');
                         // echo "payment details insertion failed<br>";
                     }
 
                     $this->view('agent/addserviceprovider', [
-                        'user' => $resultUser, 
-                        'errors' => $errors 
-                        ]);
-                    
+                        'user' => $resultUser,
+                        'errors' => $errors
+                    ]);
+
                     return;
                 } else {
                     $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
                     $_SESSION['flash']['type'] = "error";
-                    
+
                     $this->view('agent/addserviceprovider', [
-                        'user' => $resultUser, 
-                        'errors' => $errors, 
-                        'message' => '']);
+                        'user' => $resultUser,
+                        'errors' => $errors,
+                        'message' => ''
+                    ]);
 
                     unset($errors['auth']); // Clear the error after displaying it
                     return;
@@ -1239,26 +1510,31 @@ class Agent
             }
             $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
             $_SESSION['flash']['type'] = "error";
-            $user->delete($personalDetails['pid'], 'pid'); 
+            $user->delete($personalDetails['pid'], 'pid');
 
             $this->view('agent/addserviceprovider', [
-                'user' => $resultUser, 
-                'errors' => $errors, 
-                'message' => '']);
+                'user' => $resultUser,
+                'errors' => $errors,
+                'message' => ''
+            ]);
 
             unset($errors['auth']); // Clear the error after displaying it
             return;
         }
-        
 
-        $this->view('agent/addserviceprovider',[
-            'errors' => $errors, 
-            'message' => '']
+
+        $this->view(
+            'agent/addserviceprovider',
+            [
+                'errors' => $errors,
+                'message' => ''
+            ]
         );
         return;
     }
 
-    public function removeproviders(){   
+    public function removeproviders()
+    {
         $user = new User();
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pid'], $_POST['action'])) {
             $pid = intval($_POST['pid']);
@@ -1288,13 +1564,12 @@ class Agent
                 if ($updateStatus) {
                     $_SESSION['flash']['msg'] = "User removal rejected successfully!";
                     $_SESSION['flash']['type'] = "success";
-
                 } else {
                     $_SESSION['flash']['msg'] = "Failed to reject user removal. Please try again.";
                     $_SESSION['flash']['type'] = "error";
                 }
             }
-        } 
+        }
 
         $user->setLimit(7);
 
@@ -1335,22 +1610,24 @@ class Agent
                 $this->bookingAccept($c);
                 break;
             case 'history':
-                $this->bookinghistory($c,$d);
+                $this->bookinghistory($c, $d);
                 break;
             default:
                 $book = new BookingModel;
                 $property = new Property;
-                $bookings = $book->selecttwotables($property->table,
-                                                   'property_id', 
-                                                   'property_id',
-                                                   'accept_status',
-                                                   '\'pending\'');
+                $bookings = $book->selecttwotables(
+                    $property->table,
+                    'property_id',
+                    'property_id',
+                    'accept_status',
+                    '\'pending\''
+                );
                 $image1 = new PropertyImageModel;
-                $images = $image1->findAll(); 
+                $images = $image1->findAll();
                 /*echo "<pre>";
                 print_r($images);
                 echo "</pre>";*/
-                $this->view('agent/booking',['bookings'=> $bookings,'images' => $images]);
+                $this->view('agent/booking', ['bookings' => $bookings, 'images' => $images]);
                 break;
         }
     }
@@ -1359,51 +1636,53 @@ class Agent
     {
         $book = new BookingModel;
         $property = new Property;
-        $person = new User; 
+        $person = new User;
         $pid = $book->where(['booking_id' => $c],)[0];
         $image1 = new PropertyImageModel;
-        $images = $image1->findAll(); 
-        $bookings = $book->selecthreetables($property->table,
-                                            'property_id', 
-                                            'property_id', 
-                                            $person->table,
-                                            'customer_id', 
-                                            'pid',
-                                            'booking_id',
-                                            $c,
-                                            'AND',
-                                            'customer_id',
-                                            $pid->customer_id
-                                            );
-        $this->view('agent/bookingaccept',['bookings'=> $bookings ,'images' => $images]);
+        $images = $image1->findAll();
+        $bookings = $book->selecthreetables(
+            $property->table,
+            'property_id',
+            'property_id',
+            $person->table,
+            'customer_id',
+            'pid',
+            'booking_id',
+            $c,
+            'AND',
+            'customer_id',
+            $pid->customer_id
+        );
+        $this->view('agent/bookingaccept', ['bookings' => $bookings, 'images' => $images]);
     }
 
-    public function bookinghistory($c,$d)
+    public function bookinghistory($c, $d)
     {
         switch ($c) {
             case 'showhistory':
                 $this->showhistory($d);
                 break;
             default:
-            $book = new BookingModel;
-            /*echo "<pre>";
+                $book = new BookingModel;
+                /*echo "<pre>";
         print_r($book);
         echo "</pre>";*/
-            $property = new Property;
-            $person = new User; 
-            $bookings = $book->selecthreetables($property->table,
-                                                'property_id', 
-                                                'property_id', 
-                                                $person->table,
-                                                'customer_id', 
-                                                'pid',
-                                                'accept_status',
-                                                '\'accepted\'',
-                                                'OR',
-                                                'accept_status',
-                                                '\'rejected\''
-                                                );
-            $this->view('agent/bookinghistory',['bookings'=> $bookings]);
+                $property = new Property;
+                $person = new User;
+                $bookings = $book->selecthreetables(
+                    $property->table,
+                    'property_id',
+                    'property_id',
+                    $person->table,
+                    'customer_id',
+                    'pid',
+                    'accept_status',
+                    '\'accepted\'',
+                    'OR',
+                    'accept_status',
+                    '\'rejected\''
+                );
+                $this->view('agent/bookinghistory', ['bookings' => $bookings]);
         }
     }
 
@@ -1411,23 +1690,24 @@ class Agent
     {
         $book = new BookingModel;
         $property = new Property;
-        $person = new User; 
+        $person = new User;
         $pid = $book->where(['booking_id' => $d],)[0];
         $image1 = new PropertyImageModel;
-        $images = $image1->findAll(); 
-        $bookings = $book->selecthreetables($property->table,
-                                            'property_id', 
-                                            'property_id', 
-                                            $person->table,
-                                            'customer_id', 
-                                            'pid',
-                                            'booking_id',
-                                            $d,
-                                            'AND',
-                                            'customer_id',
-                                            $pid->customer_id
-                                            );
-        $this->view('agent/showhistory',['bookings'=> $bookings,'images' => $images]);
+        $images = $image1->findAll();
+        $bookings = $book->selecthreetables(
+            $property->table,
+            'property_id',
+            'property_id',
+            $person->table,
+            'customer_id',
+            'pid',
+            'booking_id',
+            $d,
+            'AND',
+            'customer_id',
+            $pid->customer_id
+        );
+        $this->view('agent/showhistory', ['bookings' => $bookings, 'images' => $images]);
     }
 
     private function logout()

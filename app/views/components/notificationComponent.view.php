@@ -27,13 +27,16 @@
                     $is_read = $notification->is_read == 1 ? "read" : "unread";
                     echo "<div class='NSA__item $is_read $notification->color'>";
                     echo "<div class='NSA__item_message'>";
+                    echo "<h4 class='NSA__item_title'>". $notification->title ."</h4>";
                     echo "<p>$notification->message</p>";
                     echo "</div>";
                     echo "<div class='NSA__item_time'>";
-                    echo "<a href='". $notification->link ."'>";
-                    echo "<i class='fa-solid fa-arrow-right'></i>";
-                    echo "</a>";
                     echo "<p>" . covertTimeToReadableForm($notification->created_at) . "</p>";
+                    if($notification->link != ''){
+                        echo "<a href='". $notification->link ."'>";
+                        echo "<i class='fa-solid fa-arrow-right'></i>";
+                        echo "</a>";
+                    }
                     echo "</div>";
                     echo "</div>";
                 }

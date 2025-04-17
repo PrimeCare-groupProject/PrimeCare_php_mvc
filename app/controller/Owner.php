@@ -441,20 +441,6 @@ class Owner
         ]);
     }
 
-
-    // public function propertyUnit($propertyId)
-    // {
-    //     $property = new PropertyConcat;
-    //     $propertyUnit = $property->where(['property_id' => $propertyId])[0];
-
-    //     $this->view('owner/propertyUnitShowing', [
-    //         'user' => $_SESSION['user'],
-    //         'errors' => $_SESSION['errors'] ?? [],
-    //         'status' => $_SESSION['status'] ?? '',
-    //         $property
-    //     ]);
-    // }
-
     private function repairListing()
     {
         // Instantiate the Services model and fetch all services
@@ -1069,98 +1055,6 @@ class Owner
         ]);
     }
 
-    // public function create()
-    // {
-    //     $property = new PropertyModel;
-
-    //     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    //         // Validate the form data
-    //         if (!$property->validateProperty($_POST)) {
-    //             $this->view('owner/addProperty', ['property' => $property]);
-    //             return;
-    //         }
-
-    //         // Prepare property data for insertion
-    //         $arr = [
-    //             'name' => $_POST['name'],
-    //             'type' => $_POST['type'],
-    //             'description' => $_POST['description'],
-    //             'address' => $_POST['address'],
-    //             'zipcode' => $_POST['zipcode'],
-    //             'city' => $_POST['city'],
-    //             'state_province' => $_POST['state_province'],
-    //             'country' => $_POST['country'],
-    //             'year_built' => $_POST['year_built'],
-    //             'rent_on_basis' => $_POST['rent_on_basis'] ?? 0,
-    //             'units' => $_POST['units'] ?? 0,
-    //             'size_sqr_ft' => $_POST['size_sqr_ft'],
-    //             'bedrooms' => $_POST['bedrooms'] ?? 0,
-    //             'bathrooms' => $_POST['bathrooms'] ?? 0,
-    //             'floor_plan' => $_POST['floor_plan'],
-    //             'parking' => $_POST['parking'] ?? 'no',
-    //             'furnished' => $_POST['furnished'] ?? 'no',
-    //             'status' => $_POST['status'] ?? 'pending',
-    //             'person_id' => $_SESSION['user']->pid
-    //         ];
-
-    //         // Insert property data into the database
-    //         $res = $property->insert($arr);
-
-    //         if ($res) {
-    //             // Get the ID of the last inserted property
-    //             $propertyId = $property->where(['name' => $_POST['name'], 'address' => $_POST['address']])[0]->property_id;
-
-    //             // Upload images using the generic function
-    //             $imageErrors = upload_image(
-    //                 $_FILES['property_images'],
-    //                 ROOTPATH . 'public/assets/images/uploads/property_images/',
-    //                 new PropertyImageModel(),
-    //                 $propertyId,
-    //                 [
-    //                     'allowed_ext' => ['jpg', 'jpeg', 'png'],
-    //                     'prefix' => 'property',
-    //                     'url_field' => 'image_url',
-    //                     'fk_field' => 'property_id'
-    //                 ]
-    //             );
-
-    //             // Upload documents using the same function with different config
-    //             $documentErrors = upload_image(
-    //                 $_FILES['property_documents'],
-    //                 ROOTPATH . 'public/assets/documents/uploads/property_documents/',
-    //                 new PropertyDocModel(),
-    //                 $propertyId,
-    //                 [
-    //                     'allowed_ext' => ['pdf', 'docx', 'txt'],
-    //                     'prefix' => 'doc',
-    //                     'url_field' => 'document_path',
-    //                     'fk_field' => 'property_id',
-    //                     'max_size' => 10 * 1024 * 1024 // 10MB
-    //                 ]
-    //             );
-
-    //             // Check for any upload errors
-    //             if (!empty($imageErrors) || !empty($documentErrors)) {
-    //                 $property->errors['media'] = array_merge($imageErrors, $documentErrors);
-    //                 $_SESSION['flash']['msg'] = "Property added failed!";
-    //                 $_SESSION['flash']['type'] = "error";
-    //                 $this->view('owner/addProperty', ['property' => $property]);
-    //                 return;
-    //             }
-
-    //             // Redirect on success
-    //             $_SESSION['flash']['msg'] = "Property added successfully!";
-    //             $_SESSION['flash']['type'] = "success";
-    //             redirect('property/propertyListing');
-    //         } else {
-    //             $property->errors['insert'] = 'Failed to add Property. Please try again.';
-    //             $this->view('property/propertyListing', ['property' => $property]);
-    //         }
-    //     } else {
-    //         $this->view('property/propertyListing', ['property' => $property]);
-    //     }
-    // }
-
     // drop property
     public function dropProperty($propertyId)
     {
@@ -1332,12 +1226,16 @@ class Owner
                 // Redirect on success
                 $_SESSION['flash']['msg'] = "Property added successfully!";
                 $_SESSION['flash']['type'] = "success";
+                enqueueNotification('Property Added', 'New property has been added!', 'dashboard/managementhome/propertymanagement/assignagents' , 'Notification_green' , MANAGER_ID);
+                enqueueNotification('Property Added', 'Your property has been added successfully.', '' , 'Notification_green');
                 redirect('property/propertyListing');
             } else {
+                enqueueNotification('Property Addition Failed', 'Failed to add property. Please try again.', '' , 'Notification_red');
                 $property->errors['insert'] = 'Failed to add Property. Please try again.';
                 $this->view('property/propertyListing', ['property' => $property]);
             }
         } else {
+            enqueueNotification('Property Creation Failed', 'Failed to create property. Please try again.', '' , 'Notification_red');
             $this->view('property/propertyListing', ['property' => $property]);
         }
     }
@@ -1347,9 +1245,11 @@ class Owner
         $property = new Property;
         $res = $property->update($propertyId, $data, 'property_id');
         if ($res) {
+            enqueueNotification('Property Updated', 'Your property has been updated successfully.', '' , 'Notification_green');
             $_SESSION['flash']['msg'] = "Property updated successfully!";
             $_SESSION['flash']['type'] = "success";
         } else {
+            enqueueNotification('Property Update Failed', 'Failed to update property. Please try again.', '' , 'Notification_red');
             $_SESSION['flash']['msg'] = "Failed to update property. Please try again.";
             $_SESSION['flash']['type'] = "error";
         }
@@ -1499,6 +1399,8 @@ class Owner
 
                     $_SESSION['flash']['msg'] = "Property Update Request Sent!";
                     $_SESSION['flash']['type'] = "success";
+                    enqueueNotification('Property Update Request', 'Your property update request has been sent successfully.', '' , 'Notification_green');
+                    enqueueNotification('Property Update Request', 'A property update request has been sent for your property.', ROOT . '/dashboard/property/comparePropertyUpdate/' . $beforeDetails->property_id , 'Notification_green', $beforeDetails->agent_id);
                     redirect('property/propertyListing');
                 } else {
                     $_SESSION['flash']['msg'] = "Property update failed!";
@@ -1522,17 +1424,51 @@ class Owner
 
     public function deleteRequest($propertyId)
     {
-        $property = new Property;
-        $update = $property->update($propertyId, ['status' => 'inactive'], 'property_id');
-        if ($update) {
-            $_SESSION['flash']['msg'] = "Property deleted successfully!";
-            $_SESSION['flash']['type'] = "success";
-        } else {
-            $_SESSION['flash']['msg'] = "Failed to delete property. Please try again.";
-            $_SESSION['flash']['type'] = "error";
+        $propertyInstanse = new Property;
+        $property = $propertyInstanse->where(['property_id' => $propertyId])[0];
+        if($property->status == 'Pending'){
+            $updated = $propertyInstanse->update($propertyId, ['status' => 'Inactive'], 'property_id');
+            if ($updated) {
+                $_SESSION['flash']['msg'] = "Property deleted successfully!";
+                $_SESSION['flash']['type'] = "success";
+                enqueueNotification('Property Deletion', 'Your property has been deleted successfully.', '' , 'Notification_green');
+            } else {
+                $_SESSION['flash']['msg'] = "Failed to delete property. Please try again.";
+                $_SESSION['flash']['type'] = "error";
+                enqueueNotification('Property Deletion Failed', 'Failed to delete property. Please try again.', '' , 'Notification_red');
+            }
+            redirect('property/propertyListing');
         }
-        // Redirect to the property listing page
-        redirect('property/propertyListing');
+        elseif ($property->status == 'Occupied'){
+            $_SESSION['flash']['msg'] = "You cannot delete an occupied property!";
+            $_SESSION['flash']['type'] = "error";
+            enqueueNotification('Property Deletion Failed', 'You cannot delete an Occupied property. Wait until Rental period is over!', '' , 'Notification_red');
+            redirect('property/propertyListing');
+        }
+        elseif ($property->status == 'Active'){
+            $deleteRequest = new DeleteRequests;
+            $ownerId = $property->person_id;
+            $agentId = $property->agent_id;
+            $deleteRequest->insert([
+                'property_id' => $propertyId,
+                'owner_id' => $ownerId,
+                'agent_id' => $agentId,
+                'request_status' => 'Pending',
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            if ($deleteRequest) {
+                $_SESSION['flash']['msg'] = "Property deletion request sent successfully!";
+                $_SESSION['flash']['type'] = "success";
+                enqueueNotification('Property Deletion Request', 'Your property deletion request has been sent successfully.', ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyId , 'Notification_green');
+                enqueueNotification('Property Deletion Request', 'A property deletion request has been sent for your property.', ROOT . '/dashboard/property/removalRequests' , 'Notification_green', $agentId);
+            } else {
+                $_SESSION['flash']['msg'] = "Failed to send property deletion request. Please try again.";
+                $_SESSION['flash']['type'] = "error";
+                enqueueNotification('Property Deletion Request Failed', 'Failed to send property deletion request. Please try again.', '' , 'Notification_red');
+            }
+            redirect('property/propertyListing');
+        }      
+        
     }
 
     public function payment($serviceId = '')

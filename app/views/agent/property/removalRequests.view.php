@@ -1,16 +1,17 @@
-<?php require_once 'managerHeader.view.php'; ?>
+<?php require_once __DIR__ . '\..\agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/managementhome/propertymanagement'>
+    <a href='<?= ROOT ?>/dashboard/property/propertyHome'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>request Approval</h2>
+    <h2>Removal Requests</h2>
 </div>
 
+
 <?php
-if (empty($requests)) {
+if (empty($properties)) {
     echo '<div class="AA__property-management-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff;">';
-    echo '<p style="text-align: center;">No requests found</p>';
+    echo '<p style="text-align: center;">No Requests found</p>';
     echo '<img src="' . ROOT . '/assets/images/no.jpg" alt="No requests" style="width: 200px; height: auto; align-self: center; margin-top: 20px;">';
     echo '</div>';
 } else {
@@ -37,15 +38,18 @@ if (empty($requests)) {
                 </thead>
                 <tbody id="AA__properties-table-body">
                     <?php
-                    foreach ($requests as $request):
+                    $details = new Property;
+                    foreach ($properties as $property):
+                        $detailsRow = (new Property)->where(['property_id' => $property->property_id])[0];
                     ?>
-                        <tr class="AA__property-row" data-id="<?= $request->property_id ?>" data-name="<?= strtolower($request->name) ?>" data-owner="<?= strtolower($request->owner_name) ?>">
-                            <td><?= $request->property_id ?></td>
-                            <td><?= $request->name ?></td>
-                            <td><?= $request->owner_name ?></td>
+                        <tr class="AA__property-row" data-id="<?= $property->property_id ?>" data-name="<?= strtolower($detailsRow->name) ?>" data-owner="<?= strtolower($detailsRow->owner_name) ?>">
+                            <td><?= $property->property_id ?></td>
+                            <td><?= $detailsRow->name ?></td>
+                            <td><?= $detailsRow->owner_name ?></td>
                             <td class="AA__action-buttons">
-                                <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyView/<?= $request->property_id ?>'">View</button>
-                                <button class="small-btn orange" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
+                                <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/property/propertyView/<?= $property->property_id ?>'">View</button>
+                                <button class="small-btn orange" onclick="window.location.href='<?= ROOT ?>/dashboard/property/confirmDeletion/<?= $property->property_id ?>'">Accept</button>
+                                <button class="small-btn red" onclick="window.location.href='<?= ROOT ?>/dashboard/property/rejectDeletion/<?= $property->property_id ?>'">Reject</button>
                             </td>
                         </tr>
                 <?php endforeach;
@@ -120,4 +124,4 @@ if (empty($requests)) {
             });
         </script>
 
-        <?php require_once 'managerFooter.view.php'; ?>
+<?php require_once __DIR__ . '\..\agentFooter.view.php'; ?>

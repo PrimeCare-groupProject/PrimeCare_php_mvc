@@ -1,11 +1,12 @@
-<?php require_once 'managerHeader.view.php'; ?>
+<?php require_once __DIR__ . '\..\agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/managementhome/propertymanagement'>
+    <a href='<?= ROOT ?>/dashboard/property/propertyHome'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>request Approval</h2>
+    <h2>Change Requests</h2>
 </div>
+
 
 <?php
 if (empty($requests)) {
@@ -44,8 +45,8 @@ if (empty($requests)) {
                             <td><?= $request->name ?></td>
                             <td><?= $request->owner_name ?></td>
                             <td class="AA__action-buttons">
-                                <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyView/<?= $request->property_id ?>'">View</button>
-                                <button class="small-btn orange" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
+                                <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/property/propertyView/<?= $request->property_id ?>'">View</button>
+                                <button class="small-btn orange" onclick="window.location.href='<?= ROOT ?>/dashboard/property/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
                             </td>
                         </tr>
                 <?php endforeach;
@@ -120,4 +121,4 @@ if (empty($requests)) {
             });
         </script>
 
-        <?php require_once 'managerFooter.view.php'; ?>
+<?php require_once __DIR__ . '\..\agentFooter.view.php'; ?>
