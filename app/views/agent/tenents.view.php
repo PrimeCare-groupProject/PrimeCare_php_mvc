@@ -8,10 +8,6 @@
             <input type="text" class="search-input" placeholder="Search Anything...">
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
-        <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/manageProviders/managetenents/addtenents'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
-            <span class="tooltip-text">Add new tenent</span>
-        </div>
     </div>
 </div>
 <div class="inventory-details-container">
