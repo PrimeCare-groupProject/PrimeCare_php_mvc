@@ -378,8 +378,11 @@ INSERT INTO `serviceLog` (`service_id`, `service_type`, `date`, `property_id`, `
 (3, 'Gardening', '2023-10-17', 3, 'Sunset Manor', 45.00, 5, 'Pending', 76, 'Monthly garden maintenance and lawn mowing'),
 (4, 'Door lock Repair', '2023-10-18', 4, 'Downtown Condo', 95.00, 2, 'Done', 76, 'AC unit repair and maintenance'),
 (5, 'Pool Maintenance', '2023-10-19', 5, 'Lakeside House', 65.00, 3, 'Ongoing', 61, 'Weekly pool cleaning and chemical balance check');
-
-
+ --Add new columns
+ALTER TABLE serviceLog 
+ADD COLUMN usual_cost DECIMAL(10,2) DEFAULT NULL;
+ADD COLUMN additional_charges DECIMAL(10,2) DEFAULT 0,
+ADD COLUMN additional_charges_reason TEXT;
 --
 -- Table structure for table `services`
 --
