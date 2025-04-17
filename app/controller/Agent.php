@@ -659,7 +659,7 @@ class Agent
     {
         switch ($c) {
             case 'edittenents':
-                $this->edittenents($c);
+                $this->edittenents($c,$d);
                 break;
             case 'deletetenents':
                 $this->deletetenents($c,$d);
@@ -681,18 +681,30 @@ class Agent
 
     public function edittenents( $c = '', $d = '')
     {
-                $book = new BookingModel;
-                $property = new Property;
-                $properties = $property->findAll();
-                $bookings = $book->findAll();
-                $person1 = new User;
-                $persons = $person1->findAll();
-                $image1 = new PropertyImageModel;
-                $images = $image1->findAll();
+                
+        $book = new BookingModel;
+        $property = new Property;
+        $person = new User; 
+        $pid = $book->where(['booking_id' => $d],)[0];
+        $image1 = new PropertyImageModel;
+        $images = $image1->findAll(); 
+        $bookings = $book->selecthreetables($property->table,
+                                            'property_id', 
+                                            'property_id', 
+                                            $person->table,
+                                            'customer_id', 
+                                            'pid',
+                                            'booking_id',
+                                            $d,
+                                            'AND',
+                                            'customer_id',
+                                            $pid->customer_id
+                                            );
+        //$this->view('agent/showhistory',['bookings'=> $bookings,'images' => $images]);
                 /*echo "<pre>";
                 print_r($images);
                 echo "</pre>";*/
-                $this->view('agent/edittenents',['bookings'=> $bookings,'persons' => $persons, 'properties' => $properties, 'images' => $images]);
+                $this->view('agent/edittenents',['bookings'=> $bookings ,'images' => $images]);
     }
 
     public function serviceProviders($c, $d)
@@ -1419,7 +1431,7 @@ class Agent
                                             'customer_id',
                                             $pid->customer_id
                                             );
-        $this->view('agent/bookingaccept',['bookings'=> $bookings ,'images' => $images]);
+        $this->view('agent/edittenents',['bookings'=> $bookings ,'images' => $images]);
     }
 
     public function bookinghistory($c,$d)
