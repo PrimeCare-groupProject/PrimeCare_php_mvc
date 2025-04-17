@@ -8,12 +8,17 @@ class Agent
 
     public function index()
     {
-        $this->view('agent/dashboard');
+        $services = new ServiceLog();
+        $allServices = $services->findAll();
+        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
+        $this->view('agent/dashboard', ['services' => $limitedServices]);
     }
 
     public function dashboard()
-    {
-        $this->view('agent/dashboard');
+    {   
+        $services = new ServiceLog;
+        $service = $services->findAll();
+        $this->view('agent/dashboard',['service' => $service] );
     }
 
     public function profile()
