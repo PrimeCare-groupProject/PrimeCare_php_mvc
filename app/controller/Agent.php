@@ -401,6 +401,36 @@ class Agent
             }
         }
 
+        // Fetch property images for each service
+        if ($services) {
+            foreach ($services as $service) {
+                if (!empty($service->property_id)) {
+                    // Get property details
+                    $property = new Property();
+                    $propertyData = $property->first(['property_id' => $service->property_id]);
+                    
+                    if ($propertyData) {
+                        // Get property images from PropertyImageModel
+                        $propertyImage = new PropertyImageModel();
+                        $images = $propertyImage->where(['property_id' => $service->property_id]);
+                        
+                        // Assign the first image to the service object if available
+                        if ($images && is_array($images) && !empty($images) && !empty($images[0]->image_url)) {
+                            // Store the actual image URL from the property_image table
+                            $service->property_image = $images[0]->image_url;
+                        } else {
+                            // Set default image if no property images found
+                            $service->property_image = 'listing_alt.jpg';
+                        }
+                    } else {
+                        $service->property_image = 'listing_alt.jpg';
+                    }
+                } else {
+                    $service->property_image = 'listing_alt.jpg';
+                }
+            }
+        }
+
         $data = [
             'services' => $services,
             'service_providers' => $filtered_providers
