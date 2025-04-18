@@ -82,7 +82,7 @@ class Login {
                     ];
 
                     // Redirect to home page
-                    $nxtUrl = $_SESSION['redirect_url'];
+                    $nxtUrl = $_SESSION['redirect_url'] ?? 'home';
                     unset($_SESSION['redirect_url']); 
                     redirect($nxtUrl);
                     // redirect('home');

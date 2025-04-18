@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
@@ -13,21 +15,27 @@
 </head>
 
 <body>
+    <?php
+        if (isset($_SESSION['flash'])) {
+            flash_message();
+        }
+    ?>
     <div class="PL__navigation-bar">
         <div class="PL__top-navigations">
             <ul>
                 <li><a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a></li>
-                <li><?php
-                    if (isset($_SESSION['user'])) {
-                        echo "<button class='header__button' onClick=\"window.location.href = 'dashboard'\">";
-                        echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header_profile_picture'>";
-                        echo "Profile";
-                    } else {
-                        echo "<button class='header__button' onClick=\"window.location.href = 'login'\">";
-                        echo "Sign In | Log In";
-                    }
-
-                    ?></li>
+                <li>
+                    <?php if (isset($_SESSION['user'])) : ?>
+                        <button class="header__button" onclick="window.location.href = '<?= ROOT ?>/dashboard/profile'">
+                            <img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile" class="header_profile_picture">
+                            Profile
+                        </button>
+                    <?php else : ?>
+                        <button class="header__button" onclick="window.location.href = '<?= ROOT ?>/login'">
+                            Sign In | Log In
+                        </button>
+                    <?php endif; ?>
+                </li>
             </ul>
         </div>
         <div class="PL_filter-section">
@@ -38,14 +46,17 @@
                         <p><?= $property->name ?></p>
                     </div>
                 </div>
+
                 <div class="content-section low-padding" id="content-section">
                     <div class="property-container">
                         <!-- Left Section: Image Slider -->
                         <?php $images = explode(',', $property->property_images) ?>
+
                         <div class="image-slider">
                             <div class="main-image">
                                 <img id="main-image" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $images[0] ?>" alt="Property Image">
                             </div>
+
                             <div class="thumbnails">
                                 <?php foreach ($images as $index => $image): ?>
                                     <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Thumbnail 1">
@@ -66,6 +77,7 @@
                                         <span class="stars-big">★★★★☆</span>
                                     </div>
                                 </div>
+
                                 <div class="PL__pricing">
                                     <span><?= $property->rental_price ?> LKR</span>
                                     <small>PER MONTH</small>
@@ -160,11 +172,16 @@
                             </div>
 
                             <div class="agreement">
-                                <input type="checkbox" id="agree">
+                                <input type="checkbox" id="agree" onchange="toggleBookButton()">
                                 <label for="agree">By Clicking, I Agree To Terms & Conditions.</label>
                             </div>
 
-                            <button class="book-btn">Book Property</button>
+                            <form action="<?= ROOT ?>/propertyListing/bookProperty" method="GET">
+                                <input type="hidden" name="p_id" value="<?= esc($property->property_id) ?>">
+                                <input type="hidden" name="check_in" value="<?= esc($_GET['check_in'] ?? '') ?>">
+                                <input type="hidden" name="check_out" value="<?= esc($_GET['check_out'] ?? '') ?>">
+                                <button type="submit" class="book-btn" id="book-btn" style="width: 100%;" disabled>Please check the box to proceed payment.</button>
+                            </form>
 
                             <h2>Reviews</h2>
                             <div class="add-review-section">
@@ -222,46 +239,58 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
-
-            <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>
-            <script>
-                let currentIndex = 0;
-
-                function showSlide(index) {
-                    const slides = document.querySelector('.slides');
-                    const totalSlides = document.querySelectorAll('.slide').length;
-
-                    if (index >= totalSlides) {
-                        currentIndex = 0;
-                    } else if (index < 0) {
-                        currentIndex = totalSlides - 1;
-                    } else {
-                        currentIndex = index;
-                    }
-
-                    const translateX = -currentIndex * 100;
-                    slides.style.transform = `translateX(${translateX}%)`;
-                }
-
-                function nextSlide() {
-                    showSlide(currentIndex + 1);
-                }
-
-                function prevSlide() {
-                    showSlide(currentIndex - 1);
-                }
-            </script>
-
-            <script>
-                function changeImage(thumbnail) {
-                    const mainImage = document.getElementById('main-image');
-                    mainImage.src = thumbnail.src;
-                }
-            </script>
+        </div>
+    </div>
 </body>
 
+<script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>
+<script src="<?= ROOT ?>/assets/js/loader.js"></script>
+<script>
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        const slides = document.querySelector('.slides');
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        if (index >= totalSlides) {
+            currentIndex = 0;
+        } else if (index < 0) {
+            currentIndex = totalSlides - 1;
+        } else {
+            currentIndex = index;
+        }
+
+        const translateX = -currentIndex * 100;
+        slides.style.transform = `translateX(${translateX}%)`;
+    }
+
+    function nextSlide() {
+        showSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+        showSlide(currentIndex - 1);
+    }
+    function changeImage(thumbnail) {
+        const mainImage = document.getElementById('main-image');
+        mainImage.src = thumbnail.src;
+    }
+    function toggleBookButton() {
+        const agreeCheckbox = document.getElementById('agree');
+        const bookButton = document.getElementById('book-btn');
+        bookButton.disabled = !agreeCheckbox.checked;
+        bookButton.textContent = agreeCheckbox.checked ? 'Book Property' : 'Please check the box to proceed payment.';
+    }
+</script>
+
+<script>
+    
+</script>
+
 </html>
+
+
+
+

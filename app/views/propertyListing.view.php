@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
@@ -13,21 +15,27 @@
 </head>
 
 <body>
+    <?php
+        if (isset($_SESSION['flash'])) {
+            flash_message();
+        }
+    ?>
     <div class="PL__navigation-bar">
         <div class="PL__top-navigations">
             <ul>
                 <li><a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a></li>
-                <li><?php
-                    if (isset($_SESSION['user'])) {
-                        echo "<button class='header__button' onClick=\"window.location.href = 'dashboard/profile'\">";
-                        echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header_profile_picture'>";
-                        echo "Profile";
-                    } else {
-                        echo "<button class='header__button' onClick=\"window.location.href = 'login'\">";
-                        echo "Sign In | Log In";
-                    }
-
-                    ?></li>
+                <li>
+                    <?php if (isset($_SESSION['user'])) : ?>
+                        <button class="header__button" onclick="window.location.href = '<?= ROOT ?>/dashboard/profile'">
+                            <img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile" class="header_profile_picture">
+                            Profile
+                        </button>
+                    <?php else : ?>
+                        <button class="header__button" onclick="window.location.href = '<?= ROOT ?>/login'">
+                            Sign In | Log In
+                        </button>
+                    <?php endif; ?>
+                </li>
             </ul>
         </div>
         <div class="PL_filter-section">
@@ -79,7 +87,7 @@
                                 <!-- Check-out Date -->
                                 <div class="half-of-the-row">
                                     <label>Check-out Date:
-                                        <input type="date" id="check_out_date" name="check_out" placeholder="Check-out Date" value="<?= old_date('check_out', date('Y-m-d')) ?>">
+                                        <input type="date" id="check_out_date" name="check_out" placeholder="Check-out Date" value="<?= old_date('check_out', date('Y-m-d', strtotime('+1 day'))) ?>">
                                     </label>
                                 </div>
 
@@ -118,7 +126,9 @@
             <?php if (!empty($properties)): ?>
                 <?php foreach($properties as $property): ?>
                     <div class="PL_property-card">
-                        <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode( ',' , $property->property_images)[0] ?>" alt="property" class="property-card-image"></a>
+                        <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>?check_in=<?= $_POST['check_in'] ?? '' ?>&check_out=<?= $_POST['check_out'] ?? '' ?>">
+                            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image">
+                        </a>
                         <div class="content-section-of-card">
                             <div class="address">
                             <?= $property->address ?>
@@ -177,80 +187,10 @@
         </div>
     </div>
 
-    <!-- <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script> -->
+    <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>
+    <script src="<?= ROOT ?>/assets/js/loader.js"></script>
     <script>
-        const toggleButton = document.getElementById('toggleFilters');
-        const filters = document.getElementById('PL_form_filters');
-
-        toggleButton.addEventListener('click', function() {
-            if(filters.style.display === 'none' || filters.style.display === '') {
-                filters.style.display = 'block';
-            } else {
-                filters.style.display = 'none';
-            }
-        });
-
-        let currentPage = 1;
-        const listingsPerPage = 9;
-        const listings = document.querySelectorAll('.property-listing-grid .property-component');
-        const totalPages = Math.ceil(listings.length / listingsPerPage);
-
-        function showPage(page) {
-            // Hide all listings
-            listings.forEach((listing, index) => {
-                listing.style.display = 'none';
-            });
-
-            // Show listings for the current page
-            const start = (page - 1) * listingsPerPage;
-            const end = start + listingsPerPage;
-
-            for (let i = start; i < end && i < listings.length; i++) {
-                listings[i].style.display = 'block';
-            }
-
-            // Update pagination display
-            document.querySelector('.current-page').textContent = page;
-        }
-
-        document.querySelector('.next-page').addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                showPage(currentPage);
-            }
-        });
-
-        document.querySelector('.prev-page').addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                showPage(currentPage);
-            }
-        });
-
-        // Initial page load
-        showPage(currentPage);
-        function resetFilters() {
-            // Reset dropdown selections
-            document.getElementById('sort_by').selectedIndex = 0;
-            
-            // Reset price range inputs
-            document.getElementById('min_price').value = '';
-            document.getElementById('max_price').value = '';
-            
-            // Reset date inputs
-            document.getElementById('check_in_date').value = '';
-            document.getElementById('check_out_date').value = '';
-            
-            // Reset location inputs
-            document.getElementById('city').value = '';
-            document.getElementById('state').value = '';
-            
-            // Reset search term
-            document.getElementById('searchTerm').value = '';
-            
-            // Optionally refresh the listing
-            // applyFilters(); // Uncomment this if you want to refresh listings after reset
-        }
+   
     </script>
 </body>
 

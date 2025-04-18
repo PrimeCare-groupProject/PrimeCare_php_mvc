@@ -105,8 +105,10 @@ class PropertySearchView
         $query = "SELECT {$fields}
             FROM {$this->table}
             WHERE 
+                -- Only show available ones
+                property_status = 'Active'
                 -- Search term filter (matches against multiple fields)
-                (:searchTerm IS NULL OR :searchTerm = '' OR 
+                AND (:searchTerm IS NULL OR :searchTerm = '' OR 
                 LOWER(CONCAT_WS(' ', property_name, address, city, state_province, country)) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
                 
                 -- Price range filter

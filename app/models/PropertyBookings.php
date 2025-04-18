@@ -143,7 +143,6 @@ class PropertyBookings {
             'base_rate' => $baseRate,
             'rate_unit' => $rateUnit,
             'cleaning_fee' => $cleaningFee,
-            'duration_days' => 1, // Default duration
         ];
 
         if (!$this->validateBookingData($data)) {
