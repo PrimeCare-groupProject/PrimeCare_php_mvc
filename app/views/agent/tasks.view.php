@@ -29,7 +29,7 @@
         <tbody>
             <?php if (!empty($tasks)) : ?>
                 <?php foreach ($tasks as $task) : ?>
-                    <tr onclick="window.location.href='<?= ROOT ?>/dashboard/inventory/editinventory/<?= $task->service_id ?>'">
+                    <tr onclick="window.location.href='<?= ROOT ?>/dashboard/tasks/edittasks/<?= $task->service_id ?>'">
                         <td><?= $task->service_id ?></td>
                         <td><?= $task->service_type ?></td>
                         <td><?= $task->date ?></td>
