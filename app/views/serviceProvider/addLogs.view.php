@@ -1,18 +1,78 @@
 <?php require 'serviceproviderHeader.view.php' ?>
 
+<?php
+// Ensure $property_image is just the filename
+if (!empty($property_image)) {
+    $property_image = basename(str_replace('\\', '/', $property_image));
+}
+?>
+
 <div class="user_view-menu-bar">
-    <a href="<?= ROOT ?>/serviceprovider/repairRequests"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons"></a>
+    <a href="<?= ROOT ?>/serviceprovider/repairRequests">
+        <img src="<?= ROOT ?>/assets/images/backButton.png" alt="< back" class="navigate-icons">
+    </a>
     <h2>Service Completion Log</h2>
+    <button type="button" class="scroll-to-log-btn animated-gradient-btn"
+        onclick="document.getElementById('addLogSection').scrollIntoView({ behavior: 'smooth' });">
+        <i class="fas fa-arrow-down"></i> Go to Add Log Form
+    </button>
 </div>
 
 <div class="logs-page-container">
     <div class="section-header">
-        <h3>Complete Service Details</h3>
-        <p>Please provide information about the completed repair service</p>
+        <h3><i class="fas fa-clipboard-check section-icon"></i> Complete Service Details</h3>
+        <p><i class="fas fa-info-circle"></i> Please provide information about the completed repair service</p>
+    </div>
+
+    <!-- Request & Property Details -->
+    <div class="info-card service-details-card">
+        <div class="info-card-header">
+            <i class="fas fa-home"></i>
+            <h4>Request & Property Details</h4>
+        </div>
+        <!-- Property Image on top -->
+        <div class="service-details-image" style="text-align:center; margin-bottom: 18px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="input-label"><i class="fas fa-image"></i> Property Image</label>
+                <?php if (!empty($property_image)): ?>
+                    <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= htmlspecialchars($property_image) ?>"
+                        alt="Property Image" class="property-image-preview">
+                <?php else: ?>
+                    <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Property Image" class="property-image-preview">
+                <?php endif; ?>
+            </div>
+        </div>
+        <!-- Details below image -->
+        <div class="service-details-info">
+            <div class="form-group">
+                <label class="input-label"><i class="fas fa-map-marker-alt"></i> Property Address</label>
+                <input type="text" class="input-field highlight-field" readonly
+                    value="<?= htmlspecialchars($property_address) ?>">
+            </div>
+            <div class="form-group">
+                <label class="input-label"><i class="fas fa-file-alt"></i> Original Service Description</label>
+                <textarea class="input-field textarea-field" readonly><?= htmlspecialchars($service_description) ?></textarea>
+            </div>
+            <div class="form-group">
+                <label class="input-label"><i class="fas fa-user"></i> Requested By</label>
+                <input type="text" class="input-field" readonly
+                    value="<?= htmlspecialchars($requester_name) ?>">
+            </div>
+            <div class="form-group">
+                <label class="input-label"><i class="fas fa-envelope"></i> Contact Email</label>
+                <input type="text" class="input-field" readonly
+                    value="<?= htmlspecialchars($requester_email) ?>">
+            </div>
+            <div class="form-group">
+                <label class="input-label"><i class="fas fa-phone"></i> Contact Number</label>
+                <input type="text" class="input-field" readonly
+                    value="<?= htmlspecialchars($requester_contact) ?>">
+            </div>
+        </div>
     </div>
 
     <form method="POST" action="<?= ROOT ?>/serviceprovider/addLogs" enctype="multipart/form-data" id="logForm">
-        <div class="owner-addProp-container">
+        <div class="owner-addProp-container" id="addLogSection">
             <div class="owner-addProp-form-left">
                 <!-- Service ID (hidden) -->
                 <input type="hidden" name="service_id" value="<?= htmlspecialchars($service_id) ?>">
@@ -130,6 +190,21 @@
 </div>
 
 <style>
+.scroll-to-log-btn {
+    margin-left: 20px;
+    padding: 8px 18px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.scroll-to-log-btn:hover {
+    background: #0056b3;
+}
+
 /* Enhanced styling for logs page */
 .logs-page-container {
     padding: 20px;
@@ -390,6 +465,104 @@
         width: 5px;
         background-color: #f1c40f;
         border-radius: 3px;
+    }
+}
+
+.property-image-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+#addLogSection {
+    scroll-margin-top: 80px;
+}
+
+/* Animated yellow gradient button, right-aligned */
+/* .user_view-menu-bar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 18px;
+    position: relative;
+}
+.user_view-menu-bar h2 {
+    flex: 1;
+    margin: 0 0 0 10px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.6rem;
+} */
+.animated-gradient-btn {
+    margin-left: auto;
+    padding: 10px 28px;
+    background: linear-gradient(270deg, #f1c40f, #f39c12, #f1c40f, #f7d774);
+    background-size: 400% 400%;
+    color: #222;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(241,196,15,0.15);
+    transition: color 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: gradientMove 2.5s ease infinite;
+}
+.animated-gradient-btn i {
+    font-size: 1.1em;
+}
+.animated-gradient-btn:hover {
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(241,196,15,0.25);
+}
+@keyframes gradientMove {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
+}
+
+/* Service details card styling */
+.service-details-card {
+    border-left: 6px solid #f1c40f;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 18px rgba(241,196,15,0.07);
+}
+.service-details-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+}
+.service-details-image {
+    flex: 1 1 220px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 200px;
+}
+.service-details-info {
+    flex: 2 1 340px;
+    min-width: 260px;
+}
+.section-header .section-icon {
+    color: #f1c40f;
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+@media (max-width: 900px) {
+    .service-details-flex {
+        flex-direction: column;
+        gap: 18px;
+    }
+    .service-details-image, .service-details-info {
+        min-width: 0;
     }
 }
 </style>
