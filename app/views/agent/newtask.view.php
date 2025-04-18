@@ -11,20 +11,23 @@
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
             <label class="input-label">Task Type</label>
-            <input type="text" name="repairType" placeholder="Type of task" class="input-field" required>
-
-            <label class="input-label-aligned">
-                <label class="input-label">Property</label>
-                <select class="input-field-small" name="serviceProvider" required>
-                    <option value="notassign">Select SP</option>
-                    <?php foreach ($properties as $property): ?>
-                        <option value="<?= $property->id ?>"><?= $property->name ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
+            <input type="text" name="service_type" placeholder="Type of task" class="input-field" required>
             
-            <label class="input-label">Description about task</label>
-            <textarea name="description" placeholder="Write About task" class="input-field" required></textarea>
+            <label class="input-label">Date</label>
+            <input type="date" name="date" placeholder="date" class="input-field" required>
+            <!--<textarea name="description" placeholder="Write About task" class="input-field" required></textarea>-->
+
+            <label class="input-label">Property ID</label>
+            <input type="text" name="property_id" placeholder="Property_ID" class="input-field" required>
+
+            <label class="input-label">Property Name</label>
+            <input type="text" name="property_name" placeholder="Property_Name" class="input-field" required>
+
+            <label class="input-label">Cost Per Hour</label>
+            <input type="text" name="cost_per_hour" placeholder="Cost Per Hour" class="input-field" required>
+
+            <label class="input-label">Cost Per Hour</label>
+            <input type="text" name="total_hours" placeholder="Total Hours" class="input-field" required>
 
             <label class="input-label">Upload Inventory Image*</label>
             <div class="owner-addProp-file-upload">
@@ -37,7 +40,7 @@
             </div>
         </div>
 
-        <div class="owner-addProp-form-right">
+        <!--<div class="owner-addProp-form-right">
             <label class="input-label-aligned">
                 <label class="input-label">Service Provider</label>
                 <select class="input-field-small" name="serviceProvider" required>
@@ -51,7 +54,7 @@
             <div class="buttons-to-right">
                 <button type="submit" class="primary-btn">Submit</button>
             </div>
-        </div>
+        </div>-->
     </div>
 </form>
 

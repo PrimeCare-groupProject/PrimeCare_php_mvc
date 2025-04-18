@@ -9,7 +9,7 @@
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
         <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/task/newtask'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
+            <a href='<?= ROOT ?>/dashboard/tasks/newtask'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Add new task</span>
         </div>
     </div>
