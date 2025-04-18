@@ -207,11 +207,16 @@ class Owner
                         }
                     }
                 }
+                                
+                // Get service logs for properties by requested person ID
+                // This will fetch only service logs where this owner was the requester
+                $userServiceLogs = $serviceLog->where([
+                    'requested_person_id' => $ownerId,
+                    'property_id' => $propId
+                ]);
                 
-                // Get service logs for this property
-                $propertyLogs = $serviceLog->where(['property_id' => $propId]);
-                if(!empty($propertyLogs)) {
-                    foreach($propertyLogs as $log) {
+                if(!empty($userServiceLogs)) {
+                    foreach($userServiceLogs as $log) {
                         $serviceLogs[] = $log;
                         
                         // Calculate expenses
@@ -995,14 +1000,18 @@ class Owner
                 $activeBookings++;
             }
         }
-        
+
         // Get all service logs (expenses) for this property
         $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        $serviceLogs = $serviceLog->where([
+            'property_id' => $propertyId,
+            'requested_person_id' => $_SESSION['user']->pid
+        ]);
+        
         if (!is_array($serviceLogs) && !is_object($serviceLogs)) {
             $serviceLogs = []; // Ensure $serviceLogs is always iterable
         }
-        
+
         // Calculate monthly income and expenses for the last 6 months
         $currentMonth = date('n');
         $currentYear = date('Y');
