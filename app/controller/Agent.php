@@ -1541,7 +1541,7 @@ class Agent
                                             'customer_id',
                                             $pid->customer_id
                                             );
-        $this->view('agent/edittenents',['bookings'=> $bookings ,'images' => $images]);
+        $this->view('agent/bookingaccept',['bookings'=> $bookings ,'images' => $images]);
     }
 
     public function bookinghistory($c,$d)
