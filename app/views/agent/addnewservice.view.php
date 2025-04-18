@@ -7,67 +7,123 @@
     <h2>New Service</h2>
 </div>
 
-<form method="POST" action="<?= ROOT ?>/Serve/create" enctype="multipart/form-data">
-    <div class="owner-addProp-container">
-        <div class="owner-addProp-form-left">
-            <label class="input-label">Service Name</label>
-            <input type="text" name="name" placeholder="Enter repair name" class="input-field" required>
+<form method="POST" action="<?= ROOT ?>/Serve/create" enctype="multipart/form-data" class="service-form-v2">
+    <div class="service-form-container">
+        <div class="service-form-header">
+            <h2><i class="fas fa-tools"></i> Register New Service</h2>
+            <p class="service-form-subtitle">Provide details about your professional service</p>
+        </div>
 
-            <label class="input-label">Cost Per Hour</label>
-            <input type="text" name="cost_per_hour" placeholder="Cost Per Hour" class="input-field" required>
-            
-            <label class="input-label">Description About The Service</label>
-            <textarea name="description" placeholder="description" class="input-field1" required></textarea>
-
-            <label class="input-label">Upload Service Image</label>
-                <div class="owner-addProp-file-upload">
-                    <input type="file" name="service_images[]" id="service_images" class="input-field" multiple accept=".png, .jpg, .jpeg" data-max-files="6" onchange="previewImages(event)" required>
-                    <div class="owner-addProp-upload-area">
-                        <img src="<?= ROOT ?>/assets/images/upload.png" alt="Upload" class="owner-addProp-upload-logo">
-                        <p class="upload-area-no-margin">Drop your files here</p>
-                        <button type="button" class="primary-btn" onclick="document.getElementById('service_images').click()">Choose File</button>
+        <div class="service-form-body">
+            <div class="service-form-group">
+                <label class="service-form-label">
+                    <span>Service Name</span>
+                    <div class="service-input-wrapper">
+                        <i class="fas fa-tag input-icon"></i>
+                        <input type="text" name="name" placeholder="e.g. Electrical Repair" class="service-form-input" required>
                     </div>
-                </div>
+                </label>
+            </div>
 
-            <!-- Image preview container -->
-            <div id="image-preview-container" style="display: flex; gap: 10px; margin-top: 10px;"></div>
-            
-            <div class="buttons-to-right">
-                <button type="submit" class="primary-btn">Submit</button>
+            <div class="service-form-group">
+                <label class="service-form-label">
+                    <span>Hourly Rate (LKR)</span>
+                    <div class="service-input-wrapper">
+                        <i class="fas fa-money-bill-wave input-icon"></i>
+                        <input type="number" name="cost_per_hour" placeholder="e.g. 3500" class="service-form-input" min="0" step="100" required>
+                    </div>
+                </label>
+            </div>
+
+            <div class="service-form-group full-width">
+                <label class="service-form-label">
+                    <span>Service Description</span>
+                    <textarea name="description" placeholder="Describe your service expertise, qualifications, and what clients can expect..." class="service-form-textarea" rows="4" required></textarea>
+                    <i class="fas fa-align-left textarea-icon"></i>
+                </label>
+            </div>
+
+            <div class="service-form-group full-width">
+                <label class="service-form-label">
+                    <span>Service Images (Max 6)</span>
+                    <div class="service-upload-container">
+                        <input type="file" name="service_images[]" id="service_images_v2" class="service-file-input" multiple accept=".png, .jpg, .jpeg" data-max-files="6" onchange="previewServiceImages(event)" required>
+                        <div class="service-upload-area" id="drop-zone">
+                            <div class="upload-content">
+                                <img src="<?= ROOT ?>/assets/images/upload.png" alt="Upload" class="upload-icon">
+                                <p class="upload-text">Drag & drop files here or</p>
+                                <button type="button" class="service-upload-btn" onclick="document.getElementById('service_images_v2').click()">
+                                    <i class="fas fa-folder-open"></i> Browse Files
+                                </button>
+                                <p class="upload-hint">Supports: JPG, PNG (Max 6 files)</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+                <div id="service-image-preview" class="service-preview-grid"></div>
+            </div>
+
+            <div class="service-form-actions">
+                <button type="submit" class="service-submit-btn">
+                    <i class="fas fa-check-circle"></i> Register Service
+                </button>
             </div>
         </div>
     </div>
 </form>
 
 <?php if (isset($_SESSION['flash_message'])): ?>
-    <div class="flash-message">
+    <div class="service-flash-message">
         <?= $_SESSION['flash_message']; ?>
-        <?php unset($_SESSION['flash_message']); ?> <!-- Clear the message after displaying -->
+        <?php unset($_SESSION['flash_message']); ?>
     </div>
 <?php endif; ?>
 
 <script>
-    function previewImages(event) {
-        const files = event.target.files;
-        const container = document.getElementById('image-preview-container');
-        container.innerHTML = ''; // Clear previous previews
+function previewServiceImages(event) {
+    const files = event.target.files;
+    const container = document.getElementById('service-image-preview');
+    container.innerHTML = '';
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const reader = new FileReader();
+    for (let i = 0; i < Math.min(files.length, 6); i++) {
+        const file = files[i];
+        if (!file.type.match('image.*')) continue;
 
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.width = '100px';
-                img.style.height = '100px';
-                img.style.objectFit = 'cover';
-                container.appendChild(img);
-            };
-
-            reader.readAsDataURL(file);
-        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('service-preview-img');
+            container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
     }
-</script>
+}
 
+// Drag and drop functionality
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('service_images_v2');
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('highlight');
+});
+
+['dragleave', 'dragend'].forEach(type => {
+    dropZone.addEventListener(type, () => {
+        dropZone.classList.remove('highlight');
+    });
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('highlight');
+    
+    if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        const event = new Event('change');
+        fileInput.dispatchEvent(event);
+    }
+});
+</script>
 <?php require_once 'agentFooter.view.php'; ?>
