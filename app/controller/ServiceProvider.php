@@ -684,15 +684,48 @@ class ServiceProvider {
             return;
         }
     
+        // Fetch property address
+        $propertyModel    = new Property();
+        $property_details = $propertyModel->first(['property_id' => $current_service->property_id]);
+
+        // Fetch requester info
+        $userModel        = new User();
+        $requested_person = $userModel->first(['pid' => $current_service->requested_person_id]);
+    
+        // Fetch property address and image
+        $propertyModel    = new Property();
+        $property_details = $propertyModel->first(['property_id' => $current_service->property_id]);
+
+        // Fetch property image using PropertyImageModel
+        $property_image = 'listing_alt.jpg'; // default
+        if ($property_details) {
+            require_once '../app/models/PropertyImageModel.php'; // adjust path if needed
+            $propertyImageModel = new PropertyImageModel();
+            $images = $propertyImageModel->where(['property_id' => $current_service->property_id]);
+            if ($images && is_array($images) && !empty($images) && !empty($images[0]->image_url)) {
+                $property_image = $images[0]->image_url;
+            }
+        }
+
+        // Fetch requester info
+        $userModel        = new User();
+        $requested_person = $userModel->first(['pid' => $current_service->requested_person_id]);
+    
         // Prepare view data
         $view_data = [
-            'service_id' => $service_id,
-            'property_id' => $current_service->property_id ?? null,
-            'property_name' => $current_service->property_name ?? null,
-            'service_type' => $current_service->service_type ?? null,
-            'status' => $current_service->status ?? null,
-            'earnings' => $current_service->cost_per_hour * ($current_service->total_hours ?? 0),
-            'current_service' => $current_service
+            'service_id'              => $service_id,
+            'property_id'             => $current_service->property_id ?? null,
+            'property_name'           => $current_service->property_name ?? null,
+            'service_type'            => $current_service->service_type ?? null,
+            'status'                  => $current_service->status ?? null,
+            'earnings'                => $current_service->cost_per_hour * ($current_service->total_hours ?? 0),
+            'current_service'         => $current_service,
+            'property_address'        => $property_details->address ?? '',
+            'service_description'     => $current_service->service_description ?? '',
+            'requester_name'          => trim(($requested_person->fname ?? '') . ' ' . ($requested_person->lname ?? '')),
+            'requester_email'         => $requested_person->email ?? '',
+            'requester_contact'       => $requested_person->contact ?? '',
+            'property_image'          => $property_image 
         ];
     
         // Load view with data
@@ -770,7 +803,7 @@ class ServiceProvider {
             'total_hours' => $service_details->total_hours ?? 0,
             'usual_cost' => $service_details->usual_cost ?? 0,
             'additional_charges' => $service_details->additional_charges ?? 0,
-            'additional_charges_reason' => $service_details->additional_charges_reason ?? '',
+            'additional_charges_reason' => $service_details->additional_charges_reason ?? 0,
             'total_cost' => $service_details->total_cost ?? 0,
             'date' => $service_details->date ?? null,
             'service_images' => json_decode($service_details->service_images ?? '[]'),
