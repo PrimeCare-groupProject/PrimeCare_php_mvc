@@ -14,28 +14,31 @@
         </div>
     </div>
 </div>
-<div class="listing-the-property">
-    <div class="property-listing-grid1">
+<div class="booking-listing">
+    <div class="booking-grid">
         <?php if (!empty($bookings)): ?>
             <?php foreach ($bookings as $booking): ?>
                 <?php foreach ($images as $image): ?>
                 <?php if ($booking->property_id == $image->property_id): ?>
-                <div class="compact-booking-card">
-                    <img class="compact-card__img" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Property">
-                    <div class="compact-card__content">
-                        <h4 class="compact-card__title"><?= $booking->name?></h4>
-                        <div class="compact-card__details">
-                            <div class="compact-detail">
-                                <span class="compact-icon">💰</span>
+                <div class="booking-card">
+                    <div class="booking-card__image-wrap">
+                        <img class="booking-card__image" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Property">
+                        <span class="booking-card__status">Booked</span>
+                    </div>
+                    <div class="booking-card__body">
+                        <h4 class="booking-card__title"><?= $booking->name?></h4>
+                        <div class="booking-card__meta">
+                            <div class="booking-meta__item">
+                                <span class="booking-meta__icon">💰</span>
                                 <span><?= $booking->price?> LKR</span>
                             </div>
-                            <div class="compact-detail">
-                                <span class="compact-icon">📅</span>
+                            <div class="booking-meta__item">
+                                <span class="booking-meta__icon">📅</span>
                                 <span><?= $booking->renting_period?> months</span>
                             </div>
                         </div>
-                        <a href="<?=ROOT?>/dashboard/bookings/bookingaccept/<?= $booking->booking_id ?>">
-                            <button class="compact-card__btn">Update</button>
+                        <a href="<?=ROOT?>/dashboard/bookings/bookingaccept/<?= $booking->booking_id ?>" class="booking-card__action">
+                            Update Booking
                         </a>
                     </div>
                 </div>
@@ -43,115 +46,173 @@
                 <?php endforeach; ?>
             <?php endforeach; ?> 
         <?php else: ?>
-            <p>No Booking found.</p>
+            <p class="booking-empty">No bookings found</p>
         <?php endif; ?>
+    </div>
+
+    <!-- Pagination -->
+    <div class="booking-pagination">
+        <button class="booking-pagination__prev">
+            <svg class="booking-pagination__icon" viewBox="0 0 24 24">
+                <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+            </svg>
+        </button>
+        <span class="booking-pagination__current">1</span>
+        <button class="booking-pagination__next">
+            <svg class="booking-pagination__icon" viewBox="0 0 24 24">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+            </svg>
+        </button>
     </div>
 </div>
 
-<!-- Pagination Buttons -->
-<div class="pagination">
-        <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
-        <span class="current-page">1</span>
-        <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
-</div>
-
 <style>
- /* Booking Cards Grid */
-/* Compact Booking Cards Grid */
-.property-listing-grid1 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    padding: 1rem;
-    max-width: 1200px;
+/* Booking Listing Styles */
+.booking-listing {
+    padding: 2rem;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
-/* Compact Card Styling */
-.compact-booking-card {
+.booking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.booking-card {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.compact-booking-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+.booking-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
-.compact-card__img {
+.booking-card__image-wrap {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.booking-card__image {
     width: 100%;
-    height: 120px;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
 }
 
-.compact-card__content {
-    padding: 1rem;
+.booking-card:hover .booking-card__image {
+    transform: scale(1.05);
 }
 
-.compact-card__title {
+.booking-card__status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #4f46e5;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.booking-card__body {
+    padding: 1.25rem;
+}
+
+.booking-card__title {
+    margin: 0 0 1rem;
     font-size: 1.1rem;
-    color: #333;
-    margin: 0 0 0.8rem 0;
+    color: #1f2937;
     font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.compact-card__details {
+.booking-card__meta {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
-.compact-detail {
+.booking-meta__item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    color: #4b5563;
     font-size: 0.9rem;
-    color: #555;
 }
 
-.compact-icon {
+.booking-meta__icon {
     font-size: 1rem;
 }
 
-.compact-card__btn {
-    width: 100%;
-    padding: 0.5rem;
-    background: #4a6bff;
+.booking-card__action {
+    display: block;
+    text-align: center;
+    padding: 0.75rem;
+    background: #4f46e5;
     color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 0.9rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.booking-card__action:hover {
+    background: #4338ca;
+}
+
+.booking-empty {
+    text-align: center;
+    grid-column: 1 / -1;
+    color: #6b7280;
+    padding: 2rem;
+}
+
+/* Pagination Styles */
+.booking-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.booking-pagination__prev,
+.booking-pagination__next {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 }
 
-.compact-card__btn:hover {
-    background: #3a5bef;
+.booking-pagination__prev:hover,
+.booking-pagination__next:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 900px) {
-    .property-listing-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.booking-pagination__icon {
+    width: 20px;
+    height: 20px;
+    fill: #4b5563;
 }
 
-@media (max-width: 600px) {
-    .property-listing-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .compact-booking-card {
-        max-width: 300px;
-        margin: 0 auto;
-    }
+.booking-pagination__current {
+    font-weight: 500;
+    color: #1f2937;
 }
 </style>
 
