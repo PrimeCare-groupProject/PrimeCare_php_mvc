@@ -12,14 +12,134 @@
         </div>
     </div>
 </div>
-<div class="inventory-details-container">
-    <table class="inventory-table">
+<style>
+    .bookings-table-container {
+        width: 100%;
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .bookings-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    .bookings-table thead {
+        background-color: #2c3e50;
+        color: white;
+    }
+
+    .bookings-table th {
+        padding: 16px 12px;
+        text-align: left;
+        font-weight: 600;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .bookings-table th:hover {
+        background-color: #34495e;
+    }
+
+    .bookings-table th.sortable::after {
+        content: "⬆⬇";
+        position: absolute;
+        right: 8px;
+        opacity: 0.6;
+        font-size: 12px;
+    }
+
+    .bookings-table tbody tr {
+        border-bottom: 1px solid #e0e0e0;
+        transition: background-color 0.2s;
+    }
+
+    .bookings-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .bookings-table tbody tr:hover {
+        background-color: #f5f7fa;
+        cursor: pointer;
+    }
+
+    .bookings-table td {
+        padding: 14px 12px;
+        color: #333;
+    }
+
+    .bookings-table .status-pending {
+        color: #e67e22;
+        font-weight: 500;
+    }
+
+    .bookings-table .status-accepted {
+        color: #27ae60;
+        font-weight: 500;
+    }
+
+    .bookings-table .status-rejected {
+        color: #e74c3c;
+        font-weight: 500;
+    }
+
+    .bookings-empty-state {
+        height: 240px;
+        background-color: #f8f9fa;
+        text-align: center;
+    }
+
+    .bookings-empty-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 0;
+    }
+
+    .bookings-empty-icon {
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    .bookings-empty-title {
+        font-size: 16px;
+        color: #555;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .bookings-empty-message {
+        font-size: 14px;
+        color: #777;
+        margin: 8px 0 0 0;
+        max-width: 400px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .bookings-table th, 
+        .bookings-table td {
+            padding: 12px 8px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="bookings-table-container">
+    <table class="bookings-table">
         <thead>
             <tr>
-                <th onclick="sortTable(0)">Booking ID ⬆⬇</th>
+                <th class="sortable" onclick="sortTable(0)">Booking ID</th>
                 <th>Property Name</th>
                 <th>Customer Name</th>
-                <th onclick="sortTable(3)">Renting Period ⬆⬇</th>
+                <th class="sortable" onclick="sortTable(3)">Renting Period</th>
                 <th>Payment Status</th>
                 <th>Accept Status</th>
             </tr>
@@ -31,17 +151,20 @@
                         <td><?= $booking->booking_id ?></td>
                         <td><?= $booking->name ?></td>
                         <td><?= $booking->fname ?> <?= $booking->lname ?></td>
-                        <td><?= $booking->renting_period ?></td>
-                        <td><?= $booking->payment_status ?></td>
-                        <td><?= $booking->accept_status ?></td>
+                        <td><?= $booking->renting_period ?> months</td>
+                        <td class="status-<?= strtolower($booking->payment_status) ?>">
+                            <?= $booking->payment_status ?>
+                        </td>
+                        <td class="status-<?= strtolower($booking->accept_status) ?>">
+                            <?= $booking->accept_status ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
-                <tr style="height: 240px; background-color: #f8f9fa;">
-                    <td colspan="6" style="text-align: center; vertical-align: middle; padding: 0;">
-                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0;">
-                            <!-- Empty state icon -->
-                            <div style="margin-bottom: 15px; opacity: 0.5;">
+                <tr class="bookings-empty-state">
+                    <td colspan="6">
+                        <div class="bookings-empty-content">
+                            <div class="bookings-empty-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
                                     <path d="M13 2v7h7"></path>
@@ -49,11 +172,9 @@
                                     <line x1="9" y1="15" x2="15" y2="15"></line>
                                 </svg>
                             </div>
-                            
-                            <!-- Message -->
-                            <h3 style="font-size: 16px; color: #555; margin: 0; font-weight: 500;">No inventory items found</h3>
-                            <p style="font-size: 14px; color: #777; margin: 8px 0 0 0; max-width: 400px;">
-                                There are currently no inventory items matching your criteria.
+                            <h3 class="bookings-empty-title">No bookings found</h3>
+                            <p class="bookings-empty-message">
+                                There are currently no bookings matching your criteria.
                             </p>
                         </div>
                     </td>
@@ -68,27 +189,30 @@
     const sortStates = Array(6).fill(null); // null = unsorted, 'asc' = ascending, 'desc' = descending
     
     function sortTable(columnIndex) {
-        const table = document.querySelector(".inventory-table");
+        const table = document.querySelector(".bookings-table");
         const tbody = table.querySelector("tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
-        const isDateColumn = columnIndex === 5; // Date column
-        const isPriceColumn = columnIndex === 4; // Price column
+        const rows = Array.from(tbody.querySelectorAll("tr:not(.bookings-empty-state)"));
+        const headers = table.querySelectorAll("th");
+        
+        // Skip if empty state is shown
+        if (rows.length === 0) return;
         
         // Toggle sort direction
         sortStates[columnIndex] = sortStates[columnIndex] === 'asc' ? 'desc' : 'asc';
         const sortDirection = sortStates[columnIndex];
         
         // Reset sort indicators on all headers
-        table.querySelectorAll("th").forEach((th, index) => {
+        headers.forEach((header, index) => {
             if (index !== columnIndex) {
-                th.innerHTML = th.textContent.trim();
                 sortStates[index] = null;
+                header.classList.remove('sorted-asc', 'sorted-desc');
             }
         });
         
-        // Update sort indicator on current header
-        const currentHeader = table.querySelectorAll("th")[columnIndex];
-        currentHeader.innerHTML = `${currentHeader.textContent.trim()} `;
+        // Update current header
+        const currentHeader = headers[columnIndex];
+        currentHeader.classList.remove('sorted-asc', 'sorted-desc');
+        currentHeader.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
         
         // Sort rows
         rows.sort((rowA, rowB) => {
@@ -97,20 +221,13 @@
             
             let valueA, valueB;
             
-            if (isDateColumn) {
-                // Date comparison
-                valueA = new Date(cellA);
-                valueB = new Date(cellB);
-            } else if (isPriceColumn) {
-                // Price comparison (remove non-numeric characters)
-                valueA = parseFloat(cellA.replace(/[^0-9.]/g, "")) || 0;
-                valueB = parseFloat(cellB.replace(/[^0-9.]/g, "")) || 0;
-            } else if (columnIndex === 0 || columnIndex === 2) {
-                // ID columns (numeric comparison)
+            if (columnIndex === 3) { // Renting Period column
+                valueA = parseInt(cellA) || 0;
+                valueB = parseInt(cellB) || 0;
+            } else if (columnIndex === 0) { // Booking ID column
                 valueA = parseInt(cellA) || 0;
                 valueB = parseInt(cellB) || 0;
             } else {
-                // Text comparison
                 valueA = cellA.toLowerCase();
                 valueB = cellB.toLowerCase();
             }
