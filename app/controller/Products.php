@@ -9,7 +9,7 @@ class Products{
         $propertyId = 22;
         $personId = 84;
 
-
+        $this->view('test');
         // // Create a monthly booking
         // $monthlyResult = $booking->createMonthlyBooking($propertyId, $personId, '2023-11-01', '2023-11-30', 2000.00);
         // if (is_array($monthlyResult)) {

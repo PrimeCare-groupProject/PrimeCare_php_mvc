@@ -48,6 +48,7 @@ document.querySelector('.prev-page').addEventListener('click', () => {
 
 // Initial page load
 showPage(currentPage);
+
 function resetFilters() {
     // Reset dropdown selections
     document.getElementById('sort_by').selectedIndex = 0;
@@ -60,12 +61,16 @@ function resetFilters() {
     document.getElementById('check_in_date').value = '';
     document.getElementById('check_out_date').value = '';
     
-    // Reset location inputs
-    document.getElementById('city').value = '';
+    // Reset location inputs - text fields
     document.getElementById('state').value = '';
     
     // Reset search term
     document.getElementById('searchTerm').value = '';
+    
+    // Reset location dropdowns
+    document.getElementById('province').innerHTML = '<option value="">-- Select Province --</option>';
+    document.getElementById('district').innerHTML = '<option value="">-- Select District --</option>';
+    document.getElementById('city').innerHTML = '<option value="">-- Select City --</option>';
     
     // Optionally refresh the listing
     // applyFilters(); // Uncomment this if you want to refresh listings after reset

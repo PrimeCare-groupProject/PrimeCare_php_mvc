@@ -105,48 +105,51 @@ class PropertySearchView
         $query = "SELECT {$fields}
             FROM {$this->table}
             WHERE 
-                -- Only show available ones
+                -- Only show active properties
                 property_status = 'Active'
-                -- Search term filter (matches against multiple fields)
-                AND (:searchTerm IS NULL OR :searchTerm = '' OR 
-                LOWER(CONCAT_WS(' ', property_name, address, city, state_province, country)) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
-                
+
+                -- Search term filter (matches multiple fields)
+                AND (
+                    :searchTerm IS NULL OR :searchTerm = '' OR 
+                    LOWER(CONCAT_WS(' ', property_name, address, city, state_province, country)) 
+                    LIKE LOWER(CONCAT('%', :searchTerm, '%'))
+                )
+
                 -- Price range filter
                 AND (:min_price IS NULL OR rental_price >= :min_price)
                 AND (:max_price IS NULL OR rental_price <= :max_price)
-                
+
                 -- Location filters
                 AND (:city IS NULL OR :city = '' OR LOWER(city) COLLATE utf8mb4_general_ci = LOWER(:city) COLLATE utf8mb4_general_ci)
                 AND (:state IS NULL OR :state = '' OR LOWER(state_province) COLLATE utf8mb4_general_ci = LOWER(:state) COLLATE utf8mb4_general_ci)
-                
-                -- Availability filter (check if property is available for given dates)
+
+                -- Availability filter
                 AND (
-                    -- If no dates provided, show all properties
-                    (:check_in IS NULL OR :check_out IS NULL) 
-                    
-                    -- If dates provided, show only available properties
+                    -- If no dates are provided, show all
+                    (:check_in IS NULL OR :check_out IS NULL)
+
+                    -- Else check for availability
                     OR (
-                        -- Property is marked as available
                         availability_status = 'Available' COLLATE utf8mb4_unicode_ci
-                        
-                        -- Or check if there are no overlapping bookings
-                        OR NOT EXISTS (
+                        AND NOT EXISTS (
                             SELECT 1 
                             FROM property_bookings pb
-                            WHERE pb.property_id = property_search_view.property_id
-                            AND pb.is_active = TRUE
-                            AND pb.booking_status IN ('pending', 'confirmed', 'checked_in')
-                            AND (
-                                (pb.check_in <= :check_out AND pb.check_out >= :check_in)
-                            )
+                            WHERE 
+                                pb.property_id = property_search_view.property_id
+                                AND pb.is_active = 1
+                                AND pb.booking_status IN ('pending', 'confirmed', 'checked_in')
+                                AND (
+                                    :check_in < pb.check_out AND :check_out > pb.check_in
+                                )
                         )
                     )
                 )
-                
+
             ORDER BY
                 CASE WHEN :sort_by = 'price_asc' THEN rental_price END ASC,
                 CASE WHEN :sort_by = 'price_desc' THEN rental_price END DESC,
                 CASE WHEN :sort_by = 'newest' THEN year_built END DESC,
+                CASE WHEN :sort_by = 'oldest' THEN year_built END ASC,
                 CASE WHEN :sort_by IS NULL OR :sort_by = '' THEN property_name END ASC";
 
         return $this->instance->query($query, $searchParams);

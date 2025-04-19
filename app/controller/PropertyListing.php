@@ -13,16 +13,22 @@ class propertyListing{
             $propertiesFromView = new PropertySearchView;
             $propertiesids = $propertiesFromView->advancedSearch($_POST,  ['property_id']);
             
-            $propertiesids = array_unique(array_map(function($obj) {
-                return $obj->property_id;
-            }, $propertiesids));
-
-            if(!empty($propertiesids)){
-                $property = new PropertyConcat;
-                $properties = $property->getByPropertyIds($propertiesids);
-                $this->view('propertyListing' , ['properties' => $properties]);
-                return;
+            if (!is_bool($propertiesids) && !empty($propertiesids)) {
+                $propertiesids = array_unique(array_map(function($obj) {
+                    return $obj->property_id;
+                }, $propertiesids));
+                
+                if(!empty($propertiesids)){
+                    $property = new PropertyConcat;
+                    $properties = $property->getByPropertyIds($propertiesids);
+                    $this->view('propertyListing' , ['properties' => $properties]);
+                    return;
+                }
+            } else {
+                $_SESSION['flash']['msg'] = "No properties found for the selected criteria.";
+                $_SESSION['flash']['type'] = "error";
             }
+
         }
         $property = new PropertyConcat;
         $properties = $property->where(['status' => 'pending']);

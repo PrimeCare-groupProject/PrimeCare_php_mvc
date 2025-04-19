@@ -93,16 +93,155 @@
 
                                 <!-- Location Filters -->
                                 <div class="half-of-the-row">
-                                    <label>City:
-                                        <input type="text" id="city" name="city" placeholder="City" value="<?= old_value('city') ?>">
+                                    <label>Province:
+                                        <select id="province" name="province">
+                                            <option value="">-- Select Province --</option>
+                                            <?php $selectedProvince = old_value('province'); ?>
+                                            <script>
+                                                const validLocations = {
+                                                    'Western': {
+                                                        'Colombo': ['Colombo', 'Dehiwala-Mount Lavinia', 'Moratuwa', 'Battaramulla', 'Sri Jayawardenepura Kotte', 'Nugegoda', 'Maharagama', 'Kesbewa', 'Kaduwela', 'Kolonnawa', 'Homagama', 'Piliyandala', 'Boralesgamuwa', 'Malabe', 'Pita Kotte', 'Avissawella', 'Padukka', 'Hanwella'],
+                                                        'Gampaha': ['Negombo', 'Gampaha', 'Ja-Ela', 'Wattala', 'Ragama', 'Kadawatha', 'Minuwangoda', 'Kiribathgoda', 'Hendala', 'Mabole', 'Katunayake', 'Kandana', 'Nittambuwa', 'Kirindiwela', 'Biyagama', 'Peliyagoda'],
+                                                        'Kalutara': ['Kalutara', 'Beruwala', 'Panadura', 'Aluthgama', 'Wadduwa', 'Matugama', 'Bandaragama', 'Horana', 'Ingiriya', 'Bulathsinhala', 'Agalawatta']
+                                                    },
+                                                    'Central': {
+                                                        'Kandy': ['Kandy', 'Peradeniya', 'Gampola', 'Katugastota', 'Nawalapitiya', 'Pilimathalawa', 'Wattegama', 'Akurana', 'Digana', 'Gelioya', 'Kundasale', 'Galagedara', 'Hanguranketa', 'Ampitiya'],
+                                                        'Matale': ['Matale', 'Dambulla', 'Sigiriya', 'Ukuwela', 'Rattota', 'Galewela', 'Nalanda', 'Palapathwela', 'Aluvihare', 'Yatawatta'],
+                                                        'Nuwara Eliya': ['Nuwara Eliya', 'Hatton', 'Talawakele', 'Maskeliya', 'Pussellawa', 'Kotagala', 'Lindula', 'Ragala', 'Walapane', 'Hanguranketha']
+                                                    },
+                                                    'Southern': {
+                                                        'Galle': ['Galle', 'Hikkaduwa', 'Unawatuna', 'Ambalangoda', 'Karapitiya', 'Baddegama', 'Bentota', 'Balapitiya', 'Elpitiya', 'Imaduwa', 'Batapola', 'Ahangama', 'Ahungalla'],
+                                                        'Matara': ['Matara', 'Weligama', 'Dickwella', 'Akuressa', 'Kamburupitiya', 'Hakmana', 'Deniyaya', 'Mirissa', 'Devinuwara', 'Malimboda', 'Morawaka'],
+                                                        'Hambantota': ['Hambantota', 'Tangalle', 'Tissamaharama', 'Kataragama', 'Ambalantota', 'Beliatta', 'Weeraketiya', 'Lunugamvehera', 'Sooriyawewa', 'Angunukolapelessa']
+                                                    },
+                                                    'Northern': {
+                                                        'Jaffna': ['Jaffna', 'Nallur', 'Chavakachcheri', 'Point Pedro', 'Karainagar', 'Velanai', 'Valvettithurai', 'Kopay', 'Kaithady', 'Manipay', 'Tellippalai', 'Chunnakam', 'Uduvil'],
+                                                        'Kilinochchi': ['Kilinochchi', 'Pallai', 'Paranthan', 'Karachchi', 'Mulankavil', 'Pooneryn', 'Kandavalai'],
+                                                        'Mullaitivu': ['Mullaitivu', 'Puthukudiyiruppu', 'Oddusuddan', 'Thunukkai', 'Mallavi', 'Mankulam'],
+                                                        'Vavuniya': ['Vavuniya', 'Cheddikulam', 'Nedunkeni', 'Omanthai'],
+                                                        'Mannar': ['Mannar', 'Adampan', 'Nanattan', 'Musali', 'Madhu']
+                                                    },
+                                                    'Eastern': {
+                                                        'Trincomalee': ['Trincomalee', 'Kinniya', 'Mutur', 'Kantale', 'Nilaveli', 'China Bay', 'Seruwila', 'Thampalakamam', 'Kuchchaveli', 'Gomarankadawala'],
+                                                        'Batticaloa': ['Batticaloa', 'Eravur', 'Valachchenai', 'Kalkudah', 'Oddamavadi', 'Vakarai', 'Kattankudy', 'Chenkalady', 'Araipattai'],
+                                                        'Ampara': ['Ampara', 'Kalmunai', 'Sammanthurai', 'Dehiattakandiya', 'Uhana', 'Pottuvil', 'Akkaraipattu', 'Sainthamaruthu', 'Thirukkovil', 'Nintavur', 'Addalachchenai', 'Mahaoya']
+                                                    },
+                                                    'North Western': {
+                                                        'Kurunegala': ['Kurunegala', 'Kuliyapitiya', 'Maho', 'Polgahawela', 'Pannala', 'Narammala', 'Nikaweratiya', 'Wariyapola', 'Ibbagamuwa', 'Alawwa', 'Giriulla', 'Bingiriya'],
+                                                        'Puttalam': ['Puttalam', 'Chilaw', 'Wennappuwa', 'Anamaduwa', 'Nattandiya', 'Dankotuwa', 'Kalpitiya', 'Marawila', 'Madampe', 'Arachchikattuwa', 'Norochcholai']
+                                                    },
+                                                    'North Central': {
+                                                        'Anuradhapura': ['Anuradhapura', 'Kekirawa', 'Medawachchiya', 'Mihintale', 'Thambuttegama', 'Eppawala', 'Kahatagasdigiliya', 'Galenbindunuwewa', 'Horowpothana', 'Kebithigollewa', 'Rambewa', 'Thalawa'],
+                                                        'Polonnaruwa': ['Polonnaruwa', 'Kaduruwela', 'Hingurakgoda', 'Medirigiriya', 'Dimbulagala', 'Manampitiya', 'Lankapura', 'Elahera', 'Bakamuna', 'Jayanthipura']
+                                                    },
+                                                    'Uva': {
+                                                        'Badulla': ['Badulla', 'Bandarawela', 'Ella', 'Hali-Ela', 'Welimada', 'Mahiyanganaya', 'Diyatalawa', 'Haputale', 'Passara', 'Lunugala', 'Uva-Paranagama', 'Kandaketiya'],
+                                                        'Monaragala': ['Monaragala', 'Wellawaya', 'Bibile', 'Buttala', 'Kataragama', 'Siyambalanduwa', 'Thanamalvila', 'Badalkumbura', 'Madulla']
+                                                    },
+                                                    'Sabaragamuwa': {
+                                                        'Ratnapura': ['Ratnapura', 'Balangoda', 'Embilipitiya', 'Pelmadulla', 'Kuruwita', 'Eheliyagoda', 'Kalawana', 'Kahawatta', 'Rakwana', 'Opanayaka', 'Godakawela', 'Nivithigala'],
+                                                        'Kegalle': ['Kegalle', 'Mawanella', 'Warakapola', 'Rambukkana', 'Galigamuwa', 'Deraniyagala', 'Yatiyantota', 'Ruwanwella', 'Dehiowita', 'Aranayaka', 'Hemmathagama']
+                                                    }
+                                                };
+                                                
+                                                // Add provinces to dropdown
+                                                const provinces = Object.keys(validLocations);
+                                                const provinceSelect = document.getElementById('province');
+                                                provinces.forEach(province => {
+                                                    const option = document.createElement('option');
+                                                    option.value = province;
+                                                    option.textContent = province;
+                                                    provinceSelect.appendChild(option);
+                                                });
+                                            </script>
+                                        </select>
                                     </label>
                                 </div>
 
                                 <div class="half-of-the-row">
-                                    <label>State/Province:
-                                        <input type="text" id="state" name="state" placeholder="State/Province" value="<?= old_value('state') ?>">
+                                    <label>District:
+                                        <select id="district" name="district">
+                                            <option value="">-- Select District --</option>
+                                        </select>
                                     </label>
                                 </div>
+
+                                <div class="half-of-the-row">
+                                    <label>City:
+                                        <select id="city" name="city">
+                                            <option value="">-- Select City --</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const provinceSelect = document.getElementById('province');
+                                        const districtSelect = document.getElementById('district');
+                                        const citySelect = document.getElementById('city');
+                                        
+                                        // Update districts based on province selection
+                                        provinceSelect.addEventListener('change', function() {
+                                            const selectedProvince = this.value;
+                                            
+                                            // Clear district and city dropdowns
+                                            districtSelect.innerHTML = '<option value="">-- Select District --</option>';
+                                            citySelect.innerHTML = '<option value="">-- Select City --</option>';
+                                            
+                                            if (selectedProvince) {
+                                                const districts = Object.keys(validLocations[selectedProvince]);
+                                                districts.forEach(district => {
+                                                    const option = document.createElement('option');
+                                                    option.value = district;
+                                                    option.textContent = district;
+                                                    districtSelect.appendChild(option);
+                                                });
+                                            }
+                                        });
+                                        
+                                        // Update cities based on district selection
+                                        districtSelect.addEventListener('change', function() {
+                                            const selectedProvince = provinceSelect.value;
+                                            const selectedDistrict = this.value;
+                                            
+                                            // Clear city dropdown
+                                            citySelect.innerHTML = '<option value="">-- Select City --</option>';
+                                            
+                                            if (selectedProvince && selectedDistrict) {
+                                                const cities = validLocations[selectedProvince][selectedDistrict];
+                                                cities.forEach(city => {
+                                                    const option = document.createElement('option');
+                                                    option.value = city;
+                                                    option.textContent = city;
+                                                    citySelect.appendChild(option);
+                                                });
+                                            }
+                                        });
+                                        
+                                        // Handle form value persistence after submit
+                                        const oldProvince = "<?= old_value('province') ?>";
+                                        const oldDistrict = "<?= old_value('district') ?>";
+                                        const oldCity = "<?= old_value('city') ?>";
+                                        
+                                        if (oldProvince) {
+                                            provinceSelect.value = oldProvince;
+                                            provinceSelect.dispatchEvent(new Event('change'));
+                                            
+                                            setTimeout(() => {
+                                                if (oldDistrict) {
+                                                    districtSelect.value = oldDistrict;
+                                                    districtSelect.dispatchEvent(new Event('change'));
+                                                    
+                                                    setTimeout(() => {
+                                                        if (oldCity) {
+                                                            citySelect.value = oldCity;
+                                                        }
+                                                    }, 50);
+                                                }
+                                            }, 50);
+                                        }
+                                    });
+                                </script>
                                 
                                 <!-- Apply Filters Button -->
                                 <div class="half-of-the-row" style="display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
