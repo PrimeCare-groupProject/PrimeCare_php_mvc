@@ -52,7 +52,7 @@
         <div class="UR__image_container">
             <img src="<?= ROOT ?>/assets/images/occupied_property.jpg" alt="Occupied Property">
         </div>
-        <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/customer/requestServiceOccupied'">
+        <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/requestServiceOccupied'">
             Request for Occupied Property
         </button>
     </div>
@@ -61,7 +61,7 @@
         <div class="UR__image_container">
             <img src="<?= ROOT ?>/assets/images/external_property.jpg" alt="External Property">
         </div>
-        <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/customer/externalRepairListing'">
+        <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/externalRepairListing'">
             Request Service for External Property
         </button>
     </div>
