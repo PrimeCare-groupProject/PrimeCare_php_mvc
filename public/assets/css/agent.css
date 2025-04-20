@@ -1667,3 +1667,35 @@ a.agent-action-btn {
     font-weight: 500;
     color: #1f2937;
 }
+
+.pagination {
+    margin-top: auto;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.pagination button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination button img {
+    width: 20px;
+    height: 20px;
+}
+
+.current-page {
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
