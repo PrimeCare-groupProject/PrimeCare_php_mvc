@@ -47,32 +47,17 @@ class Owner
         // Get the current user's ID
         $ownerId = $_SESSION['user']->pid;
         
-        // Get all properties owned by the current user
-        $propertyModel = new Property();
-        $userProperties = $propertyModel->where(['person_id' => $ownerId]);
-        
-        // Extract property IDs
-        $propertyIds = [];
-        if (!empty($userProperties)) {
-            foreach ($userProperties as $prop) {
-                $propertyIds[] = $prop->property_id;
-            }
-        }
-        
         // Instantiate the ServiceLog model
         $serviceLog = new ServiceLog();
         
-        // Get only service logs for properties owned by the current user
-        $serviceLogs = [];
-        if (!empty($propertyIds)) {
-            foreach ($propertyIds as $propId) {
-                $logs = $serviceLog->where(['property_id' => $propId]);
-                if (!empty($logs)) {
-                    $serviceLogs = array_merge($serviceLogs, $logs);
-                }
-            }
+        // Get service logs directly based on requested_person_id
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $ownerId]);
+        
+        // If no service logs found, initialize as empty array
+        if (!$serviceLogs) {
+            $serviceLogs = [];
         }
-
+    
         // Apply status filtering
         if (!empty($_GET['status_filter'])) {
             $status = $_GET['status_filter'];
@@ -84,7 +69,7 @@ class Owner
             }
             $serviceLogs = $filteredLogs;
         }
-
+    
         // Apply date range filtering
         if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
             $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
@@ -117,7 +102,6 @@ class Owner
                     case 'date_desc':
                         return strtotime($b->date) - strtotime($a->date);
                     case 'property_id':
-                        // If property_id exists as a property, sort by it
                         if (isset($a->property_id) && isset($b->property_id)) {
                             return $a->property_id <=> $b->property_id;
                         }
@@ -128,10 +112,9 @@ class Owner
             });
         }
         
-        // Calculate total expenses using total_cost field (which includes both usual cost and additional charges)
+        // Calculate total expenses
         $totalExpenses = 0;
         foreach ($serviceLogs as $log) {
-            // Use total_cost which already includes both usual cost and additional charges
             $totalExpenses += ($log->total_cost ?? 0);
         }
         
@@ -224,11 +207,15 @@ class Owner
                         }
                     }
                 }
+                                
+                // Get service logs for properties by requested person ID
+                $userServiceLogs = $serviceLog->where([
+                    'requested_person_id' => $ownerId,
+                    'property_id' => $propId
+                ]);
                 
-                // Get service logs for this property
-                $propertyLogs = $serviceLog->where(['property_id' => $propId]);
-                if(!empty($propertyLogs)) {
-                    foreach($propertyLogs as $log) {
+                if(!empty($userServiceLogs)) {
+                    foreach($userServiceLogs as $log) {
                         $serviceLogs[] = $log;
                         
                         // Calculate expenses
@@ -533,7 +520,8 @@ class Owner
                 'property_name' => $_POST['property_name'],
                 'status' => $_POST['status'],
                 'service_description' => $_POST['service_description'],
-                'cost_per_hour' => $_POST['cost_per_hour']
+                'cost_per_hour' => $_POST['cost_per_hour'],
+                'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
             ];
 
             // Add service request to database
@@ -574,7 +562,7 @@ class Owner
             'property_id' => $property_id,
             'property_name' => $property_name,
             'property_image' => $propertyImage,
-            'cost_per_hour' => $cost_per_hour
+            'cost_per_hour' => $cost_per_hour,
         ]);
 
         // Clear session messages after displaying
@@ -1011,14 +999,18 @@ class Owner
                 $activeBookings++;
             }
         }
-        
+
         // Get all service logs (expenses) for this property
         $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        $serviceLogs = $serviceLog->where([
+            'property_id' => $propertyId,
+            'requested_person_id' => $_SESSION['user']->pid
+        ]);
+        
         if (!is_array($serviceLogs) && !is_object($serviceLogs)) {
             $serviceLogs = []; // Ensure $serviceLogs is always iterable
         }
-        
+
         // Calculate monthly income and expenses for the last 6 months
         $currentMonth = date('n');
         $currentYear = date('Y');
@@ -1585,13 +1577,23 @@ class Owner
 
     public function trackOrder($propertyId)
     {
+            // Get the current user's ID
+        $ownerId = $_SESSION['user']->pid ?? 0;
+        
         // Get property details
         $property = new PropertyConcat;
         $propertyDetails = $property->where(['property_id' => $propertyId])[0];
         
-        // Get service logs for this property
+        // Get service logs for this property AND requested by the current user
         $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        $serviceLogs = $serviceLog->where([
+            'property_id' => $propertyId,
+            'requested_person_id' => $ownerId
+        ]);
+        
+        if (!$serviceLogs) {
+            $serviceLogs = [];
+        }
         
         // Apply status filtering
         if (!empty($_GET['status_filter'])) {

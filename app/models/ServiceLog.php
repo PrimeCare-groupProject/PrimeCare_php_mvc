@@ -20,7 +20,8 @@ class ServiceLog {
         'additional_charges',         
         'additional_charges_reason',
         'usual_cost',       
-        'total_cost'         
+        'total_cost',
+        'requested_person_id'         
     ];
 
     public $errors = [];

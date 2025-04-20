@@ -72,75 +72,156 @@
 </div>
 
 
+
 <script>
-// Add this script to your services view file
 document.addEventListener('DOMContentLoaded', function() {
+    // Constants and variables
     const searchInput = document.querySelector('.search-input');
     const searchBtn = document.querySelector('.search-btn');
     const propertyGrid = document.querySelector('.property-listing-grid');
-    const originalCards = Array.from(propertyGrid.querySelectorAll('#specific-page')); // Store original cards
-    
+    const paginationContainer = document.querySelector('.pagination');
+    const prevPageBtn = document.querySelector('.prev-page');
+    const nextPageBtn = document.querySelector('.next-page');
+    const originalCards = Array.from(propertyGrid.querySelectorAll('#specific-page'));
+    const listingsPerPage = 9;
+    let currentPage = 1;
+    let filteredCards = [];
+
+    // Initialize
+    initPagination();
+
+    function initPagination() {
+        filteredCards = [...originalCards];
+        updateDisplay();
+        setupEventListeners();
+    }
+
     function performSearch() {
         const searchTerm = searchInput.value.trim().toLowerCase();
         
         if (searchTerm === '') {
-            // If search is empty, restore original cards
-            propertyGrid.innerHTML = '';
-            originalCards.forEach(card => propertyGrid.appendChild(card.cloneNode(true)));
-            updatePagination();
-            return;
+            filteredCards = [...originalCards];
+        } else {
+            filteredCards = originalCards.filter(card => {
+                const name = card.querySelector('h2')?.textContent.toLowerCase() || '';
+                const description = card.querySelector('.limited-paragraph')?.textContent.toLowerCase() || '';
+                const price = card.querySelector('.tag-teal')?.textContent.toLowerCase() || '';
+                
+                return name.includes(searchTerm) || 
+                       description.includes(searchTerm) || 
+                       price.includes(searchTerm);
+            });
         }
         
-        // Filter cards
-        const filteredCards = originalCards.filter(card => {
-            const name = card.querySelector('h2')?.textContent.toLowerCase() || '';
-            const description = card.querySelector('.limited-paragraph')?.textContent.toLowerCase() || '';
-            const price = card.querySelector('.tag-teal')?.textContent.toLowerCase() || '';
-            
-            return name.includes(searchTerm) || 
-                   description.includes(searchTerm) || 
-                   price.includes(searchTerm);
-        });
-        
-        // Update grid
+        currentPage = 1;
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        // Clear and repopulate grid
         propertyGrid.innerHTML = '';
+        
         if (filteredCards.length > 0) {
             filteredCards.forEach(card => propertyGrid.appendChild(card.cloneNode(true)));
-            updatePagination();
         } else {
-            // Show "no results" message
-            propertyGrid.innerHTML = `
-                <div style="width: 100%; text-align: center; padding: 40px 0;">
-                    <div style="margin-bottom: 15px; opacity: 0.5;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </div>
-                    <h3 style="font-size: 16px; color: #555; margin: 0; font-weight: 500;">No matching services found</h3>
-                    <p style="font-size: 14px; color: #777; margin: 8px 0 0 0;">
-                        No services match your search for "${searchTerm}".
-                    </p>
+            showNoResultsMessage();
+        }
+        
+        updatePaginationUI();
+        showCurrentPage();
+    }
+
+    function showNoResultsMessage() {
+        propertyGrid.innerHTML = `
+            <div style="width: 100%; text-align: center; padding: 40px 0; grid-column: 1 / -1;">
+                <div style="margin-bottom: 15px; opacity: 0.5;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
                 </div>
-            `;
-            // Hide pagination when no results
-            document.querySelector('.pagination').style.display = 'none';
+                <h3 style="font-size: 16px; color: #555; margin: 0; font-weight: 500;">No matching services found</h3>
+                <p style="font-size: 14px; color: #777; margin: 8px 0 0 0;">
+                    No services match your search.
+                </p>
+            </div>
+        `;
+    }
+
+    function showCurrentPage() {
+        const listings = propertyGrid.querySelectorAll('#specific-page');
+        const startIdx = (currentPage - 1) * listingsPerPage;
+        const endIdx = startIdx + listingsPerPage;
+        
+        listings.forEach((listing, index) => {
+            listing.style.display = (index >= startIdx && index < endIdx) ? 'block' : 'none';
+        });
+        
+        document.querySelector('.current-page').textContent = currentPage;
+    }
+
+    function updatePaginationUI() {
+        const totalItems = filteredCards.length;
+        const totalPages = Math.ceil(totalItems / listingsPerPage);
+        
+        paginationContainer.style.display = totalPages > 1 ? 'flex' : 'none';
+        prevPageBtn.disabled = currentPage <= 1;
+        nextPageBtn.disabled = currentPage >= totalPages;
+    }
+
+    function goToNextPage() {
+        const totalPages = Math.ceil(filteredCards.length / listingsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            showCurrentPage();
+            updatePaginationUI();
         }
     }
-    
-    function updatePagination() {
-        const listings = document.querySelectorAll('.property-listing-grid #specific-page');
-        const totalPages = Math.ceil(listings.length / listingsPerPage);
-        document.querySelector('.pagination').style.display = totalPages > 1 ? 'flex' : 'none';
-        currentPage = 1;
-        showPage(currentPage);
+
+    function goToPrevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            showCurrentPage();
+            updatePaginationUI();
+        }
     }
-    
-    // Event listeners
-    searchBtn.addEventListener('click', performSearch);
-    searchInput.addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') {
-            performSearch();
+
+    function setupEventListeners() {
+        // Remove existing listeners to prevent duplicates
+        searchBtn.removeEventListener('click', performSearch);
+        searchInput.removeEventListener('keyup', handleSearchKeyup);
+        nextPageBtn.removeEventListener('click', goToNextPage);
+        prevPageBtn.removeEventListener('click', goToPrevPage);
+        
+        // Add fresh listeners
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', handleSearchKeyup);
+        nextPageBtn.addEventListener('click', goToNextPage);
+        prevPageBtn.addEventListener('click', goToPrevPage);
+    }
+
+    function handleSearchKeyup(e) {
+        if (e.key === 'Enter') performSearch();
+    }
+
+    // Initialize delete functionality
+    let deleteServiceId = null;
+
+    function confirmDelete(serviceId) {
+        deleteServiceId = serviceId;
+        document.getElementById('deletePopup').style.display = 'flex';
+        document.body.classList.add('popup-active');
+    }
+
+    function closePopup() {
+        deleteServiceId = null;
+        document.getElementById('deletePopup').style.display = 'none';
+        document.body.classList.remove('popup-active');
+    }
+
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        if (deleteServiceId !== null) {
+            window.location.href = "<?= ROOT ?>/dashboard/services/delete/" + deleteServiceId;
         }
     });
 });
