@@ -16,7 +16,7 @@
         <?php if(!empty($services)): ?>
             <?php foreach($services as $service): ?>
                 <div class="property-card service-item"
-                     onclick="window.location.href='<?= ROOT ?>/customer/requestServiceExternal?service_type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>'">
+                     onclick="window.location.href='<?= ROOT ?>/dashboard/requestServiceExternal?service_id=<?= $service->service_id ?>'">
                     <div class="property-image">
                         <?php 
                         $imgPath = ROOT . "/assets/images/repairimages/" . $service->service_img;
