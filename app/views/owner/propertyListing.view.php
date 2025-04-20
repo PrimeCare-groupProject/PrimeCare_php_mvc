@@ -17,7 +17,7 @@
     <div class="flex-bar">
         
         <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/propertyListing/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
+            <a href='<?= ROOT ?>/dashboard/propertylisting/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Add new property</span>
         </div>
     </div>

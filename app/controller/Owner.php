@@ -349,7 +349,7 @@ class Owner
         $_SESSION['status'] = 'Property deleted successfully!';
 
         // Redirect to the property listing page
-        redirect('dashboard/propertyListing');
+        redirect('dashboard/propertylisting');
     }
 
     private function updateProperty($propertyId)
@@ -912,15 +912,155 @@ class Owner
         redirect('dashboard/profile');
         exit;
     }
-
-    private function reportProblem()
+    private function reportProblem($propertyId)
     {
+        // Validate property ID
+        $propertyId = (int)$propertyId;
+        if (!$propertyId) {
+            $_SESSION['flash']['msg'] = "Invalid property selected.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertylisting');
+            return;
+        }
+
+        $propertyModel = new PropertyConcat();
+        $property = $propertyModel->where(['property_id' => $propertyId])[0] ?? null;
+
+        if (!$property) {
+            $_SESSION['flash']['msg'] = "Property not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertylisting');
+            return;
+        }
+
+        // If property status is pending, show warning
+        if (isset($property->status) && strtolower($property->status) === 'pending') {
+            $_SESSION['flash']['msg'] = "This property is pending approval. You cannot report a problem at this time.";
+            $_SESSION['flash']['type'] = "warning";
+            redirect('dashboard/propertylisting/propertyunitowner/'.$propertyId);
+            return;
+        }
+
+        $agent = new User;   
+        $agentDetails = $agent->where(['pid' => $property->agent_id])[0] ?? null;
+        if (!$agentDetails) {
+            $_SESSION['flash']['msg'] = "Agent not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertylisting/propertyunitowner/'.$propertyId);
+            return;
+        }
+        // Get agent full name
+        $agentName = trim(($agentDetails->fname ?? '') . ' ' . ($agentDetails->lname ?? ''). ' ' . '[PID ' . $agentDetails->pid . ']');
+        if (empty($agentName)) {
+            $agentName = "Unknown Agent";
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $description = trim($_POST['problem'] ?? '');
+            $urgency = $_POST['urgency'] ?? '';
+            $location = trim($_POST['location'] ?? '');
+            $errors = [];
+
+            // Validate fields
+            if (empty($description)) {
+                $errors[] = "Problem description is required.";
+            }
+            if (!in_array($urgency, ['1', '2', '3'])) {
+                $errors[] = "Urgency level is required.";
+            }
+            // if (empty($location)) {
+            //     $errors[] = "Location is required.";
+            // }
+
+            // Prepare data for ProblemReport model
+            $problemData = [
+                'problem_description' => $description,
+                'problem_location' => $location,
+                'urgency_level' => (int)$urgency,
+                'property_id' => $propertyId,
+                'status' => 'pending',
+                'created_by' => $_SESSION['user']->pid
+            ];
+
+            $problemReport = new ProblemReport();
+            if (!$problemReport->validate($problemData)) {
+                $errors = array_merge($errors, $problemReport->errors);
+            }
+
+            if (empty($errors)) {
+                // Insert the problem report (returns true/false)
+                $inserted = $problemReport->insert($problemData);
+
+                // Only proceed if insert was successful
+                if ($inserted) {
+                    // Fetch the last inserted report for this user and property
+                    $lastReport = $problemReport->where([
+                        'problem_description' => $description,
+                        'problem_location' => $location,
+                        'urgency_level' => (int)$urgency,
+                        'property_id' => $propertyId,
+                        'status' => 'pending',
+                        'created_by' => $_SESSION['user']->pid
+                    ]);
+                    // Get the most recent one (assuming submitted_at DESC in your model)
+                    $reportId = !empty($lastReport) ? $lastReport[0]->report_id : null;
+
+                    // --- Use upload_image helper for images ---
+                    if ($reportId && isset($_FILES['reports_images']) && $_FILES['reports_images']['error'][0] != 4) {
+                        require_once __DIR__ . '/../core/functions.php'; // if not already loaded
+                        $reportImageModel = new ProblemReportImage();
+                        $targetDir = ROOTPATH . "public/assets/images/uploads/report_images/";
+
+                        $imgErrors = upload_image(
+                            $_FILES['reports_images'],
+                            $targetDir,
+                            $reportImageModel,
+                            $reportId,
+                            [
+                                'allowed_ext' => ['jpg', 'jpeg', 'png'],
+                                'prefix' => 'report_img',
+                                'url_field' => 'image_url',
+                                'fk_field' => 'report_id',
+                                'max_size' => 5242880, // 5MB
+                                'overwrite' => false
+                            ]
+                        );
+                        if (!empty($imgErrors)) {
+                            $errors = array_merge($errors, $imgErrors);
+                        }
+                    }
+
+                    if (empty($errors)) {
+                        $_SESSION['flash']['msg'] = "Problem reported successfully.";
+                        $_SESSION['flash']['type'] = "success";
+                        redirect('dashboard/propertylisting/propertyunitowner/' . $propertyId);
+                        return;
+                    }
+                } else {
+                    $errors[] = "Failed to create problem report.";
+                }
+            }
+
+            // If errors, show them
+            $_SESSION['flash']['msg'] = implode("<br>", $errors);
+            $_SESSION['flash']['type'] = "error";
+        }
+
+        // Fetch problem reports with images for this property
+        $problemReportView = new ProblemReportView();
+        $reports = $problemReportView->getReportsWithImages($propertyId);
+
         $this->view('owner/reportProblem', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '',
+            'agentName' => $agentName,
+            'reports' => $reports, // Pass reports to the view
         ]);
+        unset($_SESSION['errors']);
+        unset($_SESSION['status']);
     }
+    
 
     private function financialReportUnit($propertyId = null)
     {
@@ -1179,8 +1319,7 @@ class Owner
 
 
     // dont touch this..final create function for properties
-    public function create()
-    {
+    public function create(){
         $property = new Property;
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -1508,7 +1647,7 @@ class Owner
             } else {
                 $_SESSION['flash']['msg'] = "There is No change!";
                 $_SESSION['flash']['type'] = "info";
-                redirect('dashboard/propertyListing');
+                redirect('dashboard/propertylisting');
             }
         }
     }
