@@ -50,8 +50,10 @@ class ExternalService {
         }
 
         // Validate total hours
-        if (empty($data['total_hours']) || !is_numeric($data['total_hours']) || $data['total_hours'] <= 0) {
-            $this->errors['total_hours'] = 'Valid total hours is required';
+        if (isset($data['total_hours']) && $data['total_hours'] !== null && $data['total_hours'] !== '') {
+            if (!is_numeric($data['total_hours']) || $data['total_hours'] <= 0) {
+                $this->errors['total_hours'] = 'Valid total hours is required';
+            }
         }
 
         // Validate status
