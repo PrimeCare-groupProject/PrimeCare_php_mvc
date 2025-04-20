@@ -33,7 +33,8 @@
                 <?php if (!empty($service_images)): ?>
                     <?php foreach ($service_images as $index => $image): ?>
                         <div class="slide" id="slide-<?= $index ?>">
-                            <img src="<?= ROOT ?>/assets/images/uploads/service_logs/<?= htmlspecialchars($image) ?>" alt="Service Image <?= $index + 1 ?>">
+                            <img src="<?= ROOT ?>/assets/images/uploads/service_logs/<?= htmlspecialchars($image) ?>" alt="Service Image <?= $index + 1 ?>"
+                                 onerror="this.src='<?= ROOT ?>/assets/images/listing_alt.jpg'">
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -93,6 +94,20 @@
                     <span class="info-label">Service Provider</span>
                     <span class="info-value"><?= htmlspecialchars($service_provider_name ?? $_SESSION['user']->fname . ' ' . $_SESSION['user']->lname) ?></span>
                 </div>
+
+                <?php if (!empty($requester_name)): ?>
+                <div class="info-row">
+                    <span class="info-label">Requester</span>
+                    <span class="info-value"><?= htmlspecialchars($requester_name) ?></span>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($requester_contact)): ?>
+                <div class="info-row">
+                    <span class="info-label">Contact</span>
+                    <span class="info-value"><?= htmlspecialchars($requester_contact) ?></span>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
         
@@ -104,6 +119,13 @@
             </div>
             
             <div class="info-card">
+                <?php if (!empty($cost_per_hour)): ?>
+                <div class="info-row">
+                    <span class="info-label">Cost per Hour</span>
+                    <span class="info-value">LKR <?= number_format($cost_per_hour, 2) ?></span>
+                </div>
+                <?php endif; ?>
+                
                 <!-- Usual Cost -->
                 <div class="info-row">
                     <span class="info-label">Usual Cost</span>
@@ -155,6 +177,18 @@
         </div>
         
         <div class="info-card">
+            <?php if (!empty($service_description)): ?>
+            <div class="info-row">
+                <span class="info-label">Original Request</span>
+            </div>
+            <div class="description">
+                <?= nl2br(htmlspecialchars($service_description)) ?>
+            </div>
+            <?php endif; ?>
+            
+            <div class="info-row" style="margin-top: 20px;">
+                <span class="info-label">Completion Report</span>
+            </div>
             <div class="description">
                 <?php if (!empty($service_provider_description)): ?>
                     <?= nl2br(htmlspecialchars($service_provider_description)) ?>
@@ -163,6 +197,12 @@
                 <?php endif; ?>
             </div>
         </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+        <a href="<?= ROOT ?>/serviceprovider/repairRequests" class="tbtn back-tbtn">Back to List</a>
+        <button class="tbtn print-tbtn" onclick="printSummary()">Print Summary</button>
     </div>
 </div>
 
@@ -189,7 +229,7 @@ function showSlide(index) {
     const translateX = -currentIndex * 100;
     document.querySelector('.slides').style.transform = `translateX(${translateX}%)`;
     
-    // Simply toggle active class without animations
+    // Update active dot
     document.querySelectorAll('.dot').forEach((dot, i) => {
         if (i === currentIndex) {
             dot.classList.add('active');
@@ -207,13 +247,182 @@ function prevSlide() {
     showSlide(currentIndex - 1);
 }
 
-// Initialize the slider
+// Initialize slider
 if (totalSlides > 0) {
     showSlide(0);
     
     // Auto-slide every 5 seconds if there are multiple images
     if (totalSlides > 1) {
         setInterval(nextSlide, 5000);
+    }
+}
+
+// Print functionality
+function printSummary() {
+    const originalContents = document.body.innerHTML;
+    
+    // Create a print-friendly version of the summary
+    let printContent = `
+        <div style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif;">
+            <h1 style="text-align: center; color: #2c3e50;">Service Summary</h1>
+            <div style="text-align: right; margin-bottom: 20px; color: #666;">
+                <p>Date: ${new Date().toLocaleDateString()}</p>
+                <p>Status: ${document.querySelector('.status-badge').textContent.trim()}</p>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h2 style="color: #f1c40f; border-bottom: 2px solid #f1c40f; padding-bottom: 8px;">Service Details</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0; width: 40%;">Service Type:</td>
+                        <td style="padding: 8px 0;">${document.querySelector('.details-section .info-value').textContent}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Date:</td>
+                        <td style="padding: 8px 0;">${document.querySelectorAll('.details-section .info-value')[1].textContent}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Property:</td>
+                        <td style="padding: 8px 0;">${document.querySelectorAll('.details-section .info-value')[2].textContent}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Property ID:</td>
+                        <td style="padding: 8px 0;">${document.querySelectorAll('.details-section .info-value')[3].textContent}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Total Hours:</td>
+                        <td style="padding: 8px 0;">${document.querySelectorAll('.details-section .info-value')[4].textContent}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Service Provider:</td>
+                        <td style="padding: 8px 0;">${document.querySelectorAll('.details-section .info-value')[5].textContent}</td>
+                    </tr>
+    `;
+    
+    // Add requester info if available
+    if (document.querySelectorAll('.details-section .info-value').length > 6) {
+        printContent += `
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Requester:</td>
+                        <td style="padding: 8px 0;">${document.querySelectorAll('.details-section .info-value')[6].textContent}</td>
+                    </tr>
+        `;
+        
+        if (document.querySelectorAll('.details-section .info-value').length > 7) {
+            printContent += `
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Contact:</td>
+                        <td style="padding: 8px 0;">${document.querySelectorAll('.details-section .info-value')[7].textContent}</td>
+                    </tr>
+            `;
+        }
+    }
+    
+    printContent += `
+                </table>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h2 style="color: #f1c40f; border-bottom: 2px solid #f1c40f; padding-bottom: 8px;">Financial Summary</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+    `;
+    
+    // Add cost per hour if available
+    const costElements = document.querySelectorAll('.financial-section .info-value');
+    let costIndex = 0;
+    
+    if (document.querySelectorAll('.financial-section .info-row').length > 3) {
+        printContent += `
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0; width: 40%;">Cost per Hour:</td>
+                        <td style="padding: 8px 0;">${costElements[costIndex++].textContent}</td>
+                    </tr>
+        `;
+    }
+    
+    printContent += `
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0; width: 40%;">Usual Cost:</td>
+                        <td style="padding: 8px 0;">${costElements[costIndex++].textContent}</td>
+                    </tr>
+    `;
+    
+    // Check if additional charges exist
+    const additionalChargesElement = document.querySelector('.additional-charges');
+    if (additionalChargesElement) {
+        printContent += `
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Additional Charges:</td>
+                        <td style="padding: 8px 0;">${document.querySelector('.additional-charges .info-value').textContent}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Charges Reason:</td>
+                        <td style="padding: 8px 0;">${document.querySelector('.reason .info-value').textContent}</td>
+                    </tr>
+        `;
+    } else {
+        printContent += `
+                    <tr>
+                        <td style="font-weight: bold; padding: 8px 0;">Additional Charges:</td>
+                        <td style="padding: 8px 0;">LKR 0.00</td>
+                    </tr>
+        `;
+    }
+    
+    // Add total
+    printContent += `
+                    <tr style="font-size: 1.2em;">
+                        <td style="font-weight: bold; padding: 12px 0; border-top: 2px solid #ddd;">Total Earnings:</td>
+                        <td style="font-weight: bold; padding: 12px 0; border-top: 2px solid #ddd;">${document.querySelector('.total .info-value').textContent}</td>
+                    </tr>
+                </table>
+            </div>
+    `;
+    
+    // Add descriptions
+    printContent += `
+            <div>
+                <h2 style="color: #f1c40f; border-bottom: 2px solid #f1c40f; padding-bottom: 8px;">Service Description</h2>
+    `;
+    
+    // Add original request if available
+    const descriptions = document.querySelectorAll('.description');
+    if (descriptions.length > 1) {
+        printContent += `
+                <p style="font-weight: bold; margin-bottom: 5px;">Original Request:</p>
+                <div style="margin-bottom: 20px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                    ${descriptions[0].innerHTML}
+                </div>
+        `;
+    }
+    
+    // Add completion report
+    printContent += `
+                <p style="font-weight: bold; margin-bottom: 5px;">Completion Report:</p>
+                <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                    ${descriptions[descriptions.length - 1].innerHTML}
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px; border-top: 1px dashed #ddd; padding-top: 20px; text-align: center;">
+                <p style="font-size: 0.9em; color: #777;">This document was generated on ${new Date().toLocaleString()}</p>
+                <p style="font-size: 0.9em; color: #777;">PrimeCare Property Services</p>
+            </div>
+        </div>
+    `;
+    
+    // Replace page content with print-friendly version
+    document.body.innerHTML = printContent;
+    
+    // Print the page
+    window.print();
+    
+    // Restore original content
+    document.body.innerHTML = originalContents;
+    
+    // Reinitialize slider and functionality
+    if (totalSlides > 0) {
+        showSlide(currentIndex);
     }
 }
 </script>
@@ -224,6 +433,19 @@ if (totalSlides > 0) {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    margin-bottom: 15px;
+}
+
+.flex-bar-space-between-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.left-content {
+    display: flex;
+    align-items: center;
 }
 
 /* Status badge styling */
@@ -250,6 +472,16 @@ if (totalSlides > 0) {
 .ongoing {
     background-color: #cce5ff;
     color: #004085;
+}
+
+.paid {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.rejected {
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 /* Section styling */
@@ -348,24 +580,6 @@ if (totalSlides > 0) {
     color: #2c3e50;
 }
 
-.info-row.total-with-service {
-    margin-top: 10px;
-    padding-top: 15px;
-    border-top: 2px solid #f0f0f0;
-}
-
-.info-row.total-with-service .info-label,
-.info-row.total-with-service .info-value {
-    font-weight: 800;
-    font-size: 1.2em;
-    color: #f39c12;
-}
-
-.highlight-yellow {
-    color: #f1c40f !important;
-    font-weight: 600;
-}
-
 .highlight-total {
     color: #2c3e50 !important;
     font-weight: 700;
@@ -382,6 +596,10 @@ if (totalSlides > 0) {
     line-height: 1.6;
     color: #444;
     white-space: pre-wrap;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 10px;
 }
 
 .no-description {
@@ -412,6 +630,7 @@ if (totalSlides > 0) {
     min-width: 100%;
     height: 100%;
     position: relative;
+    background-color: #f0f0f0;
 }
 
 .slide img {
@@ -451,7 +670,6 @@ if (totalSlides > 0) {
     right: 10px;
 }
 
-/* Fixed dot navigation styling */
 .slider-dots {
     position: absolute;
     bottom: 20px;
@@ -466,7 +684,6 @@ if (totalSlides > 0) {
     z-index: 10;
 }
 
-/* Reset dot styling to ensure consistent shape */
 .dot {
     display: block;
     width: 10px;
@@ -485,32 +702,18 @@ if (totalSlides > 0) {
     background-color: rgba(255, 255, 255, 0.9);
 }
 
-/* Consolidated active dot styles */
 .dot.active {
     background-color: #f1c40f;
     box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.5);
-    width: 10px;
-    height: 10px;
-    transition: all 0.3s ease;
+    animation: dotGlow 2s infinite;
 }
 
-/* Simpler animation that doesn't affect size or shape */
 @keyframes dotGlow {
     0% { box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.3); }
     50% { box-shadow: 0 0 0 4px rgba(241, 196, 15, 0.5); }
     100% { box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.3); }
 }
 
-.dot.active {
-    animation: dotGlow 2s infinite;
-}
-
-/* Ensure dots are visible on any background */
-.slider-dots:hover {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-/* No images placeholder */
 .slide.no-images {
     display: flex;
     flex-direction: column;
@@ -518,6 +721,82 @@ if (totalSlides > 0) {
     align-items: center;
     background-color: #f9f9f9;
     color: #999;
+}
+
+.slide.no-images i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.tbtn {
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.back-tbtn {
+    background: #f1c40f;
+    color: #222;
+}
+
+.back-tbtn:hover {
+    background: #f39c12;
+    color: #000;
+}
+
+.print-tbtn {
+    background: #3498db;
+    color: white;
+}
+
+.print-tbtn:hover {
+    background: #2980b9;
+}
+
+/* Error message styling */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px 15px;
+    margin: 15px auto;
+    border-radius: 5px;
+    max-width: 1200px;
+}
+
+/* Print-specific styles */
+@media print {
+    .user_view-menu-bar,
+    .action-buttons,
+    .navigate-icons {
+        display: none !important;
+    }
+    
+    .summary-container {
+        padding: 0;
+        box-shadow: none;
+    }
+    
+    .summary-section {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+    }
 }
 </style>
 
