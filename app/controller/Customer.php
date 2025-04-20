@@ -457,4 +457,9 @@ class Customer
             exit;
         }
     }
+
+    public function requestService()
+    {
+        $this->view('customer/requestServiceChoice');
+    }
 }
