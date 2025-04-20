@@ -73,67 +73,77 @@
 
 
 <script>
-    let currentPage = 1;
-    const listingsPerPage = 6;
-    const listings = document.querySelectorAll('.property-listing-grid .property-component');
-    const totalPages = Math.ceil(listings.length / listingsPerPage);
-
-    function showPage(page) {
-        // Hide all listings
-        listings.forEach((listing, index) => {
-            listing.style.display = 'none';
+// Add this script to your services view file
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-input');
+    const searchBtn = document.querySelector('.search-btn');
+    const propertyGrid = document.querySelector('.property-listing-grid');
+    const originalCards = Array.from(propertyGrid.querySelectorAll('#specific-page')); // Store original cards
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        
+        if (searchTerm === '') {
+            // If search is empty, restore original cards
+            propertyGrid.innerHTML = '';
+            originalCards.forEach(card => propertyGrid.appendChild(card.cloneNode(true)));
+            updatePagination();
+            return;
+        }
+        
+        // Filter cards
+        const filteredCards = originalCards.filter(card => {
+            const name = card.querySelector('h2')?.textContent.toLowerCase() || '';
+            const description = card.querySelector('.limited-paragraph')?.textContent.toLowerCase() || '';
+            const price = card.querySelector('.tag-teal')?.textContent.toLowerCase() || '';
+            
+            return name.includes(searchTerm) || 
+                   description.includes(searchTerm) || 
+                   price.includes(searchTerm);
         });
-
-        // Show listings for the current page
-        const start = (page - 1) * listingsPerPage;
-        const end = start + listingsPerPage;
-
-        for (let i = start; i < end && i < listings.length; i++) {
-            listings[i].style.display = 'block';
+        
+        // Update grid
+        propertyGrid.innerHTML = '';
+        if (filteredCards.length > 0) {
+            filteredCards.forEach(card => propertyGrid.appendChild(card.cloneNode(true)));
+            updatePagination();
+        } else {
+            // Show "no results" message
+            propertyGrid.innerHTML = `
+                <div style="width: 100%; text-align: center; padding: 40px 0;">
+                    <div style="margin-bottom: 15px; opacity: 0.5;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 16px; color: #555; margin: 0; font-weight: 500;">No matching services found</h3>
+                    <p style="font-size: 14px; color: #777; margin: 8px 0 0 0;">
+                        No services match your search for "${searchTerm}".
+                    </p>
+                </div>
+            `;
+            // Hide pagination when no results
+            document.querySelector('.pagination').style.display = 'none';
         }
-
-        // Update pagination display
-        document.querySelector('.current-page').textContent = page;
     }
-
-    document.querySelector('.next-page').addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            showPage(currentPage);
+    
+    function updatePagination() {
+        const listings = document.querySelectorAll('.property-listing-grid #specific-page');
+        const totalPages = Math.ceil(listings.length / listingsPerPage);
+        document.querySelector('.pagination').style.display = totalPages > 1 ? 'flex' : 'none';
+        currentPage = 1;
+        showPage(currentPage);
+    }
+    
+    // Event listeners
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
         }
     });
-
-    document.querySelector('.prev-page').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            showPage(currentPage);
-        }
-    });
-
-    // Initial page load
-    showPage(currentPage);
-
-    let deleteServiceId = null;
-
-function confirmDelete(serviceId) {
-    deleteServiceId = serviceId; // Store the ID to delete later
-    document.getElementById('deletePopup').style.display = 'flex'; // Show the popup
-    document.body.classList.add('popup-active'); // Apply the active class
-}
-
-function closePopup() {
-    deleteServiceId = null; // Reset the stored ID
-    document.getElementById('deletePopup').style.display = 'none'; // Hide the popup
-    document.body.classList.remove('popup-active'); // Remove the active class
-}
-
-document.getElementById('confirmDelete').addEventListener('click', function () {
-    if (deleteServiceId !== null) {
-        // Redirect to the delete route
-        window.location.href = "<?= ROOT ?>/dashboard/services/delete/" + deleteServiceId;
-    }
 });
-
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>
