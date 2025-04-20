@@ -1001,7 +1001,7 @@ public function serviceOverview() {
         
         // Fix: Ensure $allServices is always an array
         if (!is_array($allServices)) {
-            $allServices = []; // Convert to empty array if false or other non-array value
+            $allServices = []; // Convert to empty array if false or non-array
         }
         
         $total_records = count($allServices);
@@ -1046,6 +1046,304 @@ public function serviceOverview() {
     
         // Load the view with data
         $this->view('serviceProvider/externalServices', $data);
+    }
+
+    public function updateExternalService() {
+        // Ensure user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+    
+        $externalService = new ExternalService();
+    
+        // Handle POST request for form submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = [];
+            $uploaded_images = [];
+    
+            // Validate required POST data
+            $service_id = $_POST['id'] ?? null;
+            $total_hours = $_POST['total_hours'] ?? null;
+            $provider_description = $_POST['service_provider_description'] ?? null;
+            $additional_charges = floatval($_POST['additional_charges'] ?? 0);
+            $additional_charges_reason = $_POST['additional_charges_reason'] ?? '';
+            $images_to_remove = !empty($_POST['images_to_remove']) ? explode(',', $_POST['images_to_remove']) : [];
+    
+            // Basic validation
+            if (empty($service_id) || empty($total_hours) || empty($provider_description)) {
+                $_SESSION['error'] = 'All fields are required.';
+                redirect("serviceprovider/updateExternalService?id=$service_id");
+                return;
+            }
+    
+            // Get existing service
+            $existing_service = $externalService->first(['id' => $service_id]);
+            if (!$existing_service) {
+                $_SESSION['error'] = 'Service not found';
+                redirect("serviceprovider/updateExternalService?id=$service_id");
+                return;
+            }
+    
+            // Handle image uploads for service completion
+            if (isset($_FILES['service_image'])) {
+                $imageDir = ROOTPATH . "public/assets/images/uploads/external_services/";
+                
+                // Create directory if it doesn't exist
+                if (!is_dir($imageDir)) {
+                    mkdir($imageDir, 0755, true);
+                }
+    
+                // Process each uploaded image
+                foreach ($_FILES['service_image']['name'] as $key => $imageName) {
+                    if ($_FILES['service_image']['error'][$key] === 0) {
+                        $imageTmp = $_FILES['service_image']['tmp_name'][$key];
+                        $imageFileType = strtolower(pathinfo($imageName, PATHINFO_EXTENSION));
+                        
+                        // Validate image type
+                        if (in_array($imageFileType, ['jpg', 'jpeg', 'png'])) {
+                            $uniqueImageName = uniqid() . "_completion_" . $service_id . "." . $imageFileType;
+                            
+                            if (move_uploaded_file($imageTmp, $imageDir . $uniqueImageName)) {
+                                $uploaded_images[] = "uploads/external_services/" . $uniqueImageName;
+                            } else {
+                                $errors[] = "Failed to upload image: $imageName";
+                            }
+                        } else {
+                            $errors[] = "Invalid file type for: $imageName. Only JPG, JPEG, and PNG are allowed.";
+                        }
+                    }
+                }
+            }
+    
+            // Check for upload errors
+            if (!empty($errors)) {
+                $_SESSION['error'] = implode("<br>", $errors);
+                redirect("serviceprovider/updateExternalService?id=$service_id");
+                return;
+            }
+    
+            // Calculate the usual cost (hourly rate × hours worked)
+            $usual_cost = (float)$existing_service->cost_per_hour * (float)$total_hours;
+    
+            // Prepare update data
+            $update_data = [
+                'total_hours' => $total_hours,
+                'service_provider_description' => $provider_description,
+                'usual_cost' => $usual_cost
+            ];
+    
+            // Handle mark as complete
+            if (isset($_POST['mark_complete']) && $_POST['mark_complete'] == '1') {
+                $update_data['status'] = 'done';
+            }
+    
+            // Handle additional charges
+            if ($additional_charges > 0) {
+                $update_data['additional_charges'] = $additional_charges;
+                $update_data['additional_charges_reason'] = $additional_charges_reason;
+            } else {
+                // Ensure additional charges is set to zero when not provided
+                $update_data['additional_charges'] = 0;
+                $update_data['additional_charges_reason'] = '';
+            }
+    
+            // Calculate and set total_cost
+            $update_data['total_cost'] = $usual_cost + (float)$additional_charges;
+    
+            // Process service completion images (additions and removals)
+            $existing_completion_images = [];
+            if (!empty($existing_service->service_completion_images)) {
+                $decoded_images = json_decode($existing_service->service_completion_images, true);
+                if (is_array($decoded_images)) {
+                    $existing_completion_images = $decoded_images;
+                }
+            }
+            
+            // Remove images if any were marked for deletion
+            if (!empty($images_to_remove)) {
+                $existing_completion_images = array_filter($existing_completion_images, function($img) use ($images_to_remove) {
+                    return !in_array($img, $images_to_remove);
+                });
+                
+                // Physically delete the files (optional based on your requirements)
+                foreach ($images_to_remove as $image_path) {
+                    $full_path = ROOTPATH . "public/assets/images/" . $image_path;
+                    if (file_exists($full_path)) {
+                        unlink($full_path);
+                    }
+                }
+            }
+            
+            // Add new images if any were uploaded
+            if (!empty($uploaded_images)) {
+                $existing_completion_images = array_merge($existing_completion_images, $uploaded_images);
+            }
+            
+            // Update the service_completion_images field - safely encode as JSON
+            $update_data['service_completion_images'] = json_encode(array_values($existing_completion_images) ?: []);
+    
+            // Update the external service
+            $update_result = $externalService->update($service_id, $update_data);
+    
+            if ($update_result) {
+                // Create notification for customer if service was marked as complete
+                if (isset($update_data['status']) && $update_data['status'] === 'done') {
+                    if (!empty($existing_service->requested_person_id)) {
+                        // Calculate total cost including additional charges
+                        $totalCost = ($existing_service->cost_per_hour * $total_hours) + $additional_charges;
+                        
+                        // Create notification message with additional charges if applicable
+                        $notificationMessage = "Your " . ($existing_service->service_type ?? "external service") . 
+                                            " request for " . ($existing_service->property_address ?? "your property") . 
+                                            " has been completed.";
+                        
+                        // Add additional charges information to notification if applicable
+                        if ($additional_charges > 0) {
+                            $notificationMessage .= " Additional charges of LKR" . number_format($additional_charges, 2) . 
+                                                " were applied for " . $additional_charges_reason . ".";
+                        }
+                        
+                        // Create notification for customer
+                        $notificationModel = new NotificationModel();
+                        $customerNotificationData = [
+                            'user_id' => $existing_service->requested_person_id,
+                            'title' => "External Service Completed",
+                            'message' => $notificationMessage,
+                            'color' => 'Notification_green',
+                            'is_read' => 0,
+                            'link' => ROOT . '/dashboard/requestService',
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification for customer
+                        $notificationModel->insert($customerNotificationData);
+                    }
+                }
+                
+                if (isset($update_data['status']) && $update_data['status'] === 'done') {
+                    $_SESSION['success'] = 'Service marked as complete successfully.';
+                    redirect('serviceprovider/externalServiceSummary?id=' . $service_id);
+                    return;
+                } else {
+                    $_SESSION['success'] = 'Service updated successfully.';
+                    redirect('serviceprovider/externalServices');
+                    return;
+                }
+            } else {
+                $_SESSION['error'] = 'Failed to update service. Please try again.';
+                error_log('External Service Update Failed - Data: ' . print_r($update_data, true));
+                redirect("serviceprovider/updateExternalService?id=$service_id");
+                return;
+            }
+        }
+        
+        // Handle GET request - Display the form
+        $service_id = $_GET['id'] ?? null;
+        if (!$service_id) {
+            redirect('serviceprovider/externalServices');
+            return;
+        }
+    
+        // Get service details
+        $service = $externalService->first(['id' => $service_id]);
+        if (!$service) {
+            $_SESSION['error'] = 'Service not found';
+            redirect('serviceprovider/externalServices');
+            return;
+        }
+    
+        // Verify service provider is assigned to this service
+        if ($service->service_provider_id != $_SESSION['user']->pid) {
+            $_SESSION['error'] = 'You are not assigned to this service';
+            redirect('serviceprovider/externalServices');
+            return;
+        }
+    
+        // Get property images
+        $propertyImages = [];
+        if (!empty($service->service_images)) {
+            $decoded = json_decode($service->service_images, true);
+            if (is_array($decoded)) {
+                $propertyImages = $decoded;
+            }
+        }
+    
+        // Get service completion images
+        $serviceCompletionImages = [];
+        if (!empty($service->service_completion_images)) {
+            $decoded = json_decode($service->service_completion_images, true);
+            if (is_array($decoded)) {
+                $serviceCompletionImages = $decoded;
+            }
+        }
+    
+        // Get customer info
+        $userModel = new User();
+        $customer = null;
+        if (!empty($service->requested_person_id)) {
+            $customer = $userModel->first(['pid' => $service->requested_person_id]);
+        }
+    
+        // Prepare view data
+        $view_data = [
+            'service' => $service,
+            'customer' => $customer,
+            'propertyImages' => $propertyImages,
+            'serviceCompletionImages' => $serviceCompletionImages
+        ];
+    
+        // Load view with data
+        $this->view('serviceProvider/updateExternalService', $view_data);
+    }
+
+    public function externalServiceSummary() {
+        // Get service ID from URL
+        $service_id = $_GET['id'] ?? null;
+        if (!$service_id) {
+            redirect('serviceprovider/externalServices');
+            return;
+        }
+    
+        // Get service details
+        $externalService = new ExternalService();
+        $service = $externalService->first(['id' => $service_id]);
+    
+        if (!$service) {
+            $_SESSION['error'] = 'Service not found';
+            redirect('serviceprovider/externalServices');
+            return;
+        }
+    
+        // Verify service provider is assigned to this service
+        if ($service->service_provider_id != $_SESSION['user']->pid) {
+            $_SESSION['error'] = 'You are not assigned to this service';
+            redirect('serviceprovider/externalServices');
+            return;
+        }
+    
+        // Get customer info
+        $userModel = new User();
+        $customer = null;
+        if (!empty($service->requested_person_id)) {
+            $customer = $userModel->first(['pid' => $service->requested_person_id]);
+        }
+    
+        // Get property images
+        $propertyImages = [];
+        if (!empty($service->service_images)) {
+            $propertyImages = json_decode($service->service_images, true);
+        }
+    
+        // Prepare view data
+        $view_data = [
+            'service' => $service,
+            'customer' => $customer,
+            'propertyImages' => $propertyImages
+        ];
+    
+        // Load view with data
+        $this->view('serviceProvider/externalServiceSummary', $view_data);
     }
 
     private function logout(){
