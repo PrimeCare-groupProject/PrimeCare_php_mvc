@@ -2,8 +2,9 @@
 
 <div class="user_view-menu-bar">
   <div class="gap"></div>
-    <h2>Requested Tasks</h2>
+    <h2>External Service Requests</h2>
 </div>
+
 <div>
     <div class="date-filter-container">
       <div class="input-group-aligned width-100">
@@ -49,7 +50,7 @@
           const selectedYear = yearFilter.value;
           const selectedMonth = monthFilter.value;
           
-          const cards = Array.from(container.getElementsByClassName('preInspection'));
+          const cards = Array.from(container.getElementsByClassName('external-service'));
           
           cards.forEach(card => {
             const cardDate = new Date(card.dataset.date);
@@ -91,7 +92,7 @@
 
     <div class="repair-cards-container">
         <?php
-        // Get services data from controller
+        // Get external services data from controller
         $services = $data['services'] ?? [];
         
         if (empty($services)) {
@@ -99,14 +100,14 @@
             <div class="no-services-container">
           <div class="no-services-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#c8c8c8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-            <path d="M9 9h6"></path>
-            <path d="M9 12h6"></path>
-            <path d="M9 15h4"></path>
+                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                <path d="M9 9h6"></path>
+                <path d="M9 12h6"></path>
+                <path d="M9 15h4"></path>
               </svg>
           </div>
-          <h3>No Service Requests Found</h3>
-          <p>When new tasks are requested, they will appear here.</p>
+          <h3>No External Service Requests Found</h3>
+          <p>When customers request external services, they will appear here.</p>
             </div>
             <style>
           .no-services-container {
@@ -155,28 +156,22 @@
                     $currentProviderImage = $data['service_providers'][0]->image_url;
                 }
                 
-                // Determine property image path
-                $propertyImage = 'listing_alt.jpg'; // Default image
-                
-                // Check if property has an image
-                if (!empty($service->property_image)) {
-                    $propertyImagePath = ROOT . '/assets/images/uploads/property_images' . $service->property_image;
-                    // Use the property image if it exists, otherwise use default
-                    $propertyImage = $service->property_image;
-                }
+                // Get property images (decode JSON)
+                $propertyImages = json_decode($service->service_images ?? '[]', true);
+                $propertyImage = !empty($propertyImages) ? $propertyImages[0] : 'listing_alt.jpg'; // First image or default
                 ?>
-                <div class="preInspection" data-date="<?= $service->date ?>">
+                <div class="external-service" data-date="<?= $service->date ?>">
                     <div class="preInspection-header">
                         <h3><?= $service->service_type ?></h3>
                         <div style="display: flex; gap: 10px;">
                             <form method="POST">
-                                <input type="hidden" name="service_id" value="<?= $service->service_id ?>">
+                                <input type="hidden" name="service_id" value="<?= $service->id ?>">
                                 <input type="hidden" name="service_provider_select" value="">
                                 <button type="submit" class="accept-btn" onclick="submitForm(this.form)">Accept</button>
                             </form>
 
                             <form method="POST">
-                                <input type="hidden" name="delete_service_id" value="<?=$service->service_id?>">
+                                <input type="hidden" name="delete_service_id" value="<?= $service->id ?>">
                                 <button type="submit" class="decline-btn">Decline</button>
                             </form>
                         </div>
@@ -185,8 +180,8 @@
                         <div class="input-group2">
                             <div class="input-group">
                                 <div class="input-group-aligned">
-                                    <span class="input-label-aligend1"><strong>Property ID:</strong></span>
-                                    <input class="input-field2" value="PID: <?= $service->property_id ?>" readonly>
+                                    <span class="input-label-aligend1"><strong>Request ID:</strong></span>
+                                    <input class="input-field2" value="<?= $service->id ?>" readonly>
                                 </div>
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Date:</strong></span>
@@ -195,8 +190,8 @@
                             </div>
                             <div class="input-group">
                                 <div class="input-group-aligned">
-                                    <span class="input-label-aligend1"><strong>Property Name:</strong></span>
-                                    <input class="input-field2" value="<?= $service->property_name ?>" readonly>
+                                    <span class="input-label-aligend1"><strong>Property Address:</strong></span>
+                                    <input class="input-field2" value="<?= $service->property_address ?>" readonly>
                                 </div>
                             </div>
                             <div class="input-group">
@@ -208,14 +203,20 @@
                             <div class="input-group">
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Description:</strong></span>
-                                    <input class="input-field2" value="<?= $service->service_description ?>" readonly>
+                                    <input class="input-field2" value="<?= $service->property_description ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-aligned">
+                                    <span class="input-label-aligend1"><strong>Cost Per Hour:</strong></span>
+                                    <input class="input-field2" value="<?= $service->cost_per_hour ?> LKR" readonly>
                                 </div>
                             </div>
                             <div class="input-group">
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Service Provider:</strong></span>
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->service_id ?>)">
+                                        <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->id ?>)">
                                             <?php foreach($data['service_providers'] as $provider): ?>
                                                 <option value="<?= $provider->pid ?>" 
                                                     data-image="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $provider->image_url ?>"
@@ -224,7 +225,7 @@
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <img id="providerImage_<?= $service->service_id ?>" 
+                                        <img id="providerImage_<?= $service->id ?>" 
                                              src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $currentProviderImage ?? 'Agent.png' ?>" 
                                              alt="Service Provider" 
                                              class="provider-image"
@@ -236,7 +237,7 @@
                         <div class="image-area">
                             <div class="property-image-container">
                                 <img class="property-image zoom-on-hover" 
-                                     src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $propertyImage ?>" 
+                                     src="<?= ROOT ?>/assets/images/<?= $propertyImage ?>" 
                                      alt="property" 
                                      onerror="this.src='<?= ROOT ?>/assets/images/listing_alt.jpg'">
                             </div>
@@ -265,33 +266,33 @@ function updateProviderImage(selectElement, serviceId) {
     setTimeout(() => {
         imageElement.style.transform = 'scale(1)';
     }, 300);
-  }
+}
 
-  // Initialize provider images when page loads
-  document.addEventListener('DOMContentLoaded', function() {
-      const selects = document.querySelectorAll('select[name="service_provider"]');
-      selects.forEach(select => {
-          const serviceId = select.closest('.preInspection').querySelector('input[name="service_id"]').value;
-          const selectedOption = select.options[select.selectedIndex];
-          if (selectedOption) {
-              const imageUrl = selectedOption.getAttribute('data-image');
-              if (imageUrl) {
-                  const imageElement = document.getElementById('providerImage_' + serviceId);
-                  imageElement.src = imageUrl;
-                  // Make sure the onerror attribute is preserved
-                  imageElement.onerror = function() {
-                      this.src = '<?= ROOT ?>/assets/images/Agent.png';
-                  };
-              }
-          }
-      });
-  });
+// Initialize provider images when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const selects = document.querySelectorAll('select[name="service_provider"]');
+    selects.forEach(select => {
+        const serviceId = select.closest('.external-service').querySelector('input[name="service_id"]').value;
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption) {
+            const imageUrl = selectedOption.getAttribute('data-image');
+            if (imageUrl) {
+                const imageElement = document.getElementById('providerImage_' + serviceId);
+                imageElement.src = imageUrl;
+                // Make sure the onerror attribute is preserved
+                imageElement.onerror = function() {
+                    this.src = '<?= ROOT ?>/assets/images/Agent.png';
+                };
+            }
+        }
+    });
+});
 
-  function submitForm(form) {
-      // Get selected service provider ID from the select element
-      const providerSelect = form.closest('.preInspection').querySelector('select[name="service_provider"]');
-      form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
-  }
+function submitForm(form) {
+    // Get selected service provider ID from the select element
+    const providerSelect = form.closest('.external-service').querySelector('select[name="service_provider"]');
+    form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
+}
 </script>
 
 <style>
@@ -311,6 +312,11 @@ function updateProviderImage(selectElement, serviceId) {
 .zoom-on-hover {
   transition: transform 0.3s ease;
 }
+
+/* .preInspection-header{
+    background-color: white;
+    border-radius: 15px;
+} */
 
 .zoom-on-hover:hover {
   transform: scale(1.1);
@@ -348,19 +354,19 @@ function updateProviderImage(selectElement, serviceId) {
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background-color: #f5f5f5;
+  background-color: #E5E4E2;
   border-radius: 15px 15px 0 0;
 }
 
-.preInspection {
+.external-service {
   background-color: white;
   border-radius: 15px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   margin-bottom: 20px;
   overflow: hidden;
-  padding: 0;
   margin-top: 15px;
-
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .input-group1 {
@@ -411,6 +417,37 @@ function updateProviderImage(selectElement, serviceId) {
 
 .decline-btn:hover {
   background-color: #bd2130;
+}
+
+/* Adding status badge styling */
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: 10px;
+}
+
+.status-pending {
+  background-color: #ffeeba;
+  color: #856404;
+}
+
+.status-ongoing {
+  background-color: #b8daff;
+  color: #004085;
+}
+
+.status-done {
+  background-color: #c3e6cb;
+  color: #155724;
+}
+
+.status-rejected {
+  background-color: #f5c6cb;
+  color: #721c24;
 }
 </style>
 

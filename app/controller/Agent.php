@@ -1632,4 +1632,192 @@ class Agent
 
     // }
 
+    public function externalServiceRequests()
+    {
+        $externalService = new ExternalService();
+        $services = $externalService->where(['status' => 'pending']);
+
+        // Get available service providers (user_lvl = 2) with their image URLs
+        $user = new User();
+        $service_providers = $user->where(['user_lvl' => 2]);
+
+        // Filter out service providers who already have 4 or more ongoing services
+        $filtered_providers = [];
+        foreach ($service_providers as $provider) {
+            $provider->image_url = $provider->image_url ?? 'Agent.png';
+
+            // Count ongoing services for this provider
+            $ongoing_count = $externalService->where([
+                'service_provider_id' => $provider->pid,
+                'status' => 'ongoing'
+            ]);
+
+            // Convert ongoing_count to array if false (no services)
+            $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
+
+            // Add provider if they have less than 4 ongoing services
+            if (count($ongoing_count) < 4) {
+                $filtered_providers[] = $provider;
+            }
+        }
+
+        // Process property images for each service (decode JSON)
+        if ($services) {
+            foreach ($services as $service) {
+                // Get property images from service_images JSON field
+                if (!empty($service->service_images)) {
+                    $images = json_decode($service->service_images, true);
+                    
+                    // Assign the first image to the service object if available
+                    if (is_array($images) && !empty($images)) {
+                        // Store the actual image URL from the JSON array
+                        $service->property_image = $images[0];
+                    } else {
+                        // Set default image if no property images found
+                        $service->property_image = 'listing_alt.jpg';
+                    }
+                } else {
+                    $service->property_image = 'listing_alt.jpg';
+                }
+            }
+        }
+
+        $data = [
+            'services' => $services,
+            'service_providers' => $filtered_providers
+        ];
+
+        // Handle service provider assignment when accept button is pressed
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['service_id'])) {
+            $service_id = $_POST['service_id'];
+
+            // Get the selected service provider from the dropdown
+            $provider_id = $_POST['service_provider_select'];
+
+            if ($provider_id) {
+                // Create a new ExternalService instance to ensure it's a model with where() method
+                $serviceModel = new ExternalService();
+                
+                // Check again if provider hasn't exceeded limit
+                $ongoing_services = $serviceModel->where([
+                    'service_provider_id' => $provider_id,
+                    'status' => 'ongoing'
+                ]);
+
+                // Convert to empty array if false
+                $ongoing_services = $ongoing_services === false ? [] : $ongoing_services;
+
+                if (count($ongoing_services) >= 4) {
+                    $_SESSION['error'] = "This service provider has reached their maximum service limit";
+                } else {
+                    // Update service with assigned provider and change status to ongoing
+                    $result = $serviceModel->update($service_id, [
+                        'service_provider_id' => $provider_id,
+                        'status' => 'ongoing'
+                    ]);
+
+                    if ($result) {
+                        // Get service details to include in notification
+                        $serviceDetails = $serviceModel->first(['id' => $service_id]);
+                        
+                        // Create notification for the service provider
+                        $notificationModel = new NotificationModel();
+                        $notificationData = [
+                            'user_id' => $provider_id,
+                            'title' => "New External Service Assignment",
+                            'message' => "You have been assigned a new " . 
+                                        ($serviceDetails->service_type ?? "external service") . 
+                                        " task at " . 
+                                        ($serviceDetails->property_address ?? "location not specified"),
+                            'link' => "/php_mvc_backend/public/dashboard/externalServices",
+                            'color' => 'Notification_green', 
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        // Insert notification for service provider
+                        $notificationModel->insert($notificationData);
+
+                        // Create notification for customer who requested the service
+                        if (!empty($serviceDetails->requested_person_id)) {
+                            $notificationModel = new NotificationModel();
+                            $customerNotificationData = [
+                                'user_id' => $serviceDetails->requested_person_id,
+                                'title' => "External Service Request Accepted",
+                                'message' => "Your " . ($serviceDetails->service_type ?? "service") . 
+                                            " request has been accepted and assigned to a service provider.",
+                                'link' => "/php_mvc_backend/public/dashboard/requestService",
+                                'color' => 'Notification_green',
+                                'is_read' => 0,
+                                'created_at' => date('Y-m-d H:i:s')
+                            ];
+                            
+                            // Insert notification for the customer
+                            $notificationModel->insert($customerNotificationData);
+                        }
+                        
+                        $_SESSION['flash']['msg'] = "External service request accepted and assigned successfully";
+                        $_SESSION['flash']['type'] = "success";
+                        redirect('dashboard/externalServiceRequests');
+                        exit; // Add exit here to prevent further execution
+                    } else {
+                        $_SESSION['flash']['msg'] = "Failed to update service request";
+                        $_SESSION['flash']['type'] = "error";
+                    }
+                }
+            } else {
+                $_SESSION['flash']['msg'] = "Please select a service provider";
+                $_SESSION['flash']['type'] = "error";
+            }
+
+            redirect('dashboard/externalServiceRequests');
+            exit; // Add exit here to prevent further execution
+        }
+
+        // Handle service request deletion when decline button is pressed
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
+            $service_id = $_POST['delete_service_id'];
+
+            // Update the service request status to "rejected" instead of deleting
+            $result = $externalService->update($service_id, [
+                'status' => 'rejected'
+            ]);
+
+            if ($result) {
+                // Get service details to include in notification
+                $serviceDetails = $externalService->first(['id' => $service_id]);
+                
+                // Create notification for customer about rejection
+                if (!empty($serviceDetails->requested_person_id)) {
+                    $notificationModel = new NotificationModel();
+                    $customerNotificationData = [
+                        'user_id' => $serviceDetails->requested_person_id,
+                        'title' => "External Service Request Declined",
+                        'message' => "Your " . ($serviceDetails->service_type ?? "service") . 
+                                    " request has been declined. Please contact support for more information.",
+                        'link' => "/php_mvc_backend/public/dashboard/requestService",
+                        'color' => 'Notification_red',
+                        'is_read' => 0,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    // Insert notification for the customer
+                    $notificationModel->insert($customerNotificationData);
+                }
+                $_SESSION['flash']['msg'] = "External service request declined successfully";
+                $_SESSION['flash']['type'] = "success";
+                redirect('dashboard/externalServiceRequests');
+                exit; // Add exit here to prevent further execution
+            } else {
+                $_SESSION['flash']['msg'] = "Failed to decline external service request";
+                $_SESSION['flash']['type'] = "error";
+            }
+
+            redirect('dashboard/externalServiceRequests');
+            exit; // Add exit here to prevent further execution
+        }
+
+        $this->view('agent/externalServiceRequests', $data);
+    }
+
 }
