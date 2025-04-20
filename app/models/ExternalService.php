@@ -17,6 +17,7 @@ class ExternalService {
         'service_provider_id',
         'service_provider_description',
         'service_images',
+        'service_completion_images', 
         'additional_charges',
         'additional_charges_reason',
         'total_cost',
