@@ -968,6 +968,86 @@ public function serviceOverview() {
         $this->view('serviceprovider/repairs');
     }
 
+    public function externalServices() {
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+    
+        $externalService = new ExternalService();
+        $provider_id = $_SESSION['user']->pid;
+    
+        // Get current page for pagination
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $items_per_page = 10;
+        $offset = ($page - 1) * $items_per_page;
+    
+        // Get status filter
+        $selected_status = isset($_GET['status']) ? $_GET['status'] : 'all';
+    
+        // Construct the query conditions
+        $conditions = [
+            'service_provider_id' => $provider_id
+        ];
+    
+        // Add status filter if provided
+        if ($selected_status !== 'all') {
+            $conditions['status'] = $selected_status;
+        }
+    
+        // Get all matching records for counting
+        $allServices = $externalService->where($conditions);
+        
+        // Fix: Ensure $allServices is always an array
+        if (!is_array($allServices)) {
+            $allServices = []; // Convert to empty array if false or other non-array value
+        }
+        
+        $total_records = count($allServices);
+        $total_pages = ceil($total_records / $items_per_page);
+    
+        // Paginate the records
+        $services = array_slice($allServices, $offset, $items_per_page);
+    
+        // Calculate earnings and time left for services
+        foreach ($services as &$service) {
+            // Calculate earnings based on cost_per_hour and total_hours
+            $service->earnings = $service->cost_per_hour * $service->total_hours;
+    
+            if ($service->status === 'ongoing') {
+                // Calculate hours left (assuming 48-hour SLA from service date)
+                $service_date = new DateTime($service->date);
+                $current_date = new DateTime();
+                $time_diff = $service_date->diff($current_date);
+                $hours_passed = ($time_diff->days * 24) + $time_diff->h;
+                $days_left = floor($hours_passed / 24);
+                $hours_left = $hours_passed % 24;
+                $service->time_left = $hours_left > 0 ? $days_left . 'd ' . $hours_left . 'hr' : ($days_left > 0 ? $days_left . 'd' : 'Overdue');
+            } else {
+                $service->time_left = '-';
+            }
+            
+            // Decode service_images from JSON if exists
+            if (!empty($service->service_images)) {
+                $service->service_images_array = json_decode($service->service_images, true);
+            } else {
+                $service->service_images_array = [];
+            }
+        }
+    
+        // Prepare data for the view
+        $data = [
+            'services' => $services,
+            'current_page' => $page,
+            'total_pages' => $total_pages,
+            'selected_status' => $selected_status
+        ];
+    
+        // Load the view with data
+        $this->view('serviceProvider/externalServices', $data);
+    }
+
     private function logout(){
         session_unset();
         session_destroy();
