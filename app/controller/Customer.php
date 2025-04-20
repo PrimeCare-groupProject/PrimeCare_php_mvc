@@ -462,4 +462,41 @@ class Customer
     {
         $this->view('customer/requestServiceChoice');
     }
+
+    public function requestServiceOccupied() {
+        // ...in progress...
+    }
+
+    public function externalRepairListing()
+    {
+        $servicesModel = new Services();
+        $services = $servicesModel->getAllServices();
+
+        if (!empty($services)) {
+            foreach ($services as $key => $service) {
+                if (empty($service->service_img)) continue;
+                $imagePath = ROOTPATH . 'public/assets/images/repairimages/' . $service->service_img;
+                if (!file_exists($imagePath)) {
+                    $found = false;
+                    $extensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    $baseName = pathinfo($service->service_img, PATHINFO_FILENAME);
+                    foreach ($extensions as $ext) {
+                        $testPath = ROOTPATH . 'public/assets/images/repairimages/' . $baseName . '.' . $ext;
+                        if (file_exists($testPath)) {
+                            $services[$key]->service_img = $baseName . '.' . $ext;
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $services[$key]->service_img = '';
+                    }
+                }
+            }
+        }
+
+        $this->view('customer/externalRepairListing', [
+            'services' => $services
+        ]);
+    }
 }
