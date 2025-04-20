@@ -499,4 +499,89 @@ class Customer
             'services' => $services
         ]);
     }
+
+    public function requestServiceExternal()
+    {
+        $servicesModel = new Services();
+        $service = null;
+        $cost_per_hour = null;
+        $service_type = '';
+
+        // Fetch service details if service_id is provided
+        if (isset($_GET['service_id'])) {
+            $service = $servicesModel->getServiceById($_GET['service_id']);
+            if ($service) {
+                $cost_per_hour = $service->cost_per_hour;
+                $service_type = $service->name;
+            }
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $externalService = new ExternalService();
+
+            // Handle file upload for property_images
+            $images = [];
+            $maxFiles = 3;
+            $uploadDir = ROOTPATH . 'public/assets/images/external_services/properties/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+            if (empty($_FILES['property_images']['name'][0])) {
+                $errors['property_images'] = "You must upload at least 1 image.";
+            } elseif (count($_FILES['property_images']['name']) > $maxFiles) {
+                $errors['property_images'] = "You can upload a maximum of 3 images.";
+            } else {
+                foreach ($_FILES['property_images']['tmp_name'] as $key => $tmp_name) {
+                    $fileName = uniqid() . '_' . basename($_FILES['property_images']['name'][$key]);
+                    $targetFile = $uploadDir . $fileName;
+                    if (move_uploaded_file($tmp_name, $targetFile)) {
+                        // Save only the relative path for DB
+                        $images[] = 'external_services/properties/' . $fileName;
+                    }
+                }
+            }
+
+            // Always fetch cost_per_hour from DB using service_id from hidden input
+            $service_id = $_POST['service_id'] ?? null;
+            $service = $servicesModel->getServiceById($service_id);
+            $cost_per_hour = $service ? $service->cost_per_hour : null;
+            $service_type = $service ? $service->name : '';
+
+            $data = [
+                'service_type'         => $service_type,
+                'date'                 => date('Y-m-d'),
+                'property_address'     => $_POST['property_address'],
+                'property_description' => $_POST['property_description'],
+                'service_images'       => $images, 
+                'status'               => 'pending',
+                'requested_person_id'  => $_SESSION['user']->pid,
+                'created_at'           => date('Y-m-d H:i:s'),
+                'cost_per_hour'        => $cost_per_hour,
+            ];
+
+            if (empty($errors) && $externalService->validate($data)) {
+                $insertData = $data;
+                $insertData['service_images'] = json_encode($data['service_images'], JSON_UNESCAPED_SLASHES);
+                $externalService->insert($insertData);
+                $_SESSION['flash']['msg'] = "External service request submitted.";
+                $_SESSION['flash']['type'] = "success";
+                redirect('dashboard/requestService');
+                exit;
+            } else {
+                $this->view('customer/requestServiceExternal', [
+                    'errors' => $errors ?? $externalService->errors,
+                    'service_type' => $service_type,
+                    'cost_per_hour' => $cost_per_hour,
+                    'service_id' => $service_id
+                ]);
+                return;
+            }
+        }
+
+        // Show the form with service details pre-filled
+        $this->view('customer/requestServiceExternal', [
+            'service_type' => $service_type,
+            'cost_per_hour' => $cost_per_hour,
+            'service_id' => $_GET['service_id'] ?? ''
+        ]);
+    }
 }
