@@ -42,7 +42,10 @@
                 <div class="property-card" data-status="<?= strtolower($property->status) ?>">
 
                     <div class="property-image">
-                        <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a>
+                        <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>">
+                            <?php $img_source = explode(',', $property->property_images)[0] ?? ''; ?>
+                            <img src="<?= get_img($img_source, 'property') ?>" alt="Property Image">
+                        </a>
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
