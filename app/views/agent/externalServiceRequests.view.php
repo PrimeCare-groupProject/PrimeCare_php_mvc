@@ -162,7 +162,7 @@
                 ?>
                 <div class="external-service" data-date="<?= $service->date ?>">
                     <div class="preInspection-header">
-                        <h3><?= $service->service_type ?> Request <?= $serviceCount ?></h3>
+                        <h3><?= $service->service_type ?></h3>
                         <div style="display: flex; gap: 10px;">
                             <form method="POST">
                                 <input type="hidden" name="service_id" value="<?= $service->id ?>">
@@ -330,6 +330,7 @@ function submitForm(form) {
   width: 200px;
   padding: 0 20px 0 10px;
   box-sizing: border-box;
+  margin-right: 15px;
 }
 
 .property-image-container {
@@ -353,17 +354,19 @@ function submitForm(form) {
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background-color: #777;
+  background-color: #E5E4E2;
   border-radius: 15px 15px 0 0;
 }
 
 .external-service {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 15px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   margin-bottom: 20px;
   overflow: hidden;
   margin-top: 15px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .input-group1 {
@@ -386,7 +389,7 @@ function submitForm(form) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #1e7e34;
+  /* border: 2px solid #1e7e34; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -405,7 +408,7 @@ function submitForm(form) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #c82333;
+  /* border: 2px solid #c82333; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
