@@ -167,7 +167,7 @@
                 ?>
                 <div class="preInspection" data-date="<?= $service->date ?>">
                     <div class="preInspection-header">
-                        <h3><?= $service->service_type ?> Request <?= $serviceCount ?></h3>
+                        <h3><?= $service->service_type ?></h3>
                         <div style="display: flex; gap: 10px;">
                             <form method="POST">
                                 <input type="hidden" name="service_id" value="<?= $service->service_id ?>">
@@ -186,7 +186,7 @@
                             <div class="input-group">
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Property ID:</strong></span>
-                                    <input class="input-field2" value="<?= $service->property_id ?>" readonly>
+                                    <input class="input-field2" value="PID: <?= $service->property_id ?>" readonly>
                                 </div>
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Date:</strong></span>
@@ -324,6 +324,7 @@ function updateProviderImage(selectElement, serviceId) {
   width: 200px;
   padding: 0 20px 0 10px;
   box-sizing: border-box;
+  margin-right: 15px;
 }
 
 .property-image-container {
@@ -348,15 +349,18 @@ function updateProviderImage(selectElement, serviceId) {
   align-items: center;
   padding: 10px 15px;
   background-color: #f5f5f5;
-  border-radius: 8px 8px 0 0;
+  border-radius: 15px 15px 0 0;
 }
 
 .preInspection {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 15px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   margin-bottom: 20px;
   overflow: hidden;
+  padding: 0;
+  margin-top: 15px;
+
 }
 
 .input-group1 {
@@ -379,7 +383,7 @@ function updateProviderImage(selectElement, serviceId) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #1e7e34;
+  /* border: 2px solid #1e7e34; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -398,7 +402,7 @@ function updateProviderImage(selectElement, serviceId) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #c82333;
+  /* border: 2px solid #c82333; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
