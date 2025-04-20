@@ -125,6 +125,74 @@
         // Re-append sorted rows
         rows.forEach(row => tbody.appendChild(row));
     }
+
+    // Add this script after your existing sortTable function
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-input');
+    const searchBtn = document.querySelector('.search-btn');
+    const tableBody = document.querySelector('.inventory-table tbody');
+    const originalRows = Array.from(tableBody.querySelectorAll('tr')); // Store original rows
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        
+        if (searchTerm === '') {
+            // If search is empty, restore original rows
+            tableBody.innerHTML = '';
+            originalRows.forEach(row => tableBody.appendChild(row.cloneNode(true)));
+            return;
+        }
+        
+        // Filter rows
+        const filteredRows = originalRows.filter(row => {
+            const cells = row.cells;
+            for (let i = 0; i < cells.length; i++) {
+                // Skip the last cell if it contains action buttons
+                const cellText = cells[i].textContent.toLowerCase();
+                if (cellText.includes(searchTerm)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        
+        // Update table
+        tableBody.innerHTML = '';
+        if (filteredRows.length > 0) {
+            filteredRows.forEach(row => tableBody.appendChild(row.cloneNode(true)));
+        } else {
+            // Show "no results" message
+            tableBody.innerHTML = `
+                <tr style="height: 240px; background-color: #f8f9fa;">
+                    <td colspan="6" style="text-align: center; vertical-align: middle; padding: 0;">
+                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0;">
+                            <div style="margin-bottom: 15px; opacity: 0.5;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </div>
+                            <h3 style="font-size: 16px; color: #555; margin: 0; font-weight: 500;">No matching items found</h3>
+                            <p style="font-size: 14px; color: #777; margin: 8px 0 0 0; max-width: 400px;">
+                                No inventory items match your search for "${searchTerm}".
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+    
+    // Event listeners
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+});
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>

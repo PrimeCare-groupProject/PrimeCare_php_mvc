@@ -30,7 +30,7 @@
                     <span>Hourly Rate (LKR)</span>
                     <div class="service-input-wrapper">
                         <i class="fas fa-money-bill-wave input-icon"></i>
-                        <input type="number" name="cost_per_hour" placeholder="e.g. 3500" class="service-form-input" min="0" step="100" required>
+                        <input type="number" name="cost_per_hour" placeholder="e.g. 3500" class="service-form-input" required>
                     </div>
                 </label>
             </div>
