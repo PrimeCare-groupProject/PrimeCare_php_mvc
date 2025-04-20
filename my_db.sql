@@ -447,7 +447,28 @@ GROUP BY
 -- CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `property_with_images`  AS SELECT `p`.`property_id` AS `property_id`, `p`.`name` AS `name`, `p`.`description` AS `description`, `p`.`type` AS `type`, `p`.`address` AS `address`, `p`.`zipcode` AS `zipcode`, `p`.`city` AS `city`, `p`.`state_province` AS `state_province`, `p`.`country` AS `country`, `p`.`year_built` AS `year_built`, `p`.`rent_on_basis` AS `rent_on_basis`, `p`.`units` AS `units`, `p`.`size_sqr_ft` AS `size_sqr_ft`, `p`.`bedrooms` AS `bedrooms`, `p`.`bathrooms` AS `bathrooms`, `p`.`parking` AS `parking`, `p`.`furnished` AS `furnished`, `p`.`floor_plan` AS `floor_plan`, `p`.`status` AS `status`, `p`.`person_id` AS `person_id`, group_concat(distinct `pi`.`image_url` order by `pi`.`image_url` ASC separator ',') AS `property_images`, group_concat(distinct `pdi`.`image_url` order by `pdi`.`image_url` ASC separator ',') AS `property_deed_images` FROM ((`property` `p` left join `property_image` `pi` on(`p`.`property_id` = `pi`.`property_id`)) left join `property_deed_image` `pdi` on(`p`.`property_id` = `pdi`.`property_id`)) GROUP BY `p`.`property_id` ;
 
 
---
+--Create table for external services
+
+CREATE TABLE external_services (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    service_type VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    property_address VARCHAR(255) NOT NULL,
+    property_description TEXT,
+    cost_per_hour DECIMAL(10,2) NOT NULL,
+    total_hours INT NOT NULL,
+    usual_cost DECIMAL(10,2) NOT NULL,
+    status ENUM('pending','ongoing','rejected','done','paid') DEFAULT NULL,
+    service_provider_id INT DEFAULT NULL,
+    service_provider_description TEXT DEFAULT NULL,
+    service_images TEXT DEFAULT NULL,
+    additional_charges DECIMAL(10,2) DEFAULT 0,
+    additional_charges_reason VARCHAR(255) DEFAULT NULL,
+    total_cost DECIMAL(10,2) DEFAULT 0,
+    requested_person_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Table structure for table `services`
 --
 
