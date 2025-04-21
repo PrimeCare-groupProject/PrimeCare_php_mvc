@@ -630,15 +630,21 @@ class Agent
                 }
             }
             
+            // show($data);
+            // echo $preInspection->isValidForRegister($data);
             if ($res) {
-                if ($property->agent_id == $_SESSION['user']->pid && $preInspection->isValidForRegister()) {
+                if ($property->agent_id == $_SESSION['user']->pid && $preInspection->isValidForRegister($data)) {
                     $isActive = $propertyModel->update($propertyID, ['status' => 'Active'], 'property_id');
+                    $message_to_owner = $preInspection->messages['recommendation'] ?? null;
+                    if(!$message_to_owner){
+                        $message_to_owner = 'And No recommendation provided.';
+                    }
                     if ($isActive) {
                         $_SESSION['flash'] = [
                             'msg' => "Pre-Inspection submitted successfully!",
                             'type' => "success"
                         ];
-                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID , ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
+                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID . $message_to_owner , ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
                         enqueueNotification('Pre-Inspection submitted', 'Pre-Inspection has been submitted on Property ID : ' . $propertyID, ROOT . '/dashboard/property/propertyView/' . $propertyID, 'Notification_green');
                     } else {
                         $_SESSION['flash'] = [
@@ -647,6 +653,15 @@ class Agent
                         ];
                         enqueueNotification('Failed to update property status', 'Failed to update property status on Property ID : ' . $propertyID, '', 'Notification_red');
                     }
+                } else{
+                    $message = $preInspection->getValidationMessages();
+                    $message_to_owner = $preInspection->messages['recommendation'] ?? null;
+                    $_SESSION['flash'] = [
+                        'msg' => $message,
+                        'type' => "error"
+                    ];
+                    enqueueNotification('Pre-Inspection validation failed', 'Pre-Inspection validation failed on Property ID : ' . $propertyID . '. ' . $message_to_owner , '', 'Notification_red' , $property->person_id);
+                    enqueueNotification('Pre-Inspection validation failed', $message , '', 'Notification_orange' , $property->person_id);
                 }
             } else {
                 $_SESSION['flash'] = [
