@@ -135,19 +135,33 @@
                 </div>
                 ";
         } else {
-            echo "
-            <div class='PL__contacts-section'>
-                <div class='PL__contact'>
-                    <div class='rating-big'>
-                        <button class='primary-btn'>Make Payment</button>
+            if ($property->status == 'Pending' && $property->advance_paid == 'Not_Paid') {
+        ?>
+                <div class='PL__contacts-section'>
+                    <div class='PL__contact'>
+                        <div class='rating-big'>
+                            <button class='primary-btn' onclick="window.location.href='<?= ROOT ?>/dashboard/payAdvance/<?= $property->property_id ?>'">Pay Advance</button>
+                        </div>
+                    </div>
+                    <div class='PL__pricing'>
+                        <span><?= number_format(findAdvancePrice($property->rental_price), 2) ?> LKR</span>
                     </div>
                 </div>
-                <div class='PL__pricing'>
-                    <span> " . $property->rental_price . " LKR</span>
-                    <small>PER Day</small>
+            <?php
+            } elseif($property->rental_price > 0 && $property->advance_paid == 'Paid') {
+            ?>
+                <div class='PL__contacts-section'>
+                    <div class='PL__contact'>
+                        <div class='rating-big'>
+                            <button class='primary-btn'>Make Payment</button>
+                        </div>
+                    </div>
+                    <div class='PL__pricing'>
+                        <span><?= $property->rental_price ?> LKR</span>
+                    </div>
                 </div>
-            </div>
-            ";
+        <?php
+            } 
         }
 
         ?>

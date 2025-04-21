@@ -174,6 +174,10 @@
     border-right: 5px solid var(--dark-grey-color)!important;
 }
 
+.Notification_grey h4{
+    color: var(--dark-grey-color);
+}
+
 .Notification_grey:hover{
     background-color: rgba(var(--dark-grey-color-rgb), 0.2)!important;
     transition: 0.3s ease-in-out;
@@ -181,6 +185,10 @@
 
 .Notification_green{
     border-right: 5px solid var(--green-color)!important;
+}
+
+.Notification_green h4{
+    color: var(--green-color);
 }
 
 .Notification_green:hover{
@@ -191,6 +199,10 @@
     border-right: 5px solid var(--red-color)!important;
 }
 
+.Notification_red h4{
+    color: var(--red-color);
+}
+
 .Notification_red:hover{
     background-color: rgba(var(--red-color-rgb), 0.2)!important;
 }
@@ -199,12 +211,20 @@
     border-right: 5px solid var(--link-color)!important;
 }
 
+.Notification_blue h4{
+    color: var(--link-color);
+}
+
 .Notification_blue:hover{
     background-color: rgba(var(--link-color-rgb), 0.2)!important;
 }
 
 .Notification_yellow{
     border-right: 5px solid var(--primary-color)!important;
+}
+
+.Notification_yellow h4{
+    color: var(--primary-color);
 }
 
 .Notification_yellow:hover{

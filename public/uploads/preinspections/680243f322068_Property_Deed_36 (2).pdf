@@ -1,0 +1,35 @@
+ 
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+        text-align: center;
+        padding: 50px;
+    }
+    h1 {
+        font-size: 200px;
+        margin-bottom: 10px;
+        margin-top: 100px;
+    }
+    p {
+        font-size: 20px;
+    }
+    a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    .container {
+        max-width: 600px;
+        margin: auto;
+    }
+</style>
+
+<div class="container">
+    <h1>404</h1>
+    <p>Sorry, the page you are looking for does not exist. Please check the URL or return to the <a href="/php_mvc_backend/public/home">homepage</a>.</p>
+</div>

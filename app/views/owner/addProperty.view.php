@@ -13,6 +13,22 @@ if (isset($_SESSION['flash'])) {
 }
 ?>
 
+<?php
+$validLocations = [
+    'Western' => ['Colombo', 'Gampaha', 'Kalutara'],
+    'Central' => ['Kandy', 'Matale', 'Nuwara Eliya'],
+    'Southern' => ['Galle', 'Matara', 'Hambantota'],
+    'Northern' => ['Jaffna', 'Kilinochchi', 'Mullaitivu', 'Vavuniya', 'Mannar'],
+    'Eastern' => ['Trincomalee', 'Batticaloa', 'Ampara',],
+    'North Western' => ['Kurunegala', 'Puttalam'],
+    'North Central' => ['Anuradhapura', 'Polonnaruwa'],
+    'Uva' => ['Badulla', 'Monaragala'],
+    'Sabaragamuwa' => ['Ratnapura', 'Kegalle']
+];
+
+$allStates = array_keys($validLocations);
+?>
+
 <form method="POST" action="<?= ROOT ?>/dashboard/propertylisting/create" enctype="multipart/form-data">
     <div class="owner-addProp-form">
         <h3 class="form-headers no-top-border">Property Details</h3>
@@ -41,24 +57,57 @@ if (isset($_SESSION['flash'])) {
         </div>
         <div class="input-group">
             <div class="input-group-group">
-                <label class="input-label">City*</label>
-                <input type="text" name="city" placeholder="Enter Property City" class="input-field" required>
-            </div>
-            <div class="input-group-group">
-                <label class="input-label">Zip Code*</label>
-                <input type="text" name="zipcode" placeholder="Enter Property Zip Code" class="input-field" required>
-            </div>
-        </div>
-        <div class="input-group">
-            <div class="input-group-group">
                 <label class="input-label">State*</label>
-                <input type="text" name="state_province" placeholder="Enter Property State" class="input-field" required>
+                <!-- <input type="text" name="state_province" placeholder="Enter Property State" class="input-field" required> -->
+                <select name="state_province" id="stateSelect" class="input-field" required>
+                    <option value="">-- Enter Property State --</option>
+                    <?php
+                    foreach ($allStates as $state) {
+                        echo "<option value='$state'>$state</option>";
+                    }
+                    ?>
+                </select>
             </div>
             <div class="input-group-group">
                 <label class="input-label">Country*</label>
                 <input type="text" name="country" placeholder="Enter Property Country" class="input-field" required>
             </div>
         </div>
+
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">City*</label>
+                <select name="city" id="citySelect" class="input-field" required>
+                    <option value="">-- Select City --</option>
+                </select>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Zip Code*</label>
+                <input type="text" name="zipcode" placeholder="Enter Property Zip Code" class="input-field" required>
+            </div>
+        </div>
+
+        <script>
+            const stateCityMap = <?php echo json_encode($validLocations); ?>;
+            console.log(stateCityMap); // For debugging
+            const stateSelect = document.getElementById('stateSelect');
+            const citySelect = document.getElementById('citySelect');
+
+            stateSelect.addEventListener('change', function() {
+                const selectedState = this.value;
+                citySelect.innerHTML = '<option value="">-- Select City --</option>';
+
+                if (selectedState in stateCityMap) {
+                    stateCityMap[selectedState].forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.textContent = city;
+                        citySelect.appendChild(option);
+                    });
+                }
+            });
+        </script>
+
 
         <h3 class="form-headers">Rental Information*</h3>
 
@@ -69,7 +118,7 @@ if (isset($_SESSION['flash'])) {
                     <option value="">-- Select Purpose --</option>
                     <option value="Rent">For Rent</option>
                     <option value="Safeguard">For Safeguard (Security Purposes)</option>
-                    <option value="Vacation_Rental">Vacation Rental</option>
+                    <!-- <option value="Vacation_Rental">Vacation Rental</option> -->
                 </select>
             </div>
         </div>

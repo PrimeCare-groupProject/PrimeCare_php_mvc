@@ -27,7 +27,7 @@
     <div class="top-section">
         <div class="card total-property">
             <h3>Total Property</h3>
-            <span>45</span>
+            <span><?= $propertyCount; ?></span>
         </div>
         <div class="card total-profit">
             <h3>Total Profit</h3>
@@ -39,7 +39,7 @@
         </div>
         <div class="card total-expense">
             <h3>Total Expense</h3>
-            <span>LKR 26,456.00</span>
+            <span>LKR <?= number_format($totalServiceCost, 2); ?></span>
         </div>
     </div>
 
@@ -72,26 +72,31 @@
         </div>
 
         <div class="maintenance-status">
-            <h3>Maintenance Status</h3>
+            <h3>Maintenance History</h3>
             <table>
-                <tr>
-                    <td>Service 1</td>
-                    <td class="green-color">In Progress</td>
-                </tr>
-                <tr>
-                    <td>Service 1</td>
-                    <td class="blue-color">Completed</td>
-                </tr>
-                <tr>
-                    <td>Service 1</td>
-                    <td class="">Pending</td>
-                </tr>
-                <tr>
-                    <td>Service 1</td>
-                    <td class="green-color">In Progress</td>
-                </tr>
+                <?php
+                if ($serviceLogs != null) {
+                    $serviceLogs = array_slice($serviceLogs, -5);
+                    foreach ($serviceLogs as $serviceLog) {
+                        $statusClass = strtolower($serviceLog->status) . '-color';
+                        echo "<tr>";
+                        echo "<td>{$serviceLog->service_type}</td>";
+                        echo "<td class='$statusClass'>{$serviceLog->status}</td>";
+                        echo "</tr>";
+                    }
+                } else {
+                    echo "<tr>";
+                    echo "<td colspan='2'>No maintenance requests</td>";
+                    echo "</tr>";
+                }
+                ?>
             </table>
-            <a href="" class="orange-link">see more</a>
+            <?php 
+            if ($serviceLogs == 5) {
+                echo "<hr>";
+            }
+            ?>
+            <a href="<?= ROOT ?>/dashboard/maintenance" class="orange-link">see more</a>
         </div>
 
     </div>
