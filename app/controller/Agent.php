@@ -593,22 +593,59 @@ class Agent
         $this->view('agent/inspectiondetails', ['property' => $property]);
     }
 
+    private function propertyUnit($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        //show($propertyUnit);
 
+        $this->view('agent/propertyUnit', ['property' => $propertyUnit ]);
+    }
 
-
-    public function inventory($b = '', $c = '', $d = '')
+    public function ContactSupport($b = '', $c = '', $d = '')
     {
         switch ($b) {
-            case 'newinventory':
-                $this->newinventory();
+            case 'propertyunit':
+                $this->propertyUnit($c);
                 break;
             case 'editinventory':
                 $this->editinventory($c);
                 break;
             default:
-            $invent = new InventoryModel;
-            $inventories = $invent->findAll();
-            $this->view('agent/inventory',['inventories' => $inventories]); 
+                $property = new Property;
+                $problemReportView = new ProblemReportView();
+
+                // Get all property IDs for the current agent
+                $propertyIds = $property->getPropertyIdsByAgent($_SESSION['user']->pid);
+
+                // Collect all reports into a flat array, including property name
+                $allReports = [];
+                if (!empty($propertyIds)) {
+                    foreach ($propertyIds as $propertyId) {
+                        $reportsForProperty = $problemReportView->getReportsWithImages($propertyId);
+                        // Fetch property details once per property
+                        $propertyDetails = $property->where(['property_id' => $propertyId])[0] ?? null;
+                        $propertyName = $propertyDetails ? $propertyDetails->name : 'Unknown Property';
+                        if (!empty($reportsForProperty)) {
+                            foreach ($reportsForProperty as $report) {
+                                $report['property_name'] = $propertyName;
+                                $report['property_id'] = $propertyId;
+                                $allReports[] = $report;
+                            }
+                        }
+                    }
+                }
+
+                $reports = $allReports;
+
+                $this->view('agent/contactSupport', [
+                    'user' => $_SESSION['user'],
+                    'errors' => $_SESSION['errors'] ?? [],
+                    'status' => $_SESSION['status'] ?? '',
+                    'reports' => $reports,
+                ]);
+                unset($_SESSION['errors']);
+                unset($_SESSION['status']);
                 break;
         }
     }
