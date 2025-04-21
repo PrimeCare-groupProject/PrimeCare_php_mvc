@@ -42,7 +42,7 @@
     font-size: 14px;
 }
 .maintain .orange-link {
-    color: #ff9800;
+    color: var(--dark-grey-color);
     text-decoration: none;
     font-weight: bold;
     display: block;

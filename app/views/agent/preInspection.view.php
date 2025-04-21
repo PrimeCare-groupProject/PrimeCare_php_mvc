@@ -47,6 +47,7 @@ if (empty($preinspection)) {
                         <th>Property ID</th>
                         <th>Name</th>
                         <th>Owner Name</th>
+                        <th>Purpose</th>
                         <th class="AA__align_to_center">Actions</th>
                     </tr>
                 </thead>
@@ -58,10 +59,18 @@ if (empty($preinspection)) {
                             <td><?= $request->property_id ?></td>
                             <td><?= $request->name ?></td>
                             <td><?= $request->owner_name ?></td>
+                            <td><?= $request->purpose ?></td>
                             <td class="AA__action-buttons">
                                 <button class="small-btn orange" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/viewProperty/<?= $request->property_id ?>'">View</button>
-                                <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/showReport/<?= $request->property_id ?>'">Generate Report</button>
-                                <button class="small-btn blue" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/submitReport/<?= $request->property_id ?>'">Submit Report</button>
+                                <div style="display: flex; justify-content: space-around; align-items: center; gap: 10px; width: 100%;">
+                                    <?php
+                                    if (($request->advance_paid == "Paid" && $request->purpose != 'Rent') || $request->purpose == 'Rent') { ?>
+                                        <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/showReport/<?= $request->property_id ?>'">Confirmation Letter</button>
+                                        <button class="small-btn blue" onclick="window.location.href='<?= ROOT ?>/dashboard/preInspection/submitReport/<?= $request->property_id ?>'">Submit Report</button>
+                                    <?php } else { ?>
+                                        <div class="small-btn red">Advanced Payment Not Done yet</div>
+                                    <?php } ?>
+                                </div>
                             </td>
                         </tr>
                 <?php endforeach;

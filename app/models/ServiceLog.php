@@ -16,6 +16,7 @@ class ServiceLog {
         'service_provider_id',
         'service_description',
         'service_provider_description', 
+        'requested_person_id',
         'service_images' 
     ];
 

@@ -26,20 +26,20 @@
         <div class="input-group">
             <div class="input-group-group">
                 <label class="input-label">Provided Details*</label>
-                <select name="provided_details" class="input-field">
+                <select name="provided_details" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="True">True</option>
                     <option value="False">False</option>
-                    <option value="Not_Checked">Not Cheched</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
             <div class="input-group-group">
                 <label class="input-label">Title Deed*</label>
-                <select name="title_deed" class="input-field">
+                <select name="title_deed" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="True">True</option>
                     <option value="False">False</option>
-                    <option value="Not_Checked">Not Cheched</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
         </div>
@@ -47,20 +47,20 @@
         <div class="input-group">
             <div class="input-group-group">
                 <label class="input-label">Utility Bills*</label>
-                <select name="utility_bills" class="input-field">
+                <select name="utility_bills" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="True">True</option>
                     <option value="False">False</option>
-                    <option value="Not_Checked">Not Cheched</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
             <div class="input-group-group">
                 <label class="input-label">Owner ID Copy*</label>
-                <select name="owner_id_copy" class="input-field">
+                <select name="owner_id_copy" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="True">True</option>
                     <option value="False">False</option>
-                    <option value="Not_Checked">Not Cheched</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
         </div>
@@ -68,21 +68,21 @@
         <div class="input-group">
             <div class="input-group-group">
                 <label class="input-label">Lease Agreement*</label>
-                <select name="lease_agreement" class="input-field">
+                <select name="lease_agreement" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="True">True</option>
                     <option value="False">False</option>
-                    <option value="Not_Checked">Not Cheched</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
             <div class="input-group-group">
                 <label class="input-label">Property Condition*</label>
-                <select name="property_condition" class="input-field">
+                <select name="property_condition" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="Good">Good</option>
                     <option value="Average">Average</option>
                     <option value="Poor">Poor</option>
-                    <option value="Not_Checked">Not Cheched</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
         </div>
@@ -90,21 +90,21 @@
         <div class="input-group">
             <div class="input-group-group">
                 <label class="input-label">Owner Present*</label>
-                <select name="owner_present" class="input-field">
+                <select name="owner_present" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="True">True</option>
                     <option value="False">False</option>
-                    <option value="Not_Checked">Not Cheched</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
             <div class="input-group-group">
-                <label class="input-label">Recommendations*</label>
-                <select name="recommendation" class="input-field">
+                <label class="input-label" style="color: var(--primary-color);">Recommendations*</label>
+                <select name="recommendation" class="input-field" required>
                     <option value="">-- Select Purpose --</option>
                     <option value="Approved">Approved</option>
                     <option value="Requires_Fixes">Requires Fixes</option>
                     <option value="Rejected">Rejected</option>
-                    <option value="Not_Checked">Not Checked</option>
+                    <!-- <option value="Not_Checked">Not Checked</option> -->
                 </select>
             </div>
         </div>
@@ -115,7 +115,7 @@
         <label class="input-label">Note</label>
         <textarea name="notes" placeholder="Any Notes.." class="input-field"></textarea>
 
-        <label class="input-label">Upload Document Details*</label>
+        <label class="input-label">Upload Owner Confirmation Document*</label>
         <div class="owner-addProp-file-upload">
             <input type="file" name="property_document" id="ownership_details" accept=".pdf" onchange="handleFileSelectForDocs(event)" required>
             <div class="owner-addProp-upload-area">
