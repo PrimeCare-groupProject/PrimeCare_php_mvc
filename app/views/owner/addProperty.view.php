@@ -69,7 +69,7 @@ if (isset($_SESSION['flash'])) {
                     <option value="">-- Select Purpose --</option>
                     <option value="Rent">For Rent</option>
                     <option value="Safeguard">For Safeguard (Security Purposes)</option>
-                    <option value="Vacation_Rental">Vacation Rental</option>
+                    <!-- <option value="Vacation_Rental">Vacation Rental</option> -->
                 </select>
             </div>
         </div>
@@ -77,19 +77,19 @@ if (isset($_SESSION['flash'])) {
         <!-- Section shown only for Rent -->
         <div class="input-group" id="rent-fields" style="display:none;">
             <div class="input-group-group">
-                <label class="input-label">Rental Period*</label>
+                <label class="input-label">Rental Period Unit*</label>
                 <select name="rental_period" class="input-field">
-                    <option value="Monthly">Monthly</option>
-                    <option value="Annually">Annually</option>
                     <option value="Daily">Daily</option>
+                    <option value="Monthly">Monthly</option>
+                    <!-- <option value="Annually">Annually</option> -->
                 </select>
             </div>
             <div class="input-group-group">
-                <label class="input-label">Duration (in months)*</label>
+                <label class="input-label">Duration (in units)*</label>
                 <input type="number" id="duration" name="duration" class="input-field" min="1" value="1" oninput="calculateRental()">
             </div>
             <div class="input-group-group">
-                <label class="input-label">Rental Price*</label>
+                <label class="input-label">Rental Price Per Unit*</label>
                 <input type="number" name="rental_price" placeholder="Enter the rental price" class="input-field">
             </div>
         </div>

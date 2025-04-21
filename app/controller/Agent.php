@@ -702,22 +702,111 @@ class Agent
         $this->view('agent/inspectiondetails', ['property' => $property]);
     }
 
+    private function propertyUnit($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+        //show($propertyUnit);
 
+        $this->view('agent/propertyUnit', ['property' => $propertyUnit ]);
+    }
 
-
-    public function inventory($b = '', $c = '', $d = '')
+    public function ContactSupport($b = '', $c = '', $d = '')
     {
         switch ($b) {
-            case 'newinventory':
-                $this->newinventory();
-                break;
-            case 'editinventory':
-                $this->editinventory($c);
+            case 'propertyunit':
+                $this->propertyUnit($c);
                 break;
             default:
-            $invent = new InventoryModel;
-            $inventories = $invent->findAll();
-            $this->view('agent/inventory',['inventories' => $inventories]); 
+                $property = new Property;
+                $problemReportView = new ProblemReportView();
+                $problemReport = new ProblemReport();
+                $problemReportImage = new problemReportImage;
+                
+                // Handle status update POST
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_id'], $_POST['new_status'])) {
+                    $report_id = (int)$_POST['report_id'];
+                    $new_status = $_POST['new_status'];
+                    // Only allow valid statuses
+                    $allowed = ['pending', 'in_progress', 'resolved'];
+                    if (in_array($new_status, $allowed)) {
+                        $problemReport->update($report_id, ['status' => $new_status], 'report_id');
+                        $_SESSION['flash']['msg'] = "Status updated!";
+                        $_SESSION['flash']['type'] = "success";
+                    } else {
+                        $_SESSION['flash']['msg'] = "Invalid status.";
+                        $_SESSION['flash']['type'] = "error";
+                    }
+                    redirect('dashboard/contactsupport');
+                    return;
+                }
+
+                $searchTerm = $_GET['search'] ?? '';
+                $reports = [];
+
+                if (!empty($searchTerm)) {
+                    // Use search method if a search term is given
+                    $results = $problemReport->search($searchTerm, $_SESSION['user']->pid);
+                    // Parse/format the search results for the view
+                    if (!empty($results)) {
+                        foreach ($results as $report) {
+                            // Optionally fetch property name if needed
+                            $propertyDetails = $property->where(['property_id' => $report->property_id])[0] ?? null;
+                            $propertyName = $propertyDetails ? $propertyDetails->name : 'Unknown Property';
+                            
+                            // Fetch images for this report using ProblemReportImage
+                            $images = [];
+                            $imageRows = $problemReportImage->getImagesByReport($report->report_id);
+                            if ($imageRows && is_array($imageRows)) {
+                                foreach ($imageRows as $imgRow) {
+                                    if (!empty($imgRow->image_url)) {
+                                        $images[] = $imgRow->image_url;
+                                    }
+                                }
+                            }
+
+                            $reports[] = [
+                                'report_id' => $report->report_id,
+                                'problem_description' => $report->problem_description,
+                                'urgency_level' => $report->urgency_level,
+                                'urgency_label' => $report->urgency_label ?? '',
+                                'property_id' => $report->property_id,
+                                'status' => $report->status,
+                                'submitted_at' => $report->submitted_at,
+                                'images' => $images, // You may fetch images if needed
+                                'property_name' => $propertyName,
+                            ];
+                        }
+                    }
+                } else {
+                    // Default: collect all reports for agent's properties
+                    $propertyIds = $property->getPropertyIdsByAgent($_SESSION['user']->pid);
+                    $allReports = [];
+                    if (!empty($propertyIds)) {
+                        foreach ($propertyIds as $propertyId) {
+                            $reportsForProperty = $problemReportView->getReportsWithImages($propertyId);
+                            $propertyDetails = $property->where(['property_id' => $propertyId])[0] ?? null;
+                            $propertyName = $propertyDetails ? $propertyDetails->name : 'Unknown Property';
+                            if (!empty($reportsForProperty)) {
+                                foreach ($reportsForProperty as $report) {
+                                    $report['property_name'] = $propertyName;
+                                    $report['property_id'] = $propertyId;
+                                    $allReports[] = $report;
+                                }
+                            }
+                        }
+                    }
+                    $reports = $allReports;
+                }
+
+                $this->view('agent/contactSupport', [
+                    'user' => $_SESSION['user'],
+                    'errors' => $_SESSION['errors'] ?? [],
+                    'status' => $_SESSION['status'] ?? '',
+                    'reports' => $reports,
+                ]);
+                unset($_SESSION['errors']);
+                unset($_SESSION['status']);
                 break;
         }
     }

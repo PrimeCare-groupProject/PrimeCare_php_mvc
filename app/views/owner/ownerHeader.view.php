@@ -56,7 +56,7 @@
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
                     <!-- <li><a href="<?= ROOT ?>/dashboard/addproperty"><button class="btn"><img src="<?= ROOT ?>/assets/images/addproperty.png" alt="">Add Property</button></a></li> -->
-                    <li><a href="<?= ROOT ?>/dashboard/propertyListing"><button class="btn"><i class="fa-solid fa-house-chimney"></i>Property Listing</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/propertylisting"><button class="btn"><i class="fa-solid fa-house-chimney"></i>Property Listing</button></a></li>
                     <!-- <li><a href="<?= ROOT ?>/dashboard/listing"><button class="btn"><i class="fa-solid fa-house-chimney"></i>Property Listing</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/maintenance"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Maintenance</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/financereport"><button class="btn"><i class="fa-solid fa-coins"></i>Finance Report</button></a></li>
