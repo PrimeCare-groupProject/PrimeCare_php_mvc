@@ -55,10 +55,10 @@ class Owner
     {
         // Get the current user's ID
         $ownerId = $_SESSION['user']->pid;
-        
+
         // Instantiate the ServiceLog model
         $serviceLog = new ServiceLog();
-        
+
         // Get all service logs for properties owned by the current user
         // This assumes property_id in ServiceLog can be linked to properties owned by this user
         $serviceLogs = $serviceLog->findAll();
@@ -79,28 +79,28 @@ class Owner
         if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
             $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
             $dateTo = !empty($_GET['date_to']) ? strtotime($_GET['date_to'] . ' 23:59:59') : null;
-            
+
             $filteredLogs = [];
             foreach ($serviceLogs as $log) {
                 $logDate = strtotime($log->date);
-                
+
                 // Check if the log date is within the specified range
                 $includeLog = true;
                 if ($dateFrom && $logDate < $dateFrom) $includeLog = false;
                 if ($dateTo && $logDate > $dateTo) $includeLog = false;
-                
+
                 if ($includeLog) {
                     $filteredLogs[] = $log;
                 }
             }
             $serviceLogs = $filteredLogs;
         }
-        
+
         // Apply sorting
         if (!empty($_GET['sort'])) {
             $sort = $_GET['sort'];
-            
-            usort($serviceLogs, function($a, $b) use ($sort) {
+
+            usort($serviceLogs, function ($a, $b) use ($sort) {
                 switch ($sort) {
                     case 'date_asc':
                         return strtotime($a->date) - strtotime($b->date);
@@ -117,13 +117,13 @@ class Owner
                 }
             });
         }
-        
+
         // Calculate total expenses
         $totalExpenses = 0;
         foreach ($serviceLogs as $log) {
             $totalExpenses += ($log->cost_per_hour * $log->total_hours);
         }
-        
+
         $this->view('owner/maintenance', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -137,26 +137,26 @@ class Owner
     {
         // Get the current user's ID
         $ownerId = $_SESSION['user']->pid ?? 0;
-        
+
         // Get user details from the User model
         $userModel = new User();
         $userData = $userModel->where(['pid' => $ownerId])[0] ?? null;
-        
+
         // Initialize models
         $property = new PropertyConcat;
         $booking = new BookingModel();
         $serviceLog = new ServiceLog();
-        
+
         // Get all properties owned by current user
         $properties = $property->where(['person_id' => $ownerId]);
         $propertyIds = [];
-        
-        if(!empty($properties)) {
-            foreach($properties as $prop) {
+
+        if (!empty($properties)) {
+            foreach ($properties as $prop) {
                 $propertyIds[] = $prop->property_id;
             }
         }
-        
+
         // Initialize data
         $bookings = [];
         $serviceLogs = [];
@@ -164,17 +164,17 @@ class Owner
         $totalExpenses = 0;
         $activeBookings = 0;
         $totalUnits = 0;
-        
+
         // Calculate monthly data for the last 6 months
         $currentMonth = date('n');
         $currentYear = date('Y');
-        
+
         // Initialize monthly data structure
         $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
             $year = ($currentMonth - $i) > 0 ? $currentYear : ($currentYear - 1);
-            
+
             $monthName = date('M', mktime(0, 0, 0, $month, 1, $year));
             $monthlyData[$monthName] = [
                 'income' => 0,
@@ -183,98 +183,98 @@ class Owner
                 'occupancy_rate' => 0
             ];
         }
-        
+
         // Get data only for properties owned by the current user
-        if(!empty($propertyIds)) {
+        if (!empty($propertyIds)) {
             // Get all bookings for owner's properties
-            foreach($propertyIds as $propId) {
+            foreach ($propertyIds as $propId) {
                 $propertyBookings = $booking->where(['property_id' => $propId]);
-                if(!empty($propertyBookings)) {
-                    foreach($propertyBookings as $b) {
+                if (!empty($propertyBookings)) {
+                    foreach ($propertyBookings as $b) {
                         $bookings[] = $b;
-                        
+
                         // Calculate income
                         $totalIncome += $b->price;
-                        
+
                         // Track active bookings - UPDATED LOGIC
-                        if(isset($b->status) && strtolower($b->status) === 'active') {
+                        if (isset($b->status) && strtolower($b->status) === 'active') {
                             $activeBookings++;
-                        } else if(isset($b->accept_status) && strtolower($b->accept_status) === 'accepted') {
+                        } else if (isset($b->accept_status) && strtolower($b->accept_status) === 'accepted') {
                             // Also count bookings with 'accepted' status if they don't have an explicit 'active' status
                             $activeBookings++;
                         }
-                        
+
                         // Add to monthly data
-                        if(isset($b->start_date)) {
+                        if (isset($b->start_date)) {
                             $bookingMonth = date('M', strtotime($b->start_date));
-                            if(isset($monthlyData[$bookingMonth])) {
+                            if (isset($monthlyData[$bookingMonth])) {
                                 $monthlyData[$bookingMonth]['income'] += $b->price;
                             }
                         }
                     }
                 }
-                
+
                 // Get service logs for this property
                 $propertyLogs = $serviceLog->where(['property_id' => $propId]);
-                if(!empty($propertyLogs)) {
-                    foreach($propertyLogs as $log) {
+                if (!empty($propertyLogs)) {
+                    foreach ($propertyLogs as $log) {
                         $serviceLogs[] = $log;
-                        
+
                         // Calculate expenses
                         $cost = $log->cost_per_hour * $log->total_hours;
                         $totalExpenses += $cost;
-                        
+
                         // Add to monthly data
-                        if(isset($log->date)) {
+                        if (isset($log->date)) {
                             $logMonth = date('M', strtotime($log->date));
-                            if(isset($monthlyData[$logMonth])) {
+                            if (isset($monthlyData[$logMonth])) {
                                 $monthlyData[$logMonth]['expense'] += $cost;
                             }
                         }
                     }
                 }
-                
+
                 // Track total units for occupancy calculation
                 $prop = $property->where(['property_id' => $propId])[0] ?? null;
-                if($prop && isset($prop->units)) {
+                if ($prop && isset($prop->units)) {
                     $totalUnits += $prop->units;
                 }
             }
         }
-        
+
         // UFetch tenant details using customer_id from the booking table
         $tenantDetails = [];
-        if(!empty($bookings)) {
+        if (!empty($bookings)) {
             // Collect all unique customer_ids from bookings
             $customerIds = [];
-            foreach($bookings as $booking) {
-                if(isset($booking->customer_id) && !in_array($booking->customer_id, $customerIds)) {
+            foreach ($bookings as $booking) {
+                if (isset($booking->customer_id) && !in_array($booking->customer_id, $customerIds)) {
                     $customerIds[] = $booking->customer_id;
                 }
             }
-            
+
             // Get tenant details using findByMultiplePids method
-            if(!empty($customerIds)) {
+            if (!empty($customerIds)) {
                 $tenants = $userModel->findByMultiplePids($customerIds);
-                
-                if($tenants) {
-                    foreach($tenants as $tenant) {
+
+                if ($tenants) {
+                    foreach ($tenants as $tenant) {
                         // Create an association by pid for easier lookup
                         $tenantDetails[$tenant->pid] = $tenant;
                     }
                 }
             }
         }
-        
+
         // Calculate profit and occupancy rate
         $profit = $totalIncome - $totalExpenses;
         $occupancyRate = ($totalUnits > 0) ? (($activeBookings / $totalUnits) * 100) : 0;
-        
+
         foreach ($monthlyData as $month => &$data) {
             $data['profit'] = $data['income'] - $data['expense'];
             $data['occupancy_rate'] = $occupancyRate;
         }
-        
+
         // Prepare data for the view
         $viewData = [
             'user' => $userData,
@@ -291,7 +291,7 @@ class Owner
             'activeBookings' => $activeBookings,
             'totalUnits' => $totalUnits
         ];
-        
+
         $this->view('owner/financeReport', $viewData);
     }
 
@@ -315,7 +315,7 @@ class Owner
             'properties' => $properties,
             'bookings' => $bookings
         ];
-        
+
         $this->view('owner/tenants', $viewData);
     }
 
@@ -430,6 +430,12 @@ class Owner
         } else if ($a == "review") {
             $this->reviewUnit($propertyId = $b);
             return;
+        } else if ($a == "addImages") {
+            $this->addImages($propertyId = $b);
+            return;
+        } else if ($a == "changeImages") {
+            $this->changeImages($propertyId = $b);
+            return;
         }
 
         //if property listing is being called
@@ -437,6 +443,80 @@ class Owner
         $properties = $property->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
 
         $this->view('owner/propertyListing', ['properties' => $properties]);
+    }
+
+    public function changeImages($propertyId)
+    {
+        $removed_images = $_POST['remove_images'] ?? [];
+        $removed_images_count = count($removed_images);
+        $new_images = $_FILES['property_images'] ?? null;
+        $new_images_names = array_filter($new_images['name']); // only names
+        $new_images_count = count($new_images_names);
+
+        if ($removed_images || $new_images) {
+            $propertyImage = new PropertyImageModel;
+            $currentImageCount = count($propertyImage->where(['property_id' => $propertyId]));
+            if ($currentImageCount - $removed_images_count + $new_images_count < 1) {
+                $_SESSION['flash']['msg'] = 'You must have at least one image.';
+                $_SESSION['flash']['type'] = 'warning';
+                redirect('dashboard/propertyListing/addImages/' . $propertyId);
+                return;
+            }
+
+            if (!empty($removed_images)) {
+                foreach ($removed_images as $image) {
+                    $propertyImage->delete($image, 'image_url');
+                    $imagePath = ROOTPATH . "public/assets/images/uploads/property_images/" . $image;
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            }
+    
+            if ($new_images_count) {
+                $imageErrors = upload_image(
+                    $new_images,
+                    ROOTPATH . 'public/assets/images/uploads/property_images/',
+                    new PropertyImageModel(),
+                    $propertyId,
+                    [
+                        'allowed_ext' => ['jpg', 'jpeg', 'png'],
+                        'prefix' => 'property',
+                        'url_field' => 'image_url',
+                        'fk_field' => 'property_id'
+                    ]
+                );
+                if (!empty($imageErrors)) {
+                    $_SESSION['flash']['msg'] = 'Failed to upload new images.';
+                    $_SESSION['flash']['type'] = 'error';
+                } else {
+                    $_SESSION['flash']['msg'] = 'Images updated successfully.';
+                    $_SESSION['flash']['type'] = 'success';
+                }
+            } else{
+                $_SESSION['flash']['msg'] = 'No new images selected for upload.';
+                $_SESSION['flash']['type'] = 'warning';
+            }
+
+            redirect('dashboard/propertyListing/propertyunitowner/' . $propertyId);
+        } else {
+            $_SESSION['flash']['msg'] = 'No images selected for upload or removal.';
+            $_SESSION['flash']['type'] = 'warning';
+            redirect('dashboard/propertyListing/addImages/' . $propertyId);
+        }
+    }
+
+    public function addImages($propertyId)
+    {
+        $property = new PropertyConcat;
+        $propertyUnit = $property->where(['property_id' => $propertyId])[0];
+
+        $this->view('owner/addImages', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'property' => $propertyUnit
+        ]);
     }
 
     public function reviewUnit($propertyId)
@@ -470,7 +550,7 @@ class Owner
         // Instantiate the Services model and fetch all services
         $servicesModel = new Services();
         $services = $servicesModel->getAllServices();
-        
+
         // Check and fix image paths for each service
         if (!empty($services)) {
             foreach ($services as $key => $service) {
@@ -478,7 +558,7 @@ class Owner
                 if (empty($service->service_img)) {
                     continue;
                 }
-                
+
                 // Check if the image exists in the specified location
                 $imagePath = ROOTPATH . 'public/assets/images/repairimages/' . $service->service_img;
                 if (!file_exists($imagePath)) {
@@ -486,7 +566,7 @@ class Owner
                     $found = false;
                     $extensions = ['jpg', 'jpeg', 'png', 'gif'];
                     $baseName = pathinfo($service->service_img, PATHINFO_FILENAME);
-                    
+
                     foreach ($extensions as $ext) {
                         $testPath = ROOTPATH . 'public/assets/images/repairimages/' . $baseName . '.' . $ext;
                         if (file_exists($testPath)) {
@@ -495,7 +575,7 @@ class Owner
                             break;
                         }
                     }
-                    
+
                     // If still not found, set to empty to use placeholder
                     if (!$found) {
                         $services[$key]->service_img = '';
@@ -503,7 +583,7 @@ class Owner
                 }
             }
         }
-        
+
         $this->view('owner/repairListing', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -519,7 +599,7 @@ class Owner
             $data = [
                 'service_type' => $_POST['service_type'],
                 'date' => $_POST['date'],
-                'property_id' => $_POST['property_id'], 
+                'property_id' => $_POST['property_id'],
                 'property_name' => $_POST['property_name'],
                 'status' => $_POST['status'],
                 'service_description' => $_POST['service_description'],
@@ -544,7 +624,7 @@ class Owner
         $property_name = $_GET['property_name'] ?? '';
         $service_type = $_GET['type'] ?? $type;
         $cost_per_hour = $_GET['cost_per_hour'] ?? '';
-        
+
         // Fetch property image if property_id is provided
         $propertyImage = null;
         if ($property_id) {
@@ -578,61 +658,61 @@ class Owner
         $user = new User();
 
         // notifications
-        if ($_SESSION['user']->AccountStatus == 3) {// reject update
+        if ($_SESSION['user']->AccountStatus == 3) { // reject update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             // set message
             $_SESSION['flash']['msg'] = "Your account update has been rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == 4) {// Approved update
+        } elseif ($_SESSION['user']->AccountStatus == 4) { // Approved update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             $_SESSION['flash']['msg'] = "Your account has been accepted.";
             $_SESSION['flash']['type'] = "success";
-        } elseif ($_SESSION['user']->AccountStatus == -3) {// Reject delete
+        } elseif ($_SESSION['user']->AccountStatus == -3) { // Reject delete
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             $_SESSION['flash']['msg'] = "Account removal was Rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == -4) {// Approve delete
+        } elseif ($_SESSION['user']->AccountStatus == -4) { // Approve delete
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
                 'AccountStatus' => 1
             ], 'pid');
             // update session
-            if($updateAcc){
+            if ($updateAcc) {
                 $_SESSION['user']->AccountStatus = 1;
             }
             $_SESSION['flash']['msg'] = "Account removal was Rejected.";
             $_SESSION['flash']['type'] = "error";
-        } elseif ($_SESSION['user']->AccountStatus == 2) {// update pending
-            
+        } elseif ($_SESSION['user']->AccountStatus == 2) { // update pending
+
             $_SESSION['flash']['msg'] = "Account update request is pending.";
             $_SESSION['flash']['type'] = "warning";
-        } elseif ($_SESSION['user']->AccountStatus == -2) {// Delete pending
-            
+        } elseif ($_SESSION['user']->AccountStatus == -2) { // Delete pending
+
             $_SESSION['flash']['msg'] = "Account removal request is pending.";
             $_SESSION['flash']['type'] = "warning";
         } // 0 for deleted in home page
-        
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['delete_account'])) {
                 $errors = [];
@@ -650,7 +730,6 @@ class Owner
 
                     $_SESSION['flash']['msg'] = "Deletion Request sent.Please wait for appoval.";
                     $_SESSION['flash']['type'] = "success";
-
                 } else {
                     $_SESSION['flash']['msg'] = "Failed to request deletion of account. Please try again.";
                     $_SESSION['flash']['type'] = "error";
@@ -678,7 +757,8 @@ class Owner
         return;
     }
 
-    private function handleProfileSubmission(){
+    private function handleProfileSubmission()
+    {
         $errors = [];
         $status = '';
         $targetFile = null;
@@ -942,36 +1022,36 @@ class Owner
         // Get user details from the User model
         $userModel = new User();
         $userData = $userModel->where(['pid' => $_SESSION['user']->pid])[0] ?? null;
-        
+
         // Get property details
         $property = new PropertyConcat;
         $propertyDetails = $property->where(['property_id' => $propertyId])[0] ?? null;
-        
+
         if (!$propertyDetails) {
             $_SESSION['flash']['msg'] = "Property not found";
             $_SESSION['flash']['type'] = "error";
             redirect('owner/financeReport');
             return;
         }
-        
+
         // Get agent details
         $agent = new User;
         $agentDetails = $agent->where(['pid' => $propertyDetails->agent_id])[0] ?? null;
-        
+
         // Initialize variables before using them
         $totalIncome = 0;
         $activeBookings = 0;
-        
+
         // Calculate monthly data for the last 6 months
         $currentMonth = date('n');
         $currentYear = date('Y');
-        
+
         // Initialize monthly data structure
         $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
             $year = ($currentMonth - $i) > 0 ? $currentYear : ($currentYear - 1);
-            
+
             $monthName = date('M', mktime(0, 0, 0, $month, 1, $year));
             $monthlyData[$monthName] = [
                 'income' => 0,
@@ -980,7 +1060,7 @@ class Owner
                 'occupancy_rate' => 0
             ];
         }
-        
+
         // Get all bookings/rentals (income) for this property
         $booking = new BookingModel();
         $bookings = $booking->where(['property_id' => $propertyId]);
@@ -995,24 +1075,25 @@ class Owner
                 $monthlyData[$bookingMonth]['income'] += $booking->price;
             }
             $totalIncome += $booking->price;
-            
-            if ((isset($booking->status) && strtolower($booking->status) === 'active') || 
-                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')) {
+
+            if ((isset($booking->status) && strtolower($booking->status) === 'active') ||
+                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')
+            ) {
                 $activeBookings++;
             }
         }
-        
+
         // Get all service logs (expenses) for this property
         $serviceLog = new ServiceLog();
         $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
         if (!is_array($serviceLogs) && !is_object($serviceLogs)) {
             $serviceLogs = []; // Ensure $serviceLogs is always iterable
         }
-        
+
         // Calculate monthly income and expenses for the last 6 months
         $currentMonth = date('n');
         $currentYear = date('Y');
-        
+
         // Calculate total income from bookings
         $totalIncome = 0;
         $activeBookings = 0;
@@ -1022,13 +1103,14 @@ class Owner
                 $monthlyData[$bookingMonth]['income'] += $booking->price;
             }
             $totalIncome += $booking->price;
-            
-            if ((isset($booking->status) && strtolower($booking->status) === 'active') || 
-                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')) {
+
+            if ((isset($booking->status) && strtolower($booking->status) === 'active') ||
+                (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted')
+            ) {
                 $activeBookings++;
             }
         }
-        
+
         // Calculate total expenses from service logs
         $totalExpenses = 0;
         foreach ($serviceLogs as $log) {
@@ -1039,18 +1121,18 @@ class Owner
             }
             $totalExpenses += $cost;
         }
-        
+
         // Calculate profit and occupancy rate
-        $occupancyRate = ($propertyDetails->units > 0) ? 
+        $occupancyRate = ($propertyDetails->units > 0) ?
             (($activeBookings / $propertyDetails->units) * 100) : 0;
-        
+
         foreach ($monthlyData as $month => &$data) {
             $data['profit'] = $data['income'] - $data['expense'];
             // Simplified occupancy calculation (will be more accurate with real data)
-            $data['occupancy_rate'] = isset($bookingCounts[$month]) && $propertyDetails->units > 0 ? 
+            $data['occupancy_rate'] = isset($bookingCounts[$month]) && $propertyDetails->units > 0 ?
                 ($bookingCounts[$month] / $propertyDetails->units) * 100 : $occupancyRate;
         }
-        
+
         // Prepare data for the view
         $viewData = [
             'user' => $userData,  // Use the user data from the model
@@ -1066,7 +1148,7 @@ class Owner
             'bookings' => $bookings,
             'serviceLogs' => $serviceLogs
         ];
-        
+
         $this->view('owner/financialReportUnit', $viewData);
     }
 
@@ -1250,16 +1332,16 @@ class Owner
                 // Redirect on success
                 $_SESSION['flash']['msg'] = "Property added successfully!";
                 $_SESSION['flash']['type'] = "success";
-                enqueueNotification('Property Added', 'New property has been added!', 'dashboard/managementhome/propertymanagement/assignagents' , 'Notification_green' , MANAGER_ID);
-                enqueueNotification('Property Added', 'Your property has been added successfully.', '' , 'Notification_green');
+                enqueueNotification('Property Added', 'New property has been added!', 'dashboard/managementhome/propertymanagement/assignagents', 'Notification_green', MANAGER_ID);
+                enqueueNotification('Property Added', 'Your property has been added successfully.', '', 'Notification_green');
                 redirect('property/propertyListing');
             } else {
-                enqueueNotification('Property Addition Failed', 'Failed to add property. Please try again.', '' , 'Notification_red');
+                enqueueNotification('Property Addition Failed', 'Failed to add property. Please try again.', '', 'Notification_red');
                 $property->errors['insert'] = 'Failed to add Property. Please try again.';
                 $this->view('property/propertyListing', ['property' => $property]);
             }
         } else {
-            enqueueNotification('Property Creation Failed', 'Failed to create property. Please try again.', '' , 'Notification_red');
+            enqueueNotification('Property Creation Failed', 'Failed to create property. Please try again.', '', 'Notification_red');
             $this->view('property/propertyListing', ['property' => $property]);
         }
     }
@@ -1269,11 +1351,11 @@ class Owner
         $property = new Property;
         $res = $property->update($propertyId, $data, 'property_id');
         if ($res) {
-            enqueueNotification('Property Updated', 'Your property has been updated successfully.', '' , 'Notification_green');
+            enqueueNotification('Property Updated', 'Your property has been updated successfully.', '', 'Notification_green');
             $_SESSION['flash']['msg'] = "Property updated successfully!";
             $_SESSION['flash']['type'] = "success";
         } else {
-            enqueueNotification('Property Update Failed', 'Failed to update property. Please try again.', '' , 'Notification_red');
+            enqueueNotification('Property Update Failed', 'Failed to update property. Please try again.', '', 'Notification_red');
             $_SESSION['flash']['msg'] = "Failed to update property. Please try again.";
             $_SESSION['flash']['type'] = "error";
         }
@@ -1423,8 +1505,8 @@ class Owner
 
                     $_SESSION['flash']['msg'] = "Property Update Request Sent!";
                     $_SESSION['flash']['type'] = "success";
-                    enqueueNotification('Property Update Request', 'Your property update request has been sent successfully.', '' , 'Notification_green');
-                    enqueueNotification('Property Update Request', 'A property update request has been sent for your property.', ROOT . '/dashboard/property/comparePropertyUpdate/' . $beforeDetails->property_id , 'Notification_green', $beforeDetails->agent_id);
+                    enqueueNotification('Property Update Request', 'Your property update request has been sent successfully.', '', 'Notification_green');
+                    enqueueNotification('Property Update Request', 'A property update request has been sent for your property.', ROOT . '/dashboard/property/comparePropertyUpdate/' . $beforeDetails->property_id, 'Notification_green', $beforeDetails->agent_id);
                     redirect('property/propertyListing');
                 } else {
                     $_SESSION['flash']['msg'] = "Property update failed!";
@@ -1450,26 +1532,24 @@ class Owner
     {
         $propertyInstanse = new Property;
         $property = $propertyInstanse->where(['property_id' => $propertyId])[0];
-        if($property->status == 'Pending'){
+        if ($property->status == 'Pending') {
             $updated = $propertyInstanse->update($propertyId, ['status' => 'Inactive'], 'property_id');
             if ($updated) {
                 $_SESSION['flash']['msg'] = "Property deleted successfully!";
                 $_SESSION['flash']['type'] = "success";
-                enqueueNotification('Property Deletion', 'Your property has been deleted successfully.', '' , 'Notification_green');
+                enqueueNotification('Property Deletion', 'Your property has been deleted successfully.', '', 'Notification_green');
             } else {
                 $_SESSION['flash']['msg'] = "Failed to delete property. Please try again.";
                 $_SESSION['flash']['type'] = "error";
-                enqueueNotification('Property Deletion Failed', 'Failed to delete property. Please try again.', '' , 'Notification_red');
+                enqueueNotification('Property Deletion Failed', 'Failed to delete property. Please try again.', '', 'Notification_red');
             }
             redirect('property/propertyListing');
-        }
-        elseif ($property->status == 'Occupied'){
+        } elseif ($property->status == 'Occupied') {
             $_SESSION['flash']['msg'] = "You cannot delete an occupied property!";
             $_SESSION['flash']['type'] = "error";
-            enqueueNotification('Property Deletion Failed', 'You cannot delete an Occupied property. Wait until Rental period is over!', '' , 'Notification_red');
+            enqueueNotification('Property Deletion Failed', 'You cannot delete an Occupied property. Wait until Rental period is over!', '', 'Notification_red');
             redirect('property/propertyListing');
-        }
-        elseif ($property->status == 'Active'){
+        } elseif ($property->status == 'Active') {
             $deleteRequest = new DeleteRequests;
             $ownerId = $property->person_id;
             $agentId = $property->agent_id;
@@ -1483,16 +1563,15 @@ class Owner
             if ($deleteRequest) {
                 $_SESSION['flash']['msg'] = "Property deletion request sent successfully!";
                 $_SESSION['flash']['type'] = "success";
-                enqueueNotification('Property Deletion Request', 'Your property deletion request has been sent successfully.', ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyId , 'Notification_green');
-                enqueueNotification('Property Deletion Request', 'A property deletion request has been sent for your property.', ROOT . '/dashboard/property/removalRequests' , 'Notification_green', $agentId);
+                enqueueNotification('Property Deletion Request', 'Your property deletion request has been sent successfully.', ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyId, 'Notification_green');
+                enqueueNotification('Property Deletion Request', 'A property deletion request has been sent for your property.', ROOT . '/dashboard/property/removalRequests', 'Notification_green', $agentId);
             } else {
                 $_SESSION['flash']['msg'] = "Failed to send property deletion request. Please try again.";
                 $_SESSION['flash']['type'] = "error";
-                enqueueNotification('Property Deletion Request Failed', 'Failed to send property deletion request. Please try again.', '' , 'Notification_red');
+                enqueueNotification('Property Deletion Request Failed', 'Failed to send property deletion request. Please try again.', '', 'Notification_red');
             }
             redirect('property/propertyListing');
-        }      
-        
+        }
     }
 
     public function payment($serviceId = '')
@@ -1502,18 +1581,18 @@ class Owner
             redirect('/dashboard/maintenance');
             return;
         }
-        
+
         // Get service details
         $serviceLog = new ServiceLog();
         $serviceDetails = $serviceLog->first(['service_id' => $serviceId]);
-        
+
         if (!$serviceDetails) {
             $_SESSION['flash']['msg'] = "Service not found";
             $_SESSION['flash']['type'] = "error";
             redirect('/dashboard/maintenance');
             return;
         }
-        
+
         // Pass the service details to the payment view
         $this->view('owner/payment', [
             'user' => $_SESSION['user'],
@@ -1528,11 +1607,11 @@ class Owner
         // Get property details
         $property = new PropertyConcat;
         $propertyDetails = $property->where(['property_id' => $propertyId])[0];
-        
+
         // Get service logs for this property
         $serviceLog = new ServiceLog();
         $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
-        
+
         // Apply status filtering
         if (!empty($_GET['status_filter'])) {
             $status = $_GET['status_filter'];
@@ -1549,28 +1628,28 @@ class Owner
         if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
             $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
             $dateTo = !empty($_GET['date_to']) ? strtotime($_GET['date_to'] . ' 23:59:59') : null;
-            
+
             $filteredLogs = [];
             foreach ($serviceLogs as $log) {
                 $logDate = strtotime($log->date);
-                
+
                 // Check if the log date is within the specified range
                 $includeLog = true;
                 if ($dateFrom && $logDate < $dateFrom) $includeLog = false;
                 if ($dateTo && $logDate > $dateTo) $includeLog = false;
-                
+
                 if ($includeLog) {
                     $filteredLogs[] = $log;
                 }
             }
             $serviceLogs = $filteredLogs;
         }
-        
+
         // Apply sorting
         if (!empty($_GET['sort'])) {
             $sort = $_GET['sort'];
-            
-            usort($serviceLogs, function($a, $b) use ($sort) {
+
+            usort($serviceLogs, function ($a, $b) use ($sort) {
                 switch ($sort) {
                     case 'date_asc':
                         return strtotime($a->date) - strtotime($b->date);
@@ -1581,7 +1660,7 @@ class Owner
                 }
             });
         }
-        
+
         // Calculate total cost and pending count
         $totalCost = 0;
         $pendingCount = 0;
@@ -1591,7 +1670,7 @@ class Owner
                 $pendingCount++;
             }
         }
-        
+
         $this->view('owner/trackOrder', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -1604,7 +1683,8 @@ class Owner
     }
 
 
-    public function payAdvance($property_id){
+    public function payAdvance($property_id)
+    {
         $property = new Property;
         $propertyDetails = $property->where(['property_id' => $property_id])[0];
         if (!$propertyDetails) {
@@ -1613,13 +1693,13 @@ class Owner
             redirect('dashboard/propertyListing');
             return;
         }
-        if($propertyDetails->person_id != $_SESSION['user']->pid){
+        if ($propertyDetails->person_id != $_SESSION['user']->pid) {
             $_SESSION['flash']['msg'] = "You are not authorized to view this property";
             $_SESSION['flash']['type'] = "error";
             redirect('dashboard/propertyListing');
             return;
         }
-        
+
 
         $advance_price = findAdvancePrice($propertyDetails->rental_price);
         $payment = [
@@ -1635,11 +1715,11 @@ class Owner
             'item' => 'Property Advance Payment on ' . $propertyDetails->name,
             'address' => $propertyDetails->address,
             'city' => $propertyDetails->city,
-            'return_url' => ROOT . '/dashboard/advancePaymentStatus/success/' . $property_id ,
+            'return_url' => ROOT . '/dashboard/advancePaymentStatus/success/' . $property_id,
             'cancel_url' => ROOT . '/dashboard/advancePaymentStatus/failed/' . $property_id,
         ];
 
-        $this->view('paymentGateway' , ['payment' => $payment , 'property' => $propertyDetails]);
+        $this->view('paymentGateway', ['payment' => $payment, 'property' => $propertyDetails]);
     }
 
     public function advancePaymentStatus($status, $property_id)
@@ -1652,7 +1732,7 @@ class Owner
             redirect('dashboard/propertyListing/propertyunitowner/37' . $property_id);
             return;
         }
-        if($propertyDetails->person_id != $_SESSION['user']->pid){
+        if ($propertyDetails->person_id != $_SESSION['user']->pid) {
             $_SESSION['flash']['msg'] = "You are not authorized to view this property";
             $_SESSION['flash']['type'] = "error";
             redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
@@ -1660,7 +1740,7 @@ class Owner
         }
 
         if ($status == 'success') {
-            if(!$property_id){
+            if (!$property_id) {
                 $_SESSION['flash']['msg'] = "Property not found";
                 $_SESSION['flash']['type'] = "error";
                 redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
@@ -1668,8 +1748,8 @@ class Owner
             }
             $property = new Property;
             $newRentalPrice = $propertyDetails->rental_price - findAdvancePrice($propertyDetails->rental_price);
-            $updateAdvancePayment = $property->update($property_id, ['advance_paid' => 'Paid' , 'rental_price' => $newRentalPrice], 'property_id');
-            if(!$updateAdvancePayment) {
+            $updateAdvancePayment = $property->update($property_id, ['advance_paid' => 'Paid', 'rental_price' => $newRentalPrice], 'property_id');
+            if (!$updateAdvancePayment) {
                 $_SESSION['flash']['msg'] = "Failed to update advance payment status. Please try again.";
                 $_SESSION['flash']['type'] = "error";
                 redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
@@ -1687,24 +1767,24 @@ class Owner
                 'created_at' => date('Y-m-d H:i:s'),
                 'payment_type' => 'advance'
             ]);
-            if(!$sharePayment) {
+            if (!$sharePayment) {
                 $_SESSION['flash']['msg'] = "Failed to record advance payment. Please try again.";
                 $_SESSION['flash']['type'] = "error";
                 redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
                 return;
             }
             // Payment was successful
-            enqueueNotification('Advance Payment Success', 'Your advance payment has been successfully processed on property' . $propertyDetails->name , '' , 'Notification_green');
-            enqueueNotification('Advance Payment Success', 'An advance payment has been successfully processed for your property.', ROOT . '/dashboard/preInspection' , 'Notification_green', $propertyDetails->agent_id);
+            enqueueNotification('Advance Payment Success', 'Your advance payment has been successfully processed on property' . $propertyDetails->name, '', 'Notification_green');
+            enqueueNotification('Advance Payment Success', 'An advance payment has been successfully processed for your property.', ROOT . '/dashboard/preInspection', 'Notification_green', $propertyDetails->agent_id);
             $_SESSION['flash']['msg'] = "Payment successful!";
             $_SESSION['flash']['type'] = "success";
         } else {
             // Payment failed or was cancelled
-            enqueueNotification('Advance Payment Failed', 'Your advance payment has failed or was cancelled.', '' , 'Notification_red');
+            enqueueNotification('Advance Payment Failed', 'Your advance payment has failed or was cancelled.', '', 'Notification_red');
             $_SESSION['flash']['msg'] = "Payment failed or cancelled!";
             $_SESSION['flash']['type'] = "error";
         }
-        
+
         redirect('dashboard/propertyListing');
     }
 }

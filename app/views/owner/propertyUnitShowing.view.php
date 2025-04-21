@@ -45,6 +45,10 @@
                 <span class="tooltip-text">Edit Details</span>
             </div>
             <div class="tooltip-container">
+                <img src="<?= ROOT ?>/assets/images/image.png" alt="edit" class="small-icons align-to-right color_edit" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/addImages/<?= $property->property_id ?>'">
+                <span class="tooltip-text">Add Images</span>
+            </div>
+            <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/delete_black.png" alt="edit" class="small-icons align-to-right color_caution" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/deleteView/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Remove</span>
             </div>

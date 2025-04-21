@@ -82,6 +82,20 @@
     align-items: center;
 }
 
+.img-preview-extended{
+    display: flex;
+    width: 100px;
+    height: 100px;
+    background-color: var(--background-color);
+    border-radius: 15px;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 10px;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
 .img-preview img{
     position: relative;
     width: 50px;
