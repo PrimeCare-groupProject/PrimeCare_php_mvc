@@ -14,7 +14,8 @@ class SharePayment{
         'rental_period_start',
         'rental_period_end',
         'transaction_id',
-        'created_at'
+        'created_at',
+        'payment_type'
     ];
 
     public $errors = [];
