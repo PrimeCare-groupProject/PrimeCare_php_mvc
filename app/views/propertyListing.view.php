@@ -101,11 +101,10 @@
                     <?php foreach ($properties as $property): ?>
                         <?php
                         $images = explode(',', $property->property_images);
-                        $firstImage = $images[0] ?? 'default.png'; // Fallback to a default image if none exist
                         ?>
 
                         <div class="PL_property-card">
-                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $firstImage ?>" alt="property" class="property-card-image"></a>
+                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= get_img($images[0] , 'property') ?>" alt="property" class="property-card-image"></a>
                             <div class="content-section-of-card">
                                 <div class="address">
                                     <?= $property->address ?>

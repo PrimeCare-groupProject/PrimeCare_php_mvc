@@ -2,17 +2,18 @@
     <?php $images = explode(',', $property->property_images) ?>
     <?php 
         if(empty($images[0])) {
-            $images[0] = 'default.png'; // Set a default image if none are available
+            $images[0] = 'property.png'; // Set a default image if none are available
         }   
     ?>
     <div class="image-slider">
         <div class="main-image">
-            <img id="main-image" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $images[0] ?>" alt="Property Image">
+            <img id="main-image" src="<?= get_img($images[0] , 'property') ?>" alt="Property Image">
         </div>
         <div class="thumbnails">
             <?php foreach ($images as $index => $image): ?>
-                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Thumbnail 1">
-            <?php endforeach; ?>
+                <!-- <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Thumbnail 1"> -->
+                <img onclick="changeImage(this)" src="<?= get_img($image , 'property') ?>" alt="Thumbnail 1">
+                <?php endforeach; ?>
         </div>
     </div>
 
