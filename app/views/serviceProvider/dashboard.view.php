@@ -85,20 +85,27 @@ if ($grandTotalServices > 0) {
                 </div>
             </div>
             
-            <!-- TO-DO List -->
+            <!-- SECTION 1: Ongoing Repair Tasks (ServiceLog) -->
             <div class="dashboard-card todo-list">
                 <div class="card-header">
-                    <h2><i class="fas fa-clipboard-list"></i> Ongoing Tasks</h2>
-                    <a href="<?= ROOT ?>/dashboard/repairRequests?status=Ongoing" class="view-all">View All</a>
+                    <h2><i class="fas fa-clipboard-list"></i> Ongoing Repair Tasks</h2>
+                    <a href="<?= ROOT ?>/serviceprovider/repairRequests?status=Ongoing" class="view-all">View All</a>
                 </div>
                 
-                <div class="card-content" style="max-height:400px; overflow-y:auto;">
-                    <?php if (empty($ongoingWorks)): ?>
-                        <p class="no-tasks">No ongoing tasks at the moment.</p>
-                    <?php else: ?>
+                <div class="card-content" style="max-height:300px; overflow-y:auto;">
+                    <?php 
+                    $hasOngoingRepairs = false;
+                    if (!empty($ongoingWorks)) {
+                        $repairTasks = array_filter($ongoingWorks, function($task) {
+                            return empty($task->is_external);
+                        });
+                        
+                        if (!empty($repairTasks)):
+                            $hasOngoingRepairs = true;
+                    ?>
                         <ul class="task-list">
-                            <?php foreach ($ongoingWorks as $task): ?>
-                                <li class="task-item">
+                            <?php foreach ($repairTasks as $task): ?>
+                                <li class="task-item repair-task">
                                     <div class="task-header">
                                         <h3><?= htmlspecialchars($task->service_type ?? 'Unknown') ?> - <?= htmlspecialchars($task->property_name ?? 'Unknown') ?></h3>
                                         <span class="task-time"><?= $task->time_info ?? 'N/A' ?></span>
@@ -116,26 +123,87 @@ if ($grandTotalServices > 0) {
                                 </li>
                             <?php endforeach; ?>
                         </ul>
+                    <?php 
+                        endif;
+                    }
+                    
+                    if (!$hasOngoingRepairs): 
+                    ?>
+                        <p class="no-tasks">No ongoing repair tasks at the moment.</p>
                     <?php endif; ?>
                 </div>
             </div>
 
-            <!-- Recent Completed Tasks -->
-            <div class="dashboard-card recent-tasks">
+            <!-- SECTION 2: Ongoing External Tasks -->
+            <div class="dashboard-card todo-list">
                 <div class="card-header">
-                    <h2><i class="fas fa-check-double"></i> Recent Completed Tasks</h2>
-                    <a href="<?= ROOT ?>/dashboard/repairRequests?status=Done" class="view-all">View All</a>
+                    <h2><i class="fas fa-tools"></i> Ongoing External Tasks</h2>
+                    <a href="<?= ROOT ?>/serviceprovider/externalServices?status=ongoing" class="view-all">View All</a>
                 </div>
                 
                 <div class="card-content" style="max-height:300px; overflow-y:auto;">
-                    <?php if (empty($completedWorks) || $completedWorks == 0): ?>
-                        <p class="no-tasks">No completed tasks yet.</p>
-                    <?php elseif (empty($recentCompletedTasks)): ?>
-                        <p class="no-tasks">Task details not available.</p>
-                    <?php else: ?>
+                    <?php 
+                    $hasOngoingExternal = false;
+                    if (!empty($ongoingWorks)) {
+                        $externalTasks = array_filter($ongoingWorks, function($task) {
+                            return !empty($task->is_external);
+                        });
+                        
+                        if (!empty($externalTasks)):
+                            $hasOngoingExternal = true;
+                    ?>
+                        <ul class="task-list">
+                            <?php foreach ($externalTasks as $task): ?>
+                                <li class="task-item external-task">
+                                    <div class="task-header">
+                                        <h3><?= htmlspecialchars($task->service_type ?? 'Unknown') ?> - <?= htmlspecialchars($task->property_name ?? 'External Location') ?></h3>
+                                        <span class="task-time"><?= $task->time_info ?? 'N/A' ?></span>
+                                    </div>
+                                    <div class="task-details">
+                                        <p class="task-description"><?= htmlspecialchars($task->service_description ?? 'No description available') ?></p>
+                                        <div class="task-meta">
+                                            <span class="task-hours"><i class="fas fa-clock"></i> <?= $task->total_hours ?? 0 ?> hours</span>
+                                            <span class="task-cost"><i class="fas fa-money-bill"></i> LKR <?= number_format($task->earnings ?? 0, 2) ?></span>
+                                        </div>
+                                    </div>
+                                    <a href="<?= ROOT ?>/serviceprovider/updateExternalService?id=<?= $task->service_id ?? 0 ?>" class="task-action">
+                                        <i class="fas fa-pen"></i> Update
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php 
+                        endif;
+                    }
+                    
+                    if (!$hasOngoingExternal): 
+                    ?>
+                        <p class="no-tasks">No ongoing external tasks at the moment.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Completed Repair Tasks -->
+            <div class="dashboard-card recent-tasks">
+                <div class="card-header">
+                    <h2><i class="fas fa-check-double"></i> Recent Completed Repairs</h2>
+                    <a href="<?= ROOT ?>/serviceprovider/repairRequests?status=Done" class="view-all">View All</a>
+                </div>
+                
+                <div class="card-content" style="max-height:250px; overflow-y:auto;">
+                    <?php 
+                    $hasCompletedRepairs = false;
+                    if (!empty($recentCompletedTasks)) {
+                        $completedRepairs = array_filter($recentCompletedTasks, function($task) {
+                            return empty($task->is_external);
+                        });
+                        
+                        if (!empty($completedRepairs)):
+                            $hasCompletedRepairs = true;
+                    ?>
                         <ul class="task-list completed-list">
-                            <?php foreach ($recentCompletedTasks as $task): ?>
-                                <li class="task-item completed-item">
+                            <?php foreach ($completedRepairs as $task): ?>
+                                <li class="task-item completed-item repair-completed">
                                     <div class="task-header">
                                         <h3><?= htmlspecialchars($task->service_type ?? 'Unknown') ?> - <?= htmlspecialchars($task->property_name ?? 'Unknown') ?></h3>
                                         <span class="task-badge">Completed</span>
@@ -149,6 +217,58 @@ if ($grandTotalServices > 0) {
                                 </li>
                             <?php endforeach; ?>
                         </ul>
+                    <?php 
+                        endif;
+                    }
+                    
+                    if (!$hasCompletedRepairs): 
+                    ?>
+                        <p class="no-tasks">No completed repair tasks yet.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Completed External Tasks -->
+            <div class="dashboard-card recent-tasks">
+                <div class="card-header">
+                    <h2><i class="fas fa-check-circle"></i> Recent Completed External Tasks</h2>
+                    <a href="<?= ROOT ?>/serviceprovider/externalServices?status=done" class="view-all">View All</a>
+                </div>
+                
+                <div class="card-content" style="max-height:250px; overflow-y:auto;">
+                    <?php 
+                    $hasCompletedExternal = false;
+                    if (!empty($recentCompletedTasks)) {
+                        $completedExternal = array_filter($recentCompletedTasks, function($task) {
+                            return !empty($task->is_external);
+                        });
+                        
+                        if (!empty($completedExternal)):
+                            $hasCompletedExternal = true;
+                    ?>
+                        <ul class="task-list completed-list">
+                            <?php foreach ($completedExternal as $task): ?>
+                                <li class="task-item completed-item external-completed">
+                                    <div class="task-header">
+                                        <h3><?= htmlspecialchars($task->service_type ?? 'Unknown') ?> - <?= htmlspecialchars($task->property_name ?? 'External Location') ?></h3>
+                                        <span class="task-badge external-badge">Completed</span>
+                                    </div>
+                                    <div class="task-details">
+                                        <div class="task-meta">
+                                            <span class="task-date"><i class="fas fa-calendar-check"></i> <?= date('M d, Y', strtotime($task->date)) ?></span>
+                                            <span class="task-profit"><i class="fas fa-dollar-sign"></i> LKR <?= number_format($task->cost_per_hour * $task->total_hours, 2) ?></span>
+                                        </div>
+                                    </div>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php 
+                        endif;
+                    }
+                    
+                    if (!$hasCompletedExternal): 
+                    ?>
+                        <p class="no-tasks">No completed external tasks yet.</p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -297,22 +417,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         legend: {
                             position: 'right',
                             labels: {
-                                boxWidth: 10,
+                                boxWidth: 8, 
                                 font: {
-                                    size: 9
-                                }
+                                    size: 8 
+                                },
+                                padding: 3 
                             }
                         },
                         tooltip: {
                             titleFont: {
-                                size: 9
+                                size: 8
                             },
                             bodyFont: {
-                                size: 8
+                                size: 6
+                            },
+                            padding: {
+                                top: 3,
+                                bottom: 3,
+                                left: 4,
+                                right: 4
                             }
                         }
                     },
-                    cutout: '60%'
+                    cutout: '65%' 
                 }
             });
         } else {
@@ -495,6 +622,14 @@ html, body {
     overflow: hidden;
 }
 
+.dashboard-card .service-distribution .service-type .service-info .service-name {
+    font-size: 14px !important;
+}
+
+.dashboard-card .service-distribution .service-type .service-info .service-earnings {
+    font-size: 14px !important;
+}
+
 .card-header {
     display: flex;
     justify-content: space-between;
@@ -537,8 +672,9 @@ html, body {
     position: relative;
 }
 
-.pie-chart {
-    height: 180px; /* Reduced from 250px */
+.p.pie-chart {
+    height: 150px !important; /* Reduced from 180px */
+    max-height: 150px !important;
     display: flex;
     justify-content: center;
 }
@@ -623,44 +759,52 @@ html, body {
 
 /* Service distribution styles */
 .service-distribution {
-    margin-top: 15px;
-    padding: 8px;
+    margin-top: 8px;
+    padding: 5px;
     background: #fafafa;
-    border-radius: 8px;
-    font-size: 14px; /* Slightly smaller base font */
+    border-radius: 5px;
+    font-size: 9px !important; 
 }
 
 .service-type {
-    margin-bottom: 12px;
-    padding: 8px;
+    margin-bottom: 6px !important; 
+    padding: 5px !important; 
     border: 1px solid #eee;
-    border-radius: 6px;
+    border-radius: 4px;
     background: #fff;
-    font-size: 0.9rem; /* Decrease font size for details */
+    font-size: 14px !important; 
 }
 
 .service-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: 2px !important; 
+    font-size: 13px !important; 
 }
 
 .service-name {
     font-weight: 500;
+    font-size: 12px !important; 
+    max-width: 70%; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .service-earnings {
     font-weight: 400;
     color: #333;
+    font-size: 12px !important; 
+    text-align: right;
 }
 
 .service-bar {
-    height: 8px;
+    height: 4px !important; 
     background: #f0f0f0;
-    border-radius: 4px;
+    border-radius: 2px; 
     overflow: hidden;
-    margin: 5px 0;
+    margin: 3px 0 !important; 
 }
 
 .service-bar-fill {
@@ -670,7 +814,7 @@ html, body {
 }
 
 .service-count {
-    font-size: 0.8rem;
+    font-size: 10px !important;
     color: #777;
 }
 
@@ -686,6 +830,59 @@ html, body {
     background: #f9f9f9;
     border-radius: 6px;
     text-align: center;
+}
+
+/* Enhanced hover effects for top-section cards */
+.total-earnings:hover {
+    background: linear-gradient(to right, #ffffff, #e3f2fd);
+    border-left-width: 8px;
+    border-left-color: #1976D2; /* Darker blue */
+}
+
+.total-earnings:hover .card-icon {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.4) 100%);
+    color: #1565C0; /* Deeper blue */
+    transform: scale(1.1);
+}
+
+.total-tasks:hover {
+    background: linear-gradient(to right, #ffffff, #ffebee);
+    border-left-width: 8px;
+    border-left-color: #D32F2F; /* Darker red */
+}
+
+.total-tasks:hover .card-icon {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.4) 100%);
+    color: #C62828; /* Deeper red */
+    transform: scale(1.1);
+}
+
+.total-completed:hover {
+    background: linear-gradient(to right, #ffffff, #f3e5f5);
+    border-left-width: 8px;
+    border-left-color: #7B1FA2; /* Darker purple */
+}
+
+.total-completed:hover .card-icon {
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.2) 0%, rgba(156, 39, 176, 0.4) 100%);
+    color: #6A1B9A; /* Deeper purple */
+    transform: scale(1.1);
+}
+
+.total-hours:hover {
+    background: linear-gradient(to right, #ffffff, #fff3e0);
+    border-left-width: 8px;
+    border-left-color: #EF6C00; /* Darker orange */
+}
+
+.total-hours:hover .card-icon {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 152, 0, 0.4) 100%);
+    color: #E65100; /* Deeper orange */
+    transform: scale(1.1);
+}
+
+.card, .card-icon, .card-icon i {
+    transition: all 0.3s ease;
 }
 
 .stat-label {
@@ -714,12 +911,19 @@ html, body {
     background: #4caf50;
 }
 
+.service-name, 
+.service-earnings, 
+.service-count {
+    line-height: 1.2 !important;
+}
+
 /* No tasks/empty state */
 .no-tasks {
     color: #777;
     font-style: italic;
     text-align: center;
-    padding: 15px;
+    padding: 10px;
+    font-size: 14px !important;
 }
 
 /* Responsive adjustments */
@@ -770,6 +974,44 @@ html, body {
     font-size: 12px;
     font-weight: 600;
     color: #2e7d32;
+}
+
+/* Add these styles to differentiate between repair and external tasks */
+.repair-task {
+    border-left-color: #2196F3; /* Blue for repair tasks */
+}
+
+.external-task {
+    border-left-color: #FF9800; /* Orange for external tasks */
+}
+
+.repair-completed {
+    border-left-color: #4CAF50; /* Green for completed repair tasks */
+}
+
+.external-completed {
+    border-left-color: #9C27B0; /* Purple for completed external tasks */
+}
+
+.task-badge.external-badge {
+    background: #FF9800; /* Orange badge for external completions */
+}
+
+/* Card headers with different colors */
+.dashboard-card:nth-of-type(1) .card-header h2 i {
+    color: #2196F3; /* Blue */
+}
+
+.dashboard-card:nth-of-type(2) .card-header h2 i {
+    color: #FF9800; /* Orange */
+}
+
+.dashboard-card:nth-of-type(3) .card-header h2 i {
+    color: #4CAF50; /* Green */
+}
+
+.dashboard-card:nth-of-type(4) .card-header h2 i {
+    color: #9C27B0; /* Purple */
 }
 </style>
 
