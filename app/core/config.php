@@ -21,6 +21,7 @@
   define('APP_NAME', 'PrimeCare');
   define('APP_DESC', 'Protect . Earn . Find');
   define('RENTAL_PRICE', 1000); // rental price for a day
+  define('ADVANCE_PERCENTAGE', 10); // advance price for a day
 
   //  true means show any errors
   define('DEBUG', true);

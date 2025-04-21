@@ -19,26 +19,35 @@ class Owner
 
     public function index()
     {
-        // $flash = [
-        //     'msg' => "This is the message",
-        //     'type' => "success"
-        // ];
-        // $_SESSION['flash'] = $flash;
+        $serviceLog = new ServiceLog();
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $_SESSION['user']->pid]);
 
+        $properties = new PropertyConcat;
+        $properties = $properties->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
+        $propertyCount = count($properties);
+
+        $totalServiceCost = 0;
+        foreach ($serviceLogs as $log) {
+            $totalServiceCost += ($log->total_cost);
+        }
 
         $this->view('owner/dashboard', [
             'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'serviceLogs' => $serviceLogs,
+            'propertyCount' => $propertyCount,
+            'totalServiceCost' => $totalServiceCost,
         ]);
     }
 
     public function dashboard()
     {
+        $serviceLog = new ServiceLog();
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $_SESSION['user']->pid]);
         $this->view('owner/dashboard', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'],
-            'status' => $_SESSION['status']
+            'status' => $_SESSION['status'],
+            'serviceLogs' => $serviceLogs
         ]);
     }
 
@@ -288,11 +297,26 @@ class Owner
 
     public function tenants()
     {
-        $this->view('owner/tenants', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
-        ]);
+        $user = new User();
+        $userData = $user->where(['pid' => $_SESSION['user']->pid])[0];
+
+        $property = new PropertyConcat;
+        $properties = $property->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
+
+        //$booking = new BookingModel();
+        //$bookings = $booking->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Active']);
+        $bookings = [];
+        $tenantDetails = [];
+
+
+        $viewData = [
+            'user' => $userData,
+            'tenantDetails' => $tenantDetails,
+            'properties' => $properties,
+            'bookings' => $bookings
+        ];
+        
+        $this->view('owner/tenants', $viewData);
     }
 
     private function addProperty()
@@ -1577,5 +1601,110 @@ class Owner
             'totalCost' => $totalCost,
             'pendingCount' => $pendingCount
         ]);
+    }
+
+
+    public function payAdvance($property_id){
+        $property = new Property;
+        $propertyDetails = $property->where(['property_id' => $property_id])[0];
+        if (!$propertyDetails) {
+            $_SESSION['flash']['msg'] = "Property not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertyListing');
+            return;
+        }
+        if($propertyDetails->person_id != $_SESSION['user']->pid){
+            $_SESSION['flash']['msg'] = "You are not authorized to view this property";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertyListing');
+            return;
+        }
+        
+
+        $advance_price = findAdvancePrice($propertyDetails->rental_price);
+        $payment = [
+            'payment_name' => 'Property Advance Payment',
+            'property_id' => $property_id,
+            'fname' => $_SESSION['user']->fname,
+            'lname' => $_SESSION['user']->lname,
+            'email' => $_SESSION['user']->email,
+            'phone' => $_SESSION['user']->contact,
+            'amount' => $advance_price,
+            'order_id' => uniqid('PropertyAdvance_'),
+            'currency' => 'LKR',
+            'item' => 'Property Advance Payment on ' . $propertyDetails->name,
+            'address' => $propertyDetails->address,
+            'city' => $propertyDetails->city,
+            'return_url' => ROOT . '/dashboard/advancePaymentStatus/success/' . $property_id ,
+            'cancel_url' => ROOT . '/dashboard/advancePaymentStatus/failed/' . $property_id,
+        ];
+
+        $this->view('paymentGateway' , ['payment' => $payment , 'property' => $propertyDetails]);
+    }
+
+    public function advancePaymentStatus($status, $property_id)
+    {
+        $property = new Property;
+        $propertyDetails = $property->where(['property_id' => $property_id])[0];
+        if (!$propertyDetails) {
+            $_SESSION['flash']['msg'] = "Property not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertyListing/propertyunitowner/37' . $property_id);
+            return;
+        }
+        if($propertyDetails->person_id != $_SESSION['user']->pid){
+            $_SESSION['flash']['msg'] = "You are not authorized to view this property";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
+            return;
+        }
+
+        if ($status == 'success') {
+            if(!$property_id){
+                $_SESSION['flash']['msg'] = "Property not found";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
+                return;
+            }
+            $property = new Property;
+            $newRentalPrice = $propertyDetails->rental_price - findAdvancePrice($propertyDetails->rental_price);
+            $updateAdvancePayment = $property->update($property_id, ['advance_paid' => 'Paid' , 'rental_price' => $newRentalPrice], 'property_id');
+            if(!$updateAdvancePayment) {
+                $_SESSION['flash']['msg'] = "Failed to update advance payment status. Please try again.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
+                return;
+            }
+            $sharePayment = new SharePayment;
+            $sharePayment->insert([
+                'person_id' => $_SESSION['user']->pid,
+                'property_id' => $property_id,
+                'amount' => findAdvancePrice($propertyDetails->rental_price),
+                'payment_date' => date('Y-m-d H:i:s'),
+                'rental_period_start' => $propertyDetails->start_date,
+                'rental_period_end' => $propertyDetails->end_date,
+                'transaction_id' => $_POST['order_id'],
+                'created_at' => date('Y-m-d H:i:s'),
+                'payment_type' => 'advance'
+            ]);
+            if(!$sharePayment) {
+                $_SESSION['flash']['msg'] = "Failed to record advance payment. Please try again.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/propertyListing/propertyunitowner/' . $property_id);
+                return;
+            }
+            // Payment was successful
+            enqueueNotification('Advance Payment Success', 'Your advance payment has been successfully processed on property' . $propertyDetails->name , '' , 'Notification_green');
+            enqueueNotification('Advance Payment Success', 'An advance payment has been successfully processed for your property.', ROOT . '/dashboard/preInspection' , 'Notification_green', $propertyDetails->agent_id);
+            $_SESSION['flash']['msg'] = "Payment successful!";
+            $_SESSION['flash']['type'] = "success";
+        } else {
+            // Payment failed or was cancelled
+            enqueueNotification('Advance Payment Failed', 'Your advance payment has failed or was cancelled.', '' , 'Notification_red');
+            $_SESSION['flash']['msg'] = "Payment failed or cancelled!";
+            $_SESSION['flash']['type'] = "error";
+        }
+        
+        redirect('dashboard/propertyListing');
     }
 }
