@@ -232,22 +232,24 @@ function get_img($image_url = "", $type = 'user')
         return $image_url;
     }
     // Otherwise, assume it's a file name and construct the path
-    $relPath =  "assets/images/uploads/" . ($type == 'property' ? 'property_image/' : 'profile_pictures/') . $image_url;
-    $filePath =  ROOT . DIRECTORY_SEPARATOR . $relPath;
+    // $relPath =  "assets". DIRECTORY_SEPARATOR ."images". DIRECTORY_SEPARATOR ."uploads". DIRECTORY_SEPARATOR . ($type == 'property' ? 'property_images' : 'profile_pictures') . DIRECTORY_SEPARATOR . $image_url;
+    // $filePath =  ROOT . DIRECTORY_SEPARATOR . $relPath. DIRECTORY_SEPARATOR ;
+    $relPath = "assets". DIRECTORY_SEPARATOR ."images". DIRECTORY_SEPARATOR ."uploads". DIRECTORY_SEPARATOR . ($type == 'property' ? 'property_images' : 'profile_pictures') . DIRECTORY_SEPARATOR . $image_url;
+    $filePath = ROOT . DIRECTORY_SEPARATOR . $relPath;
     if (file_exists($relPath)) {
         return $filePath;
     }
     // Return a default image if the file doesn't exist
     if ($type == 'user') {
-        return ROOT . "/assets/images/user.png";
+        return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "user.png";
     } else if ($type == 'property') {
-        return ROOT . "/assets/images/property.png";
+        return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "hero.png";
     }
     if (empty($image_url)) {
         if ($type == 'user') {
-            return ROOT . "/assets/images/user.png";
+            return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "user.png";
         } else if ($type == 'property') {
-            return ROOT . "/assets/images/property.png";
+            return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "hero.png";
         }
     }
 }

@@ -145,6 +145,20 @@ class Property
         return false;
     }
 
+    public function getPropertyIdsByAgent($agent_id)
+    {
+        $property_ids = [];
+        $query = "SELECT property_id FROM {$this->table} WHERE agent_id = :agent_id";
+        $data = ['agent_id' => $agent_id];
+        $result = $this->instance->query($query, $data);
+        if ($result) {
+            foreach ($result as $row) {
+                $property_ids[] = $row->property_id;
+            }
+        }
+        return $property_ids;
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             return $this->$property;

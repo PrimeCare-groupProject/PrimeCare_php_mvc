@@ -95,7 +95,48 @@
         $services = $data['services'] ?? [];
         
         if (empty($services)) {
-            echo "<p>No service requests found</p>";
+            ?>
+            <div class="no-services-container">
+          <div class="no-services-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#c8c8c8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+            <path d="M9 9h6"></path>
+            <path d="M9 12h6"></path>
+            <path d="M9 15h4"></path>
+              </svg>
+          </div>
+          <h3>No Service Requests Found</h3>
+          <p>When new tasks are requested, they will appear here.</p>
+            </div>
+            <style>
+          .no-services-container {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 60px 20px;
+              background-color: white;
+              border-radius: 8px;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+              margin: 20px 0;
+              text-align: center;
+              min-height: 300px;
+          }
+          .no-services-icon {
+              margin-bottom: 20px;
+          }
+          .no-services-container h3 {
+              margin: 0 0 10px 0;
+              color: #333;
+              font-size: 24px;
+          }
+          .no-services-container p {
+              margin: 0;
+              color: #777;
+              font-size: 16px;
+          }
+            </style>
+            <?php
         } else {
             $serviceCount = 1; // Initialize service counter
             foreach ($services as $service) {
@@ -119,14 +160,14 @@
                 
                 // Check if property has an image
                 if (!empty($service->property_image)) {
-                    $propertyImagePath = ROOT . '/assets/images/' . $service->property_image;
+                    $propertyImagePath = ROOT . '/assets/images/uploads/property_images' . $service->property_image;
                     // Use the property image if it exists, otherwise use default
                     $propertyImage = $service->property_image;
                 }
                 ?>
                 <div class="preInspection" data-date="<?= $service->date ?>">
                     <div class="preInspection-header">
-                        <h3><?= $service->service_type ?> Request <?= $serviceCount ?></h3>
+                        <h3><?= $service->service_type ?></h3>
                         <div style="display: flex; gap: 10px;">
                             <form method="POST">
                                 <input type="hidden" name="service_id" value="<?= $service->service_id ?>">
@@ -145,7 +186,7 @@
                             <div class="input-group">
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Property ID:</strong></span>
-                                    <input class="input-field2" value="<?= $service->property_id ?>" readonly>
+                                    <input class="input-field2" value="PID: <?= $service->property_id ?>" readonly>
                                 </div>
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Date:</strong></span>
@@ -177,23 +218,27 @@
                                         <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->service_id ?>)">
                                             <?php foreach($data['service_providers'] as $provider): ?>
                                                 <option value="<?= $provider->pid ?>" 
-                                                    data-image="<?= ROOT ?>/assets/images/<?= $provider->image_url ?>"
+                                                    data-image="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $provider->image_url ?>"
                                                     <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?>>
                                                     <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
                                         <img id="providerImage_<?= $service->service_id ?>" 
-                                             src="<?= ROOT ?>/assets/images/<?= $currentProviderImage ?? 'Agent.png' ?>" 
+                                             src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $currentProviderImage ?? 'Agent.png' ?>" 
                                              alt="Service Provider" 
-                                             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+                                             class="provider-image"
+                                             onerror="this.src='<?= ROOT ?>/assets/images/Agent.png'">
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="image-area">
                             <div class="property-image-container">
-                                <img class="property-image zoom-on-hover" src="<?= ROOT ?>/assets/images/<?= $propertyImage ?>" alt="property">
+                                <img class="property-image zoom-on-hover" 
+                                     src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $propertyImage ?>" 
+                                     alt="property" 
+                                     onerror="this.src='<?= ROOT ?>/assets/images/listing_alt.jpg'">
                             </div>
                         </div>
                     </div>
@@ -211,6 +256,8 @@ function updateProviderImage(selectElement, serviceId) {
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const imageUrl = selectedOption.getAttribute('data-image');
     const imageElement = document.getElementById('providerImage_' + serviceId);
+    
+    // Set new image source but maintain the error handling
     imageElement.src = imageUrl;
     
     // Add a small animation to indicate the change
@@ -218,31 +265,49 @@ function updateProviderImage(selectElement, serviceId) {
     setTimeout(() => {
         imageElement.style.transform = 'scale(1)';
     }, 300);
-}
+  }
 
-// Initialize provider images when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const selects = document.querySelectorAll('select[name="service_provider"]');
-    selects.forEach(select => {
-        const serviceId = select.closest('.preInspection').querySelector('input[name="service_id"]').value;
-        const selectedOption = select.options[select.selectedIndex];
-        if (selectedOption) {
-            const imageUrl = selectedOption.getAttribute('data-image');
-            if (imageUrl) {
-                document.getElementById('providerImage_' + serviceId).src = imageUrl;
-            }
-        }
-    });
-});
+  // Initialize provider images when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+      const selects = document.querySelectorAll('select[name="service_provider"]');
+      selects.forEach(select => {
+          const serviceId = select.closest('.preInspection').querySelector('input[name="service_id"]').value;
+          const selectedOption = select.options[select.selectedIndex];
+          if (selectedOption) {
+              const imageUrl = selectedOption.getAttribute('data-image');
+              if (imageUrl) {
+                  const imageElement = document.getElementById('providerImage_' + serviceId);
+                  imageElement.src = imageUrl;
+                  // Make sure the onerror attribute is preserved
+                  imageElement.onerror = function() {
+                      this.src = '<?= ROOT ?>/assets/images/Agent.png';
+                  };
+              }
+          }
+      });
+  });
 
-function submitForm(form) {
-    // Get selected service provider ID from the select element
-    const providerSelect = form.closest('.preInspection').querySelector('select[name="service_provider"]');
-    form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
-}
+  function submitForm(form) {
+      // Get selected service provider ID from the select element
+      const providerSelect = form.closest('.preInspection').querySelector('select[name="service_provider"]');
+      form.querySelector('input[name="service_provider_select"]').value = providerSelect.value;
+  }
 </script>
 
 <style>
+.provider-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
 .zoom-on-hover {
   transition: transform 0.3s ease;
 }
@@ -259,6 +324,7 @@ function submitForm(form) {
   width: 200px;
   padding: 0 20px 0 10px;
   box-sizing: border-box;
+  margin-right: 15px;
 }
 
 .property-image-container {
@@ -283,15 +349,18 @@ function submitForm(form) {
   align-items: center;
   padding: 10px 15px;
   background-color: #f5f5f5;
-  border-radius: 8px 8px 0 0;
+  border-radius: 15px 15px 0 0;
 }
 
 .preInspection {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 15px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   margin-bottom: 20px;
   overflow: hidden;
+  padding: 0;
+  margin-top: 15px;
+
 }
 
 .input-group1 {
@@ -314,7 +383,7 @@ function submitForm(form) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #1e7e34;
+  /* border: 2px solid #1e7e34; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -333,7 +402,7 @@ function submitForm(form) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #c82333;
+  /* border: 2px solid #c82333; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;

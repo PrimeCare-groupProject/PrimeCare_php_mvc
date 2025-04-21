@@ -151,6 +151,7 @@
             <input type="hidden" name="property_id" value="<?= $property_id ?? '' ?>">
             <input type="hidden" name="status" value="Pending">
             <input type="hidden" name="cost_per_hour" value="<?= $_GET['cost_per_hour'] ?? '' ?>">
+            <input type="hidden" name="requested_person_id" value="<?= $_SESSION['user']->pid ?? '' ?>">
 
             <label class="bold-text">Service Details</label>
 
