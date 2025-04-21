@@ -447,24 +447,18 @@
         const phoneMessage = document.getElementById('phone_message');
         let isValid = true;
 
-        // Validate email
         if (!email || !validateEmail(email)) {
             document.getElementById('payhere_email').style.borderColor = '#dc3545';
             emailMessage.style.display = 'block';
-            document.getElementById('payhere_email').focus();
             isValid = false;
         } else {
             document.getElementById('payhere_email').style.borderColor = '#4CAF50';
             emailMessage.style.display = 'none';
         }
 
-        // Validate phone
         if (!phone || phone.replace(/\D/g, '').length < 10) {
             document.getElementById('payhere_phone').style.borderColor = '#dc3545';
             phoneMessage.style.display = 'block';
-            if (isValid) {
-                document.getElementById('payhere_phone').focus();
-            }
             isValid = false;
         } else {
             document.getElementById('payhere_phone').style.borderColor = '#4CAF50';
@@ -472,7 +466,6 @@
         }
 
         if (!isValid) return;
-
         document.getElementById('payment-processing-indicator').style.display = 'flex';
         startPayHerePayment(email, phone);
     }
@@ -627,19 +620,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         const emailField = document.getElementById('payhere_email');
         const phoneField = document.getElementById('payhere_phone');
-        const emailValidation = document.getElementById('email_validation');
-        const phoneValidation = document.getElementById('phone_validation');
         const emailMessage = document.getElementById('email_message');
         const phoneMessage = document.getElementById('phone_message');
         
         // Email validation
         emailField.addEventListener('input', function() {
             if (validateEmail(this.value)) {
-                emailValidation.style.display = 'block';
                 emailField.style.borderColor = '#4CAF50';
                 emailMessage.style.display = 'none';
             } else {
-                emailValidation.style.display = 'none';
                 if (this.value.length > 0) {
                     emailField.style.borderColor = '#dc3545';
                     emailMessage.style.display = 'block';
@@ -655,11 +644,9 @@
             // Simple validation - just check if there are at least 10 digits
             let digits = this.value.replace(/\D/g, '');
             if (digits.length >= 10) {
-                if (phoneValidation) phoneValidation.style.display = 'block';
                 phoneField.style.borderColor = '#4CAF50';
                 if (phoneMessage) phoneMessage.style.display = 'none';
             } else {
-                if (phoneValidation) phoneValidation.style.display = 'none';
                 if (this.value.length > 0) {
                     phoneField.style.borderColor = '#dc3545';
                     if (phoneMessage) phoneMessage.style.display = 'block';
