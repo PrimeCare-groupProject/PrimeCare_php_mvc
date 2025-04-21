@@ -82,49 +82,71 @@
     
     <!-- Cards Grid -->
     <div class="service-cards-grid" id="service-cards-grid">
-        <?php foreach($chartData as $service): ?>
-            <div class="service-card" data-date="<?= htmlspecialchars($service['date'] ?? '') ?>" data-name="<?= htmlspecialchars($service['name'] ?? '') ?>" data-property="<?= htmlspecialchars($service['property_name'] ?? '') ?>">
-                <div class="service-image">
-                    <?php 
-                    $image = isset($service['service_images']) && !empty($service['service_images']) 
-                        ? json_decode($service['service_images'])[0] ?? null 
-                        : null;
-                    
-                    if ($image && file_exists(ROOTPATH . "public/assets/images/uploads/service_logs/" . $image)): 
-                    ?>
-                        <img src="<?= ROOT ?>/assets/images/uploads/service_logs/<?= $image ?>" alt="<?= $service['name'] ?>">
-                    <?php else: ?>
-                        <img src="<?= ROOT ?>/assets/images/service-placeholder.png" alt="Service">
-                    <?php endif; ?>
-                </div>
+    <?php foreach($chartData as $key => $service): ?>
+        <div class="service-card" 
+            data-date="<?= htmlspecialchars($service['date'] ?? '') ?>" 
+            data-name="<?= htmlspecialchars($service['name'] ?? '') ?>" 
+            data-property="<?= htmlspecialchars($service['property_name'] ?? '') ?>"
+            data-service-type="<?= htmlspecialchars($service['service_type'] ?? 'regular') ?>">
+            <div class="service-image">
+                <?php 
+                // Process image paths differently based on service type
+                $imageSrc = ROOT . '/assets/images/service-placeholder.png'; // default fallback
                 
-                <div class="service-details">
-                    <h3><?= htmlspecialchars($service['name']) ?></h3>
+                if (!empty($service['service_images'])) {
+                    $images = is_string($service['service_images']) ? 
+                        json_decode($service['service_images'], true) : 
+                        $service['service_images'];
                     
-                    <div class="property-info">
-                        <i class="fa fa-home"></i>
-                        <span><?= htmlspecialchars($service['property_name'] ?? 'Property details not available') ?></span>
-                    </div>
-                    
-                    <div class="service-date">
-                        <i class="fa fa-calendar"></i>
-                        <span><?= isset($service['date']) ? date('M d, Y', strtotime($service['date'])) : 'Date not available' ?></span>
-                    </div>
-                    
-                    <div class="service-hours">
-                        <i class="fa fa-clock"></i>
-                        <span><?= htmlspecialchars($service['total_hours'] ?? 0) ?> hours</span>
-                    </div>
-                    
-                    <button class="service-summary-btn" data-service-index="<?= $key ?? 0 ?>">Service Summary</button>
-                </div>
-                
-                <div class="earnings-badge">
-                    <div class="amount">LKR <?= number_format($service['totalEarnings'], 2) ?></div>
-                    <div class="label">Earned</div>
-                </div>
+                    if (is_array($images) && !empty($images)) {
+                        $firstImage = $images[0];
+                        
+                        if ($service['service_type'] === 'external') {
+                            // External service - image may already have paths
+                            if (strpos($firstImage, 'uploads/') === 0) {
+                                $imageSrc = ROOT . '/assets/images/' . $firstImage;
+                            } else {
+                                $imageSrc = ROOT . '/assets/images/uploads/external_services/' . $firstImage;
+                            }
+                        } else {
+                            // Regular service - append service_logs path
+                            $imageSrc = ROOT . '/assets/images/uploads/service_logs/' . $firstImage;
+                        }
+                    }
+                }
+                ?>
+                <img src="<?= $imageSrc ?>" 
+                    alt="<?= htmlspecialchars($service['name']) ?>"
+                    onerror="this.src='<?= ROOT ?>/assets/images/service-placeholder.png'">
             </div>
-        <?php endforeach; ?>
+            
+            <div class="service-details">
+                <h3><?= htmlspecialchars($service['name']) ?></h3>
+                
+                <div class="property-info">
+                    <i class="fa fa-home"></i>
+                    <span><?= htmlspecialchars($service['property_name'] ?? 'Property details not available') ?></span>
+                </div>
+                
+                <div class="service-date">
+                    <i class="fa fa-calendar"></i>
+                    <span><?= isset($service['date']) ? date('M d, Y', strtotime($service['date'])) : 'Date not available' ?></span>
+                </div>
+                
+                <div class="service-hours">
+                    <i class="fa fa-clock"></i>
+                    <span><?= htmlspecialchars($service['total_hours'] ?? 0) ?> hours</span>
+                </div>
+                
+                <button class="service-summary-btn" data-service-index="<?= $key ?>">Service Summary</button>
+            </div>
+            
+            <div class="earnings-badge">
+                <div class="amount">LKR <?= number_format($service['totalEarnings'], 2) ?></div>
+                <div class="label">Earned</div>
+            </div>
+        </div>
+    <?php endforeach; ?>
         
         <div id="no-filtered-services" class="no-services" style="display: none;">
             <p>No services found for the selected time period or search criteria.</p>
@@ -1160,6 +1182,7 @@
         const modal = document.getElementById('service-modal');
         const closeBtn = document.querySelector('.close-modal');
         
+        // Update the modal display code in your JavaScript section
         summaryButtons.forEach((button, index) => {
             button.addEventListener('click', function(e) {
                 e.stopPropagation(); // Prevent event bubbling
@@ -1190,13 +1213,23 @@
                     }
                 }
                 
-                // Set image
-                const card = button.closest('.service-card');
-                const cardImage = card.querySelector('.service-image img');
+                // Set image based on service type
                 const modalImage = document.getElementById('modal-image');
                 
-                if (cardImage && modalImage) {
-                    modalImage.src = cardImage.src;
+                if (serviceData.service_images && Array.isArray(serviceData.service_images) && serviceData.service_images.length > 0) {
+                    const firstImage = serviceData.service_images[0];
+                    
+                    if (serviceData.service_type === 'external') {
+                        // External service - image may already have paths
+                        if (firstImage.startsWith('uploads/')) {
+                            modalImage.src = '<?= ROOT ?>/assets/images/' + firstImage;
+                        } else {
+                            modalImage.src = '<?= ROOT ?>/assets/images/uploads/external_services/' + firstImage;
+                        }
+                    } else {
+                        // Regular service - append service_logs path
+                        modalImage.src = '<?= ROOT ?>/assets/images/uploads/service_logs/' + firstImage;
+                    }
                 } else {
                     modalImage.src = '<?= ROOT ?>/assets/images/service-placeholder.png';
                 }

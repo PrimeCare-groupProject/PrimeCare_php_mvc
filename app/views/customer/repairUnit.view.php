@@ -33,11 +33,11 @@
                 <div class="stat-amount" style="color: var(--black-color);">4.6</div>
             </div>
     
-            <div class="stat-card SL_full_width">
-                <button class="menu-item" style="font-size: 16px;">
+            <!-- <div class="stat-card SL_full_width">
+                <a href="<?= ROOT ?>/customer/requestService" class="menu-item" style="font-size: 16px; text-decoration: none; display: block; text-align: center;">
                     Request Service
-                </button>
-            </div>
+                </a>
+            </div> --> 
         </div>
     
     </div>
