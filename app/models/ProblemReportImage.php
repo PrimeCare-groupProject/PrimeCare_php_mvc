@@ -29,7 +29,7 @@ class ProblemReportImage {
     }
 
     public function getImagesByReport($report_id) {
-        $query = "SELECT * FROM {$this->table} WHERE report_id = :report_id ORDER BY uploaded_at DESC";
+        $query = "SELECT * FROM {$this->table} WHERE report_id = :report_id ORDER BY image_id DESC";
         return $this->instance->query($query, ['report_id' => $report_id]);
     }
 

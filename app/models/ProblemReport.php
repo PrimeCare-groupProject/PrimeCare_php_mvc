@@ -21,13 +21,12 @@ class ProblemReport {
     // Define allowed statuses
     protected $allowedStatuses = ['pending', 'in_progress', 'resolved'];
 
-    public function validate($data) {
+    public function validate($data) 
+    {
         $this->errors = [];
-
         if(empty($data['problem_description'])) {
             $this->errors['problem_description'] = "Problem description is required";
         }
-
         if(empty($data['urgency_level'])) {
             $this->errors['urgency_level'] = "Urgency level is required";
         } else {
@@ -36,16 +35,13 @@ class ProblemReport {
                 $this->errors['urgency_level'] = "Invalid urgency level";
             }
         }
-
         if(empty($data['property_id']) || !is_numeric($data['property_id'])) {
             $this->errors['property_id'] = "Valid property ID is required";
         }
-
         // Validate created_by
         if(empty($data['created_by']) || !is_numeric($data['created_by'])) {
             $this->errors['created_by'] = "Valid user ID (created_by) is required";
         }
-
         // Validate status
         if(empty($data['status'])) {
             $data['status'] = 'pending'; // Default status
@@ -58,12 +54,15 @@ class ProblemReport {
         return empty($this->errors);
     }
 
-    public function getReportsByProperty($property_id) {
+
+    public function getReportsByProperty($property_id) 
+    {
         $query = "SELECT * FROM {$this->table} WHERE property_id = :property_id ORDER BY submitted_at DESC";
         return $this->instance->query($query, ['property_id' => $property_id]);
     }
 
-    public function getReportsByUrgency($urgency_level) {
+    public function getReportsByUrgency($urgency_level) 
+    {
         $query = "SELECT * FROM {$this->table} WHERE urgency_level = :urgency_level ORDER BY submitted_at DESC";
         return $this->instance->query($query, ['urgency_level' => $urgency_level]);
     }
@@ -80,6 +79,23 @@ class ProblemReport {
                  ORDER BY submitted_at DESC 
                  LIMIT :limit";
         return $this->instance->query($query, ['limit' => $limit]);
+    }
+
+    public function search($keyword, $agent_id = null) {
+        $query = "SELECT r.* 
+                  FROM {$this->table} r
+                  JOIN propertyTable p ON r.property_id = p.property_id
+                  WHERE (r.problem_description LIKE :keyword 
+                         OR r.problem_location LIKE :keyword)";
+        $params = ['keyword' => '%' . $keyword . '%'];
+    
+        if ($agent_id !== null) {
+            $query .= " AND p.agent_id = :agent_id";
+            $params['agent_id'] = $agent_id;
+        }
+    
+        $query .= " ORDER BY r.submitted_at DESC";
+        return $this->instance->query($query, $params);
     }
 
     public function __get($property) {

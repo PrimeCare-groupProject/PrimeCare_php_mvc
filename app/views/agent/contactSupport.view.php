@@ -4,20 +4,28 @@
     <div class="gap"></div>
     <h2>Contact Support</h2>
     <div class="flex-bar">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search Anything...">
-            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
-        </div>
+    <form class="search-container" method="GET">
+            <input 
+                type="text" 
+                class="search-input" 
+                name="search" 
+                value="<?= isset($_GET['search']) ? esc($_GET['search']) : "" ?>" 
+                placeholder="Search Provider ..."
+            >
+            <button class="search-btn" type="submit">
+                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
+            </button>
+        </form>
     </div>
 </div>
 
 <?php if (!empty($reports)): ?>
     <div>
-        <?php foreach ($reports as $report): ?>
+        <?php foreach ($reports as $idx => $report): ?>
             <div class="inventory-details-container" style="position:relative; padding-bottom: 22px;">
                 <!-- Property Name -->
                 <a href="<?= ROOT ?>/dashboard/contactsupport/propertyunit/<?= esc($report['property_id']) ?>" style="text-decoration:none;">
-                    <h2 style="font-weight:600; color:#2a4d8f; margin:4px 0 6px 0;">
+                    <h2 style="font-weight:500; color:#2a4d8f; margin:4px 0 6px 0;">
                         <?= esc($report['property_name'] ?? 'Unknown Property') ?>
                     </h2>
                 </a>
@@ -48,7 +56,7 @@
                             break;
                     }
                 ?>
-                <span style="position:absolute; top:18px; right:22px; padding: 8px 16px; border-radius: 30px; font-size: 14px; font-weight: 600; text-transform: capitalize; background: <?= $statusGradient ?>; color: <?= $statusTextColor ?>; box-shadow: 0 3px 5px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                <span style="position:absolute; top:18px; right:22px; padding: 8px 16px; border-radius: 30px; font-size: 14px; font-weight: 500; text-transform: capitalize; background: <?= $statusGradient ?>; color: <?= $statusTextColor ?>; box-shadow: 0 3px 5px rgba(0,0,0,0.1); display: flex; align-items: center;">
                     <i class="fas <?= $statusIcon ?>" style="margin-right: 6px;"></i>
                     <?= $report['status'] ?? 'Pending' ?>
                 </span>
@@ -66,7 +74,8 @@
                     ?>
                     <?php for ($i = 0; $i < $maxImages; $i++): ?>
                         <?php if ($i < $count): ?>
-                        <div style="width:60px; height:80px; display:flex; align-items:center; justify-content:center; background:#fafafa; border-radius:4px; border:1px solid #eee;">
+                        <div style="width:60px; height:80px; display:flex; align-items:center; justify-content:center; background:#fafafa; border-radius:4px; border:1px solid #eee; cursor:pointer;"
+                             onclick="openImageModal(<?= $idx ?>, <?= $i ?>)">
                             <img src="<?= ROOT ?>/assets/images/uploads/report_images/<?= htmlspecialchars($images[$i]) ?>" alt="Report Image" width="56" height="56" style="object-fit:cover; border-radius:3px;">
                         </div>
                         <?php else: ?>
@@ -81,9 +90,34 @@
                     <b>Description:</b>
                     <textarea readonly style="margin-top:4px; border:1px solid #ccc; border-radius:4px; padding:8px 12px; background:#f9f9f9; font-size:15px; color:#444; width:100%; max-width:100%; min-height:60px; resize:vertical; word-break:break-word; box-sizing:border-box;"><?= htmlspecialchars($report['problem_description']) ?></textarea>
                 </div>
+
+                <!-- Status Change Form -->
+                <form method="post" style="margin-top:10px; display:flex; align-items:center; justify-content: space-between; gap:8px;">
+                    <input type="hidden" name="report_id" value="<?= (int)$report['report_id'] ?>">
+                    <div class="">
+                        <label for="status_<?= (int)$report['report_id'] ?>" style="font-weight:500;"><b>Change Status:</b></label>
+                        <select name="new_status" id="status_<?= (int)$report['report_id'] ?>" style="padding:4px 10px; border-radius:4px; border:1px solid #ccc;">
+                            <option value="pending" <?= $report['status']=='pending'?'selected':'' ?>>Pending</option>
+                            <option value="in_progress" <?= $report['status']=='in_progress'?'selected':'' ?>>In Progress</option>
+                            <option value="resolved" <?= $report['status']=='resolved'?'selected':'' ?>>Resolved</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="primary-btn" style="padding:4px 16px; margin-top:0; border-radius:4px;">Update</button>
+                </form>
             </div>
         <?php endforeach; ?>
     </div>
+
+    <!-- Floating Image Modal -->
+    <div id="imageModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
+        <span onclick="closeImageModal()" style="position:absolute; top:30px; right:40px; font-size:36px; color:#fff; cursor:pointer; z-index:10001;">X</span>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100vw; height:100vh;">
+            <button id="prevImgBtn" onclick="slideImage(-1)" style="position:absolute; left:40px; top:50%; transform:translateY(-50%); font-size:32px; background:rgba(0,0,0,0.3); color:#fff; border:none; border-radius:50%; width:48px; height:48px; cursor:pointer; z-index:10001;">&#8592;</button>
+                <img id="modalImg" src="" alt="Report Image" style="max-width:80vw; max-height:80vh; border-radius:10px; box-shadow:0 4px 24px rgba(0,0,0,0.25); background:#fff;">
+            <button id="nextImgBtn" onclick="slideImage(1)" style="position:absolute; right:40px; top:50%; transform:translateY(-50%); font-size:32px; background:rgba(0,0,0,0.3); color:#fff; border:none; border-radius:50%; width:48px; height:48px; cursor:pointer; z-index:10001;">&#8594;</button>
+        </div>
+    </div>
+    
 <?php endif; ?>
 
 <script>
@@ -146,6 +180,49 @@
         // Re-append sorted rows
         rows.forEach(row => tbody.appendChild(row));
     }
+
+    // Store all images for all reports in a JS array
+    const allReportImages = <?= json_encode(array_map(function($r) {
+        return array_map(function($img) {
+            return ROOT . "/assets/images/uploads/report_images/" . esc($img);
+        }, !empty($r['images']) ? $r['images'] : []);
+    }, $reports)); ?>;
+    console.log(allReportImages);
+    let currentReportIdx = 0;
+    let currentImgIdx = 0;
+
+    function openImageModal(reportIdx, imgIdx) {
+        currentReportIdx = reportIdx;
+        currentImgIdx = imgIdx;
+        showModalImage();
+        document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeImageModal() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+
+    function showModalImage() {
+        const imgs = allReportImages[currentReportIdx];
+        if (!imgs.length) return;
+        document.getElementById('modalImg').src = imgs[currentImgIdx];
+        document.getElementById('prevImgBtn').style.display = imgs.length > 1 ? 'block' : 'none';
+        document.getElementById('nextImgBtn').style.display = imgs.length > 1 ? 'block' : 'none';
+    }
+
+    function slideImage(dir) {
+        const imgs = allReportImages[currentReportIdx];
+        if (!imgs.length) return;
+        currentImgIdx = (currentImgIdx + dir + imgs.length) % imgs.length;
+        showModalImage();
+    }
+
+    // Optional: Close modal on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "Escape") closeImageModal();
+        if (e.key === "ArrowLeft") slideImage(-1);
+        if (e.key === "ArrowRight") slideImage(1);
+    });
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>
