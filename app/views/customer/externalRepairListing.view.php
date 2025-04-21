@@ -1,12 +1,68 @@
 <?php require 'customerHeader.view.php' ?>
 
+<style>
+    .listing-the-property {
+        margin-bottom: 80px; 
+        padding-bottom: 40px; 
+    }
+    
+    .pagination {
+        margin-top: 30px;
+        margin-bottom: 60px; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        position: relative; 
+        z-index: 10; 
+    }
+    
+    .property-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 320px; 
+    }
+    
+    body {
+        padding-bottom: 70px;
+        min-height: 100vh;
+        position: relative; 
+    }
+    
+    .bottom-spacer {
+        height: 50px;
+        width: 100%;
+        clear: both;
+    }
+    
+    footer {
+        position: relative;
+        margin-top: 60px;
+    }
+
+    .property-card-service-item{
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--white-color);
+        border-radius: 24px;
+        
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        max-width: 100%;
+        margin: 5px;
+        cursor: pointer;
+    }
+</style>
+
 <div class="user_view-menu-bar">
     <a href="javascript:history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
     <h2>Repairs</h2>
     <div class="flex-bar">
         <div class="search-container">
             <input type="text" id="service-search" class="search-input" placeholder="Search Anything...">
-            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
+            <button id="search-btn" class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
     </div>
 </div>
@@ -15,7 +71,7 @@
     <div class="property-listing-grid">
         <?php if(!empty($services)): ?>
             <?php foreach($services as $service): ?>
-                <div class="property-card service-item"
+                <div class="property-card-service-item"
                      onclick="window.location.href='<?= ROOT ?>/dashboard/requestServiceExternal?service_id=<?= $service->service_id ?>'">
                     <div class="property-image">
                         <?php 
@@ -55,70 +111,131 @@
 </div>
 
 <script>
-    // Service search functionality
-    document.getElementById('service-search').addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const services = document.querySelectorAll('.service-item');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get search elements
+        const searchInput = document.getElementById('service-search');
+        const searchBtn = document.getElementById('search-btn');
         
-        services.forEach(service => {
-            const name = service.querySelector('h3').textContent.toLowerCase();
-            const description = service.querySelector('.property-description').textContent.toLowerCase();
+        // Function to perform search
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const serviceItems = document.querySelectorAll('.property-card-service-item');
             
-            if (name.includes(searchTerm) || description.includes(searchTerm)) {
-                service.style.display = 'block';
-            } else {
-                service.style.display = 'none';
+            let resultsFound = false;
+            
+            serviceItems.forEach(item => {
+                // Search in name and description
+                const name = item.querySelector('h3').textContent.toLowerCase();
+                const description = item.querySelector('.property-description').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                    resultsFound = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            const noResultsElement = document.querySelector('.no-results-message');
+            if (!resultsFound && searchTerm !== '') {
+                if (!noResultsElement) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'no-results-message';
+                    noResults.innerHTML = '<p>No services found matching your search.</p>';
+                    document.querySelector('.property-listing-grid').appendChild(noResults);
+                }
+            } else if (noResultsElement) {
+                noResultsElement.remove();
+            }
+            
+            // Reset pagination after search
+            resetPagination();
+        }
+        
+        // Reset pagination to first page
+        function resetPagination() {
+            currentPage = 1;
+            document.querySelector('.current-page').textContent = currentPage;
+            document.querySelector('.prev-page').disabled = true;
+            
+            // Count visible items
+            const visibleItems = document.querySelectorAll('.property-card-service-item[style*="display: flex"]').length;
+            const totalVisiblePages = Math.ceil(visibleItems / listingsPerPage);
+            
+            document.querySelector('.next-page').disabled = (totalVisiblePages <= 1);
+            
+            // Show/hide pagination based on results
+            document.querySelector('.pagination').style.display = (totalVisiblePages > 1) ? 'flex' : 'none';
+            
+            showPage(currentPage);
+        }
+        
+        // Handle search button click
+        if (searchBtn) {
+            searchBtn.addEventListener('click', performSearch);
+        }
+        
+        // Handle Enter key in search input
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+        
+        // Pagination functionality
+        const listingsPerPage = 9;
+        const listings = document.querySelectorAll('.property-card-service-item');
+        const totalPages = Math.ceil(listings.length / listingsPerPage);
+        let currentPage = 1;
+        
+        document.querySelector('.pagination').style.display = (totalPages > 1) ? 'flex' : 'none';
+        
+        function showPage(page) {
+            let visibleCount = 0;
+            let visibleOnThisPage = 0;
+            
+            listings.forEach((listing, index) => {
+                // Only consider listings that aren't filtered out by search
+                if (window.getComputedStyle(listing).display !== 'none') {
+                    visibleCount++;
+                    if (visibleCount > (page-1) * listingsPerPage && visibleCount <= page * listingsPerPage) {
+                        listing.style.display = 'flex';
+                        visibleOnThisPage++;
+                    } else {
+                        listing.style.display = 'none';
+                    }
+                }
+            });
+            
+            document.querySelector('.current-page').textContent = page;
+            document.querySelector('.prev-page').disabled = page === 1;
+            
+            const totalVisiblePages = Math.ceil(visibleCount / listingsPerPage);
+            document.querySelector('.next-page').disabled = page >= totalVisiblePages;
+        }
+        
+        document.querySelector('.next-page').addEventListener('click', () => {
+            if (!document.querySelector('.next-page').disabled) {
+                currentPage++;
+                showPage(currentPage);
+                document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
             }
         });
-
-        // Reset pagination after search
-        currentPage = 1;
+        
+        document.querySelector('.prev-page').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+                document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
+            }
+        });
+        
+        // Initialize pagination
         showPage(currentPage);
     });
-
-    // Pagination functionality
-    const listingsPerPage = 9;
-    const listings = document.querySelectorAll('.property-listing-grid .property-card');
-    const totalPages = Math.ceil(listings.length / listingsPerPage);
-    let currentPage = 1;
-    
-    if (totalPages > 1) {
-        document.querySelector('.pagination').style.display = 'flex';
-    } else {
-        document.querySelector('.pagination').style.display = 'none';
-    }
-
-    function showPage(page) {
-        listings.forEach((listing, index) => {
-            if (index >= (page-1) * listingsPerPage && index < page * listingsPerPage) {
-                listing.style.display = 'block';
-            } else {
-                listing.style.display = 'none';
-            }
-        });
-
-        document.querySelector('.current-page').textContent = page;
-        document.querySelector('.prev-page').disabled = page === 1;
-        document.querySelector('.next-page').disabled = page === totalPages;
-    }
-
-    document.querySelector('.next-page').addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            showPage(currentPage);
-            document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
-        }
-    });
-
-    document.querySelector('.prev-page').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            showPage(currentPage);
-            document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
-        }
-    });
-
-    showPage(currentPage);
 </script>
 
 <?php require 'customerFooter.view.php' ?>
