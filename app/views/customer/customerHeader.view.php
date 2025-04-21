@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/formSet.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertyListingCssForAll.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/Notifications.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +35,7 @@
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
             <!-- toggle button -->
             <form method="post" class="toggle_wrapper" action="<?= ROOT ?>/dashboard/switchUser">
-                <?php if(isset($_SESSION['user']) && $_SESSION['user']->user_lvl != 0): ?>
+                <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_lvl != 0): ?>
                     <div class="toggle-button tooltip-container">
                         <span class="tooltip-text">Change To Original Mood</span>
                         <!-- Outer track -->
@@ -43,6 +47,9 @@
                         </div>
                     </div>
                 <?php endif; ?>
+
+                <?php require __DIR__ . '/../components/notificationComponent.view.php'; ?>
+                
                 <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="" class="header-profile-picture"></a>
             </form>
         </div>
@@ -53,6 +60,11 @@
                     <li><a href="<?= ROOT ?>/dashboard/payments" data-section="payments"><button class="btn"><i class="fa-solid fa-money-check-dollar"></i>Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/occupiedProperties" data-section="occupiedProperties"><button class="btn"><i class="fa-solid fa-house-user"></i>History</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/repairListing" data-section="repairListing"><button class="btn"><i class="fa-solid fa-hammer"></i>Services</button></a></li>
+                    <li>
+                        <a href="<?= ROOT ?>/dashboard/requestService" data-section="requestService">
+                            <button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Request Service</button>
+                        </a>
+                    </li>
                     <li><a href="<?= ROOT ?>/dashboard/updateRole" data-section="updateRole"><button class="btn"><i class="fa-solid fa-square-pen"></i>Update Role</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
                 </ul>
@@ -61,6 +73,12 @@
                     <input type="text" name="logout" value="1" hidden>
                 </form>
             </div>
+
+            <script>
+                const BASE_URL = "<?= ROOT ?>";
+            </script>
+
+            <script src="<?= ROOT ?>/assets/js/notificationHandler.js"></script>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -123,17 +141,24 @@
                         document.getElementById('toggleState').value = toggleTrack.classList.contains('activeToggle') ? '1' : '0';
                     });
                 });
+
                 function submitToggleForm() {
-                    document.querySelector('.toggle_wrapper').submit();
+                    const submitBtn = document.querySelector('.toggle_wrapper');
+
+                    setTimeout(() => {
+                        const submitBtn = document.querySelector('.toggle_wrapper');
+                        submitBtn.submit();
+                        displayLoader();
+                    }, 300);
                 }
                 //loader effect
                 function displayLoader() {
                     document.querySelector('.loader-container').style.display = '';
                     //onclick="displayLoader()"
                 }
-                
+
                 document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', displayLoader);
+                    form.addEventListener('submit', displayLoader);
                 });
 
                 document.querySelectorAll('a').forEach(link => {
@@ -141,3 +166,9 @@
                 });
             </script>
             <div class="user_view-content_section" id="content-section">
+
+                <?php
+                    if (isset($_SESSION['flash'])) {
+                        flash_message();
+                    }
+                ?>

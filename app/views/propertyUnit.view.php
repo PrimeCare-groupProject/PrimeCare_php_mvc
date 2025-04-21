@@ -47,8 +47,8 @@
                                 <img id="main-image" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $images[0] ?>" alt="Property Image">
                             </div>
                             <div class="thumbnails">
-                            <?php foreach ($images as $index => $image): ?>
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Thumbnail 1">
+                                <?php foreach ($images as $index => $image): ?>
+                                    <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Thumbnail 1">
                                 <?php endforeach; ?>
                                 <!-- <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Thumbnail 2">
                                 <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/booking1.png" alt="Thumbnail 3">
@@ -67,13 +67,13 @@
                                     </div>
                                 </div>
                                 <div class="PL__pricing">
-                                    <span><?= $property->rent_on_basis ?> LKR</span>
+                                    <span><?= $property->rental_price ?> LKR</span>
                                     <small>PER MONTH</small>
                                 </div>
                             </div>
                             <h2>Description</h2>
                             <p>
-                            <?= $property->description ?>
+                                <?= $property->description ?>
                             </p>
 
                             <h2>Property Information</h2>
@@ -105,7 +105,7 @@
                                 <tr>
                                     <td>Address:</td>
                                     <td><?= $property->address ?></td>
-                                </tr> 
+                                </tr>
                                 <tr>
                                     <td>Year Built:</td>
                                     <td><?= $property->year_built ?></td>
@@ -132,27 +132,27 @@
                             <h2>Overview</h2>
                             <div class="overview">
                                 <div class="overview-grid">
-                                    <div class="overview-item">
+                                    <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/bed.png" alt="Bed Icon">
                                         <span><?= $property->bedrooms ?> Bedroom</span>
                                     </div>
-                                    <div class="overview-item">
+                                    <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/bathroom.png" alt="Bathroom Icon">
                                         <span><?= $property->bathrooms ?> Bathroom</span>
                                     </div>
-                                    <div class="overview-item">
+                                    <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/floor.png" alt="Unit Icon">
                                         <span><?= $property->units ?> Units</span>
                                     </div>
-                                    <div class="overview-item">
+                                    <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/size.png" alt="Area Icon">
                                         <span><?= $property->size_sqr_ft ?> ft</span>
                                     </div>
-                                    <div class="overview-item">
+                                    <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/furniture.png" alt="Furniture Icon">
                                         <span><?= $property->furnished ?></span>
                                     </div>
-                                    <div class="overview-item">
+                                    <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/garage.png" alt="Garage Icon">
                                         <span><?= $property->parking ?></span>
                                     </div>

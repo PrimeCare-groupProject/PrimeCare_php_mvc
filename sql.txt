@@ -1,0 +1,335 @@
+CREATE TABLE propertyTable (
+    property_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type ENUM('House', 'Apartment', 'Villa', 'Studio', 'Farmhouse') NOT NULL,
+    description TEXT,
+
+    address VARCHAR(255),
+    zipcode VARCHAR(20),
+    city VARCHAR(100),
+    state_province VARCHAR(100),
+    country VARCHAR(100),
+
+    year_built INT,
+    size_sqr_ft DECIMAL(10,2),
+    number_of_floors INT,
+    floor_plan TEXT,
+
+    units INT,
+    bedrooms INT,
+    bathrooms INT,
+    kitchen INT,
+    living_room INT,
+    duration INT DEFAULT 0,
+
+    start_date DATE,
+    end_date DATE,
+
+    furnished ENUM('Fully Furnished', 'Semi-Furnished', 'Unfurnished'),
+    furniture_description TEXT,
+
+    -- Parking Details
+    parking BOOLEAN,
+    parking_slots INT,
+    type_of_parking ENUM('Covered Garage', 'Open Parking', 'Street Parking', 'Carport', 'Underground Parking'),
+
+    -- Security Features
+    security_features SET('CCTV', 'Security Guards', 'Intercom System', 'Access Control', 'Fire Alarm', 'Gated Community'),
+
+    -- Utilities Included
+    utilities_included SET('Water Supply', 'Electricity', 'Gas Connection', 'Internet', 'Cable TV', 'Solar Power', 'Backup Generator', 'Waste Disposal'),
+    additional_utilities TEXT,
+
+    -- Additional Amenities
+    additional_amenities SET('Swimming Pool', 'Gym', 'Garden', 'Elevator', 'Play Area', 'Clubhouse', 'Jogging Track', 'BBQ Area'),
+
+    -- Rental Information
+    purpose ENUM('Rent','Safeguard','Vacation_Rental') NOT NULL,
+    rental_period ENUM('Monthly' , 'Annually' , 'Daily'),
+    rental_price DECIMAL(12,2),
+    available_date SET('Monday' , 'Tuesday' , 'Wednesday' , 'Thursday' , 'Friday' , 'Saturday' , 'Sunday'),
+
+    -- Owner Information
+    owner_name VARCHAR(255),
+    owner_email VARCHAR(255),
+    owner_phone VARCHAR(50),
+    additional_contact VARCHAR(255),
+
+    -- Special Instructions
+    special_instructions SET('No_Pets_Allowed', 'No_Smoking_Inside_the_Property', 'Suitable_for_Families_Only', 'No_Loud_Music_or_Parties', 'Maintenance_Fee_Included', 'Tenant_Responsible_for_Utilities', 'Lease_Renewal_Option_Available', 'Immediate_Move_In_Available', 'Background_Check_Required_for_Tenants'),
+
+    -- Legal Details
+    legal_details SET('Property_Ownership_Verified', 'Property_Free_from_Legal_Disputes', 'All_Taxes_Paid_Up_to_Date', 'Rental_Agreement_Draft_Available', 'Property_Insured', 'Compliance_with_Local_Housing_Laws', 'Tenant_Screening_Required', 'Lease_Agreement_Must_Be_Signed', 'Security_Deposit_Refundable'),
+
+    -- Property Status & Ownership
+    status ENUM('Active', 'Inactive', 'Under Maintenance', 'Pending') NOT NULL DEFAULT 'Pending',
+    person_id INT(11),
+    agent_id INT(11),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (person_id) REFERENCES person(pid) ON DELETE CASCADE,
+    FOREIGN KEY (agent_id) REFERENCES person(pid) ON DELETE SET NULL
+);
+
+
+CREATE OR REPLACE VIEW propertyTable_with_images AS
+SELECT 
+    p.property_id AS property_id,
+    p.name AS name,
+    p.description AS description,
+    p.type AS type,
+    p.address AS address,
+    p.zipcode AS zipcode,
+    p.city AS city,
+    p.state_province AS state_province,
+    p.country AS country,
+    
+    p.year_built AS year_built,
+    p.size_sqr_ft AS size_sqr_ft,
+    p.number_of_floors AS number_of_floors,
+    p.floor_plan AS floor_plan,
+    
+    p.units AS units,
+    p.bedrooms AS bedrooms,
+    p.bathrooms AS bathrooms,
+    p.kitchen AS kitchen,
+    p.living_room AS living_room,
+    
+    p.furnished AS furnished,
+    p.furniture_description AS furniture_description,
+    
+    p.parking AS parking,
+    p.parking_slots AS parking_slots,
+    p.type_of_parking AS type_of_parking,
+    
+    p.security_features AS security_features,
+    p.utilities_included AS utilities_included,
+    p.additional_utilities AS additional_utilities,
+    p.additional_amenities AS additional_amenities,
+    
+    p.purpose AS purpose,
+    p.rental_period AS rental_period,
+    p.rental_price AS rental_price,
+    p.duration AS duration,
+    
+    p.owner_name AS owner_name,
+    p.owner_email AS owner_email,
+    p.owner_phone AS owner_phone,
+    p.additional_contact AS additional_contact,
+    
+    p.special_instructions AS special_instructions,
+    p.legal_details AS legal_details,
+    
+    p.status AS status,
+    p.person_id AS person_id,
+    p.agent_id AS agent_id,
+    
+    p.created_at AS created_at,
+    p.updated_at AS updated_at,
+    p.start_date AS start_date,
+    p.end_date AS end_date,
+
+    -- Concatenated property images
+    GROUP_CONCAT(DISTINCT pi.image_url ORDER BY pi.image_url ASC SEPARATOR ',') AS property_images,
+
+    -- Concatenated deed images
+    GROUP_CONCAT(DISTINCT pdi.image_url ORDER BY pdi.image_url ASC SEPARATOR ',') AS property_deed_images
+
+FROM 
+    propertyTable p
+LEFT JOIN 
+    property_image pi ON p.property_id = pi.property_id
+LEFT JOIN 
+    property_deed_image pdi ON p.property_id = pdi.property_id
+
+GROUP BY 
+    p.property_id;
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE propertyTempTable (
+    property_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type ENUM('House', 'Apartment', 'Villa', 'Studio', 'Farmhouse') NOT NULL,
+    description TEXT,
+
+    address VARCHAR(255),
+    zipcode VARCHAR(20),
+    city VARCHAR(100),
+    state_province VARCHAR(100),
+    country VARCHAR(100),
+
+    year_built INT,
+    size_sqr_ft DECIMAL(10,2),
+    number_of_floors INT,
+    floor_plan TEXT,
+
+    units INT,
+    bedrooms INT,
+    bathrooms INT,
+    kitchen INT,
+    living_room INT,
+    duration INT DEFAULT 0,
+
+    start_date DATE,
+    end_date DATE,
+
+    furnished ENUM('Fully Furnished', 'Semi-Furnished', 'Unfurnished'),
+    furniture_description TEXT,
+
+    -- Parking Details
+    parking BOOLEAN,
+    parking_slots INT,
+    type_of_parking ENUM('Covered Garage', 'Open Parking', 'Street Parking', 'Carport', 'Underground Parking'),
+
+    -- Security Features
+    security_features SET('CCTV', 'Security Guards', 'Intercom System', 'Access Control', 'Fire Alarm', 'Gated Community'),
+
+    -- Utilities Included
+    utilities_included SET('Water Supply', 'Electricity', 'Gas Connection', 'Internet', 'Cable TV', 'Solar Power', 'Backup Generator', 'Waste Disposal'),
+    additional_utilities TEXT,
+
+    -- Additional Amenities
+    additional_amenities SET('Swimming Pool', 'Gym', 'Garden', 'Elevator', 'Play Area', 'Clubhouse', 'Jogging Track', 'BBQ Area'),
+
+    -- Rental Information
+    purpose ENUM('Rent','Safeguard','Vacation_Rental') NOT NULL,
+    rental_period ENUM('Monthly' , 'Annually' , 'Daily'),
+    rental_price DECIMAL(12,2),
+    available_date SET('Monday' , 'Tuesday' , 'Wednesday' , 'Thursday' , 'Friday' , 'Saturday' , 'Sunday'),
+
+    -- Owner Information
+    owner_name VARCHAR(255),
+    owner_email VARCHAR(255),
+    owner_phone VARCHAR(50),
+    additional_contact VARCHAR(255),
+    request_status ENUM('pending' , 'accept' , 'decline'),
+
+    -- Special Instructions
+    special_instructions SET('No_Pets_Allowed', 'No_Smoking_Inside_the_Property', 'Suitable_for_Families_Only', 'No_Loud_Music_or_Parties', 'Maintenance_Fee_Included', 'Tenant_Responsible_for_Utilities', 'Lease_Renewal_Option_Available', 'Immediate_Move_In_Available', 'Background_Check_Required_for_Tenants'),
+
+    -- Legal Details
+    legal_details SET('Property_Ownership_Verified', 'Property_Free_from_Legal_Disputes', 'All_Taxes_Paid_Up_to_Date', 'Rental_Agreement_Draft_Available', 'Property_Insured', 'Compliance_with_Local_Housing_Laws', 'Tenant_Screening_Required', 'Lease_Agreement_Must_Be_Signed', 'Security_Deposit_Refundable'),
+
+    -- Property Status & Ownership
+    status ENUM('Active', 'Inactive', 'Under Maintenance', 'Pending') NOT NULL DEFAULT 'Pending',
+    person_id INT(11),
+    agent_id INT(11),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (person_id) REFERENCES person(pid) ON DELETE CASCADE,
+    FOREIGN KEY (agent_id) REFERENCES person(pid) ON DELETE SET NULL
+);
+
+
+
+CREATE TABLE agent_property (
+    assign_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id INT NOT NULL,
+    agent_id INT NOT NULL,
+    property_status ENUM('pending' , 'approved'),
+    pre_inspection ENUM('pass' , 'failed'),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (agent_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
+);
+
+CREATE TABLE pre_inspection (
+    pre_inspection_id INT AUTO_INCREMENT PRIMARY KEY,
+    agent_id INT NOT NULL,
+    property_id INT NOT NULL,
+    provided_details ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    title_deed ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    utility_bills ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    owner_id_copy ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    lease_agreement ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    property_condition ('Good' , 'Average' , 'Poor' , 'Not_Checked') DEFAULT 'Not_Checked',
+    Maintenance_issues TEXT,
+    owner_present ENUM('True' , 'False' , 'Not_Checked') DEFAULT 'Not_Checked',
+    notes TEXT,
+    recommendation ENUM('Approved' , 'Requires_Fixes' , 'Rejected' , 'Not_Checked') DEFAULT 'Not_Checked',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (agent_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
+);
+
+CREATE TABLE rental_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    person_id INT NOT NULL,
+    property_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    rental_period_start DATE,
+    rental_period_end DATE,
+    transaction_id VARCHAR(255), 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (person_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
+);
+
+CREATE TABLE share_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    person_id INT NOT NULL,
+    property_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    rental_period_start DATE,
+    rental_period_end DATE,
+    transaction_id VARCHAR(255), 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (person_id) REFERENCES person(pid),
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
+);
+
+CREATE TABLE service_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    service_id INT NOT NULL,
+    service_provider_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    invoice_number VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (service_provider_id) REFERENCES person(pid),
+    FOREIGN KEY (service_id) REFERENCES serviceLog(service_id)
+);
+
+CREATE TABLE salary_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    salary_amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    paid_month VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (employee_id) REFERENCES person(pid)
+);
+
+CREATE TABLE notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES person(pid)
+);

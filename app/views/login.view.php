@@ -6,14 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/login.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <title>PrimeCare</title>
 </head>
 
 <body>
+    <?php
+        if (isset($_SESSION['flash'])) {
+            flash_message();
+        }
+    ?>
     <div class="login-container">
         <div class="login-form">
-            <img class="login-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
+            <a href="/php_mvc_backend/public/login">
+                <img class="login-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
+            </a>
             <div class="login-form__welcome-text">
                 <h4>Welcome to our</h4>
                 <h2>Property Management Agency</h2>
@@ -23,7 +31,7 @@
             <!-- Login Form -->
             <form action="<?= ROOT ?>/login" method="post" class="login-form__fields">
                 <label for="email" class="login-form__label">Email</label>
-                <input type="email" name="email" id="email" class="login-form__input" placeholder="Enter email" required>
+                <input type="email" name="email" id="email" class="login-form__input" placeholder="Enter email" value="<?= old_value('email') ?>" required>
 
                 <label for="password" class="login-form__label">Password</label>
                 <input type="password" name="password" id="password" class="login-form__input" placeholder="Enter Password" required>

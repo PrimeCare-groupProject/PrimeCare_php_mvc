@@ -6,10 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/login.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
+
     <title>PrimeCare</title>
 </head>
 
 <body>
+    <?php
+        if (isset($_SESSION['flash'])) {
+            flash_message();
+        }
+    ?>
     <div class="login-container">
         <div class="login-form">
             <img class="login-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">

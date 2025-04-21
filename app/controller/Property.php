@@ -54,6 +54,8 @@ class Property
                 // Check for any upload errors
                 if (!empty($imageErrors) || !empty($documentErrors)) {
                     $property->errors['media'] = array_merge($imageErrors, $documentErrors);
+                    $_SESSION['flash']['msg'] = "Property added failed!";
+                    $_SESSION['flash']['type'] = "error";
                     $this->view('owner/addProperty', ['property' => $property]);
                     return;
                 }
@@ -61,6 +63,8 @@ class Property
                 // Redirect on success
                 $_SESSION['status'] = 'Property added successfully.';
                 //$this->view('property/propertyListing', ['property' => $property]);
+                $_SESSION['flash']['msg'] = "Property added successfully!";
+                $_SESSION['flash']['type'] = "success";
                 redirect('property/propertyListing');
             } else {
                 $property->errors['insert'] = 'Failed to add Property. Please try again.';
@@ -183,7 +187,7 @@ class Property
         $property = new PropertyModelTemp;
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            
+
             $arr = [
                 'property_id' => $propertyId,
                 'name' => $_POST['name'],
@@ -246,7 +250,8 @@ class Property
     }
 
     // update temp
-    public function updateRequest($propertyId){
+    public function updateRequest($propertyId)
+    {
         $property = $this->getProperty($propertyId);
 
         $propertyTemp = new PropertyModelTemp;
@@ -256,7 +261,7 @@ class Property
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Validate the form data
             if (!$propertyTest->validateProperty($_POST)) {
-                $this->view('owner/propertyUnit/'.$propertyId, ['property' => $property]);
+                $this->view('owner/propertyUnit/' . $propertyId, ['property' => $property]);
                 return;
             }
 
@@ -311,9 +316,6 @@ class Property
         } else {
             $this->view('property/propertyListing', ['property' => $property]);
         }
-
-        
-        
     }
 
     public function updateTemp($propertyId)
@@ -356,7 +358,7 @@ class Property
             ];
 
             // check if there is any column that has been changed
-            
+
 
             // Update property data in the database
             $res = $property->insert($arr);
@@ -369,12 +371,12 @@ class Property
                 // Check for any upload errors
                 if (!empty($imageErrors) || !empty($documentErrors)) {
                     $property->errors['media'] = array_merge($imageErrors, $documentErrors);
-                    redirect('property/propertyUnitOwner/'.$propertyId);
+                    redirect('property/propertyUnitOwner/' . $propertyId);
                     return;
                 }
 
                 // Redirect on success to send update request
-                redirect('property/propertyUnitOwner/'.$propertyId);
+                redirect('property/propertyUnitOwner/' . $propertyId);
             } else {
                 $property->errors['update'] = 'Failed to update Property. Please try again.';
                 $this->view('owner/updateProperty', ['property' => $property]);
@@ -400,7 +402,10 @@ class Property
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         //show($propertyUnit);
 
-        $this->view('customer/propertyUnit', ['property' => $propertyUnit]);
+        $review = new ReviewModel;
+        $reviews = $review->findAll();
+
+        $this->view('customer/propertyUnit', ['property' => $propertyUnit , 'reviews' => $reviews]);
     }
 
     // retrieve for the owner

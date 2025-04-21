@@ -3,7 +3,7 @@
 class ServiceLog {
     use Model;
 
-    protected $table = 'serviceLog';
+    public $table = 'serviceLog';
     protected $order_column = "service_id";
     protected $allowedColumns = [
         'service_type',
@@ -16,7 +16,12 @@ class ServiceLog {
         'service_provider_id',
         'service_description',
         'service_provider_description', 
-        'service_images' 
+        'service_images',
+        'additional_charges',         
+        'additional_charges_reason',
+        'usual_cost',       
+        'total_cost',
+        'requested_person_id'         
     ];
 
     public $errors = [];
@@ -83,5 +88,12 @@ class ServiceLog {
         }
 
         return empty($this->errors);
+    }
+
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+        return null;
     }
 }

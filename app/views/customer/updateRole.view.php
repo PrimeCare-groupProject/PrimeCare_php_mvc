@@ -13,12 +13,12 @@
         <button class="primary-btn" id="owner_btn">Add your property</button>
     </div>
 
-    <div class="UR__side_containers">
+    <!-- <div class="UR__side_containers">
         <div class="UR__image_container">
             <img src="<?= ROOT ?>/assets/images/beSerPro.jpg" alt="Agent">
         </div>
         <button class="primary-btn" id="serpro_btn">Be a Service Provider</button>
-    </div>
+    </div> -->
 
 
     <div class="hidden_msg_owner" id="hidden_msg_owner" style="display: none;">

@@ -15,14 +15,26 @@
             require_once 'agent/agentHeader.view.php'; 
             
         }else if($type == 4){
-        require_once 'manager/managerHeader.view.php'; 
+            require_once 'manager/managerHeader.view.php'; 
         
         }
     }
 ?>
 <div class="user_view-menu-bar">
     <div class="gap"></div>
-    <h2>PROFILE</h2>
+    <h2>Profile</h2>
+    <div class="flex-bar">
+        <div class="tooltip-container">
+            <form action="<?= ROOT ?>/resetPassword" method="post" style="display: inline;">
+                <input type="hidden" name="email_submission" value="1">
+                <input type="hidden" name="email" value="<?= esc($user->email) ?>">
+                <button type="submit" class="add-btn">
+                    <i class="fa-solid fa-unlock-keyhole"></i>
+                </button>
+            </form>
+            <span class="tooltip-text">Change password</span>
+        </div>
+    </div>
 </div>
 
 <form id="profile-edit-form" class="profile-container lur-overlay" method="post" enctype="multipart/form-data">
@@ -35,8 +47,8 @@
         <img src="<?= get_img($user->image_url)?>" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
 
         <!-- User details -->
-        <h2><?= $user->fname .' '. $user->lname ?></h2>
-        <p class="profile-id">PID - <?= $user->pid ?></p>
+        <h2 class="profile-name"><?= $user->fname .' '. $user->lname ?></h2>
+        <p class="profile-role ">PID - <?= $user->pid ?></p>
     </div>
 
     <!-- Right side: Editable Form -->
@@ -52,15 +64,20 @@
                     <input type="text" id="last-name" name="lname" class="input-field" value="<?= esc($user->lname) ?>" disabled>
                 </div>
             </div>
+            <div class="input-group">
+                <div class="input-group-group">
+                    <label for="contact-number" class="input-label">Contact number</label>
+                    <input type="text" id="contact-number" class="input-field" name="contact" value="<?= esc($user->contact) ?>" disabled>
+                </div>
+                <div class="input-group-group">
+                    <label for="nic" class="input-label">NIC</label>
+                    <input type="text" id="nic" class="input-field" name="nic" value="<?= esc($user->nic) ?>" disabled>
+                </div>
+            </div>
             <div class="input-group-group">
                 <label for="email" class="input-label">Email</label>
                 <input type="email" id="email" class="input-field" name="email" value="<?= esc($user->email) ?>" disabled>
             </div>
-            <div class="input-group-group">
-                <label for="contact-number" class="input-label">Contact number</label>
-                <input type="text" id="contact-number" class="input-field" name="contact" value="<?= esc($user->contact) ?>" disabled>
-            </div>
-
             <div class="input-group-aligned">
                 <button type="button" class="primary-btn" id="edit-button">Edit</button>
                 <button type="button" class="secondary-btn" id="cancel-button" style="display: none;">Cancel</button>
@@ -71,16 +88,21 @@
 
             <h5 class="editText" id="editText" style="display: none;">click profile picture to edit !</h5>
             <div class="errors" 
-                style="display: <?= !empty($errors) || !empty($message) ? 'block' : 'none'; ?>; 
+                style="display: <?= !empty($_SESSION['errors']) || !empty($_SESSION['status']) ? 'block' : 'none'; ?>; 
                         background-color: <?= !empty($errors) ? '#f8d7da' : (!empty($status) ? '#b5f9a2' : '#f8d7da'); ?>;">
-                <?php if (!empty($errors)): ?>
+                <?php if (!empty($_SESSION['errors'])): ?>
                     <p><?= $errors[0] ?? '' ?></p>
-                <?php elseif (!empty($status)): ?>
+                <?php elseif (!empty($_SESSION['status'])): ?>
                     <p><?= $status ;  ?></p>
                 <?php endif; ?>
             </div>
 
         </div>
+        <?php if ($_SESSION['user']->AccountStatus == 2): ?>
+            <p class="status-message" style="text-align: right; margin-bottom:-20px; color: var(--primary-color);">Pending details change request</p>
+        <?php elseif ($_SESSION['user']->AccountStatus == -2): ?>
+            <p class="status-message" style="text-align: right; margin-bottom:-20px; color: var(--red-color);">Account removal ongoing</p>
+        <?php endif; ?>
     </div>
 </form>
 <form id="delete-account-form" method="post" >
@@ -141,7 +163,7 @@
             const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB in bytes
 
             if (!allowedMimeTypes.includes(file.type)) {
-                alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
+                // alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
                 profilePictureInput.value = ''; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'Invalid file type! Please upload an image (JPEG, PNG, or GIF).';
@@ -150,7 +172,7 @@
                 errorAlert.style.display = 'block';
 
             } else if (file.size > maxSizeInBytes) {
-                alert('File size exceeds 2 MB! Please upload a smaller image.');
+                // alert('File size exceeds 2 MB! Please upload a smaller image.');
                 profilePictureInput = profilePicture; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'File size exceeds 2 MB! Please upload a smaller image.';
@@ -179,7 +201,11 @@
     
         // Enable form fields and profile picture edit when "Edit" button is clicked
     editButton.addEventListener('click', () => {
-        formFields.forEach(field => field.disabled = false); // Enable input fields
+        formFields.forEach(field => {
+            if (field.id !== 'nic') { // Prevent the email field from being editable
+                field.disabled = false;
+            }
+        }); // Enable input fields
         profilePicturePreview.classList.add('editable'); // Indicate the picture is editable
         editButton.style.display = 'none';
         removeButton.style.display = 'none';
@@ -211,9 +237,9 @@
     });
 
     removeButton.addEventListener('click', () => {
-    dialogContainer.style.display = 'block';
-    blurBackground.classList.add('blurred-background'); // Add blur class
-});
+        dialogContainer.style.display = 'block';
+        blurBackground.classList.add('blurred-background'); // Add blur class
+    });
 
     cancelDeleteButton.addEventListener('click', () => {
         dialogContainer.style.display = 'none';
@@ -228,7 +254,7 @@
     // show($_FILES['profile_picture'] ?? "null");
     // show( $_POST );
     // show( $user );
-    // show( $_SESSION);
+    show( $_SESSION);
 // }
 // show(get_img($user->image_url));
 ?>
@@ -252,4 +278,5 @@
         require_once 'manager/managerFooter.view.php'; 
         
     }
+    // show($user);
 ?>

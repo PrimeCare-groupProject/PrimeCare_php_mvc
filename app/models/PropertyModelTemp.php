@@ -1,134 +1,143 @@
 <?php
 // Property class
-class PropertyModelTemp {
+class PropertyModelTemp
+{
     use Model;
 
-    protected $table = 'property_temp';
+    protected $table = 'propertyTempTable';
     protected $order_column = "property_id";
     protected $allowedColumns = [
         'property_id',
         'name',
         'type',
         'description',
+
         'address',
         'zipcode',
         'city',
         'state_province',
         'country',
+
         'year_built',
-        'rent_on_basis',
-        'units',
         'size_sqr_ft',
+        'number_of_floors',
+        'floor_plan',
+
+        'units',
         'bedrooms',
         'bathrooms',
-        'floor_plan',
-        'parking',
+        'kitchen',
+        'living_room',
+
         'furnished',
+        'furniture_description',
+
+        'parking',
+        'parking_slots',
+        'type_of_parking',
+
+        'utilities_included',
+        'additional_utilities',
+        'additional_amenities',
+        'security_features',
+
+        'purpose',
+        'rental_period',
+        'start_date',
+        'end_date',
+        'rental_price',
+
+        'owner_name',
+        'owner_email',
+        'owner_phone',
+        'additional_contact',
+
+        'special_instructions',
+        'legal_details',
+
         'status',
         'person_id',
         'agent_id',
-        'request_type'
+        'duration',
+        'request_status'
     ];
 
     public $errors = [];
     public $success = [];
 
-    public function validateProperty($data) {
+    public function validateProperty($data)
+    {
         $this->errors = [];
-        //preg_match() takes varibale and int value of the filter type to be done
-        // Validate property Name
-        if (empty($data['name']) || !preg_match('/^[a-zA-Z\s]+$/', $data['name'])) {
-            $this->errors['name'] = 'Name is not valid';
+
+        if (empty($data['name']) || !preg_match('/^[a-zA-Z0-9\s]+$/', $data['name'])) {
+            $this->errors['name'] = 'Invalid property name.';
         }
 
-        // Validate type
-        if (empty($data['type']) || ($data['type'] != 'shortTerm' && $data['type'] != 'monthly' && $data['type'] != 'serviceOnly')) {
-            $this->errors['type'] = 'Type is not valid';
-        }
-
-        // Validate description
-        if (empty($data['description'])) {
-            $this->errors['description'] = 'Description is required';
-        }
-
-        // Validate state
-        if (empty($data['state_province']) || !preg_match('/^[a-zA-Z\s]+$/', $data['state_province'])) {
-            $this->errors['state_province'] = 'State is not valid';
-        }
-
-        // validate zipcode
-        if (empty($data['zipcode']) || !preg_match('/^[0-9]{5}$/', trim($data['zipcode']))) {
-            $this->errors['zipcode'] = 'Zipcode should be 5 digits';
-        }
-
-        // Validate city
-        if (empty($data['city']) || !preg_match('/^[a-zA-Z\s]+$/', $data['city'])) {
-            $this->errors['city'] = 'City is not valid';
-        }
-
-        // Validate Status
-        // if (empty($data['status']) || ($data['status'] != 'active' && $data['status'] != 'inactive' && $data['status'] != 'pending' && $data['status'] != 'sold' && $data['status'] != 'under_maintenance')) {
-        //     $this->errors['status'] = 'Status is not valid';
+        // if (!isset($data['rental_price']) || !is_numeric($data['rental_price']) || $data['rental_price'] < 0) {
+        //     $this->errors['rental_price'] = 'Rental price must be a positive number.';
         // }
 
-        // Validate country
-        if (empty($data['country']) || !preg_match('/^[a-zA-Z\s]+$/', $data['country'])) {
-            $this->errors['country'] = 'Country is not valid';
+        if (!isset($data['rental_period'])) {
+            $this->errors['rental_period'] = 'Rental period must be a valid number.';
         }
 
-        // Validate address
         if (empty($data['address'])) {
-            $this->errors['address'] = 'Address is required';
+            $this->errors['address'] = 'Address is required.';
         }
 
-        // Validate bedrooms
-        if (empty($data['bedrooms']) || !filter_var($data['bedrooms'], FILTER_VALIDATE_INT)) {
-            $this->errors['bedrooms'] = 'Bedrooms is not valid';
+        if (empty($data['city']) || !preg_match('/^[a-zA-Z\s]+$/', $data['city'])) {
+            $this->errors['city'] = 'Invalid city name.';
         }
 
-        // Validate units
-        if (empty($data['units']) || !filter_var($data['units'], FILTER_VALIDATE_INT)) {
-            $this->errors['units'] = 'Units is not valid';
+        if (empty($data['state_province']) || !preg_match('/^[a-zA-Z\s]+$/', $data['state_province'])) {
+            $this->errors['state_province'] = 'Invalid state/province name.';
         }
 
-        // Validate bathrooms
-        if (empty($data['bathrooms']) || !filter_var($data['bathrooms'], FILTER_VALIDATE_INT)) {
-            $this->errors['bathrooms'] = 'Bathrooms is not valid';
+        if (empty($data['country']) || !preg_match('/^[a-zA-Z\s]+$/', $data['country'])) {
+            $this->errors['country'] = 'Invalid country name.';
         }
 
-        // Validate year_built
-        if (empty($data['year_built']) || !filter_var($data['year_built'], FILTER_VALIDATE_INT)) {
-            $currentYear = date("Y");
-            if($data['year_built'] < 1900 || $data['year_built'] > $currentYear){
-                $this->errors['year_built'] = 'Year Built is not valid';
+        if (empty($data['zipcode']) || !preg_match('/^[0-9]{4,10}$/', trim($data['zipcode']))) {
+            $this->errors['zipcode'] = 'Invalid Zipcode format.';
+        }
+
+        if ($data['purpose'] == 'Rent') {
+            if (!isset($data['year_built']) || !filter_var($data['year_built'], FILTER_VALIDATE_INT) || $data['year_built'] < 1800 || $data['year_built'] > date("Y")) {
+                $this->errors['year_built'] = 'Year built must be between 1800 and ' . date("Y") . '.';
+            }
+
+            if (!isset($data['size_sqr_ft']) || !filter_var($data['size_sqr_ft'], FILTER_VALIDATE_FLOAT) || $data['size_sqr_ft'] <= 0) {
+                $this->errors['size_sqr_ft'] = 'Invalid size in square feet.';
+            }
+
+            if (!isset($data['number_of_floors']) || !filter_var($data['number_of_floors'], FILTER_VALIDATE_INT) || $data['number_of_floors'] < 0) {
+                $this->errors['number_of_floors'] = 'Number of floors must be a positive integer.';
+            }
+
+            if (!isset($data['furnished']) || !in_array($data['furnished'], ['Fully Furnished', 'Semi-Furnished', 'Unfurnished'])) {
+                $this->errors['furnished'] = 'Invalid furnished status.';
+            }
+
+            if (!isset($data['parking']) || ($data['parking'] != '1' && $data['parking'] != '0')) {
+                $this->errors['parking'] = 'Invalid parking value.';
+            }
+
+            if ($data['parking'] == '1' && (!isset($data['parking_slots']) || !filter_var($data['parking_slots'], FILTER_VALIDATE_INT) || $data['parking_slots'] < 0)) {
+                $this->errors['parking_slots'] = 'Invalid number of parking slots.';
             }
         }
 
-        // Validate floor_plan
-        if (empty($data['floor_plan'])) {
-            $this->errors['floor_plan'] = 'Floor Plan is required';
+
+        if (empty($data['owner_name']) || !preg_match('/^[a-zA-Z\s]+$/', $data['owner_name'])) {
+            $this->errors['owner_name'] = 'Invalid owner name.';
         }
 
-        // Validate size
-        if (empty($data['size_sqr_ft']) || !filter_var($data['size_sqr_ft'], FILTER_VALIDATE_INT)) {
-            $this->errors['size_sqr_ft'] = 'Size is not valid';
+        if (!empty($data['owner_email']) && !filter_var($data['owner_email'], FILTER_VALIDATE_EMAIL)) {
+            $this->errors['owner_email'] = 'Invalid owner email.';
         }
 
-        // Validate parking
-        if (empty($data['parking']) || ($data['parking'] != 'yes' && $data['parking'] != 'no')) {
-            $this->errors['parking'] = 'Parking is not valid';
-        }
-
-        // Validate furnished
-        if (empty($data['furnished']) || ($data['furnished'] != 'yes' && $data['furnished'] != 'no')) {
-            $this->errors['furnished'] = 'Furnished is not valid';
-        }
-
-        // Validate rent
-        if($data['type'] == 'monthly'){
-            if (empty($data['rent_on_basis']) || $data['rent_on_basis'] < 0) {
-                $this->errors['rent_on_basis'] = 'Rent is not valid';
-            }
+        if (!empty($data['owner_phone']) && !preg_match('/^[0-9\-\s]+$/', $data['owner_phone'])) {
+            $this->errors['owner_phone'] = 'Invalid owner phone number.';
         }
 
         // Return true if no errors, otherwise false
@@ -138,4 +147,144 @@ class PropertyModelTemp {
         return false;
     }
 
+    // public function compareWithPrevios($newData, $previousData)
+    // {
+    //     $fields = [
+    //         'name',
+    //         'type',
+    //         'description',
+    //         'address',
+    //         'zipcode',
+    //         'city',
+    //         'state_province',
+    //         'country',
+
+    //         'year_built',
+    //         'size_sqr_ft',
+    //         'number_of_floors',
+    //         'floor_plan',
+
+    //         'units',
+    //         'bedrooms',
+    //         'bathrooms',
+    //         'kitchen',
+    //         'living_room',
+
+    //         'furnished',
+    //         'furniture_description',
+
+    //         'parking',
+    //         'parking_slots',
+    //         'type_of_parking',
+    //         'purpose',
+    //         'rental_period',
+    //         'rental_price',
+
+    //         'owner_name',
+    //         'owner_email',
+    //         'owner_phone',
+    //         'additional_contact',
+
+    //         'duration',
+    //         // 'start_date',
+    //         // 'end_date'
+    //     ];
+
+    //     // show($newData);
+    //     // show($previousData);
+    //     foreach ($fields as $feild) {
+    //         if ($newData[$feild] != $previousData[$feild]) {
+    //             //echo "Field: $feild <br>";
+    //             return true; // A change is detected
+    //         }
+    //     }
+    //     // foreach ($fields as $key) {
+    //     //     if (isset($newData[$key]) && isset($previousData->$key)) {
+    //     //         if ($newData[$key] != $previousData->$key) {
+    //     //             return true; // A change is detected
+    //     //         }
+    //     //     } elseif (isset($newData[$key]) || isset($previousData->$key)) {
+    //     //         // One is set and the other is not
+    //     //         return true;
+    //     //     }
+    //     //     // print_r($newData[$key]);
+    //     //     // print_r($previousData->$key);
+    //     // }
+
+    //     return false; // No changes found
+    // }
+
+    public function compareWithPrevios($newData, $previousData)
+    {
+        $fields = [
+            'name',
+            'type',
+            'description',
+            'address',
+            'zipcode',
+            'city',
+            'state_province',
+            'country',
+            'year_built',
+            'size_sqr_ft',
+            'number_of_floors',
+            'floor_plan',
+            'units',
+            'bedrooms',
+            'bathrooms',
+            'kitchen',
+            'living_room',
+            'furnished',
+            'furniture_description',
+            'parking',
+            'parking_slots',
+            'type_of_parking',
+            'purpose',
+            'rental_period',
+            'rental_price',
+            'owner_name',
+            'owner_email',
+            'owner_phone',
+            'additional_contact',
+            'duration'
+        ];
+
+        $arrayFields = [
+            'utilities_included',
+            'additional_utilities',
+            'additional_amenities',
+            'security_features',
+            'special_instructions',
+            'legal_details'
+        ];
+
+        // Compare normal fields
+        foreach ($fields as $field) {
+            if (($newData[$field] ?? '') != ($previousData[$field] ?? '')) {
+                return true; // A change is detected
+            }
+        }
+
+        // Compare checkbox (array-based) fields
+        foreach ($arrayFields as $field) {
+            $newArr = array_filter(array_map('trim', explode(',', $newData[$field] ?? '')));
+            $prevArr = array_filter(array_map('trim', explode(',', $previousData[$field] ?? '')));
+
+            sort($newArr);
+            sort($prevArr);
+
+            if ($newArr !== $prevArr) {
+                return true; // A change is detected in checkbox values
+            }
+        }
+
+        return false; // No changes found
+    }
+
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+        return null;
+    }
 }

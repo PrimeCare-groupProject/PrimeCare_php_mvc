@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/HomeTest.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
@@ -15,6 +16,13 @@
 </head>
 
 <body>
+    <?php
+        $flash = $_SESSION['flash'] ?? null;
+        // Show flash messages
+        if(isset($flash)){
+            flash_message($flash['msg'] , $flash['type']);
+        }
+    ?>
 
     <!-- Header Section -->
     <section class="header" id="home">
@@ -76,7 +84,7 @@
                                     <?= $property->name ?>
                                 </div>
                                 <div class="price">
-                                    <?= $property->rent_on_basis ?> /Month
+                                    <?= $property->rental_price ?> /Month
                                 </div>
                             </div>
                             <div class="units-diplays">
@@ -383,7 +391,7 @@
             </div>
             <div class="right-side">
                 <div class="topic-text">Send us a message</div>
-                <form method="GET">
+                <form method="POST">
                     <input type="hidden" name="action" value="contactus">
                     <div class="input-box">
                         <label for="name">Your Name:</label>
@@ -399,6 +407,23 @@
                         <textarea type="text" name="message" id="message" cols="20" rows="5" placeholder="Message"></textarea>
                     </div>
                     <button type="submit">Send</button>
+                    <!-- Success message -->
+                    <?php if (!empty($success)): ?>
+                        <div class="success-message" style="color: green;">
+                            <?= esc($success) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Error messages -->
+                    <?php if (!empty($errors)): ?>
+                        <div class="error-messages" style="color: red;">
+                            <ul>
+                                <?php foreach ($errors as $error): ?>
+                                    <li><?= esc($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
@@ -461,9 +486,9 @@
         });
 
         document.querySelectorAll('a').forEach(link => {
-            console.log(link);
-
-            link.addEventListener('click', displayLoader);
+            if (!link.getAttribute('href').startsWith('#')) {
+                link.addEventListener('click', displayLoader);
+            }
         });
     </script>
     <div class="loader-container" style="display: none;">

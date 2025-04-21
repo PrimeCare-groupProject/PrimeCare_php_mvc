@@ -1,5 +1,6 @@
 <?php
 defined('ROOTPATH') or exit('Access denied');
+// include_once SENDMAIL_PATH ;
 
 class ResetPassword {
     use controller;
@@ -38,14 +39,20 @@ class ResetPassword {
 
                     
                     if ($status['error']) {
-                        $user->errors['auth'] = 'An error occurred while sending the reset code. Please try again.';
+                        $_SESSION['flash']['msg'] = 'An error occurred while sending the reset code. Please try again.';
+                        $_SESSION['flash']['type'] = 'error';
+                        // $user->errors['auth'] = 'An error occurred while sending the reset code. Please try again.';
                         $this->view('resetPassword', ['user' => $user]);
                     }else{
+                        $_SESSION['flash']['msg'] = 'The reset code have been sent to your mail. Please check your email.';
+                        $_SESSION['flash']['type'] = 'success';
                         unset($user->errors['auth']);
                         $this->view('resetPassword', ['user' => $user, 'confirmed' => true]);
                     }
                 } else {
-                    $user->errors['auth'] = 'No user found with that email. Try again';
+                    $_SESSION['flash']['msg'] = 'No user found with that email. Try again';
+                    $_SESSION['flash']['type'] = 'error';
+                    // $user->errors['auth'] = 'No user found with that email. Try again';
                     $this->view('resetPassword', ['user' => $user]);
                 }
 
@@ -56,7 +63,9 @@ class ResetPassword {
                 if (isset($_SESSION['current_user']) && $_SESSION['current_user']->reset_code === $reset_code_input) {
                     $this->view('resetPassword', ['user' => $user, 'confirmed' => true, 'code_verified' => true]);
                 } else {
-                    $user->errors['auth'] = 'Invalid reset code. Please try again.';
+                    $_SESSION['flash']['msg'] = 'Invalid reset code. Please try again.';
+                    $_SESSION['flash']['type'] = 'error';
+                    // $user->errors['auth'] = 'Invalid reset code. Please try again.';
                     $this->view('resetPassword', ['user' => $user, 'confirmed' => true]);
                 }
 
@@ -74,11 +83,22 @@ class ResetPassword {
 
                     // Clear session data and redirect to login page
                     unset($_SESSION['current_user']);
-                    $_SESSION['success'] = ' Password reset successful. Login with your new password.';
-                    redirect('login');
+                    
+                    $_SESSION['flash']['type'] = 'success';
+                    
+                    // $_SESSION['success'] = ' Password reset successful. Login with your new password.';
+                    if (isset($_SESSION['user'])) {
+                        $_SESSION['flash']['msg'] = 'Password reset successful.';
+                        redirect('dashboard/profile');
+                    } else {
+                        $_SESSION['flash']['msg'] = 'Password reset successful. Login with your new password.';
+                        redirect('login');
+                    }
                     exit();
                 } else {
-                    $user->errors['auth'] = 'Passwords do not match or insufficient lenght. Enter matching passwords.';
+                    $_SESSION['flash']['msg'] = 'Passwords do not match or insufficient lenght. Enter matching passwords.';
+                    $_SESSION['flash']['type'] = 'error';
+                    // $user->errors['auth'] = 'Passwords do not match or insufficient lenght. Enter matching passwords.';
                     $this->view('resetPassword', ['user' => $user, 'confirmed' => true, 'code_verified' => true]);
                 }
             }

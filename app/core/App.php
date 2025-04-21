@@ -65,6 +65,7 @@ class App
                     }
                 } else {
                     // If the user is not logged in, redirect them to the login page
+                    $_SESSION['redirect_url'] = $_GET['url'] ?? 'home';
                     redirect('login');
                     $this->controller = 'Login';
                 }

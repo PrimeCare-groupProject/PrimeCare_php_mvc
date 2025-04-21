@@ -3,37 +3,45 @@
 
 <div class="user_view-menu-bar">
     <div class="gap"></div>
-    <h2>properties</h2>
+    <h2> my properties</h2>
+    <div class="gap"></div>
+    <div class="PL__filter_container">
+        <select id="propertyStatusFilter" class="input_field_styled">
+            <option value="">Status</option>
+            <option value="pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="under Maintenance">Under Maintenance</option>
+        </select>
+    </div>
     <div class="flex-bar">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search Anything...">
-            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
-        </div>
-        <!-- <button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button> -->
+        
         <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/propertylisting/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
+            <a href='<?= ROOT ?>/dashboard/propertyListing/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Add new property</span>
         </div>
     </div>
 </div>
 
 
-<div class="errors" style="display: <?= !empty($status) ? 'block' : 'none'; ?>; background-color: #b5f9a2;">
+<!-- <div class="errors" style="display: <?= !empty($status) ? 'block' : 'none'; ?>; background-color: #b5f9a2;">
     <?php if (!empty($status)): ?>
         <p><?= $status;  ?></p>
     <?php endif; ?>
     <?php $_SESSION['status'] = '' ?>
 </div>
+ -->
+
+
 
 <div class="listing-the-property">
     <!-- Property Listings -->
     <div class="property-listing-grid">
         <?php if (!empty($properties)): ?>
             <?php foreach ($properties as $property): ?>
-                <div class="property-card">
+                <div class="property-card" data-status="<?= strtolower($property->status) ?>">
+
                     <div class="property-image">
-                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
-                        <!-- <a href="<?= ROOT ?>/property/propertyUnitOwner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a> -->
                         <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="Property Image"></a>
                     </div>
                     <div class="property-details">
@@ -46,8 +54,26 @@
                                 </div>
                             </div>
                             <div>
+
                                 <div class="property-status">
-                                    <span class="border-button"><?= $property->status ?></span>
+                                    <?php
+                                    $color = 'orange';
+                                    switch ($property->status):
+                                        case 'Pending':
+                                            $color = 'orange';
+                                            break;
+                                        case 'Active':
+                                            $color = 'green';
+                                            break;
+                                        case 'Inactive':
+                                            $color = 'red';
+                                            break;
+                                        case 'Under Maintenance':
+                                            $color = 'blue';
+                                            break;
+                                    endswitch;
+                                    ?>
+                                    <span class="border-button <?= $color ?>"><?= $property->status ?></span>
                                 </div>
                             </div>
                         </div>
@@ -59,13 +85,13 @@
                                 <?= $property->description ?>
                             </p>
                         </div>
-                        <div class="property-actions">
+                        <!-- <div class="property-actions">
                             <a href="#" class="change-status">change Pending</a>
                             <div>
                                 <a href="<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>" class="delete-btn"><img src="<?= ROOT ?>/assets/images/edit.png" class="property-info-img" /></a>
-                                <a href="<?= ROOT ?>/dashboard/dropProperty/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
+                                <a href="<?= ROOT ?>/dashboard/propertylisting/dropProperty/<?= $property->property_id ?>" class="edit-btn"><img src="<?= ROOT ?>/assets/images/delete.png" class="property-info-img" /></a>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
@@ -77,35 +103,49 @@
 
     <!-- Pagination Buttons -->
     <div class="pagination">
-        <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
+        <!-- <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
         <span class="current-page">1</span>
-        <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
+        <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button> -->
     </div>
 </div>
 
 <script>
     let currentPage = 1;
     const listingsPerPage = 9;
-    const listings = document.querySelectorAll('.property-listing-grid .property-component');
+    const listings = document.querySelectorAll('.property-listing-grid .property-card');
     const totalPages = Math.ceil(listings.length / listingsPerPage);
 
     function showPage(page) {
-        // Hide all listings
-        listings.forEach((listing, index) => {
-            listing.style.display = 'none';
-        });
+        const visibleListings = Array.from(listings).filter(el => el.style.display !== 'none');
+        visibleListings.forEach(el => el.style.display = 'none');
 
-        // Show listings for the current page
         const start = (page - 1) * listingsPerPage;
         const end = start + listingsPerPage;
 
-        for (let i = start; i < end && i < listings.length; i++) {
-            listings[i].style.display = 'block';
+        for (let i = start; i < end && i < visibleListings.length; i++) {
+            visibleListings[i].style.display = 'block';
         }
 
-        // Update pagination display
         document.querySelector('.current-page').textContent = page;
     }
+
+    function filterListings() {
+        const selectedStatus = document.getElementById('propertyStatusFilter').value.toLowerCase();
+
+        listings.forEach(card => {
+            const status = card.getAttribute('data-status');
+            if (!selectedStatus || status === selectedStatus) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        currentPage = 1;
+        showPage(currentPage);
+    }
+
+    document.getElementById('propertyStatusFilter').addEventListener('change', filterListings);
 
     document.querySelector('.next-page').addEventListener('click', () => {
         if (currentPage < totalPages) {
@@ -121,8 +161,10 @@
         }
     });
 
-    // Initial page load
-    showPage(currentPage);
+    // Initial load
+    filterListings();
 </script>
+
+
 
 <?php require_once 'ownerFooter.view.php'; ?>

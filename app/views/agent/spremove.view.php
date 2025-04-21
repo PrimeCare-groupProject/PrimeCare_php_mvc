@@ -1,85 +1,115 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/dashboard/services/serviceproviders/removeserviceprovider'>
+    <a href='<?= ROOT ?>/dashboard/manageProviders/serviceproviders'>
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
-    <h2>Service Providers</h2>
+    <h2>Service Provider Removal </h2>
+    <div class="flex-bar">
+        <form class="search-container" method="GET">
+            <input 
+                type="text" 
+                class="search-input" 
+                name="searchterm" 
+                value="<?= isset($_GET['searchterm']) ? esc($_GET['searchterm']) : "" ?>" 
+                placeholder="Search Employee ..."
+            >
+            <button class="search-btn" type="submit">
+                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
+            </button>
+        </form>
+    </div>
 </div>
 
-<form method="POST" action="your_php_file.php" enctype="multipart/form-data">
-    <div class="owner-addProp-container">
-        <div class="owner-addProp-form-left">
+<?php
+    if (!empty($users)) {
+        foreach ($users as $user) {
+?>
+            <div class="content_wrapper" style="height: auto;">
+                <div class="employee-details-container AddnewAgentform">
+                    <div class="listing-table-for-customer-payments" style="display: flex; align-items: flex-start;">
+                        <!-- User Image -->
+                        <div style="flex-shrink: 0; display: flex; justify-content: center; padding: 10px 25px 5px 20px; flex-direction: column; gap: 10px; align-items: center; justify-content: center; ">
+                            <p style="color: #FF0000; font-weight: bold; text-align: center;"></p>
+                            <div style="display: flex; justify-content: center;">
+                                <img src="<?= get_img($user->image_url) ?>" class="header-profile-picture" style="width: 160px; margin: 10px; height: 160px; object-fit: cover; border-radius: 50%;">
+                            </div>
+                            <p class="profile-role ">PID - <?= $user->pid ?></p>
+                            
+                        </div>
 
-            <div class="serPro">
-            <img src="<?= ROOT ?>/assets/images/serProimg.png" alt="Back" class="serProimg">
-            <h3>Mr Service</h3>
-            <h3>Provider</h3>
-            </div>
-
-            <label class="input-label">First Name</label>
-            <input type="text" name="firstname" value="Bimsara" class="input-field" readonly>
-
-            <label class="input-label">Last Name</label>
-            <input type="text" name="lastname" value="Imash" class="input-field" readonly>
-
-            <label class="input-label">Date Of Birth</label>
-            <input type="text" name="date" value="2022/12/07" class="input-field" readonly>
-
-            <label class="input-label">Gender</label>
-            <input type="text" name="gender" value="Male" class="input-field" readonly>
-
-            <label class="input-label">Contact Number</label>
-            <input type="text" name="primarycontactnumber" value="0783118863" class="input-field" readonly>
-
-            <label class="input-label">Contact Number(Secondary)</label>
-            <input type="text" name="secondarycontactnumber" value="0777612225" class="input-field" readonly>
-
-            <label class="input-label">Email Address</label>
-            <input type="email" name="email" value="Bimsa2021@gmail.com" class="input-field" readonly>
-
-        </div>
-
-        <div class="owner-addProp-form-right">
-
-            <label class="input-label">Bank Account Number</label>
-            <input type="text" name="email" value="2090993808980290" class="input-field" readonly>
-
-            <label class="input-label">Address</label>
-            <input type="text" name="address" value="No 12,Temple road, Galle." class="input-field" readonly>
-
-            <label class="input-label">Marital Status</label>
-            <input type="text" name="maritalstatus" value="Unmarried" class="input-field" readonly>
-
-            <label class="input-label">NIC Number</label>
-            <input type="text" name="NIC Number" value="202235293687" class="input-field" readonly>
-
-            <!--<label class="input-label">Upload Profile Image</label>
-            <div class="owner-addProp-file-upload">
-                <input type="file" name="property_image[]" id="property_image" class="input-field" multiple required>
-                <div class="owner-addProp-upload-area">
-                    <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
-                    <p class="upload-area-no-margin">Drop your files here</p>
-                    <button type="button" class="primary-btn" onclick="document.getElementById('property_image').click()">Choose File</button>
+                        <!-- User Details -->
+                        <div style="flex: 1; padding: 20px 25px 5px 20px; display: flex; flex-direction: column;">
+                            <div class="input-group">
+                                <div class="input-group-group">
+                                    <label for="fname" class="input-label">First Name</label>
+                                    <input type="text" id="fname" value="<?= esc($user->fname) ?>" class="input-field" disabled>
+                                </div>
+                                <div class="input-group-group">
+                                    <label for="lname" class="input-label">Last Name</label>
+                                    <input type="text" id="lname" value="<?= esc($user->lname) ?>" class="input-field" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-group">
+                                    <label for="nic" class="input-label">NIC</label>
+                                    <input type="text" id="nic" value="<?= htmlspecialchars($user->nic) ?>" class="input-field" disabled>
+                                </div>
+                                <div class="input-group-group">
+                                    <label for="email" class="input-label">Email</label>
+                                    <input type="text" id="email" value="<?= htmlspecialchars($user->email) ?>" class="input-field" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-group">
+                                    <label for="contact" class="input-label">Contact</label>
+                                    <input type="text" id="contact" value="<?= htmlspecialchars($user->contact) ?>" class="input-field" disabled>
+                                </div>
+                                <div class="input-group-group">
+                                    <label for="created_date" class="input-label">Created Date</label>
+                                    <input type="text" id="created_date" value="<?= htmlspecialchars($user->created_date) ?>" class="input-field" disabled>
+                                </div>
+                            </div>
+                            <form method="POST" action="<?= ROOT ?>/dashboard/manageProviders/propertyowners/removeowners">
+                                <input type="hidden" name="pid" value="<?= $user->pid ?>">
+                                <div class="input-group-aligned" style="margin: 15px 0 15px 0;">
+                                    <button type="submit" name="action" value="reject" class="red btn">Reject</button>
+                                    <button type="submit" name="action" value="approve" class="green btn">Approve</button>
+                                </div>
+                            </form>
+                            
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <label class="input-label">Resume/CV</label>
-            <div class="owner-addProp-file-upload">
-                <input type="file" name="property_image[]" id="property_image" class="input-field" multiple required>
-                <div class="owner-addProp-upload-area">
-                    <img src="<?= ROOT ?>/assets/images/upload.png" alt="Nah bro" class="owner-addProp-upload-logo">
-                    <p class="upload-area-no-margin">Drop your files here</p>
-                    <button type="button" class="primary-btn" onclick="document.getElementById('property_image').click()">Choose File</button>
-                </div>
-            </div>
-            -->
-
-            <div class="buttons-to-right">
-                <button type="submit" class="primary-btn">Edit</button>
-            </div>
+<?php 
+        }
+    } else { 
+?>
+        <div class="employee-details-container" style="margin-top: 10px;">
+            <p style="text-align: center; margin: 0px; color: #484848FF;">No removal request to display.</p>
         </div>
-    </div>
-</form>
+<?php 
+    } 
+?>
+    
+
+<script>
+    // Display loader on form submission
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', () => {
+            document.querySelector('.loader-container').style.display = '';
+        });
+    });
+
+    // Display loader on link click
+    document.querySelectorAll('a').forEach(link => {
+        if (!link.getAttribute('href').startsWith('#')) {
+            link.addEventListener('click', () => {
+                document.querySelector('.loader-container').style.display = '';
+            });
+        }
+    });
+</script>
 
 <?php require_once 'agentFooter.view.php'; ?>

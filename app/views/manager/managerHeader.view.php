@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/customer.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/pagination.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertyListingCssForAll.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/Notifications.css">
+
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +36,7 @@
             <!-- toggle button -->
             <form method="post" class="toggle_wrapper" action="<?= ROOT ?>/dashboard/switchUser">
                 <div class="toggle-button tooltip-container">
-                    <span class="tooltip-text">Change To Original Mood</span>
+                    <span class="tooltip-text">Change To Customer Mood</span>
                     <!-- Outer track -->
                     <div class="toggle-track" id="toggleTrack" onclick="submitToggleForm()">
                         <!-- Inner knob -->
@@ -41,9 +45,12 @@
                         <input type="submit" name="toggle_btn" value="1" hidden>
                     </div>
                 </div>
+
+                <?php require __DIR__ . '/../components/notificationComponent.view.php'; ?>
+                
                 <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="" class="header-profile-picture"></a>
             </form>
-            </div>
+        </div>
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
@@ -55,17 +62,23 @@
 
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
-                    <input type="text" name="logout" value= "1" hidden>
+                    <input type="text" name="logout" value="1" hidden>
                 </form>
             </div>
+
+            <script>
+                const BASE_URL = "<?= ROOT ?>";
+            </script>
+
+            <script src="<?= ROOT ?>/assets/js/notificationHandler.js"></script>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const sidebarLinks = document.querySelectorAll('.user_view-sidemenu ul li a');
                     let isTabActive = false;
                     const currentURL = window.location.href;
-                    const url = new URL(window.location.href);  // Get the current page URL
-                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/');  // Split the URL into an array
+                    const url = new URL(window.location.href); // Get the current page URL
+                    const path = url.pathname.replace(/^\/|\/$/g, '').split('/'); // Split the URL into an array
                     const currentPage = path[3] || "dashboard";
                     console.log(path[3]);
                     // Loop through each sidebar link
@@ -78,7 +91,7 @@
                             // Add 'active' class to the button
                             button.classList.add('active');
                             button.classList.remove('btn');
-                            isTabActive = true;  // Mark that a tab is active
+                            isTabActive = true; // Mark that a tab is active
                         } else {
                             // Remove 'active' class from the button
                             button.classList.remove('active');
@@ -95,7 +108,7 @@
                             dashboardButton.classList.add('btn');
                             dashboardButton.classList.remove('active');
                         }
-                    }else{
+                    } else {
                         // console.log(" tab is not active");
 
                         dashboardButton.classList.add('active');
@@ -112,10 +125,19 @@
                 const toggleTrack = document.getElementById('toggleTrack');
 
                 toggleTrack.addEventListener('click', () => {
-                toggleTrack.classList.toggle('activeToggle');
+                    toggleTrack.classList.toggle('activeToggle');
                 });
+
                 function submitToggleForm() {
-                    document.querySelector('.toggle_wrapper').submit();
+                    const submitBtn = document.querySelector('.toggle_wrapper');
+                    const toggleTrack = document.getElementById('toggleTrack');
+
+                    toggleTrack.classList.add('activeToggle');
+
+                    setTimeout(() => {
+                        submitBtn.submit();
+                        displayLoader();
+                    });
                 }
 
                 //loader effect
@@ -123,9 +145,9 @@
                     document.querySelector('.loader-container').style.display = '';
                     //onclick="displayLoader()"
                 }
-                
+
                 document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', displayLoader);
+                    form.addEventListener('submit', displayLoader);
                 });
 
                 document.querySelectorAll('a').forEach(link => {
@@ -134,3 +156,9 @@
             </script>
 
             <div class="user_view-content_section" id="content-section">
+
+                <?php
+                if (isset($_SESSION['flash'])) {
+                    flash_message();
+                }
+                ?>

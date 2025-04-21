@@ -11,7 +11,7 @@ class PaymentDetails
         'account_no',
         'bank',//10
         'branch',//20
-        'pid'
+        'pid'// foreign key
     ];
 
     public $errors = [];
@@ -29,5 +29,12 @@ class PaymentDetails
         if (!empty($data['branch']) && !filter_var($data['branch'], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 20]])) {
             $this->errors['branch'] = 'Invalid branch';
         }
+    }
+
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+        return null;
     }
 }

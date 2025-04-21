@@ -1,232 +1,120 @@
 <?php require 'ownerHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
-    <!-- <a href='<?= ROOT ?>/dashboard/propertyListing/propertyunit'><img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons"></a> -->
     <a href="javascript:history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
     <h2>Repairs</h2>
     <div class="flex-bar">
         <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search Anything...">
+            <input type="text" id="service-search" class="search-input" placeholder="Search Anything...">
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
     </div>
 </div>
 
 <div class="listing-the-property">
-    <!-- Property Listings -->
+    <!-- Dynamic Service Listings -->
     <div class="property-listing-grid">
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Door Lock Repair and Replacement&cost_per_hour=1000&estimated_hours=2'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/DoorRepair.jpg" alt="Door Lock Repair">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Door Lock Repair and Replacement</h3>
+        <?php if(!empty($services)): ?>
+            <?php foreach($services as $service): ?>
+                <div class="property-card service-item" 
+                     onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>&estimated_hours=2&property_name=<?= urlencode($_GET['property_name'] ?? '') ?>&property_id=<?= urlencode($_GET['property_id'] ?? '') ?>'">
+                    <div class="property-image">
+                        <?php 
+                        // Check if image file exists
+                        $imgPath = ROOT . "/assets/images/repairimages/" . $service->service_img;
+                        $placeholderPath = ROOT . "/assets/images/service_placeholder.jpg";
+                        ?>
+                        <img src="<?= !empty($service->service_img) ? $imgPath : $placeholderPath ?>" 
+                             alt="<?= $service->name ?>" 
+                             onerror="this.src='<?= $placeholderPath ?>'">
+                    </div>
+                    <div class="property-details">
+                        <div class="profile-details-items">
+                            <div>
+                                <h3><?= $service->name ?></h3>
+                            </div>
+                        </div>
+                        <p class="property-description">
+                            <?= $service->description ?>
+                        </p>
+                        <p class="service-cost">$<?= number_format($service->cost_per_hour, 2) ?> per hour</p>
                     </div>
                 </div>
-                <p class="property-description">
-                    Fixes or replaces faulty door locks to ensure secure and smooth access, covering issues from jammed locks to broken keys and misaligned mechanisms.
-                </p>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="no-services-message">
+                <p>No repair services available at this time.</p>
             </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Plumbing Leak Repair and Maintenance&cost_per_hour=1500&estimated_hours=3'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/Plumbing.jpg" alt="Plumbing Repair">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Plumbing Leak Repair and Maintenance</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Addresses water leaks, pipe bursts, and fixture malfunctions, preventing water damage, mold growth, and ensuring efficient water flow throughout the property.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=HVAC Maintenance&cost_per_hour=2000&estimated_hours=4'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/ac.jpg" alt="HVAC Maintenance">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>HVAC Maintenance</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Regularly cleans and services HVAC units for optimal temperature control and air quality, ensuring efficient operation and extending equipment lifespan.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Electrical System Inspection and Maintenance&cost_per_hour=1800&estimated_hours=3'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/elect.jpg" alt="Electrical Maintenance">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Electrical System Inspection and Maintenance</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Provides routine inspections, repairs, and upgrades for outlets, wiring, and circuit breakers to maintain safe and efficient electrical systems.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Gardening and Landscaping Services&cost_per_hour=1200&estimated_hours=5'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/gardening.png " alt="Gardening Services">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Gardening and Landscaping Services</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Offers regular lawn care, plant trimming, soil treatment, and seasonal planting to enhance the property's curb appeal and maintain a vibrant, healthy landscape.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Window and Glass Repair&cost_per_hour=1300&estimated_hours=2'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/glass.jpg" alt="Window Repair">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Window and Glass Repair</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Repairs cracked or broken windows, restores seals, and improves insulation, keeping the property secure, energy-efficient, and visually appealing.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Painting and Surface Touch-Ups&cost_per_hour=1100&estimated_hours=6'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/paint.png" alt="Painting Services">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Painting and Surface Touch-Ups</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Refreshes interior and exterior paint, covering scuffs, chips, and fading to keep the property looking fresh and well-maintained.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Roof and Gutter Cleaning&cost_per_hour=1600&estimated_hours=4'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/roof.jpg" alt="Roof Cleaning">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Roof and Gutter Cleaning</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Removes debris and clogs from roofs and gutters to prevent water damage and ensure effective drainage, particularly during heavy rainfall seasons.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Pool Cleaning and Maintenance&cost_per_hour=1400&estimated_hours=3'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/pool.jpg" alt="Pool Maintenance">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Pool Cleaning and Maintenance</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Regularly cleans and balances pool chemicals, checks equipment like filters and pumps, and performs minor repairs, ensuring a safe and enjoyable swimming environment.
-                </p>
-            </div>
-        </div>
-
-        <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Flooring and Carpet Repair&cost_per_hour=1700&estimated_hours=4'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/floor.jpg" alt="Flooring Repair">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Flooring and Carpet Repair</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                    Fixes issues like loose tiles, cracks, and carpet stains to maintain a clean, safe, and comfortable living space for occupants.
-                </p>
-            </div>
-        </div>
-            <div class="property-card" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/servicerequest?type=Pest Control and Extermination&cost_per_hour=1900&estimated_hours=3'">
-            <div class="property-image">
-                <img src="<?= ROOT ?>/assets/images/fest.jpg" alt="pest Maintenance">
-            </div>
-            <div class="property-details">
-                <div class="profile-details-items">
-                    <div>
-                        <h3>Pest Control and Extermination</h3>
-                    </div>
-                </div>
-                <p class="property-description">
-                Provides routine inspections and extermination services for pests such as rodents, termites, and insects, keeping the property safe and pest-free.
-                </p>
-            </div>
-        </div>
+        <?php endif; ?>
     </div>
     
     <!-- Pagination Buttons -->
     <div class="pagination">
-        <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
+        <button class="prev-page" disabled><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
         <span class="current-page">1</span>
         <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
     </div>
 </div>
 
 <script>
-    let currentPage = 1;
+    // Service search functionality
+    document.getElementById('service-search').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const services = document.querySelectorAll('.service-item');
+        
+        services.forEach(service => {
+            const name = service.querySelector('h3').textContent.toLowerCase();
+            const description = service.querySelector('.property-description').textContent.toLowerCase();
+            
+            if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                service.style.display = 'block';
+            } else {
+                service.style.display = 'none';
+            }
+        });
+
+        // Reset pagination after search
+        currentPage = 1;
+        showPage(currentPage);
+    });
+
+    // Pagination functionality
     const listingsPerPage = 9;
-    const listings = document.querySelectorAll('.property-listing-grid .property-component');
+    const listings = document.querySelectorAll('.property-listing-grid .property-card');
     const totalPages = Math.ceil(listings.length / listingsPerPage);
+    let currentPage = 1;
+    
+    // Only initialize pagination if we have more than one page
+    if (totalPages > 1) {
+        document.querySelector('.pagination').style.display = 'flex';
+    } else {
+        document.querySelector('.pagination').style.display = 'none';
+    }
 
     function showPage(page) {
         // Hide all listings
         listings.forEach((listing, index) => {
-            listing.style.display = 'none';
+            if (index >= (page-1) * listingsPerPage && index < page * listingsPerPage) {
+                listing.style.display = 'block';
+            } else {
+                listing.style.display = 'none';
+            }
         });
-
-        // Show listings for the current page
-        const start = (page - 1) * listingsPerPage;
-        const end = start + listingsPerPage;
-
-        for (let i = start; i < end && i < listings.length; i++) {
-            listings[i].style.display = 'block';
-        }
 
         // Update pagination display
         document.querySelector('.current-page').textContent = page;
+        
+        // Enable/disable pagination buttons
+        document.querySelector('.prev-page').disabled = page === 1;
+        document.querySelector('.next-page').disabled = page === totalPages;
     }
 
     document.querySelector('.next-page').addEventListener('click', () => {
         if (currentPage < totalPages) {
             currentPage++;
             showPage(currentPage);
+            // Scroll to top of the listing
+            document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
         }
     });
 
@@ -234,6 +122,8 @@
         if (currentPage > 1) {
             currentPage--;
             showPage(currentPage);
+            // Scroll to top of the listing
+            document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
         }
     });
 

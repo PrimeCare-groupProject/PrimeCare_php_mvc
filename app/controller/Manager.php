@@ -31,37 +31,47 @@ class Manager {
     private function addAgent() {
         $user = new User();
         $payment_details = new PaymentDetails();
+        $location = new UserLocation();
         $errors = [];
-        // show($_POST);
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $errors = [];
 
             // Validate and sanitize personal details
             $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
             if (!$email) {
-                $user->errors['email'] = "Invalid email format.";
+                $_SESSION['flash']['msg'] = "Invalid email format.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['email'] = "Invalid email format.";
             }
-            // echo "checking if user exist <br>";
-            $resultUser = $user->first(['email' => $email], []);
-            if (($resultUser && !empty($resultUser->email))) {
-                $errors['email'] = 'Email already exists';
-                //update user class errors
-                $user->errors['email'] = 'Email already exists';
-                $this->view('manager/addAgent',[
-                    'user' => $resultUser, 
-                    'errors' => $user->errors, 
-                    'message' => ''] ); // Re-render signup view with error
-                return; // Exit if email exists
-            }
-            
+
             $contact = esc($_POST['contact'] ?? null);
             $fname = esc($_POST['fname'] ?? null);
             $lname = esc($_POST['lname'] ?? null);
+            $nic = esc($_POST['nic'] ?? null);
 
+            // echo "checking if user exist <br>";
+            $resultUser = $user->first(['email' => $email], []);
+            $nicUser = $user->first(['nic' => $nic ], []);
+
+            if (($resultUser && !empty($resultUser->email)) || $nicUser && !empty($nicUser->email)) {
+                //update user class errors
+                $_SESSION['flash']['msg'] = "Email or NIC already exists.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['email'] = 'Email or NIC already exists';
+                $this->view('manager/addAgent',[
+                    'user' => $resultUser, 
+                    'errors' => $errors, 
+                    'message' => ''] ); // Re-render signup view with error
+                
+                unset($errors['email']); // Clear the error after displaying it
+                return; // Exit if email exists
+            }
             //generatepassword
             $password = bin2hex(random_bytes(4)); // Generates an 8-character password
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
             $personalDetails = [
+                'nic' => $nic,
                 'fname' => $fname,
                 'lname' => $lname,
                 'email' => $email,
@@ -77,30 +87,56 @@ class Manager {
             if (!$user->validate($personalDetails)) {
                 // show($user->errors);
                 // echo "if2";
+                $_SESSION['flash']['msg'] = is_array($user->errors) ? implode("\n", $user->errors) : (string)$user->errors;
+                $_SESSION['flash']['type'] = "error";
                 $this->view('manager/addAgent',[
                     'user' => $resultUser, 
-                    'errors' => $user->errors, 
+                    // 'errors' => $user->errors, 
                     'message' => '']); // Re-render signup view with errors
+
+                unset($user->errors); // Clear the error after displaying it
                 return; // Exit if validation fails
             }
             // echo "user details validated:<br>";
-            // show($user->errors);
 
             unset($personalDetails['confirmPassword']);
+            
+
+            // Validate and sanitize location details
+            if (!$location->validateLocation($_POST)) {
+                $_SESSION['flash']['msg'] = is_array($location->errors) ? implode("\n", $location->errors) : (string)$location->errors;
+                $_SESSION['flash']['type'] = "error";
+                $this->view('manager/addAgent',[
+                    'user' => $resultUser, 
+                    'errors' => $errors, 
+                    'message' => '']); // Re-render signup view with errors
+
+                unset($location->errors); // Clear the error after displaying it
+                return; // Exit if validation fails
+            }
+            
+
             $personalDetails['password'] = $hashedPassword;//set hashed password
             // echo "inserting user details<br>";
+            // show($personalDetails);
+
             $userStatus = $user->insert($personalDetails);
 
             if (!$userStatus) {
                 // echo "user details insertion failed<br>"; 
-                $errors['auth'] = "Failed to add agent. Please try again.";
+                $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+                $_SESSION['flash']['type'] = "error";
+                // $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('manager/addAgent', [
                     'user' => $resultUser, 
-                    'errors' => $user->errors, 
+                    'errors' => $errors, 
                     'message' => '']);
+
+                unset($errors['auth']); // Clear the error after displaying it
                 return;
             }else{
                 // echo "user details inserted<br>"; 
+                
             }
 
             // Validate and sanitize bank details
@@ -109,17 +145,57 @@ class Manager {
             $branch = esc($_POST['branch'] ?? null);
             $bankName = esc($_POST['bankName'] ?? null);
 
-            if (empty($user->errors) && $userStatus) {
+            //location data
+            $province = esc($_POST['province'] ?? null);
+            $district = esc($_POST['district'] ?? null);
+            $city = esc($_POST['city'] ?? null);
+            $address = esc($_POST['address'] ?? null);
 
+            // echo "Inside if bank details<br>";
+            if (empty($user->errors) && $userStatus) {
                 $userDetails = $user->where(['email' => $email]);
                 $userId = $userDetails[0]->pid;
                 // var_dump($userId);
                 if ($userStatus) {
+
+                    if ($userId) {
+                        $locationStatus = $location->insert([
+                            'pid' => $userId,
+                            'province' => $province,
+                            'district' => $district,
+                            'city' => $city,
+                            'address' => $address
+                        ]);
+                        
+                        if (!$locationStatus) {
+                            $_SESSION['flash']['msg'] = "Failed to save location details. Please try again.";
+                            $_SESSION['flash']['type'] = "error";
+                            $user->delete($userId, 'pid'); // Rollback user creation
+                            $this->view('manager/addAgent', [
+                                'errors' => $errors,
+                                'message' => ''
+                            ]);
+                            return;
+                        }
+                    }
                      
-                    $personalDetails['branch'] = 1;
-                    $personalDetails['bank'] = 1;
+                    //check if payment details already exist
+                    $paymentDetails = $payment_details->first(['pid' => $userId, 'account_no' => $accountNo]);
+                    // echo "checking if payment details exist<br>";
+                    if ($paymentDetails) {
+                        $user->delete($personalDetails['pid'], 'pid'); 
+                        $_SESSION['flash']['msg'] = "Payment details already exist for this account number.";
+                        $_SESSION['flash']['type'] = "error";
+                        // $errors['payment'] = "Payment details already exist for this account number.";
+                        $this->view('manager/addAgent',[
+                            'user' => $resultUser, 
+                            'errors' => $errors, 
+                            'message' => '']); // Re-render signup view with error
+                        unset($errors['payment']); // Clear the error after displaying it
+                        return; // Exit if payment details already exist
+                    }
                     // Save payment details
-                    // echo "inserting payment details<br>";
+
                     $paymentDetailStatus = $payment_details->insert([
                         'card_name' => $cardName,
                         'account_no' => $accountNo,
@@ -127,7 +203,8 @@ class Manager {
                         'branch' => $branch,
                         'pid' => $userId,
                     ]);
-                    // var_dump($paymentDetailStatus);
+                    
+                    // show($paymentDetailStatus);
                     // echo "payment details inserted<br>";
 
                     if($paymentDetailStatus){
@@ -147,37 +224,60 @@ class Manager {
                         ");
                         if(!$status['error']){
                             $message = "Agent added successfully!. Password has been sent to email";
+                            $_SESSION['flash']['msg'] = $message;
+                            $_SESSION['flash']['type'] = "success";
+                            // echo "mail sent<br>";
                         }else{
                             $message = "Agent added successfully!. Failed to send email. Contact Agent at {$contact}";
+                            $_SESSION['flash']['msg'] = $message;
+                            $_SESSION['flash']['type'] = "success";
+                            // echo "mail could not be sent<br>";
                         }
                     } else {
                         $message = "Failed to add Agent Payement Details. Please try again.";
+                        $_SESSION['flash']['msg'] = $message;
+                        $_SESSION['flash']['type'] = "error";
+                        $user->delete($personalDetails['pid'], 'pid'); 
+                        // echo "payment details insertion failed<br>";
                     }
 
                     $this->view('manager/addAgent', [
                         'user' => $resultUser, 
-                        'errors' => $user->errors, 
-                        'message' => $message]);
+                        'errors' => $errors 
+                        ]);
+                    
                     return;
                 } else {
-                    $errors['auth'] = "Failed to add agent. Please try again.";
+                    $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                    
                     $this->view('manager/addAgent', [
                         'user' => $resultUser, 
-                        'errors' => $user->errors, 
+                        'errors' => $errors, 
                         'message' => '']);
+
+                    unset($errors['auth']); // Clear the error after displaying it
                     return;
                 }
             }
-            $errors['auth'] = "Failed to add agent. Please try again.";
+            $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+            $user->delete($personalDetails['pid'], 'pid'); 
+
             $this->view('manager/addAgent', [
                 'user' => $resultUser, 
-                'errors' => $user->errors, 
+                'errors' => $errors, 
                 'message' => '']);
+
+            unset($errors['auth']); // Clear the error after displaying it
             return;
         }
         
 
-        $this->view('manager/addAgent');
+        $this->view('manager/addAgent',[
+            'errors' => $errors, 
+            'message' => '']
+        );
         return;
     }
     
@@ -188,29 +288,12 @@ class Manager {
             if (isset($_POST['delete_account'])) {
                 $errors = [];
                 $status = '';
+                //AccountStatus
                 $userId = $_SESSION['user']->pid; // Replace with actual user ID from session
-    
-                // Delete the user from the database
-                $user = new User();
-                $deleted = $user->delete($userId, 'pid'); // Implement a delete method in your User model
-    
-                if ($deleted) {
-                    // Delete the user's profile picture if it exists
-                    $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $_SESSION['user']->image_url;
-                    if (!empty($_SESSION['user']->image_url) && file_exists($profilePicturePath)) {
-                        unlink($profilePicturePath);
-                    }
-    
-                    // Clear the user session data
-                    session_unset();
-                    session_destroy();
-    
-                    // Redirect to the home page or login page
-                    redirect('home');
-                    exit;
-                } else {
-                    $errors[] = "Failed to delete account. Please try again.";
-                }
+                
+                $_SESSION['flash']['msg'] = "Managers are not allowed to delete Accounts.";
+                $_SESSION['flash']['type'] = "error";
+                
     
                 // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
@@ -219,10 +302,9 @@ class Manager {
             }else if(isset($_POST['logout'])){
                 $this->logout();
             }
-        $this->handleProfileSubmission();
-        return;
-        }
-
+            $this->handleProfileSubmission();
+           // return;
+        }    
         $this->view('profile', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -232,43 +314,132 @@ class Manager {
         // Clear session data after rendering the view
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
+        return;
     }
 
-    private function handleProfileSubmission()
-    {
+    private function handleProfileSubmission(){
         $errors = [];
         $status = '';
 
         // Get form data and sanitize inputs
         $firstName = esc($_POST['fname'] ?? null);
         $lastName = esc($_POST['lname'] ?? null);
-        $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
         $contactNumber = esc($_POST['contact'] ?? null);
 
+        $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
         // Validate email
         if (!$email) {
             $errors[] = "Invalid email format.";
-            $_SESSION['errors'] = $errors;
-            $_SESSION['status'] = $status;
+        } else {
+            // Optional: Check against allowed domains
+            $domain = substr($email, strpos($email, '@') + 1);
 
-            redirect('dashboard/profile');
-            exit;
-
-        }else{
-            $user = new User();
-            $availableUser = $user->first(['email' => $email]);
-            if(isset($availableUser) && $availableUser->pid != $_SESSION['user']->pid){
-                $errors[] = "Email already exists.";
-                $_SESSION['errors'] = $errors;
-                $_SESSION['status'] = $status;
-
-                redirect('dashboard/profile');
-                exit;
+            $allowedDomains = [
+                // Professional Email Providers
+                'gmail.com',
+                'outlook.com',
+                'yahoo.com',
+                'hotmail.com',
+                'protonmail.com',
+                'icloud.com',
+            
+                // Tech Companies
+                'google.com',
+                'microsoft.com',
+                'apple.com',
+                'amazon.com',
+                'facebook.com',
+                'twitter.com',
+                'linkedin.com',
+            
+                // Common Workplace Domains
+                'company.com',
+                'corp.com',
+                'business.com',
+                'enterprise.com',
+            
+                // Educational Institutions
+                'university.edu',
+                'college.edu',
+                'school.edu',
+                'campus.edu',
+            
+                // Government and Public Sector
+                'gov.com',
+                'public.org',
+                'municipality.gov',
+            
+                // Startup and Tech Ecosystem
+                'startup.com',
+                'techcompany.com',
+                'innovate.com',
+            
+                // Freelance and Remote Work
+                'freelancer.com',
+                'consultant.com',
+                'remote.work',
+            
+                // Regional and Local Businesses
+                'localbank.com',
+                'regional.org',
+                'cityservice.com',
+            
+                // Healthcare and Medical
+                'hospital.org',
+                'clinic.com',
+                'medical.net',
+            
+                // Non-Profit and NGO
+                'nonprofit.org',
+                'charity.org',
+                'ngo.com',
+            
+                // Creative Industries
+                'design.com',
+                'creative.org',
+                'agency.com',
+            
+                // Personal Domains
+                'me.com',
+                'personal.com',
+                'home.net',
+            
+                // International Email Providers
+                'mail.ru',
+                'yandex.com',
+                'gmx.com',
+                'web.de'
+            ];
+            
+            if (!in_array($domain, $allowedDomains)) {
+                $errors[] = 'Email domain is not allowed';
+            } else {
+                $user = new User();
+                $availableUser = $user->first(['email' => $email]);
+                if ($availableUser && $availableUser->pid != $_SESSION['user']->pid) {
+                    $errors[] = "Email already exists. Use another one.";
+                }
             }
         }
-        if(!$user->validate($_POST)){
-            $errors = [$user->errors['fname'] ?? $user->errors['lname'] ?? $user->errors['email'] ?? $user->errors['contact'] ?? []];
-            $_SESSION['errors'] = $errors;
+
+        if (!empty($errors)) {
+            $errorString = implode("<br>", $errors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
+            // $_SESSION['errors'] = $errors;
+            $_SESSION['status'] = $status;
+            redirect('dashboard/profile');
+            exit;
+        }
+
+        if (!$user->validate($_POST)) {
+            $validationErrors = [];
+            foreach ($user->errors as $error) {
+                $validationErrors[] = $error;
+            }
+            $errorString = implode("<br>", $validationErrors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
             $_SESSION['status'] = $status;
 
             redirect('dashboard/profile');
@@ -308,22 +479,26 @@ class Manager {
 
         // Update user profile in the database
         if (empty($errors) && $_SESSION['user']->pid) {
-            $userId = $_SESSION['user']->pid; // Replace with actual user ID from session or context
+            $userId = $_SESSION['user']->pid; 
             $user = new User();
             $updated = $user->update($userId, [
                 'fname' => $firstName,
                 'lname' => $lastName,
                 'email' => $email,
                 'contact' => $contactNumber,
-                'image_url' => $targetFile ?? null
+                'image_url' => $targetFile ?? 'user.png'
             ], 'pid');
 
             if ($updated) {
                 // Delete old profile picture if a new one is uploaded
                 if (isset($targetFile) && !empty($_SESSION['user']->image_url)) {
                     $oldPicPath = $targetDir . $_SESSION['user']->image_url;
-                    if (file_exists($oldPicPath)) {
-                        unlink($oldPicPath);
+                    try {
+                        if (file_exists($oldPicPath)) {
+                            unlink($oldPicPath);
+                        }
+                    } catch (Exception $e) {
+                        $status = "Profile updated, but failed to delete old profile picture: " . $e->getMessage();
                     }
                 }
                 // Update session data
@@ -341,17 +516,25 @@ class Manager {
         }
 
         // Store errors or success in session and redirect
-        $_SESSION['errors'] = $errors;
-        $_SESSION['status'] = $status;
-
+        if (!empty($errors)) {
+            $errorString = implode("<br>", $errors);
+            $_SESSION['flash']['msg'] = $errorString;
+            $_SESSION['flash']['type'] = "error";
+            // $_SESSION['errors'] = $errors;
+            // $_SESSION['status'] = $status;
+            redirect('dashboard/profile');
+            exit;
+        }
+        $_SESSION['flash']['msg'] = $status;
+        $_SESSION['flash']['type'] = "success";
+        // $_SESSION['errors'] = $errors;
+        // $_SESSION['status'] = $status;
         redirect('dashboard/profile');
         exit;
     }
+    
 
     public function managementHome($a = '', $b = '', $c = '', $d = ''){
-        // echo $a . "<br>";
-        // echo $b . "<br>";
-        // echo $c . "<br>";
         switch($a){
             case 'propertymanagement':
                 $this->propertyManagement($b,$c,$d);
@@ -372,10 +555,6 @@ class Manager {
     }
 
     public function propertyManagement($b = '', $c = '', $d = ''){
-        // echo $b . "<br>";
-        // echo $c . "<br>";
-        // echo $d . "<br>";
-        // show(URL(3));
         switch($b){
             case 'assignagents':
                 $this->assignAgents($c, $d);
@@ -383,69 +562,451 @@ class Manager {
             case 'requestapproval':
                 $this->requestApproval($c, $d);
                 break;
+            case 'propertyView':
+                $this->propertyView($c, $d);
+                break;
+            case 'confirmAssign':
+                $this->confirmAssign($c, $d);
+                break;
             default:
                 $this->view('manager/propertymanagement');
                 break;
         }
     }
 
+    public function propertyView($propertyID){
+        $property = new PropertyConcat;
+        $property = $property->first(['property_id' => $propertyID]);
+        $this->view('manager/propertyView' , ['property' => $property]);
+    }
+
+    public function confirmAssign($propertyID , $agentID){
+        $property = new Property;
+        $res_property = $property->update($propertyID, ['agent_id' => $agentID], 'property_id');
+
+        $agentAssignment = new agentAssignment;
+        $res_agent = $agentAssignment->insert([
+            'property_id' => $propertyID,
+            'agent_id' => $agentID,
+            'property_status' => 'pending',
+            'pre_inspection' => 'waiting',
+        ]);
+
+        if($res_property && $res_agent){
+            $_SESSION['flash'] = [
+                'msg' => "Property assigned to agent successfully!",
+                'type' => "success"
+            ];
+        }else{
+            $_SESSION['flash'] = [
+                'msg' => "Failed to assign property to agent. Please try again.",
+                'type' => "error"
+            ];
+        }
+
+        $this->assignAgents();
+    }
+
     private function employeeManagement(){
         $user = new User;
-        $user->setLimit(7); //set limit before anything
 
-        $searchterm = isset($_GET['searchterm']) ? $_GET['searchterm'] : "";
+        if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "update_user") {
+            $user->validate($_POST);
+            $errors = $user->errors;
+
+            if (isset($_POST['email'])) {
+                $email = $_POST['email'];
+                $availableUser = $user->first(['email' => $email]);
+                if ($availableUser && $availableUser->pid != $_POST['pid']) {
+                    $errors['email'] = "Email already exists. Use another one.";
+                }
+            }
+
+            if (!empty($errors)) {
+                $_SESSION['flash'] = [
+                    'msg' => implode("<br>", $errors),
+                    'type' => "error"
+                ];
+            } else {
+                // Perform update
+                if (isset($_POST['action'])) unset($_POST['action']);
+                $updateStatus = $user->update($_POST['pid'], $_POST, 'pid');
+                if ($updateStatus) {
+                    $_SESSION['flash'] = [
+                        'msg' => "User updated successfully!",
+                        'type' => "success"
+                    ];
+                } else {
+                    $_SESSION['flash'] = [
+                        'msg' => "Failed to update user. Please try again.",
+                        'type' => "error"
+                    ];
+                }
+            }
+
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "delete_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $user->update($pid, ['AccountStatus' => 0], 'pid');
+            $_SESSION['flash'] = [
+                'msg' => "User deleted successfully!",
+                'type' => "success"
+            ];
+            // $user->update();
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "block_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $updateStatus = $user->update($pid, ['AccountStatus' => -1], 'pid');
+            if ($updateStatus) {
+                $_SESSION['flash'] = [
+                    'msg' => "User Blocked successfully!",
+                    'type' => "success"
+                ];
+            }
+        }else if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['action']) && $_POST['action'] == "unblock_user") {
+            $pid = $_POST['pid'];
+            // show($_POST);
+            // die();
+            $updateStatus = $user->update($pid, ['AccountStatus' =>0], 'pid');
+            if ($updateStatus) {
+                $_SESSION['flash'] = [
+                    'msg' => "User Unblocked successfully!",
+                    'type' => "success"
+                ];
+            }
+        }
+
+        $user->setLimit(7);
+
+        $searchterm = $_GET['searchterm'] ?? "";
         $limit = $user->getLimit();
         $countWithTerms = $user->getTotalCountWhere([], [], $searchterm);
 
-        $totalPages =  ceil( $countWithTerms / $limit ) ; 
-
+        $totalPages = ceil($countWithTerms / $limit);
         $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $offset = ($limit - 1) * ($currentPage-1 ); #generate offset
-        $user->setOffset($offset); //set offset after limit
+        $offset = ($currentPage - 1) * $limit; // Corrected offset calculation
 
-        $userlist = $user->where([], [], $searchterm);//get the details
-        
-        if (isset($userlist) && is_array($userlist) && count($userlist) > 0) {
-            foreach($userlist as $user){//filter out pasword
-                unset($user->password);
+        $user->setOffset($offset);
+        $userlist = $user->where([], [], $searchterm);
+
+        if (!empty($userlist)) {
+            foreach ($userlist as $user) {
+                unset($user->password); // Remove password from result
             }
         }
-        // Instantiate the Pagination class with the current page, total pages, and range
-        $pagination = new Pagination($currentPage, $totalPages, 2); 
-        $paginationLinks = $pagination->generateLinks();    // Generate pagination links
-        // Pass pagination links to the view
-        $this->view('manager/employeeManagement',['paginationLinks' => $paginationLinks, 'userlist' => $userlist ? $userlist : [], 'tot' => $totalPages]);
+
+        $pagination = new Pagination($currentPage, $totalPages, 2);
+        $paginationLinks = $pagination->generateLinks();
+
+        $this->view('manager/employeeManagement', [
+            'paginationLinks' => $paginationLinks,
+            'userlist' => $userlist ?? [],
+            'tot' => $totalPages
+        ]);
     }
 
     public function requestApproval(){
         $property = new PropertyModelTemp;
-        $requests = $property->where(['request_type' => 'update']);
+        $requests = $property->where(['request_status' => 'pending']);
         $this->view('manager/requestApproval', ['requests' => $requests]);
         // $this->view('manager/requestApproval');
     }
 
-    public function financialManagement(){
+    private function financialManagement(){
         $this->view('manager/financemanagement');
     }
 
     public function assignAgents(){
-        $property = new PropertyModel;
-        $properties = $property->where(['status' => 'pending']);
+        $property = new Property;
+        $properties = $property->where(['status' => 'pending' , 'agent_id' => 110]);
 
-        $this->view('manager/assignagents' , ['properties' => $properties]);
+        $agents = new User;
+        $agents = $agents->where(['user_lvl' => 3, 'AccountStatus' => 1]);
+
+        $this->view('manager/agentsToProperty' , ['properties' => $properties , 'agents' => $agents]);
+    }
+
+    private function removeAgents(){
+        $user = new User();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pid'], $_POST['action'])) {
+            $pid = intval($_POST['pid']);
+            $action = $_POST['action'];
+
+            if ($action === 'approve') {
+                // Set active status to 0 and user level to 0
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -4,
+                    'user_lvl' => 0
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal successful!";
+                    $_SESSION['flash']['type'] = "success";
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to approve user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            } elseif ($action === 'reject') {
+                // Set active status to 3
+                $updateStatus = $user->update($pid, [
+                    'AccountStatus' => -3,
+                    'user_lvl' => 3
+                ], 'pid');
+
+                if ($updateStatus) {
+                    $_SESSION['flash']['msg'] = "User removal rejected successfully!";
+                    $_SESSION['flash']['type'] = "success";
+
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to reject user removal. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+            }
+        } 
+
+        $user->setLimit(7);
+
+        $searchterm = $_GET['searchterm'] ?? "";
+        $limit = $user->getLimit();
+        $countWithTerms = $user->getTotalCountWhere(['AccountStatus' => -2, 'user_lvl' => 3], [], $searchterm);
+
+        $totalPages = ceil($countWithTerms / $limit);
+        $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $offset = ($currentPage - 1) * $limit;
+
+        $user->setOffset($offset);
+        $users = $user->where(['AccountStatus' => -2, 'user_lvl' => 3], [], $searchterm);
+
+        $pagination = new Pagination($currentPage, $totalPages, 2);
+        $paginationLinks = $pagination->generateLinks();
+
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                unset($user->password); // Remove password from result
+            }
+        }
+        // show($users);
+        // die;
+        $this->view('manager/removeAgents', [
+            'paginationLinks' => $paginationLinks,
+            'users' => $users ?? [],
+            'tot' => $totalPages
+        ]);
+
     }
 
     public function agentManagement($b = ''){
         if($b == 'addagent'){
-            // $this->view('manager/addAgent');
             $this->addAgent();
+        }else if($b == 'removeagents'){
+            $this->removeAgents();
+        }else if($b == 'approval'){
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['changes'])) {
+                foreach ($_POST['changes'] as $change) {
+                    $pid = $change['pid'] ?? null;
+                    $action = $change['action'] ?? null;
+
+                    if ($pid && $action) {
+                        $userDetail = new UserChangeDetails;
+                        $user = new User;
+                        if ($action === 'approve') {
+                            // Handle approval logic
+                            $newDetails = $userDetail->first(['pid' => $pid]);
+                            // show($newDetails);
+                            if($newDetails) {
+                                $oldUserDetails = $user->first(['pid' => $pid]);
+                                // Update database
+                                $updateStatus = $user->update($pid, [
+                                    'fname' => $newDetails->fname,
+                                    'lname' => $newDetails->lname,
+                                    'email' => $newDetails->email,
+                                    'contact' => $newDetails->contact,
+                                    'image_url' => $newDetails->image_url,
+                                    'AccountStatus' => 4
+                                ], 'pid');
+
+                                $result = $userDetail->delete($pid, 'pid');
+                                if ($updateStatus && $result) {
+                                    $_SESSION['flash']['msg'] = "Changes approved successfully!";
+                                    $_SESSION['flash']['type'] = "success";
+
+                                    // Delete the old image in the user table
+                                    if ($oldUserDetails && !empty($oldUserDetails->image_url)) {
+                                        $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $oldUserDetails->image_url;
+                                        if (file_exists($profilePicturePath)) {
+                                            unlink($profilePicturePath);
+                                        }
+                                    }
+                                } else {
+                                    $_SESSION['flash']['msg'] = "Failed to approve changes. Please try again.";
+                                    $_SESSION['flash']['type'] = "error";
+                                }  
+                            }
+                        } elseif ($action === 'reject') {
+                            // Handle rejection logic
+                            $newDetails = $userDetail->first(['pid' => $pid]);
+                            $result = $userDetail->delete($pid, 'pid');
+                            $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); // Rejected
+
+                            if ($result) {
+                                $_SESSION['flash']['msg'] = "Changes rejected successfully!";
+                                $_SESSION['flash']['type'] = "success";
+
+                                // Delete the image in the user details table
+                                if ($newDetails && !empty($newDetails->image_url)) {
+                                    $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $newDetails->image_url;
+                                    if (file_exists($profilePicturePath)) {
+                                        unlink($profilePicturePath);
+                                    }
+                                }
+                            } else {
+                                $_SESSION['flash']['msg'] = "Failed to reject changes. Please try again.";
+                                $_SESSION['flash']['type'] = "error";
+                            }
+                        }
+                    }
+                }
+                redirect('dashboard/managementhome/agentmanagement');
+            }
         }else{
-            $this->view('manager/agentManagement');
+            $user = new User;
+            $newUser = new UserChangeDetails;
+            
+            $newUser->setLimit(7);
+
+            $searchterm = $_GET['searchterm'] ?? "";
+            $limit = $newUser->getLimit();
+            $countWithTerms = $newUser->getTotalCountWhere([], [], $searchterm);
+
+            $totalPages = ceil($countWithTerms / $limit);
+            $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
+            $offset = ($currentPage - 1) * $limit;
+
+            $newUser->setOffset($offset);
+            $new = $newUser->where([], [], $searchterm);
+
+            $pids = [];
+            $old = [];
+            
+            if (!empty($new)) {
+                $pids = array_map(function($user) {
+                    return $user->pid;
+                }, $new);
+
+                $old = $user->findByMultiplePids($pids, ['user_lvl' => 3]);
+
+                if(!empty($old)) {
+                    $old = array_reduce($old, function($carry, $oldUser) use ($pids) {
+                        $carry[array_search($oldUser->pid, $pids)] = $oldUser;
+                        return $carry;
+                    }, []);
+                    ksort($old);
+
+                    foreach ($old as $oldUser) {
+                        unset($oldUser->password);
+                        unset($oldUser->nic);
+                        unset($oldUser->user_lvl);
+                        unset($oldUser->username);
+                        unset($oldUser->created_date);
+                        unset($oldUser->reset_code);
+                        unset($oldUser->AccountStatus);
+                    }
+                } 
+            }
+
+            $pagination = new Pagination($currentPage, $totalPages, 2);
+            $paginationLinks = $pagination->generateLinks();
+            
+            $this->view('manager/agentManagement', [
+                'paginationLinks' => $paginationLinks,
+                'new' => $new ?? [],
+                'old' => $old ?? [],
+                'tot' => $totalPages
+            ]);
         }
     }
 
-    public function contacts(){
-        $this->view('manager/contacts');
+    public function contacts() {
+        $randomMessages = new RandomMessage;
+        $randomPerson = new RandomPerson;
+    
+        // Fetch all messages with status 1
+        $messages = $randomMessages->where(['status' => 1], []);
+        $groupedMessages = [];
+    
+        if (!empty($messages)) {
+            foreach ($messages as $message) {
+                // Fetch the person details for the message
+                $personDetails = $randomPerson->first(['pid' => $message->pid]);
+                $personDetails->pid = $message->pid;
+    
+                // Initialize the grouped messages for this person if not already done
+                if (!isset($groupedMessages[$message->pid])) {
+                    $groupedMessages[$message->pid] = (object) [
+                        'personDetails' => $personDetails,
+                        'messages' => '', // Use a string variable to store all messages
+                        'count' => 0 // Initialize count variable
+                    ];
+                }
+                if (substr_count($message->message, "\n") > 0) {
+                    $groupedMessages[$message->pid]->count += substr_count($message->message, "\n");
+                }
+                // Append the message content to the string variable
+                $groupedMessages[$message->pid]->messages .= $message->message . "\n";
+                $groupedMessages[$message->pid]->count++; // Increment the count
+            }
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['replyMessage'])) {
+            $replyMessage = trim($_POST['emailMessage']);
+            // show($_POST);
+            if (empty($replyMessage) && $_POST['complete'] == 0) {
+                $_SESSION['flash']['msg'] = "Reply Message should not be empty";
+                $_SESSION['flash']['type'] = "error";
+                
+            } else {
+                if(isset($_POST['email'])){
+                    $email = trim($_POST['email']);
+                    $name = trim($_POST['name']) ?? 'User';
+                    
+                    
+                    // $status = sendMail(
+                    //     $email ,
+                    //     'Primecare Respond', "
+                    //     <div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px;\">
+                    //         <h1 style=\"color: #4CAF50;\">Reply to Your Query</h1>
+                    //         <p>Hello, {$name}</p>
+                    //         <p>Thank you for reaching out to us.</p>
+                    //         <p>{$replyMessage}</p>
+                    //         <p>If you have any further questions, please feel free to reply to this email.</p>
+                    //         <br>
+                    //         <p>Best regards,<br>PrimeCare Support Team</p>
+                    //     </div>
+                    // ");
+                    // if(!$status['error']){
+                    //     $_SESSION['flash']['msg'] = "Reply sent successfully!";
+                    //     $_SESSION['flash']['type'] = "success";
+                    // } else {
+                    //     $_SESSION['flash']['msg'] = "Failed to send reply. Please try again.";
+                    //     $_SESSION['flash']['type'] = "error";
+                    // }
+                }
+                if(isset($_POST['complete']) && $_POST['complete'] == 1){
+                    // show($_POST);
+                    // die;
+                    $pid = $_POST['pid'];
+                    $randomMessages->update($pid, ['status' => 0], 'pid');
+                    $_SESSION['flash']['msg'] = "Message marked as complete.";
+                    $_SESSION['flash']['type'] = "success";
+                    redirect('manager/contacts');
+                }
+            }
+        }
+    
+        // Pass the grouped messages to the view
+        $this->view('manager/contacts', ['messages' => $groupedMessages]);
     }
     
     private function logout(){
@@ -461,6 +1022,12 @@ class Manager {
         $property = $property->first(['property_id' => $propertyID]);
         $propertyUpdate = $propertyUpdate->first(['property_id' => $propertyID]);
         $this->view('manager/comparePropertyUpdate' , ['property' => $property , 'propertyUpdate' => $propertyUpdate]);
+    }
+
+    public function comparePropertyUpdateAccept($propertyID){
+        $property = new PropertyConcatTemp;
+        $propertyUpdate = new PropertyConcat;
+       
     }
     
 }
