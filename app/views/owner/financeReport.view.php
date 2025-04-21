@@ -381,7 +381,7 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                         $expenseTypes = [];
                         foreach($serviceLogs as $log) {
                             $type = $log->service_type;
-                            $cost = $log->cost_per_hour * $log->total_hours;
+                            $cost = $log->total_cost; 
                             if(!isset($expenseTypes[$type])) {
                                 $expenseTypes[$type] = 0;
                             }
@@ -432,7 +432,7 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                                 'date' => $log->date,
                                 'description' => $log->service_description ?? $log->service_type,
                                 'category' => 'Expense',
-                                'amount' => -($log->cost_per_hour * $log->total_hours)
+                                'amount' => -($log->total_cost)
                             ];
                         }
                         

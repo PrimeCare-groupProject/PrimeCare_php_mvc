@@ -29,7 +29,7 @@
     </div>
     <div class="flex-bar">
         <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/propertyListing/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
+            <a href='<?= ROOT ?>/dashboard/propertylisting/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Add new property</span>
         </div>
     </div>
@@ -51,6 +51,7 @@
     <div class="property-listing-grid">
         <?php if (!empty($properties)): ?>
             <?php foreach ($properties as $property): ?>
+
                 <div class="property-card" data-status="<?= strtolower($property->status) ?>" data-purpose="<?= strtolower($property->purpose) ?>">
 
                     <?php
@@ -69,6 +70,7 @@
                             ?>
                         </div>
                         <a href="<?= ROOT ?>/dashboard/propertyListing/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $firstImage ?>" alt="Property Image"></a>
+
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">

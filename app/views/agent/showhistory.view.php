@@ -13,7 +13,7 @@
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
 
-            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Back" class="bookingimg">
+            <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Back" class="booking-img">
 
             <input type="hidden" name="booking_id" value="<?=  $booking->booking_id ?>">
 

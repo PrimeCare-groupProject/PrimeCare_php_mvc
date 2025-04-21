@@ -59,10 +59,15 @@ class Owner
         // Instantiate the ServiceLog model
         $serviceLog = new ServiceLog();
 
-        // Get all service logs for properties owned by the current user
-        // This assumes property_id in ServiceLog can be linked to properties owned by this user
-        $serviceLogs = $serviceLog->findAll();
-
+        
+        // Get service logs directly based on requested_person_id
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $ownerId]);
+        
+        // If no service logs found, initialize as empty array
+        if (!$serviceLogs) {
+            $serviceLogs = [];
+        }
+    
         // Apply status filtering
         if (!empty($_GET['status_filter'])) {
             $status = $_GET['status_filter'];
@@ -74,7 +79,7 @@ class Owner
             }
             $serviceLogs = $filteredLogs;
         }
-
+    
         // Apply date range filtering
         if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
             $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
@@ -107,7 +112,6 @@ class Owner
                     case 'date_desc':
                         return strtotime($b->date) - strtotime($a->date);
                     case 'property_id':
-                        // If property_id exists as a property, sort by it
                         if (isset($a->property_id) && isset($b->property_id)) {
                             return $a->property_id <=> $b->property_id;
                         }
@@ -121,7 +125,7 @@ class Owner
         // Calculate total expenses
         $totalExpenses = 0;
         foreach ($serviceLogs as $log) {
-            $totalExpenses += ($log->cost_per_hour * $log->total_hours);
+            $totalExpenses += ($log->total_cost ?? 0);
         }
 
         $this->view('owner/maintenance', [
@@ -212,16 +216,19 @@ class Owner
                             }
                         }
                     }
-                }
-
-                // Get service logs for this property
-                $propertyLogs = $serviceLog->where(['property_id' => $propId]);
-                if (!empty($propertyLogs)) {
-                    foreach ($propertyLogs as $log) {
+                }         
+                // Get service logs for properties by requested person ID
+                $userServiceLogs = $serviceLog->where([
+                    'requested_person_id' => $ownerId,
+                    'property_id' => $propId
+                ]);
+                
+                if(!empty($userServiceLogs)) {
+                    foreach($userServiceLogs as $log) {
                         $serviceLogs[] = $log;
 
                         // Calculate expenses
-                        $cost = $log->cost_per_hour * $log->total_hours;
+                        $cost = $log->total_cost;
                         $totalExpenses += $cost;
 
                         // Add to monthly data
@@ -373,7 +380,7 @@ class Owner
         $_SESSION['status'] = 'Property deleted successfully!';
 
         // Redirect to the property listing page
-        redirect('dashboard/propertyListing');
+        redirect('dashboard/propertylisting');
     }
 
     private function updateProperty($propertyId)
@@ -603,7 +610,8 @@ class Owner
                 'property_name' => $_POST['property_name'],
                 'status' => $_POST['status'],
                 'service_description' => $_POST['service_description'],
-                'cost_per_hour' => $_POST['cost_per_hour']
+                'cost_per_hour' => $_POST['cost_per_hour'],
+                'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
             ];
 
             // Add service request to database
@@ -644,7 +652,7 @@ class Owner
             'property_id' => $property_id,
             'property_name' => $property_name,
             'property_image' => $propertyImage,
-            'cost_per_hour' => $cost_per_hour
+            'cost_per_hour' => $cost_per_hour,
         ]);
 
         // Clear session messages after displaying
@@ -1002,15 +1010,155 @@ class Owner
         redirect('dashboard/profile');
         exit;
     }
-
-    private function reportProblem()
+    private function reportProblem($propertyId)
     {
+        // Validate property ID
+        $propertyId = (int)$propertyId;
+        if (!$propertyId) {
+            $_SESSION['flash']['msg'] = "Invalid property selected.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertylisting');
+            return;
+        }
+
+        $propertyModel = new PropertyConcat();
+        $property = $propertyModel->where(['property_id' => $propertyId])[0] ?? null;
+
+        if (!$property) {
+            $_SESSION['flash']['msg'] = "Property not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertylisting');
+            return;
+        }
+
+        // If property status is pending, show warning
+        if (isset($property->status) && strtolower($property->status) === 'pending') {
+            $_SESSION['flash']['msg'] = "This property is pending approval. You cannot report a problem at this time.";
+            $_SESSION['flash']['type'] = "warning";
+            redirect('dashboard/propertylisting/propertyunitowner/'.$propertyId);
+            return;
+        }
+
+        $agent = new User;   
+        $agentDetails = $agent->where(['pid' => $property->agent_id])[0] ?? null;
+        if (!$agentDetails) {
+            $_SESSION['flash']['msg'] = "Agent not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/propertylisting/propertyunitowner/'.$propertyId);
+            return;
+        }
+        // Get agent full name
+        $agentName = trim(($agentDetails->fname ?? '') . ' ' . ($agentDetails->lname ?? ''). ' ' . '[PID ' . $agentDetails->pid . ']');
+        if (empty($agentName)) {
+            $agentName = "Unknown Agent";
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $description = trim($_POST['problem'] ?? '');
+            $urgency = $_POST['urgency'] ?? '';
+            $location = trim($_POST['location'] ?? '');
+            $errors = [];
+
+            // Validate fields
+            if (empty($description)) {
+                $errors[] = "Problem description is required.";
+            }
+            if (!in_array($urgency, ['1', '2', '3'])) {
+                $errors[] = "Urgency level is required.";
+            }
+            // if (empty($location)) {
+            //     $errors[] = "Location is required.";
+            // }
+
+            // Prepare data for ProblemReport model
+            $problemData = [
+                'problem_description' => $description,
+                'problem_location' => $location,
+                'urgency_level' => (int)$urgency,
+                'property_id' => $propertyId,
+                'status' => 'pending',
+                'created_by' => $_SESSION['user']->pid
+            ];
+
+            $problemReport = new ProblemReport();
+            if (!$problemReport->validate($problemData)) {
+                $errors = array_merge($errors, $problemReport->errors);
+            }
+
+            if (empty($errors)) {
+                // Insert the problem report (returns true/false)
+                $inserted = $problemReport->insert($problemData);
+
+                // Only proceed if insert was successful
+                if ($inserted) {
+                    // Fetch the last inserted report for this user and property
+                    $lastReport = $problemReport->where([
+                        'problem_description' => $description,
+                        'problem_location' => $location,
+                        'urgency_level' => (int)$urgency,
+                        'property_id' => $propertyId,
+                        'status' => 'pending',
+                        'created_by' => $_SESSION['user']->pid
+                    ]);
+                    // Get the most recent one (assuming submitted_at DESC in your model)
+                    $reportId = !empty($lastReport) ? $lastReport[0]->report_id : null;
+
+                    // --- Use upload_image helper for images ---
+                    if ($reportId && isset($_FILES['reports_images']) && $_FILES['reports_images']['error'][0] != 4) {
+                        require_once __DIR__ . '/../core/functions.php'; // if not already loaded
+                        $reportImageModel = new ProblemReportImage();
+                        $targetDir = ROOTPATH . "public/assets/images/uploads/report_images/";
+
+                        $imgErrors = upload_image(
+                            $_FILES['reports_images'],
+                            $targetDir,
+                            $reportImageModel,
+                            $reportId,
+                            [
+                                'allowed_ext' => ['jpg', 'jpeg', 'png'],
+                                'prefix' => 'report_img',
+                                'url_field' => 'image_url',
+                                'fk_field' => 'report_id',
+                                'max_size' => 5242880, // 5MB
+                                'overwrite' => false
+                            ]
+                        );
+                        if (!empty($imgErrors)) {
+                            $errors = array_merge($errors, $imgErrors);
+                        }
+                    }
+
+                    if (empty($errors)) {
+                        $_SESSION['flash']['msg'] = "Problem reported successfully.";
+                        $_SESSION['flash']['type'] = "success";
+                        redirect('dashboard/propertylisting/propertyunitowner/' . $propertyId);
+                        return;
+                    }
+                } else {
+                    $errors[] = "Failed to create problem report.";
+                }
+            }
+
+            // If errors, show them
+            $_SESSION['flash']['msg'] = implode("<br>", $errors);
+            $_SESSION['flash']['type'] = "error";
+        }
+
+        // Fetch problem reports with images for this property
+        $problemReportView = new ProblemReportView();
+        $reports = $problemReportView->getReportsWithImages($propertyId);
+
         $this->view('owner/reportProblem', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '',
+            'agentName' => $agentName,
+            'reports' => $reports, // Pass reports to the view
         ]);
+        unset($_SESSION['errors']);
+        unset($_SESSION['status']);
     }
+    
 
     private function financialReportUnit($propertyId = null)
     {
@@ -1085,7 +1233,11 @@ class Owner
 
         // Get all service logs (expenses) for this property
         $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
+        $serviceLogs = $serviceLog->where([
+            'property_id' => $propertyId,
+            'requested_person_id' => $_SESSION['user']->pid
+        ]);
+        
         if (!is_array($serviceLogs) && !is_object($serviceLogs)) {
             $serviceLogs = []; // Ensure $serviceLogs is always iterable
         }
@@ -1114,7 +1266,7 @@ class Owner
         // Calculate total expenses from service logs
         $totalExpenses = 0;
         foreach ($serviceLogs as $log) {
-            $cost = $log->cost_per_hour * $log->total_hours;
+            $cost = $log->total_cost;
             $logMonth = date('M', strtotime($log->date));
             if (isset($monthlyData[$logMonth])) {
                 $monthlyData[$logMonth]['expense'] += $cost;
@@ -1179,8 +1331,7 @@ class Owner
 
 
     // dont touch this..final create function for properties
-    public function create()
-    {
+    public function create(){
         $property = new Property;
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -1516,7 +1667,7 @@ class Owner
             } else {
                 $_SESSION['flash']['msg'] = "There is No change!";
                 $_SESSION['flash']['type'] = "info";
-                redirect('dashboard/propertyListing');
+                redirect('dashboard/propertylisting');
             }
         }
     }
@@ -1604,14 +1755,23 @@ class Owner
 
     public function trackOrder($propertyId)
     {
+            // Get the current user's ID
+        $ownerId = $_SESSION['user']->pid ?? 0;
+        
         // Get property details
         $property = new PropertyConcat;
         $propertyDetails = $property->where(['property_id' => $propertyId])[0];
-
-        // Get service logs for this property
+        // Get service logs for this property AND requested by the current user
         $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['property_id' => $propertyId]);
-
+        $serviceLogs = $serviceLog->where([
+            'property_id' => $propertyId,
+            'requested_person_id' => $ownerId
+        ]);
+        
+        if (!$serviceLogs) {
+            $serviceLogs = [];
+        }
+        
         // Apply status filtering
         if (!empty($_GET['status_filter'])) {
             $status = $_GET['status_filter'];

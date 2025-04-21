@@ -4,7 +4,9 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
+
             <a href="<?= ROOT ?>/dashboard/propertyListing"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+
             <div>
                 <h2><?= $property->name ?></h2>
                 <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>
@@ -12,28 +14,28 @@
         </div>
         <div class="right-content">
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/engineering.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>'">
+                <img src="<?= ROOT ?>/assets/images/engineering.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>')">
                 <span class="tooltip-text">Get Service</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/house-owner.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/house-owner.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>')">
                 <span class="tooltip-text">Tenants</span>
             </div>
             <!-- Add Track Maintenance button here -->
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/maintenance.png" alt="Track" class="small-icons align-to-right color_info" onclick="window.location.href='<?= ROOT ?>/dashboard/trackOrder/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/maintenance.png" alt="Track" class="small-icons align-to-right color_info" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/trackOrder/<?= $property->property_id ?>')">
                 <span class="tooltip-text">Track Maintenance</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/rating.png" alt="Print" class="small-icons align-to-right color_purple" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/review/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/rating.png" alt="Print" class="small-icons align-to-right color_purple" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/review/<?= $property->property_id ?>')">
                 <span class="tooltip-text">Reviews</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>')">
                 <span class="tooltip-text">Financial Report</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/alert.png" alt="Problem" class="small-icons align-to-right color_alert" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/alert.png" alt="Problem" class="small-icons align-to-right color_alert" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>')">
                 <span class="tooltip-text">Report a Problem</span>
             </div>
             <div class="tooltip-container">
@@ -41,10 +43,11 @@
                 <span class="tooltip-text">Contact the Agent</span>
             </div>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/edit_icon.png" alt="edit" class="small-icons align-to-right color_edit" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/edit_icon.png" alt="edit" class="small-icons align-to-right color_edit" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>')">
                 <span class="tooltip-text">Edit Details</span>
             </div>
             <div class="tooltip-container">
+
                 <img src="<?= ROOT ?>/assets/images/image.png" alt="edit" class="small-icons align-to-right color_edit" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/addImages/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Add Images</span>
             </div>
@@ -71,12 +74,24 @@
                 const popup = document.getElementById('contactPopup');
                 popup.classList.toggle('PopupMessage__hidden');
             }
+            function showLoaderAndRedirect(url) {
+                document.querySelector('.loader-container').style.display = '';
+                window.location.href = url;
+            }
 
             // Close popup if clicking outside
             document.addEventListener('click', function(e) {
                 const popup = document.getElementById('contactPopup');
                 if (!popup.classList.contains('PopupMessage__hidden')) {
                     popup.classList.add('PopupMessage__hidden');
+                }
+            });
+
+            document.querySelectorAll('a').forEach(link => {
+                if (!link.getAttribute('href').startsWith('#')) {
+                    link.addEventListener('click', () => {
+                        document.querySelector('.loader-container').style.display = '';
+                    });
                 }
             });
 

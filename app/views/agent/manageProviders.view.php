@@ -122,7 +122,7 @@
         </div>
     </a>
 
-    <a href="<?= ROOT ?>/dashboard/manageProviders/ManageTenents">
+    <a href="<?= ROOT ?>/dashboard/manageProviders/managetenents">
         <div class="MM__cards">
             <div class="MM__text">
                 <h2>Tenents</h2>
