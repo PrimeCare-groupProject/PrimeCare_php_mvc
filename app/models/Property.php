@@ -57,7 +57,8 @@ class Property
         'agent_id',
         'duration',
         'start_date',
-        'end_date'
+        'end_date',
+        'advance_paid'
     ];
 
     public $errors = [];
