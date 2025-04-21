@@ -6,7 +6,7 @@
     </a>
     <h2>Pre Inspection Report : <span style="color: var(--green-color)"><?= $property->name ?></span></h2>
     <div class="flex-bar">
-        <button onclick="generatePDF('PreInspection' , <?= $property->property_id ?> )" class="small-btn orange">Download <i class="fa fa-download" style="margin-left: 5px;"></i></button>
+        <button onclick="generatePDF('Owner_Confirmation_Letter' , <?= $property->property_id ?> )" class="small-btn orange">Download <i class="fa fa-download" style="margin-left: 5px;"></i></button>
     </div>
 </div>
 
@@ -19,7 +19,7 @@
 </div>
 <div id="report-content" style="margin-bottom: 20px;">
 <!-- include the report -->
-    <?php require_once APPROOT . '/reports/preInsp.report.php'; ?>
+    <?php require_once APPROOT . '/reports/ownerConfirmation.report.php'; ?>
 </div>
 
 <!-- Add this js file for every report calling -->

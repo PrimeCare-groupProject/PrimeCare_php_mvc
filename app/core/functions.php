@@ -513,10 +513,10 @@ function enqueueNotification($message, $title = 'Notification', $link = '', $col
             enqueue(['notification_id' => $notification->notification_id], $queue);
         }
 
-        show($queue); 
+        //show($queue); 
         $queue = array_reverse($queue); // Reverse the queue to maintain order
 
-        while (count($queue) > 10) {
+        while (count($queue) > Notification_count) {
             $popped = dequeue($queue);
             //show("Dequeued: " . $popped); 
             $notificationModel->delete($popped, 'notification_id');
@@ -550,3 +550,17 @@ function dequeue(&$array)
 // Notification_red
 // Notification_grey
 // Notification_orange
+
+
+function findAdvancePrice(float $price): float
+{
+    if ($price <= 0) {
+        return 0.0;
+    }
+    if ($price < 100000) {
+        $advance = ($price) * (5 * ADVANCE_PERCENTAGE / 100);
+        return round($advance, 2);
+    }
+    $advance = ($price) * (ADVANCE_PERCENTAGE / 100);
+    return round($advance, 2);
+}

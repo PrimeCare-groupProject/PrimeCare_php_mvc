@@ -290,7 +290,7 @@ body {
 
 .property-card-image {
     width: 350px;
-    height: auto;
+    max-height: 250px;
     overflow: hidden;
     /* border-radius: 15px; */
     object-fit: contain;

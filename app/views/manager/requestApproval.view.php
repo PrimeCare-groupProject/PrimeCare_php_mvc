@@ -5,93 +5,119 @@
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
     <h2>request Approval</h2>
-    <div class="flex-bar">
-        <form class="search-container" method="GET">
-            <input
-                type="text"
-                class="search-input"
-                name="searchterm"
-                placeholder="Find request...">
-            <button class="search-btn" type="submit">
-                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
-            </button>
-        </form>
-    </div>
-</div>
-<div>
-    <div class="filter-container-flex-start">
-        <div class="input-group">
-            <label for="year-filter" class="input-label">Year:</label>
-            <select id="year-filter" class="input-field">
-                <option value="all">All</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <!-- Add more years as needed -->
-            </select>
-        </div>
-        <div class="input-group">
-            <label for="month-filter" class="input-label">Month:</label>
-            <select id="month-filter" class="input-field">
-                <option value="all">All</option>
-                <option value="January">January</option>
-                <option value="February">February</option>
-                <option value="March">March</option>
-                <option value="April">April</option>
-                <option value="May">May</option>
-                <option value="June">June</option>
-                <option value="July">July</option>
-                <option value="August">August</option>
-                <option value="September">September</option>
-                <option value="October">October</option>
-                <option value="Novermber">Novermber</option>
-                <option value="December">December</option>
-            </select>
-        </div>
-    </div>
-    <div>
-        <?php if (empty($requests)): ?>
-            <p style="text-align: center;">No requests found</p>
-        <?php else: ?>
-            <?php foreach ($requests as $request): ?>
-                <div class="approval-container">
-                    <div class="approval-left-content">
-                        <h3>Update Request 1</h3>
-                        <div class="input-group">
-                            <div class="input-group">
-                                <span class="input-label fixed_width_for_label"><strong>Property ID:</strong></span><span class="input-field small_margin"><?= $request->property_id ?></span>
-                            </div>
-                            <div class="input-group">
-                                <span class="input-label fixed_width_for_label"><strong>Price(LKR):</strong></span><span class="input-field small_margin"><?= $request->rental_price ?></span>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <div class="input-group">
-                                <span class="input-label fixed_width_for_label"><strong>Date:</strong></span><span class="input-field small_margin">2024/08/23</span>
-                            </div>
-                            <div class="input-group">
-                                <span class="input-label fixed_width_for_label"><strong>Agent ID:</strong></span><span class="input-field small_margin"><?= $request->agent_id ?></span>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <div class="input-group">
-                                <span class="input-label fixed_width_for_label"><strong>Address:</strong></span><span class="input-field small_margin"><?= $request->address ?></span>
-                            </div>
-                        </div>
-                        <!-- <div class="input-group">
-                        <div class="input-group">
-                            <span class="input-label fixed_width_for_label"><strong>Description:</strong></span><span class="input-field small_margin"><?= $request->description ?></span>
-                        </div>
-                    </div> -->
-                    </div>
-                    <div class="approval-right-content">
-                        <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
-                        <!-- <button class="secondary-btn">Decline</button> -->
-                        <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="property" class="approval-right-content-img">
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
 </div>
 
-<?php require_once 'managerFooter.view.php'; ?>
+<?php
+if (empty($requests)) {
+    echo '<div class="AA__property-management-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff;">';
+    echo '<p style="text-align: center;">No requests found</p>';
+    echo '<img src="' . ROOT . '/assets/images/no.jpg" alt="No requests" style="width: 200px; height: auto; align-self: center; margin-top: 20px;">';
+    echo '</div>';
+} else {
+?>
+    <div class="AA__property-management-container">
+        <!-- Search and Filter Section -->
+        <div class="AA__filter-section">
+            <div class="AA__search-box">
+                <input type="text" placeholder="Search...">
+                <button class="AA__search-btn"><i class="fa fa-search"></i></button>
+            </div>
+        </div>
+
+        <!-- Properties Table -->
+        <div class="AA__properties-table-container">
+            <table class="AA__properties-table">
+                <thead>
+                    <tr>
+                        <th>Property ID</th>
+                        <th>Name</th>
+                        <th>Owner Name</th>
+                        <th class="AA__align_to_center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="AA__properties-table-body">
+                    <?php
+                    foreach ($requests as $request):
+                    ?>
+                        <tr class="AA__property-row" data-id="<?= $request->property_id ?>" data-name="<?= strtolower($request->name) ?>" data-owner="<?= strtolower($request->owner_name) ?>">
+                            <td><?= $request->property_id ?></td>
+                            <td><?= $request->name ?></td>
+                            <td><?= $request->owner_name ?></td>
+                            <td class="AA__action-buttons">
+                                <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyView/<?= $request->property_id ?>'">View</button>
+                                <button class="small-btn orange" onclick="window.location.href='<?= ROOT ?>/dashboard/comparePropertyUpdate/<?= $request->property_id ?>'">See Changes</button>
+                            </td>
+                        </tr>
+                <?php endforeach;
+                } ?>
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            // Search functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get search input and filter select
+                const searchInput = document.querySelector('.AA__search-box input');
+                const statusFilter = document.querySelector('.AA__filter-options select');
+
+                // Add event listeners for search and filter
+                if (searchInput) {
+                    searchInput.addEventListener('input', filterProperties);
+                }
+
+                if (statusFilter) {
+                    statusFilter.addEventListener('change', filterProperties);
+                }
+
+                // Add click event listener to document for closing expanded panels
+                document.addEventListener('click', function(event) {
+                    // If click is not within an assignment panel or assign button
+                    if (!event.target.closest('.AA__assignment-panel') &&
+                        !event.target.closest('.small-btn.blue')) {
+                        // Close all assignment panels
+                        document.querySelectorAll('.AA__assignment-panel').forEach(panel => {
+                            panel.classList.remove('AA__active');
+                        });
+                    }
+                });
+
+                // Function to filter properties based on search and status filter
+                function filterProperties() {
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    const statusValue = statusFilter ? statusFilter.value.toLowerCase() : '';
+
+                    const propertyRows = document.querySelectorAll('.AA__property-row');
+
+                    propertyRows.forEach(row => {
+                        const propertyName = row.getAttribute('data-name');
+                        const ownerName = row.getAttribute('data-owner');
+                        const status = row.getAttribute('data-status') || '';
+
+                        // Get the panel associated with this row
+                        const panelId = row.getAttribute('data-id');
+                        const panel = document.getElementById('panel-' + panelId);
+
+                        // Check if row matches search term and status filter
+                        const matchesSearch =
+                            propertyName.includes(searchTerm) ||
+                            ownerName.includes(searchTerm);
+
+                        const matchesStatus =
+                            statusValue === '' ||
+                            status === statusValue;
+
+                        // Show/hide row based on filters
+                        if (matchesSearch && matchesStatus) {
+                            row.style.display = '';
+                            if (panel) panel.style.display = ''; // Keep panel in DOM, but hidden unless active
+                        } else {
+                            row.style.display = 'none';
+                            if (panel) panel.style.display = 'none'; // Hide panel completely
+                        }
+                    });
+                }
+            });
+        </script>
+
+        <?php require_once 'managerFooter.view.php'; ?>

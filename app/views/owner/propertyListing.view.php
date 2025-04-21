@@ -6,16 +6,28 @@
     <h2> my properties</h2>
     <div class="gap"></div>
     <div class="PL__filter_container">
-        <select id="propertyStatusFilter" class="input_field_styled">
-            <option value="">Status</option>
-            <option value="pending">Pending</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="under Maintenance">Under Maintenance</option>
-        </select>
+        <div class="search-container">
+            <select id="propertyStatusFilter" class="search-input">
+                <option value="">Status</option>
+                <option value="pending">Pending</option>
+                <option value="active">Active</option>
+                <!-- <option value="inactive">Inactive</option> -->
+                <option value="under Maintenance">Under Maintenance</option>
+                <option value="Occupied">Occupied</option>
+            </select>
+        </div>
+    </div>
+    <div class="gap"></div>
+    <div class="PL__filter_container">
+        <div class="search-container">
+            <select name="propertyPurposeFilter" id="propertyPurposeFilter" class="search-input">
+                <option value="">Purpose</option>
+                <option value="Rent">Rent</option>
+                <option value="Safeguard">Safeguard</option>
+            </select>
+        </div>
     </div>
     <div class="flex-bar">
-        
         <div class="tooltip-container">
             <a href='<?= ROOT ?>/dashboard/propertylisting/addproperty'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">Add new property</span>
@@ -39,25 +51,37 @@
     <div class="property-listing-grid">
         <?php if (!empty($properties)): ?>
             <?php foreach ($properties as $property): ?>
-                <div class="property-card" data-status="<?= strtolower($property->status) ?>">
 
-                    <div class="property-image">
-                        <a href="<?= ROOT ?>/dashboard/propertylisting/propertyunitowner/<?= $property->property_id ?>">
-                            <?php $img_source = explode(',', $property->property_images)[0] ?? ''; ?>
-                            <img src="<?= get_img($img_source, 'property') ?>" alt="Property Image">
-                        </a>
+                <div class="property-card" data-status="<?= strtolower($property->status) ?>" data-purpose="<?= strtolower($property->purpose) ?>">
+
+                    <?php
+                    $images = explode(',', $property->property_images);
+                    $firstImage = !empty($images) ? $images[0] : 'default.png'; // Fallback to a default image if none exist
+                    ?>
+
+                    <div class="property-image" style="position: relative;">
+                        <div style="position: absolute; top: 10px; right: 10px; z-index: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.8); color: var(--black-color); font-size: 16px; border-radius: 0 15px 0 15px; font-weight: bold; font-family: Outfit, sans-serif;">
+                            <?php
+                                if($property->purpose == 'Rent') {
+                                    echo '<span class="rent-tag">For Rent</span>';
+                                } elseif ($property->purpose == 'Safeguard') {
+                                    echo '<span class="safeguard-tag">Safeguard</span>';
+                                }
+                            ?>
+                        </div>
+                        <a href="<?= ROOT ?>/dashboard/propertyListing/propertyunitowner/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $firstImage ?>" alt="Property Image"></a>
+
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
                             <div>
                                 <h3><?= $property->name ?></h3>
-                                <div class="property-info">
+                                <!-- <div class="property-info">
                                     <span><img src="<?= ROOT ?>/assets/images/building-plan.png" class="property-info-img" /><?= $property->units ?> Unit</span>
                                     <span><img src="<?= ROOT ?>/assets/images/double-bed.png" class="property-info-img" /><?= $property->bedrooms ?> Rooms</span>
-                                </div>
+                                </div> -->
                             </div>
-                            <div>
-
+                            <div style="margin-top: 10px;">
                                 <div class="property-status">
                                     <?php
                                     $color = 'orange';
@@ -65,16 +89,24 @@
                                         case 'Pending':
                                             $color = 'orange';
                                             break;
-                                        case 'Active':
-                                            $color = 'green';
-                                            break;
-                                        case 'Inactive':
-                                            $color = 'red';
-                                            break;
                                         case 'Under Maintenance':
                                             $color = 'blue';
                                             break;
                                     endswitch;
+
+                                    if ($property->status == 'Active' && $property->purpose == 'Rent') {
+                                        $color = 'green';
+                                        $showMessage = 'Open for Rent';
+                                    } elseif ($property->status == 'Active' && $property->purpose != 'Rent') {
+                                        $color = 'green';
+                                        $showMessage = 'Safety Confirmed';
+                                    } elseif ($property->status == 'Occupied') {
+                                        $color = 'blue-solid';
+                                        $showMessage = 'Occupied';
+                                    } else {
+                                        $showMessage = $property->status;
+                                    }
+
                                     ?>
                                     <span class="border-button <?= $color ?>"><?= $property->status ?></span>
                                 </div>
@@ -104,33 +136,10 @@
         <?php endif; ?>
     </div>
 
-    <!-- Pagination Buttons -->
-    <div class="pagination">
-        <!-- <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
-        <span class="current-page">1</span>
-        <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button> -->
-    </div>
 </div>
 
 <script>
-    let currentPage = 1;
-    const listingsPerPage = 9;
     const listings = document.querySelectorAll('.property-listing-grid .property-card');
-    const totalPages = Math.ceil(listings.length / listingsPerPage);
-
-    function showPage(page) {
-        const visibleListings = Array.from(listings).filter(el => el.style.display !== 'none');
-        visibleListings.forEach(el => el.style.display = 'none');
-
-        const start = (page - 1) * listingsPerPage;
-        const end = start + listingsPerPage;
-
-        for (let i = start; i < end && i < visibleListings.length; i++) {
-            visibleListings[i].style.display = 'block';
-        }
-
-        document.querySelector('.current-page').textContent = page;
-    }
 
     function filterListings() {
         const selectedStatus = document.getElementById('propertyStatusFilter').value.toLowerCase();
@@ -148,24 +157,29 @@
         showPage(currentPage);
     }
 
+    function filterListingsByPurpose() {
+        const selectedPurpose = document.getElementById('propertyPurposeFilter').value.toLowerCase();
+
+        listings.forEach(card => {
+            const purpose = card.getAttribute('data-purpose');
+            if (!selectedPurpose || purpose === selectedPurpose) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        currentPage = 1;
+        showPage(currentPage);
+    }
+    document.getElementById('propertyPurposeFilter').addEventListener('change', filterListingsByPurpose);
+
     document.getElementById('propertyStatusFilter').addEventListener('change', filterListings);
 
-    document.querySelector('.next-page').addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            showPage(currentPage);
-        }
-    });
-
-    document.querySelector('.prev-page').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            showPage(currentPage);
-        }
-    });
 
     // Initial load
     filterListings();
+    filterListingsByPurpose();
 </script>
 
 
