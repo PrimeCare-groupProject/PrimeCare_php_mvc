@@ -70,14 +70,26 @@
                             <option value="">-- Select --</option>
                             <option value="price-asc">Price Low to High</option>
                             <option value="price-desc">Price High to Low</option>
-                            <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option>
+                            <!-- <option value="newest">Newest</option>
+                            <option value="oldest">Oldest</option> -->
                         </select>
                     </div>
                     
                     <!-- Date Range -->
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Availability</h3>
+                        <div>
+                            <label style="display:block; margin-bottom:5px;">Type</label>
+                            <div style="display:flex; gap:10px;">
+                                <select id="propRentalPeriodSelect" name="rental_period" onchange="togglePeriodDuration(this.value)" style="flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                                    <option value="">Any Period</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Daily" selected>Daily</option>
+                                </select>
+                                <input type="number" id="periodDuration" name="period_duration" placeholder="No. of months" min="1" oninput="updateCheckoutDate()" style="width:100%; flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px; display:none;">
+                            </div>
+                        </div>
+                        
                         <div>
                             <label style="display:block; margin-bottom:5px;">Check-in</label>
                             <input type="date" id="propCheckInDate" name="check_in" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
@@ -431,6 +443,32 @@
             const btn = document.getElementById('collapseFilterBtn');
             panel.style.marginLeft = (panel.style.marginLeft === '0px' || panel.style.marginLeft === '0') ? '-20%' : '0';
             btn.style.left = (panel.style.marginLeft === '0px' || panel.style.marginLeft === '0') ? '20%' : '0';
+        }
+
+        function togglePeriodDuration(value) {
+            const durationField = document.getElementById('periodDuration');
+            durationField.style.display = value ? 'block' : 'none';
+            durationField.placeholder = value === 'Monthly' ? 'No. of months' : 'No. of days';
+            durationField.value = '';
+            updateCheckoutDate();
+        }
+        
+        function updateCheckoutDate() {
+            const checkInDate = new Date(document.getElementById('propCheckInDate').value);
+            const period = document.getElementById('propRentalPeriodSelect').value;
+            const duration = parseInt(document.getElementById('periodDuration').value) || 0;
+            
+            if (checkInDate && duration > 0) {
+                let checkOutDate = new Date(checkInDate);
+                
+                if (period === 'Monthly') {
+                    checkOutDate.setMonth(checkOutDate.getMonth() + duration);
+                } else if (period === 'Daily') {
+                    checkOutDate.setDate(checkOutDate.getDate() + duration);
+                }
+                
+                document.getElementById('propCheckOutDate').value = checkOutDate.toISOString().split('T')[0];
+            }
         }
     </script>
     <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>

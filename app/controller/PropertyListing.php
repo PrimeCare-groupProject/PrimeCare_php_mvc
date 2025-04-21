@@ -10,6 +10,8 @@ class propertyListing{
 
     public function showListing(){
         if(isset($_POST) && !empty($_POST)){
+            show($_POST);
+            die;
             $propertiesFromView = new PropertySearchView;
             $propertiesids = $propertiesFromView->advancedSearch($_POST,  ['property_id']);
             
