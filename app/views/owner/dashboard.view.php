@@ -6,131 +6,211 @@
 
 <style>
     :root {
-        --primary: #4361ee;
-        --secondary: #3f37c9;
+        --primary: #FFC107;
+        --secondary: #FCA311;
         --accent: #4895ef;
         --success: #4cc9f0;
+        --color1:#06D001;
         --warning: #f72585;
         --danger: #e5383b;
         --neutral: #e9ecef;
         --dark: #212529;
         --light: #f8f9fa;
+        --system-yellow: #FFC107; 
+        --gradient-primary: linear-gradient(135deg, #2c7be5, #1a73e8);
+        --gradient-success: linear-gradient(135deg, #4cc9f0, #3a86ff);
+        --gradient-warning: linear-gradient(135deg, #f72585, #b5179e);
+        --gradient-danger: linear-gradient(135deg, #e5383b, #ba181b);
+        --gradient-accent: linear-gradient(135deg, #4895ef, #3a0ca3);
+        --gradient-neutral: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        --gradient-yellow: linear-gradient(135deg, #FFC107, #FF9800);
+        --card-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 35px rgba(0,0,0,0.12);
     }
     
     body {
         background-color: #f0f2f5;
+        background-image: url('<?= ROOT ?>/assets/images/bg-pattern.png');
+        background-attachment: fixed;
     }
     
     .modern-dashboard {
-        padding: 1rem;
+        padding: 1.5rem;
         max-width: 1400px;
         margin: 0 auto;
     }
     
     .summary-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.75rem;
+        margin-bottom: 2.5rem;
     }
     
     .summary-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-        display: flex;
         position: relative;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border-left: 4px solid var(--primary);
+        border-radius: 16px;
+        padding: 1.8rem;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        z-index: 1;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-size: cover;
+        background-position: center;
+        z-index: -2;
+        filter: saturate(0.8);
+        transition: all 0.4s ease;
+    }
+    
+    .summary-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px); 
+    z-index: -1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.4s ease;
+}
+    
+    @media (prefers-color-scheme: dark) {
+        .summary-card::after {
+            background: rgba(30, 30, 40, 0.2); 
+        }
+    }
+
+    
     .summary-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .summary-card:hover::before {
+        filter: saturate(1.2);
+        transform: scale(1.05);
+    }
+    
+    .summary-card:hover::after {
+        background: rgba(255, 255, 255, 0.65);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .summary-card:hover::after {
+            background: rgba(30, 30, 40, 0.65);
+        }
+    }
+    
+    .summary-card.properties::before {
+        background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3');
+    }
+    
+    .summary-card.income::before {
+        background-image: url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-4.0.3');
+    }
+    
+    .summary-card.expenses::before {
+        background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3');
+    }
+    
+    .summary-card.profit::before {
+        background-image: url('https://images.unsplash.com/photo-1543286386-2e659306cd6c?ixlib=rb-4.0.3');
+    }
+    
+    .summary-card.bookings::before {
+        background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3');
+    }
+    
+    .summary-card.system-total::before {
+        background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3');
     }
     
     .summary-card .icon-container {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
+        width: 65px;
+        height: 65px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 1rem;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
+        margin-bottom: 1rem;
+        position: relative;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
     }
     
-    .summary-card.properties .icon-container {
-        background-color: rgba(67, 97, 238, 0.15);
-        color: var(--primary);
-    }
-    
-    .summary-card.properties {
-        border-left-color: var(--primary);
-    }
-    
-    .summary-card.income .icon-container {
-        background-color: rgba(76, 201, 240, 0.15);
-        color: var(--success);
-    }
-    
-    .summary-card.income {
-        border-left-color: var(--success);
-    }
-    
-    .summary-card.expenses .icon-container {
-        background-color: rgba(247, 37, 133, 0.15);
-        color: var(--warning);
-    }
-    
-    .summary-card.expenses {
-        border-left-color: var(--warning);
-    }
-    
-    .summary-card.profit .icon-container {
-        background-color: rgba(63, 55, 201, 0.15);
-        color: var(--secondary);
-    }
-    
-    .summary-card.profit {
-        border-left-color: var(--secondary);
-    }
-    
-    .summary-card.bookings .icon-container {
-        background-color: rgba(72, 149, 239, 0.15);
-        color: var(--accent);
-    }
-    
-    .summary-card.bookings {
-        border-left-color: var(--accent);
-    }
-    
-    .summary-card.system-total .icon-container {
-        background-color: rgba(229, 56, 59, 0.15);
-        color: var(--danger);
-    }
-    
-    .summary-card.system-total {
-        border-left-color: var(--danger);
+    .summary-card:hover .icon-container {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
     }
     
     .card-content {
-        flex: 1;
+        position: relative;
+        z-index: 1;
     }
     
     .card-content h3 {
         margin: 0;
-        font-size: 0.9rem;
-        color: #666;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
+        color: #555;
+        font-weight: 600;
+        position: relative;
+        display: inline-block;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .card-content h3 {
+            color: #eee;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+    }
+    
+    .card-content h3:after {
+        content: '';
+        position: absolute;
+        width: 40%;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background: rgba(0,0,0,0.1);
+        border-radius: 2px;
     }
     
     .card-content .value {
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin: 0.6rem 0;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 1rem 0;
+        letter-spacing: -0.5px;
+        text-shadow: 0 1px 3px rgba(255,255,255,0.5);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .card-content .value {
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
     }
     
     .card-content .value.positive {
@@ -143,9 +223,34 @@
     
     .card-footer {
         font-size: 0.85rem;
-        color: #757575;
+        color: #666;
+        margin-top: auto;
+        padding-top: 0.8rem;
+        border-top: 1px dashed rgba(0,0,0,0.1);
         display: flex;
         align-items: center;
+        gap: 0.5rem;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .card-footer {
+            color: #ddd;
+            border-top: 1px dashed rgba(255,255,255,0.1);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+    }
+    
+    .card-footer a {
+        text-decoration: none;
+        color: var(--primary);
+        font-weight: 500;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .card-footer a:hover {
+        color: var(--secondary);
     }
     
     .analytics-section {
@@ -153,6 +258,8 @@
         grid-template-columns: 2fr 1fr;
         gap: 1.5rem;
         margin-bottom: 2rem;
+        margin-left: 15px;
+        margin-right: 15px;
     }
     
     @media (max-width: 992px) {
@@ -167,6 +274,12 @@
         border-radius: 12px;
         padding: 1.5rem;
         box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    }
+
+    .transactions-section{
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 20px;
     }
     
     .card-header {
@@ -265,8 +378,8 @@
     }
     
     .badge-success {
-        background-color: rgba(76, 201, 240, 0.15);
-        color: var(--success);
+        background-color: rgba(6, 208, 1, 0.12); 
+        color: var(--color1);
     }
     
     .badge-warning {
@@ -285,7 +398,7 @@
     }
     
     .badge-primary {
-        background-color: rgba(67, 97, 238, 0.15);
+        background-color: rgba(255, 193, 7, 0.15);
         color: var(--primary);
     }
     
@@ -294,6 +407,8 @@
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
         margin-bottom: 2rem;
+        margin-left: 15px;
+        margin-right: 15px;
     }
     
     .three-columns {
@@ -334,16 +449,29 @@
         transition: background-color 0.2s;
     }
     
+    .taction-button{
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        margin-left: 0.5rem;
+        transition: background-color 0.2s;
+    }
+    
     .action-button:hover {
         background-color: var(--secondary);
     }
     
     .action-button.secondary {
-        background-color: #757575;
+        background-color: var(--color1);
     }
     
     .action-button.secondary:hover {
-        background-color: #616161;
+        background-color: var(--secondary);
     }
     
     .status-dot {
@@ -402,8 +530,8 @@
     }
     
     .property-image {
-        width: 100px;
-        height: 70px;
+        width: 150px;
+        height: 120px;
         background-size: cover;
         background-position: center;
         background-color: #eee;
@@ -435,7 +563,6 @@
         margin-top: 0.5rem;
     }
     
-    /* Debug indicator styles */
     .debug-indicator {
         position: fixed;
         bottom: 10px;
@@ -457,7 +584,6 @@
         font-style: italic;
     }
 
-    /* Fallback content styling */
     .fallback-content {
         position: absolute;
         top: 0;
@@ -476,43 +602,28 @@
 </div>
 
 <div class="modern-dashboard">
-    <!-- Summary Cards -->
     <div class="summary-cards">
-        <div class="summary-card properties">
-            <div class="icon-container">
-                <i class="fas fa-home"></i>
-            </div>
-            <div class="card-content">
-                <h3>My Properties</h3>
-                <div class="value"><?= $propertyCount ?? 0 ?></div>
-                <div class="card-footer">
-                    <a href="<?= ROOT ?>/dashboard/propertylisting">Manage Properties</a>
-                </div>
-            </div>
-        </div>
-        
-        
         <div class="summary-card income">
-            <div class="icon-container">
+            <div class="icon-container" style="color: var(--color1);">
                 <i class="fas fa-money-bill-wave"></i>
             </div>
             <div class="card-content">
                 <h3>Total Income</h3>
                 <div class="value">
                     <?php
-                    // Ensure we have a valid totalIncome value
                     $displayIncome = isset($totalIncome) && is_numeric($totalIncome) ? $totalIncome : 0;
                     echo 'LKR ' . number_format($displayIncome, 2);
                     ?>
                 </div>
                 <div class="card-footer">
+                    <i class="fas fa-check-circle" style="color: var(--color1); font-size: 0.9rem;"></i>
                     <span><?= $activeBookings ?? 0 ?> active bookings</span>
                 </div>
             </div>
         </div>
         
         <div class="summary-card profit">
-            <div class="icon-container">
+            <div class="icon-container" style="color: var(--success);">
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="card-content">
@@ -527,27 +638,41 @@
                     <?php 
                     $income = $totalIncome ?? 0;
                     $margin = $income > 0 ? ($calculatedProfit / $income) * 100 : 0;
+                    $iconClass = $margin >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+                    $iconColor = $margin >= 0 ? 'var(--success)' : 'var(--danger)';
                     ?>
+                    <i class="fas <?= $iconClass ?>" style="color: <?= $iconColor ?>; font-size: 0.9rem;"></i>
                     <span><?= number_format($margin, 1) ?>% margin</span>
                 </div>
             </div>
         </div>
         
-        <!-- New total bookings card -->
+        <div class="summary-card properties">
+            <div class="icon-container" style="color: var(--primary);">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="card-content">
+                <h3>My Properties</h3>
+                <div class="value"><?= $propertyCount ?? 0 ?></div>
+                <div class="card-footer">
+                    <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i>
+                    <a href="<?= ROOT ?>/dashboard/propertylisting">Manage Properties</a>
+                </div>
+            </div>
+        </div>
+        
         <div class="summary-card bookings">
-            <div class="icon-container">
+            <div class="icon-container" style="color: var(--accent);">
                 <i class="fas fa-calendar-check"></i>
             </div>
             <div class="card-content">
                 <h3>Total Bookings</h3>
                 <div class="value">
                     <?php 
-                    // Calculate total bookings here
                     $ownerId = $_SESSION['user']->pid;
                     $bookingModel = new BookingModel();
                     $totalBookingsCount = 0;
                     
-                    // Get all properties owned by this user
                     $propertyModel = new PropertyConcat();
                     $ownerProperties = $propertyModel->where(['person_id' => $ownerId]);
                     
@@ -564,46 +689,56 @@
                     ?>
                 </div>
                 <div class="card-footer">
+                    <i class="fas fa-coins" style="color: var(--accent); font-size: 0.9rem;"></i>
                     <span>Total Revenue: LKR <?= number_format($totalIncome ?? 0, 2) ?></span>
                 </div>
             </div>
         </div>
         
-        <!-- New system total properties card -->
+        <div class="summary-card expenses">
+            <div class="icon-container" style="color: var(--warning);">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+            <div class="card-content">
+                <h3>Total Expenses</h3>
+                <div class="value">LKR <?= number_format($totalServiceCost ?? 0, 2) ?></div>
+                <div class="card-footer">
+                    <i class="fas fa-tools" style="color: var(--warning); font-size: 0.9rem;"></i>
+                    <span><?= isset($serviceLogs) && is_array($serviceLogs) ? count($serviceLogs) : 0 ?> services</span>
+                </div>
+            </div>
+        </div>
+        
         <div class="summary-card system-total">
-            <div class="icon-container">
+            <div class="icon-container" style="color: var(--danger);">
                 <i class="fas fa-building"></i>
             </div>
             <div class="card-content">
                 <h3>System Properties</h3>
                 <?php
-                // Get total property count in the system
                 $property = new PropertyConcat();
                 $totalSystemProperties = count($property->findAll()) ?? 0;
                 ?>
                 <div class="value"><?= $totalSystemProperties ?></div>
                 <div class="card-footer">
+                    <i class="fas fa-chart-pie" style="color: var(--danger); font-size: 0.9rem;"></i>
                     <span>Your share: <?= $propertyCount > 0 && $totalSystemProperties > 0 ? number_format(($propertyCount / $totalSystemProperties) * 100, 1) : 0 ?>%</span>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Booking Rate and Recent Properties -->
-    <div class="two-columns">
-        <!-- Booking Rate Section (Speedometer) with fallback -->
+    <!-- <div class="two-columns">
         <div class="booking-rate-section">
             <div class="card-header">
                 <h3>Property Booking Rate</h3>
             </div>
             <div class="speedometer-container">
                 <div id="booking-gauge" style="height: 200px; width: 100%; position: relative;">
-                    <!-- Static fallback that will be replaced by JS if working -->
                     <div id="gauge-fallback" class="fallback-content">
                         <div style="text-align: center;">
                             <div style="font-size: 3rem; font-weight: bold; color: #4361ee;">
                                 <?php
-                                // Calculate and use the actual booking rate
                                 $bookingRate = isset($occupancyRate) ? $occupancyRate : (
                                     ($totalUnits > 0 && isset($activeBookings)) ? 
                                     min(100, ($activeBookings / $totalUnits) * 100) : 0
@@ -623,9 +758,8 @@
                     <?= number_format($bookingRate, 1) ?>% Occupancy
                 </div>  
             </div>
-        </div>
+        </div> -->
         
-        <!-- Recent Properties Section -->
         <div class="recent-props-section">
             <div class="card-header">
                 <h3>Recent Properties</h3>
@@ -633,34 +767,28 @@
             </div>
             
             <?php 
-            // Make sure properties are available
             if (isset($properties) && is_array($properties) && count($properties) > 0):
                 
-                // Check if PropertyImageModel class exists, if not, create a basic version
                 if (!class_exists('PropertyImageModel')) {
                     class PropertyImageModel {
                         use Model;
                         protected $table = 'property_images';
                         public function where($conditions) {
-                            return [];  // Return empty if not implemented
+                            return [];  
                         }
                     }
                 }
                 
-                // Sort by newest first (assuming property_id is auto-incremented)
                 usort($properties, function($a, $b) {
                     return isset($b->property_id) && isset($a->property_id) ? 
                         $b->property_id - $a->property_id : 0;
                 });
                 
-                // Get the 4 most recent properties
                 $recentProperties = array_slice($properties, 0, 4);
                 
-                // Set up a default image if none is found
                 $defaultImage = ROOT . '/assets/images/property-default.jpg';
                 
                 foreach($recentProperties as $property): 
-                    // Try to get property image
                     $imageUrl = $defaultImage;
                     try {
                         $propertyImage = new PropertyImageModel();
@@ -669,7 +797,6 @@
                             $imageUrl = ROOT . '/assets/images/uploads/property_images/' . $images[0]->image_url;
                         }
                     } catch (Exception $e) {
-                        // Use default image if error
                     }
             ?>
                 <div class="recent-property-card">
@@ -695,13 +822,12 @@
                 <div class="no-data">
                     <i class="fas fa-home" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
                     <p>No properties found. Add your first property!</p>
-                    <a href="<?= ROOT ?>/dashboard/propertylisting/addproperty" class="action-button">Add Property</a>
+                    <a href="<?= ROOT ?>/dashboard/propertylisting/addproperty" class="taction-button">Add Property</a>
                 </div>
             <?php endif; ?>
         </div>
     </div>
     
-    <!-- Analytics Section with Fallbacks -->
     <div class="analytics-section">
         <div class="chart-container">
             <div class="card-header">
@@ -715,7 +841,6 @@
             </div>
             <div class="chart-area">
                 <canvas id="financialOverview"></canvas>
-                <!-- Static fallback chart -->
                 <div id="finance-fallback" class="fallback-content">
                     <table style="width: 80%; border-collapse: collapse;">
                         <thead>
@@ -760,14 +885,13 @@
             </div>
             <div class="pie-chart-container">
                 <canvas id="expenseBreakdown"></canvas>
-                <!-- Static fallback for expense breakdown -->
                 <div id="expense-fallback" class="fallback-content">
                     <div style="width: 100%;">
                         <?php
                         $demoExpenseTypes = ['Plumbing', 'Electrical', 'Cleaning', 'Maintenance'];
                         $demoExpenseValues = [1500, 2300, 900, 1800];
                         $total = array_sum($demoExpenseValues);
-                        $colors = ['#4361ee', '#f72585', '#4cc9f0', '#fb8500'];
+                        $colors = ['FA26A0', '05DFD7', '#4cc9f0', 'FFF591'];
                         
                         foreach($demoExpenseTypes as $i => $type):
                             $percentage = ($demoExpenseValues[$i] / $total) * 100;
@@ -785,14 +909,13 @@
                 </div>
             </div>
             <div class="expense-legend" id="expenseLegend">
-                <!-- Will be populated by JavaScript or fallback -->
                 <?php if (!isset($expenseTypes) || empty($expenseTypes)): ?>
                     <div id="expense-legend-fallback">
                         <?php
                         $demoExpenseTypes = ['Plumbing', 'Electrical', 'Cleaning', 'Maintenance'];
                         $demoExpenseValues = [1500, 2300, 900, 1800];
                         $total = array_sum($demoExpenseValues);
-                        $colors = ['#4361ee', '#f72585', '#4cc9f0', '#fb8500'];
+                        $colors = ['FA26A0', '05DFD7', '#4cc9f0', 'FFF591'];
                         
                         foreach($demoExpenseTypes as $i => $type):
                             $percentage = ($demoExpenseValues[$i] / $total) * 100;
@@ -809,7 +932,6 @@
         </div>
     </div>
     
-    <!-- Properties and Maintenance Section -->
     <div class="two-columns">
         <div class="property-section">
             <div class="card-header">
@@ -917,7 +1039,6 @@
         </div>
     </div>
     
-    <!-- Recent Transactions -->
     <div class="transactions-section">
         <div class="card-header">
             <h3>Recent Transactions</h3>
@@ -925,9 +1046,7 @@
         </div>
         
         <?php
-        // Generate demo transactions if none exist
         if(!isset($recentTransactions) || !is_array($recentTransactions) || empty($recentTransactions)) {
-            // Create some sample transactions based on service logs
             $recentTransactions = [];
             
             if(isset($serviceLogs) && is_array($serviceLogs)) {
@@ -942,7 +1061,6 @@
                 }
             }
             
-            // Add a sample income transaction
             $recentTransactions[] = [
                 'date' => date('Y-m-d'),
                 'description' => 'Monthly Rental Income',
@@ -977,7 +1095,11 @@
                         <?php endif; ?>
                     </td>
                     <td style="font-weight: 600; <?= isset($transaction['amount']) && $transaction['amount'] >= 0 ? 'color: var(--success);' : 'color: var(--warning);' ?>">
-                        LKR <?= number_format(abs($transaction['amount'] ?? 0), 2) ?>
+                        <?php
+                        $amount = abs($transaction['amount'] ?? 0);
+                        $amountWithTenPercent = $amount * 1.10;
+                        ?>
+                        LKR <?= number_format($amountWithTenPercent, 2) ?>
                     </td>
                     <td>
                         <?php
@@ -1006,37 +1128,30 @@
     </div>
 </div>
 
-<!-- Move scripts to the bottom for faster page loading -->
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Use actual data from PHP variables instead of demo data
     const monthlyData = <?= !empty($monthlyData) && is_array($monthlyData) ? json_encode($monthlyData) : '{}' ?>;
     const expenseTypes = <?= !empty($expenseTypes) && is_array($expenseTypes) ? json_encode($expenseTypes) : '{}' ?>;
     
-    // Convert PHP data to format needed for charts
     const months = Object.keys(monthlyData);
     const incomeData = months.map(month => monthlyData[month].income || 0);
     const expenseData = months.map(month => monthlyData[month].expense || 0);  
     const profitData = months.map(month => monthlyData[month].profit || 0);
     
-    // For expense breakdown
     const expenseLabels = Object.keys(expenseTypes);
     const expenseValues = Object.values(expenseTypes);
     const expenseColors = generateColors(expenseLabels.length); 
     
-    // Get booking rate from PHP (with fallback)
     let bookingRate = <?= isset($bookingRate) ? floatval($bookingRate) : (isset($occupancyRate) ? floatval($occupancyRate) : 0) ?>;
     
-    // Helper function to generate colors
     function generateColors(count) {
         const colors = [
-            '#4361ee', '#3f37c9', '#4895ef', '#4cc9f0', '#f72585',
-            '#e5383b', '#6a994e', '#386641', '#bc4749', '#fb8500'
+            '#FA26A0', '#05DFD7', '#4cc9f0', '#FFF591',
+            '#FA26A0', '#05DFD7', '#4cc9f0', '#FFF591'
         ];
         return Array(count).fill(0).map((_, i) => colors[i % colors.length]);
     }
     
-    // Helper function to check if libraries are loaded
     function isLibraryLoaded(libraryName) {
         switch(libraryName) {
             case 'Chart':
@@ -1048,22 +1163,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Function to hide a fallback element
     function removeFallback(id) {
         const fallback = document.getElementById(id);
         if (fallback) fallback.style.display = 'none';
     }
     
-    // Try to initialize the financial chart
     try {
         if (isLibraryLoaded('Chart')) {
-            // Financial Overview Chart
             const financialOverviewElement = document.getElementById('financialOverview');
             if (financialOverviewElement) {
                 removeFallback('finance-fallback');
                 const ctx = financialOverviewElement.getContext('2d');
                 
-                // Use real data from PHP
                 new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -1126,7 +1237,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // Expense breakdown chart
             const expenseBreakdownElement = document.getElementById('expenseBreakdown');
             if (expenseBreakdownElement && expenseLabels.length > 0) {
                 removeFallback('expense-fallback');
@@ -1167,7 +1277,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
-                // Update expense legend dynamically
                 const expenseLegendContainer = document.getElementById('expenseLegend');
                 if (expenseLegendContainer) {
                     let legendHTML = '';
@@ -1196,14 +1305,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Failed to initialize charts:", error);
     }
     
-    // Try to initialize the gauge chart
     try {
         if (isLibraryLoaded('Gauge')) {
             const gaugeElement = document.getElementById('booking-gauge');
             if (gaugeElement) {
                 removeFallback('gauge-fallback');
                 
-                // Fix the issue by explicitly setting the gauge's dimensions
                 gaugeElement.style.width = '100%';
                 gaugeElement.style.height = '200px'; 
                 gaugeElement.width = gaugeElement.offsetWidth;
@@ -1226,10 +1333,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     generateGradient: true,
                     highDpiSupport: true,
                     staticZones: [
-                        {strokeStyle: "#f72585", min: 0, max: 30}, // Red
-                        {strokeStyle: "#fb8500", min: 30, max: 60}, // Orange
-                        {strokeStyle: "#4361ee", min: 60, max: 80}, // Blue
-                        {strokeStyle: "#4cc9f0", min: 80, max: 100} // Light Blue
+                        {strokeStyle: "#f72585", min: 0, max: 30}, 
+                        {strokeStyle: "#fb8500", min: 30, max: 60}, 
+                        {strokeStyle: "#4361ee", min: 60, max: 80}, 
+                        {strokeStyle: "#4cc9f0", min: 80, max: 100} 
                     ],
                     staticLabels: {
                         font: "10px sans-serif",
@@ -1243,7 +1350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 gauge.maxValue = 100;
                 gauge.setMinValue(0);
                 gauge.animationSpeed = 32;
-                gauge.set(bookingRate); // Use real booking rate
+                gauge.set(bookingRate); 
                 
                 console.log("Gauge initialized with value:", bookingRate);
             }
@@ -1252,7 +1359,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Failed to initialize gauge:", error);
     }
     
-    // Chart period selector
     const periodSelector = document.getElementById('chartPeriod');
     if (periodSelector) {
         periodSelector.addEventListener('change', function() {
