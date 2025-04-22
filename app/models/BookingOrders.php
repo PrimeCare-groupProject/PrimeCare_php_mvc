@@ -79,11 +79,13 @@ class BookingOrders
     public function isPropertyAvailable($property_id, $check_in, $check_out)
     {
         if (!$property_id || !$check_in || !$check_out) {
+            // echo "Property ID, check-in, and check-out dates are required.";
             return false;
         }
         
         // Validate date formats
         if (!strtotime($check_in) || !strtotime($check_out)) {
+            // echo "Invalid date format. Please use YYYY-MM-DD.";
             return false;
         }
         
@@ -111,13 +113,23 @@ class BookingOrders
         // If no conflicting bookings found, the property is available
         // Check if $bookings is valid
         if (is_bool($bookings) || $bookings === false || $bookings === null) {
-            return false; // If query failed, assume property is not available
+            // echo "retured false as No bookings found.";
+            return true; // If query failed, assume property is not available
         }
         
         return count($bookings) === 0;
     }
 
+    public function createBooking($data)
+    {
+        // Validate data before insert
+        if (!$this->validate($data)) {
+            return false; // $this->errors will contain validation errors
+        }
 
+        // Insert booking (returns inserted ID or false)
+        return $this->insert($data);
+    }
 }
 // CREATE TABLE booking_orders (
 //     booking_id INT AUTO_INCREMENT PRIMARY KEY, -- Unique ID for each booking

@@ -53,9 +53,19 @@
                 </div>
 
                 <div class="content-section low-padding" id="content-section" style="margin-top:20px; padding: 20px; background-color: var(--white-color); border-radius: 12px;">
-                    <form action="<?= ROOT ?>/propertyListing/bookProperty?p_id=<?= $p_id ?>&check_in=<?= $check_in ?>&check_out=<?= $check_out ?>" method="POST" class="booking-form" style="display: flex; flex-direction: column; gap: 15px; width: 100%">
+                    <form action="<?= ROOT ?>/propertyListing/bookProperty?p_id=<?= $p_id ?>&check_in=<?= $check_in ?>&check_out=<?= $check_out ?>&" method="POST" class="booking-form" style="display: flex; flex-direction: column; gap: 15px; width: 100%">
                         <input type="hidden" name="property_id" value="<?= $p_id ?>">
                         <input type="hidden" id="is_available" name="is_available" value="0">
+
+                        <div class="filter-row-instance" style="width: 90%;">
+                            <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
+                                <label for="period_type" style="font-weight: bold;">Period Type:</label>
+                                <select id="period_type" name="period_type" onchange="toggleBookingType(this.value)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="commercial">Daily</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <div id="commercial-section" class="filter-row-instance" style="width: 90%;" >
                             <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
@@ -69,14 +79,6 @@
                         </div>
 
                         <div class="filter-row-instance" style="width: 90%;">
-                            <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
-                                <label for="booking_type" style="font-weight: bold;">Booking Type:</label>
-                                <select id="booking_type" name="booking_type" onchange="toggleBookingType(this.value)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="commercial">Commercial</option>
-                                    <!-- <option value="monthly">Monthly</option> -->
-                                </select>
-                            </div>
-
                             <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
                                 <label for="guests" style="font-weight: bold;">Number of Guests:</label>
                                 <input type="number" id="guests" name="guests" min="1" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">

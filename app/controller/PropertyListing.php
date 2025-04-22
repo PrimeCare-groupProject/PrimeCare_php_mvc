@@ -93,7 +93,72 @@ class propertyListing{
         }
         $property = new PropertyConcat;
         $propertyUnit = $property->where(['property_id' => $propertyID])[0];
-        $this->view('propertyUnit' , ['property' => $propertyUnit]);
+        $BookingOrders = new BookingOrders;
+
+        // Default dates
+        $check_in = isset($_GET['check_in']) ? $_GET['check_in'] : date('Y-m-d');
+        $check_out = isset($_GET['check_out']) ? $_GET['check_out'] : date('Y-m-d', strtotime('+1 day'));
+        $rental_period = isset($_GET['rental_period']) ? $_GET['rental_period'] : $propertyUnit->rental_period;
+        $period_duration = isset($_GET['period_duration']) ? $_GET['period_duration'] : null;
+
+        // If form submitted, check availability
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_booking') {
+            $new_check_in = $_POST['check_in'];
+            $new_check_out = $_POST['check_out'];
+            $rental_period = $_POST['rental_period'] ?? 'Daily';
+            
+            // Calculate duration based on dates
+            $check_in_date = new DateTime($new_check_in);
+            $check_out_date = new DateTime($new_check_out);
+            $days = $check_in_date->diff($check_out_date)->days;
+            
+            // Calculate period duration based on rental period
+            $new_period_duration = (strtolower($rental_period) == 'monthly') ? ceil($days / 30) : $days;
+            
+            $isAvailable = $BookingOrders->isPropertyAvailable($propertyID, $new_check_in, $new_check_out);
+            
+            // Build params from POST (hidden fields) to preserve all relevant data
+            $params = [
+                'check_in' => $isAvailable ? $new_check_in : ($_POST['check_in'] ?? $new_check_in),
+                'check_out' => $isAvailable ? $new_check_out : ($_POST['check_out'] ?? $new_check_out),
+                'rental_period' => $rental_period,
+                'period_duration' => $isAvailable ? $new_period_duration : ($_POST['period_duration'] ?? 1),
+            ];
+            $query = http_build_query($params);
+
+            $_SESSION['flash']['msg'] = $isAvailable ? "Dates updated successfully." : "Property is not available for the selected dates.";
+            $_SESSION['flash']['type'] = $isAvailable ? "success" : "error";
+
+            redirect("propertyListing/showListingDetail/{$propertyID}?{$query}");
+            return;
+        }
+
+        // Calculate booking summary
+        $check_in_date = new DateTime($check_in);
+        $check_out_date = new DateTime($check_out);
+        $days = $check_in_date->diff($check_out_date)->days;
+        $price_per_period = $propertyUnit->rental_price;
+
+        if (strtolower($propertyUnit->rental_period) == 'monthly') {
+            $months = $period_duration ?? ceil($days / 30);
+            $total_price = $price_per_period * $months;
+        } else {
+            $months = null;
+            $total_price = $price_per_period * $days;
+        }
+
+        $bookingSummary = [
+            'check_in' => $check_in,
+            'check_out' => $check_out,
+            'days' => $days,
+            'months' => $months,
+            'total_price' => $total_price,
+        ];
+
+        $this->view('propertyUnit', [
+            'property' => $propertyUnit,
+            'bookingSummary' => $bookingSummary
+        ]);
     }
 
     public function bookProperty(){
@@ -107,46 +172,86 @@ class propertyListing{
             redirect('login');
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-            $action = $_POST['action'];
-            $bookingResults = false;
-            $booking = new PropertyBookings;
-            
-            switch ($action) {
-                case 'check_availability':
-                    $bookingResults = $booking->checkPropertyAvailability((int)$_POST['property_id'], $_POST['check_in'], $_POST['check_out']);
-                    
-                    if($bookingResults) {
-                        $_SESSION['flash']['msg'] = "Property is available for the selected dates.";
-                        $_SESSION['flash']['type'] = "success";
-                    } else {
-                        $_SESSION['flash']['msg'] = "Property is not available for the selected dates.";
-                        $_SESSION['flash']['type'] = "error";
-                    }
-                    break;
-                case 'book_now':
-                    $creationResults = $booking->createCommercialBooking((int)$_POST['property_id'], (int)$_SESSION['user']->pid, $_POST['check_in'], $_POST['check_out'], 10000);
-                    if ($creationResults) {
-                        $_SESSION['flash']['msg'] = "Your booking has been successfully created!";
-                        $_SESSION['flash']['type'] = "success";
-                        
-                        redirect('propertyListing/showListing');
-                    } else {
-                        $_SESSION['flash']['msg'] = "Your booking was declined. Try again!";
-                        $_SESSION['flash']['type'] = "error";
-                    }
-                    die;
-                    break;
-                default:
-                    redirect('propertyListing/showListing');
-                    die;
-                    break;
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['p_id'])) {
+            $property_id = (int)$_GET['p_id'];
+            $person_id = (int)$_SESSION['user']->pid;
+            $agent_id = null; // Set if you have agent logic
+            $check_in = $_GET['check_in'] ?? null;
+            $check_out = $_GET['check_out'] ?? null;
+
+            // Calculate duration and rental period
+            $rental_period = $_GET['rental_period'] ?? 'Daily';
+            $period_duration = $_GET['period_duration'] ?? null;
+
+            // Get property details for price
+            $propertyModel = new PropertyConcat();
+            $property = $propertyModel->where(['property_id' => $property_id])[0] ?? null;
+            if (!$property) {
+                $_SESSION['flash']['msg'] = "Invalid property.";
+                $_SESSION['flash']['type'] = "error";
+                redirect("propertyListing/showListingDetail/{$property_id}");
+                return;
             }
-        }
 
-        if (isset($_GET['p_id']) && !empty($_GET['p_id'])) {
-            $this->view('bookProperty',['isAvailable'=>$bookingResults ?? false]);
+            // Calculate duration
+            $check_in_date = new DateTime($check_in);
+            $check_out_date = new DateTime($check_out);
+            $days = $check_in_date->diff($check_out_date)->days;
+            $duration = (strtolower($rental_period) == 'monthly') ? ceil($days / 30) : $days;
 
+            // Prepare booking data
+            $bookingData = [
+                'property_id'    => $property_id,
+                'person_id'      => $person_id,
+                'agent_id'       => $agent_id,
+                'start_date'     => $check_in,
+                'duration'       => $duration,
+                'rental_period'  => $rental_period,
+                'rental_price'   => $property->rental_price,
+                'payment_status' => 'Pending',
+                'booking_status' => 'Pending'
+            ];
+
+            $BookingOrders = new BookingOrders();
+
+            // Check if property is available for the selected dates
+            if (!$BookingOrders->isPropertyAvailable($property_id, $check_in, $check_out)) {
+                $_SESSION['flash']['msg'] = "Property is not available for the selected dates.";
+                $_SESSION['flash']['type'] = "error";
+
+                // Manually build the query string
+                $params = [
+                    'check_in'      => $check_in,
+                    'check_out'     => $check_out,
+                    'rental_period' => $rental_period,
+                    'period_duration' => $period_duration,
+                ];
+                $query = '';
+                foreach ($params as $key => $value) {
+                    if ($value !== null && $value !== '') {
+                        $query .= ($query === '' ? '' : '&') . $key . '=' . urlencode($value);
+                    }
+                }
+
+                redirect("propertyListing/showListingDetail/{$property_id}" . ($query ? "?{$query}" : ''));
+                return;
+            }
+
+            $booking_id = $BookingOrders->createBooking($bookingData);
+
+            if ($booking_id) {
+                $_SESSION['flash']['msg'] = "Your booking has been successfully created!";
+                $_SESSION['flash']['type'] = "success";
+                redirect('dashboard/occupiedProperties');
+                return;
+            } else {
+                $_SESSION['flash']['msg'] = "Your booking was declined. Try again!";
+                $_SESSION['flash']['type'] = "error";
+                // Reload current page with GET params
+                $query = http_build_query($_GET);
+                redirect("propertyListing/showListingDetail/{$property_id}?" . $query);
+                return;
+            }
         } else {
             redirect('propertyListing/showListing');
         }

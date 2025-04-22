@@ -198,7 +198,22 @@
                 <?php if (!empty($properties)): ?>
                     <?php foreach($properties as $property): ?>
                         <div class="PL_property-card">
-                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>?check_in=<?= $_POST['check_in'] ?? $_GET['check_in'] ?? date('Y-m-d') ?>&check_out=<?= $_POST['check_out'] ?? $_GET['check_out'] ?? date('Y-m-d', strtotime('+1 day')) ?>">
+                            <?php
+                            // Extract the parameters separately and trim whitespace
+                            $check_in = trim($_POST['check_in'] ?? $_GET['check_in'] ?? date('Y-m-d'));
+                            $check_out = trim($_POST['check_out'] ?? $_GET['check_out'] ?? date('Y-m-d', strtotime('+1 day')));
+                            $rental_period = !empty($_POST['rental_period'] ?? $_GET['rental_period'] ?? '') ? trim($_POST['rental_period'] ?? $_GET['rental_period']) : 'Daily';
+
+                            $period_duration = trim($_POST['period_duration'] ?? $_GET['period_duration'] ?? '');
+                            
+                            // Build the URL with proper formatting
+                            $detail_url = ROOT . "/propertyListing/showListingDetail/" . $property->property_id;
+                            $detail_url .= "?check_in=" . $check_in;
+                            $detail_url .= "&check_out=" . $check_out;
+                            $detail_url .= "&rental_period=" . $rental_period;
+                            $detail_url .= "&period_duration=" . $period_duration;
+                            ?>
+                            <a href="<?= $detail_url ?>">
                                 <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image">
                             </a>
                             <div class="content-section-of-card">

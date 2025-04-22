@@ -61,11 +61,6 @@
                                 <?php foreach ($images as $index => $image): ?>
                                     <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image ?>" alt="Thumbnail 1">
                                 <?php endforeach; ?>
-                                <!-- <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Thumbnail 2">
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/booking1.png" alt="Thumbnail 3">
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Thumbnail 1">
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/listing_alt2.jpg" alt="Thumbnail 2">
-                                <img onclick="changeImage(this)" src="<?= ROOT ?>/assets/images/booking1.png" alt="Thumbnail 3"> -->
                             </div>
                         </div>
 
@@ -80,7 +75,7 @@
 
                                 <div class="PL__pricing">
                                     <span><?= $property->rental_price ?> LKR</span>
-                                    <small>PER MONTH</small>
+                                    <small><?= strtoupper($property->rental_period) ?></small>
                                 </div>
                             </div>
                             <h2>Description</h2>
@@ -122,19 +117,6 @@
                                     <td>Year Built:</td>
                                     <td><?= $property->year_built ?></td>
                                 </tr>
-                                <!-- <tr>
-                                    <td>Units:</td>
-                                    <td>4</td>
-                                </tr>
-                                <tr>
-                                    <td>Bedrooms:</td>
-                                    <td>2015</td>
-                                </tr>
-                                <tr>
-                                    <td>Size (sq. ft):</td>
-                                    <td>6000</td>
-                                </tr> 
-                            -->
                                 <tr>
                                     <td>Floor Plan:</td>
                                     <td><?= $property->floor_plan ?></td>
@@ -142,7 +124,7 @@
                             </table>
 
                             <h2>Overview</h2>
-                            <div class="overview">
+                            <div class="overview" style="width: auto;">
                                 <div class="overview-grid">
                                     <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/bed.png" alt="Bed Icon">
@@ -171,16 +153,70 @@
                                 </div>
                             </div>
 
+                            <h2 style="margin-top:20px;">Booking Summary</h2>
+                            <div class="content-section low-padding" id="content-section" style="height:fit-content; margin-top: -20px; padding: 20px; background-color: var(--white-color); border-radius: 12px;">
+                                <div class="booking-summary" style="width: 100%; margin-bottom: 20px; padding: 15px; background: #f8f8f8; border-radius: 8px;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Check-in:</td>
+                                            <td><?= date('M d, Y', strtotime($bookingSummary['check_in'])) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Check-out:</td>
+                                            <td><?= date('M d, Y', strtotime($bookingSummary['check_out'])) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Number of Days:</td>
+                                            <td><?= $bookingSummary['days'] ?> days</td>
+                                        </tr>
+                                        <?php if ($property->rental_period == 'Monthly'): ?>
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Rental Period:</td>
+                                            <td>Monthly (<?= $bookingSummary['months'] ?> months)</td>
+                                        </tr>
+                                        <?php endif; ?>
+                                        <tr style="border-top: 1px solid #ddd;">
+                                            <td style="font-weight: bold; padding: 12px 10px;">Total Price:</td>
+                                            <td style="font-weight: bold; color: #FF6B00;">LKR <?= number_format($bookingSummary['total_price'], 2) ?></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <form action="<?= ROOT ?>/propertyListing/showListingDetail/<?= esc($property->property_id) ?>" method="POST" class="booking-form" style="display: flex; flex-direction: column; gap: 15px; width: 100%">
+                                    <input type="hidden" name="action" value="update_booking">
+                                    <input type="hidden" name="p_id" value="<?= esc($property->property_id) ?>">
+                                    <input type="hidden" name="rental_period" value="<?= esc($_GET['rental_period'] ?? $property->rental_period) ?>">
+                                    <input type="hidden" name="period_duration" value="<?= esc($_GET['period_duration'] ?? '') ?>">
+                                    <div class="filter-row-instance" style="width: 100%; display: flex; gap: 15px;">
+                                        <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
+                                            <label for="check_in" style="font-weight: bold;">Check-in Date:</label>
+                                            <input type="date" id="check_in" name="check_in" value="<?= $bookingSummary['check_in'] ?>" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                        </div>
+                                        <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
+                                            <label for="check_out" style="font-weight: bold;">Check-out Date:</label>
+                                            <input type="date" id="check_out" name="check_out" value="<?= $bookingSummary['check_out'] ?>" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                    <button type="submit" style="width: 200px; padding: 10px; border-radius: 12px; background-color: orange; color: white; border: none; cursor: pointer; align-self: center; margin-top: 10px;">
+                                        Update Booking Details
+                                    </button>
+                                </form>
+                            </div>
+
                             <div class="agreement">
                                 <input type="checkbox" id="agree" onchange="toggleBookButton()">
-                                <label for="agree">By Clicking, I Agree To Terms & Conditions.</label>
+                                <label for="agree">By Clicking, I Agree To 
+                                    <a href="<?= ROOT ?>/termsAndConditions">
+                                        Terms & Conditions.
+                                    </a>
+                                </label>
                             </div>
 
                             <form action="<?= ROOT ?>/propertyListing/bookProperty" method="GET">
                                 <input type="hidden" name="p_id" value="<?= esc($property->property_id) ?>">
                                 <input type="hidden" name="check_in" value="<?= esc($_GET['check_in'] ?? '') ?>">
                                 <input type="hidden" name="check_out" value="<?= esc($_GET['check_out'] ?? '') ?>">
-                                <button type="submit" class="book-btn" id="book-btn" style="width: 100%;" disabled>Please check the box to proceed payment.</button>
+                                <button type="submit" class="book-btn" id="book-btn" style="width: 100%; transition: all 0.3s ease; overflow: hidden; white-space: nowrap;" disabled>Please check the box to proceed payment.</button>
                             </form>
 
                             <h2>Reviews</h2>
