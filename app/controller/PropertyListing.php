@@ -61,23 +61,28 @@ class propertyListing{
             $filteredProperties = $PropertyConcat->whereWithSearchTerm($propertyData, [], $searchTerm, $sort_direction , 100, 0, $sort_column);
             // show($filteredProperties);
             // 2. Filter by availability if check_in and check_out are provided
-            // $availableProperties = [];
-            // if (!empty($bookingData['check_in']) && !empty($bookingData['check_out']) && is_array($filteredProperties)) {
-            //     foreach ($filteredProperties as $property) {
-            //         if ($BookingOrders->isPropertyAvailable($property->property_id, $bookingData['check_in'], $bookingData['check_out'])) {
-            //             $availableProperties[] = $property;
-            //         }
-            //     }
-            // } else {
-            //     $availableProperties = $filteredProperties;
-            // }
+            $availableProperties = [];
+            if (!empty($bookingData['check_in']) && !empty($bookingData['check_out']) && is_array($filteredProperties)) {
+                foreach ($filteredProperties as $property) {
+                    if ($BookingOrders->isPropertyAvailable($property->property_id, $bookingData['check_in'], $bookingData['check_out'])) {
+                        $availableProperties[] = $property;
+                    }
+                }
+            } else {
+                $availableProperties = $filteredProperties;
+            }
+            if(is_bool($availableProperties) && empty($availableProperties)) {
+                $_SESSION['flash']['msg'] = "No properties found for the selected criteria.";
+                $_SESSION['flash']['type'] = "error";
 
+                // redirect('propertyListing/showListing');
+            }
             $this->view('propertyListing', ['properties' => $filteredProperties]);
             return;
         }
 
         $property = new PropertyConcat;
-        $properties = $property->where(['status' => 'pending']);
+        $properties = $property->where(['status' => 'Active']);
         $this->view('propertyListing' , ['properties' => $properties]);
     }
 

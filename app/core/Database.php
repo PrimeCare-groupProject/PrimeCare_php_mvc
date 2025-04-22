@@ -53,8 +53,6 @@ class Database{
                     return $result;
                 }
             }
-            show($stm);
-            show($data);
             return false;  // No results or query failed
         } catch (PDOException $e) {
             // Handle database exceptions

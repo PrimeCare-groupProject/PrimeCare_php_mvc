@@ -68,10 +68,8 @@
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Sort By</h3>
                         <select id="propSortBySelect" name="sort_by" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
                             <option value="">-- Select --</option>
-                            <option value="price-asc">Price Low to High</option>
-                            <option value="price-desc">Price High to Low</option>
-                            <!-- <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option> -->
+                            <option value="price-asc"<?= old_select('sort_by', 'price-asc') ?>>Price Low to High</option>
+                            <option value="price-desc"<?= old_select('sort_by', 'price-desc') ?>>Price High to Low</option>
                         </select>
                     </div>
                     
@@ -82,21 +80,21 @@
                             <label style="display:block; margin-bottom:5px;">Type</label>
                             <div style="display:flex; gap:10px;">
                                 <select id="propRentalPeriodSelect" name="rental_period" onchange="togglePeriodDuration(this.value)" style="flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                                    <option value="">Any Period</option>
-                                    <option value="Monthly" selected>Monthly</option>
-                                    <option value="Daily" >Daily</option>
+                                    <option value="" selected<?= old_select('rental_period', '') ?>>Any Period</option>
+                                    <option value="Monthly"<?= old_select('rental_period', 'Monthly') ?>>Monthly</option>
+                                    <option value="Daily"<?= old_select('rental_period', 'Daily') ?>>Daily</option>
                                 </select>
-                                <input type="number" id="periodDuration" name="period_duration" placeholder="No. of months" min="1" oninput="updateCheckoutDate()" style="width:100%; flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px; display:none;">
+                                <input type="number" id="periodDuration" name="period_duration" placeholder="No. of months" min="1" oninput="updateCheckoutDate()" style="width:100%; flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px; display:none;" value="<?= old_value('period_duration') ?>">
                             </div>
                         </div>
                         
                         <div>
                             <label style="display:block; margin-bottom:5px;">Check-in</label>
-                            <input type="date" id="propCheckInDate" name="check_in" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                            <input type="date" id="propCheckInDate" name="check_in" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_date('check_in') ?>">
                         </div>
                         <div>
                             <label style="display:block; margin-bottom:5px;">Check-out</label>
-                            <input type="date" id="propCheckOutDate" name="check_out" style="width:100%; padding:8px; margin:0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                            <input type="date" id="propCheckOutDate" name="check_out" style="width:100%; padding:8px; margin:0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_date('check_out') ?>">
                         </div>
                     </div>
 
@@ -104,12 +102,12 @@
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Property Type</h3>
                         <select id="propTypeSelect" name="property_type" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                            <option value="">Any Type</option>
-                            <option value="House">House</option>
-                            <option value="Apartment">Apartment</option>
-                            <option value="Villa">Villa</option>
-                            <option value="Studio">Studio</option>
-                            <option value="Farmhouse">Farmhouse</option>
+                            <option value=""<?= old_select('property_type', '') ?>>Any Type</option>
+                            <option value="House"<?= old_select('property_type', 'House') ?>>House</option>
+                            <option value="Apartment"<?= old_select('property_type', 'Apartment') ?>>Apartment</option>
+                            <option value="Villa"<?= old_select('property_type', 'Villa') ?>>Villa</option>
+                            <option value="Studio"<?= old_select('property_type', 'Studio') ?>>Studio</option>
+                            <option value="Farmhouse"<?= old_select('property_type', 'Farmhouse') ?>>Farmhouse</option>
                         </select>
                     </div>
 
@@ -118,10 +116,10 @@
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Price Range</h3>
                         <div>
-                            <input type="number" id="propMinPriceInput" name="min_price" placeholder="Min Price" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                            <input type="number" id="propMinPriceInput" name="min_price" placeholder="Min Price" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('min_price') ?>">
                         </div>
                         <div>
-                            <input type="number" id="propMaxPriceInput" name="max_price" placeholder="Max Price" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                            <input type="number" id="propMaxPriceInput" name="max_price" placeholder="Max Price" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('max_price') ?>">
                         </div>
                     </div>
                     
@@ -129,34 +127,34 @@
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Location</h3>
                         <select id="propProvinceSelect" name="province" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                            <option value="">-- Select Province --</option>
+                            <option value=""<?= old_select('province', '') ?>>-- Select Province --</option>
                             <!-- Provinces will be populated via JavaScript -->
                         </select>
                         <select id="propDistrictSelect" name="district" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                            <option value="">-- Select District --</option>
+                            <option value=""<?= old_select('district', '') ?>>-- Select District --</option>
                         </select>
                         <select id="propCitySelect" name="city" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                            <option value="">-- Select City --</option>
+                            <option value=""<?= old_select('city', '') ?>>-- Select City --</option>
                         </select>
                     </div>
                     
                     <!-- Rooms -->
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Rooms</h3>
-                        <input type="number" id="propBedroomsInput" name="bedrooms" placeholder="Min Bedrooms" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                        <input type="number" id="propBathroomsInput" name="bathrooms" placeholder="Min Bathrooms" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                        <input type="number" id="propKitchenInput" name="kitchens" placeholder="Min Kitchens" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                        <input type="number" id="propLivingRoomInput" name="living_rooms" placeholder="Min Living Rooms" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                        <input type="number" id="propBedroomsInput" name="bedrooms" placeholder="Min Bedrooms" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('bedrooms') ?>">
+                        <input type="number" id="propBathroomsInput" name="bathrooms" placeholder="Min Bathrooms" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('bathrooms') ?>">
+                        <input type="number" id="propKitchenInput" name="kitchens" placeholder="Min Kitchens" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('kitchens') ?>">
+                        <input type="number" id="propLivingRoomInput" name="living_rooms" placeholder="Min Living Rooms" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('living_rooms') ?>">
                     </div>
                     
                     <!-- Furnishing -->
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Furnishing</h3>
                         <select id="propFurnishedSelect" name="furnishing" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                            <option value="">Any</option>
-                            <option value="Fully Furnished">Fully Furnished</option>
-                            <option value="Semi-Furnished">Semi-Furnished</option>
-                            <option value="Unfurnished">Unfurnished</option>
+                            <option value=""<?= old_select('furnishing', '') ?>>Any</option>
+                            <option value="Fully Furnished"<?= old_select('furnishing', 'Fully Furnished') ?>>Fully Furnished</option>
+                            <option value="Semi-Furnished"<?= old_select('furnishing', 'Semi-Furnished') ?>>Semi-Furnished</option>
+                            <option value="Unfurnished"<?= old_select('furnishing', 'Unfurnished') ?>>Unfurnished</option>
                         </select>
                     </div>
                     
@@ -164,17 +162,17 @@
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Parking</h3>
                         <div style="margin:5px 0;">
-                            <input type="checkbox" id="propParkingCheck" name="has_parking" style="margin-right:5px;">
+                            <input type="checkbox" id="propParkingCheck" name="has_parking" style="margin-right:5px;"<?= old_check('has_parking', 'on') ?>>
                             <label for="propParkingCheck">Has Parking</label>
                         </div>
-                        <input type="number" id="propParkingSlotsInput" name="parking_slots" placeholder="Min Parking Slots" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                        <input type="number" id="propParkingSlotsInput" name="parking_slots" placeholder="Min Parking Slots" min="0" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('parking_slots') ?>">
                         <select id="propParkingTypeSelect" name="parking_type" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
-                            <option value="">Any Parking Type</option>
-                            <option value="Covered Garage">Covered Garage</option>
-                            <option value="Open Parking">Open Parking</option>
-                            <option value="Street Parking">Street Parking</option>
-                            <option value="Carport">Carport</option>
-                            <option value="Underground Parking">Underground Parking</option>
+                            <option value=""<?= old_select('parking_type', '') ?>>Any Parking Type</option>
+                            <option value="Covered Garage"<?= old_select('parking_type', 'Covered Garage') ?>>Covered Garage</option>
+                            <option value="Open Parking"<?= old_select('parking_type', 'Open Parking') ?>>Open Parking</option>
+                            <option value="Street Parking"<?= old_select('parking_type', 'Street Parking') ?>>Street Parking</option>
+                            <option value="Carport"<?= old_select('parking_type', 'Carport') ?>>Carport</option>
+                            <option value="Underground Parking"<?= old_select('parking_type', 'Underground Parking') ?>>Underground Parking</option>
                         </select>
                     </div>
                     
@@ -200,7 +198,7 @@
                 <?php if (!empty($properties)): ?>
                     <?php foreach($properties as $property): ?>
                         <div class="PL_property-card">
-                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>?check_in=<?= $_POST['check_in'] ?? '' ?>&check_out=<?= $_POST['check_out'] ?? '' ?>">
+                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>?check_in=<?= $_POST['check_in'] ?? $_GET['check_in'] ?? date('Y-m-d') ?>&check_out=<?= $_POST['check_out'] ?? $_GET['check_out'] ?? date('Y-m-d', strtotime('+1 day')) ?>">
                                 <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image">
                             </a>
                             <div class="content-section-of-card">
@@ -211,7 +209,7 @@
                                 <?= $property->name ?>
                                 </div>
                                 <div class="price">
-                                <?= $property->rental_price ?> /Month
+                                <?= $property->rental_price ?> /<?= $property->rental_period ?>
                                 </div>
                             </div>
                             <div class="units-diplays">

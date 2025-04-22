@@ -93,13 +93,12 @@ class BookingOrders
         
         // Get all bookings for this property that aren't cancelled
         $query = "SELECT * FROM $this->table 
-                WHERE property_id = :property_id 
-                AND booking_status NOT IN ('Cancelled', 'Completed') 
-                AND (
-                    (start_date <= :start_date AND end_date > :start_date) OR
-                    (start_date < :end_date AND end_date >= :end_date) OR
-                    (start_date >= :start_date AND end_date <= :end_date)
-                )";
+            WHERE property_id = :property_id 
+            AND booking_status NOT IN ('Cancelled', 'Completed') 
+            AND (
+                start_date < :end_date AND
+                end_date > :start_date
+            )";
                 
         $data = [
             'property_id' => $property_id,
