@@ -212,11 +212,26 @@
                                 </label>
                             </div>
 
-                            <form action="<?= ROOT ?>/propertyListing/bookProperty" method="GET">
+                            <form action="<?= ROOT ?>/propertyListing/bookProperty" method="POST">
                                 <input type="hidden" name="p_id" value="<?= esc($property->property_id) ?>">
-                                <input type="hidden" name="check_in" value="<?= esc($_GET['check_in'] ?? '') ?>">
-                                <input type="hidden" name="check_out" value="<?= esc($_GET['check_out'] ?? '') ?>">
-                                <button type="submit" class="book-btn" id="book-btn" style="width: 100%; transition: all 0.3s ease; overflow: hidden; white-space: nowrap;" disabled>Please check the box to proceed payment.</button>
+                                <input type="hidden" name="check_in" value="<?= $bookingSummary['check_in'] ?>">
+                                <input type="hidden" name="check_out" value="<?= $bookingSummary['check_out'] ?>">
+                                <input type="hidden" name="rental_period" value="<?= esc($property->rental_period) ?>">
+                                <input type="hidden" name="period_duration" value="<?= $bookingSummary['months'] ?? '' ?>">
+
+                                <?php if (!empty($currentBookingStatus)): ?>
+                                    <div class="booking-status-info" style="margin-bottom:10px;">
+                                        <strong>Current Booking Status:</strong>
+                                        <span><?= esc($currentBookingStatus) ?></span>
+                                    </div>
+                                    <button type="submit" class="book-btn" id="book-btn" style="width: 100%;" disabled>
+                                        Booking Already Requested (<?= esc($currentBookingStatus) ?>)
+                                    </button>
+                                <?php else: ?>
+                                    <button type="submit" class="book-btn" id="book-btn" style="width: 100%;" disabled>
+                                        Please check the box to proceed payment.
+                                    </button>
+                                <?php endif; ?>
                             </form>
 
                             <h2>Reviews</h2>
@@ -316,8 +331,13 @@
     function toggleBookButton() {
         const agreeCheckbox = document.getElementById('agree');
         const bookButton = document.getElementById('book-btn');
-        bookButton.disabled = !agreeCheckbox.checked;
-        bookButton.textContent = agreeCheckbox.checked ? 'Book Property' : 'Please check the box to proceed payment.';
+        <?php if (!empty($currentBookingStatus)): ?>
+            bookButton.disabled = true;
+            bookButton.textContent = 'Booking Already Requested (<?= esc($currentBookingStatus) ?>)';
+        <?php else: ?>
+            bookButton.disabled = !agreeCheckbox.checked;
+            bookButton.textContent = agreeCheckbox.checked ? 'Book Property' : 'Please check the box to proceed payment.';
+        <?php endif; ?>
     }
 </script>
 

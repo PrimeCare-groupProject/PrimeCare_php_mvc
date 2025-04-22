@@ -59,25 +59,26 @@ class propertyListing{
 
             // 1. Get filtered properties
             $filteredProperties = $PropertyConcat->whereWithSearchTerm($propertyData, [], $searchTerm, $sort_direction , 100, 0, $sort_column);
-            // show($filteredProperties);
+
             // 2. Filter by availability if check_in and check_out are provided
-            $availableProperties = [];
+            $propertiesToShow = $filteredProperties;
             if (!empty($bookingData['check_in']) && !empty($bookingData['check_out']) && is_array($filteredProperties)) {
+                $availableProperties = [];
                 foreach ($filteredProperties as $property) {
                     if ($BookingOrders->isPropertyAvailable($property->property_id, $bookingData['check_in'], $bookingData['check_out'])) {
                         $availableProperties[] = $property;
                     }
                 }
-            } else {
-                $availableProperties = $filteredProperties;
+                $propertiesToShow = $availableProperties;
             }
-            if(is_bool($availableProperties) && empty($availableProperties)) {
+
+            // Show flash message if no properties found
+            if (empty($propertiesToShow)) {
                 $_SESSION['flash']['msg'] = "No properties found for the selected criteria.";
                 $_SESSION['flash']['type'] = "error";
-
-                // redirect('propertyListing/showListing');
             }
-            $this->view('propertyListing', ['properties' => $filteredProperties]);
+
+            $this->view('propertyListing', ['properties' => $propertiesToShow]);
             return;
         }
 
@@ -125,7 +126,8 @@ class propertyListing{
                 'period_duration' => $isAvailable ? $new_period_duration : ($_POST['period_duration'] ?? 1),
             ];
             $query = http_build_query($params);
-
+            // echo($query);
+            // die;
             $_SESSION['flash']['msg'] = $isAvailable ? "Dates updated successfully." : "Property is not available for the selected dates.";
             $_SESSION['flash']['type'] = $isAvailable ? "success" : "error";
 
@@ -136,11 +138,11 @@ class propertyListing{
         // Calculate booking summary
         $check_in_date = new DateTime($check_in);
         $check_out_date = new DateTime($check_out);
-        $days = $check_in_date->diff($check_out_date)->days;
-        $price_per_period = $propertyUnit->rental_price;
+        $days = (int)$check_in_date->diff($check_out_date)->days;
+        $price_per_period = (float)$propertyUnit->rental_price;
 
         if (strtolower($propertyUnit->rental_period) == 'monthly') {
-            $months = $period_duration ?? ceil($days / 30);
+            $months = $period_duration !== null ? (int)$period_duration : (int)ceil($days / 30);
             $total_price = $price_per_period * $months;
         } else {
             $months = null;
@@ -155,9 +157,24 @@ class propertyListing{
             'total_price' => $total_price,
         ];
 
+        $currentBookingStatus = null;
+        if (isset($_SESSION['user'])) {
+            $BookingOrders = new BookingOrders();
+            $currentBooking = $BookingOrders->getPropertyStatusByOwnerAndDates(
+                $propertyUnit->property_id,
+                $_SESSION['user']->pid,
+                $bookingSummary['check_in'],
+                $bookingSummary['check_out']
+            );
+            if ($currentBooking) {
+                $currentBookingStatus = $currentBooking['booking_status'];
+            }
+        }
+
         $this->view('propertyUnit', [
             'property' => $propertyUnit,
-            'bookingSummary' => $bookingSummary
+            'bookingSummary' => $bookingSummary,
+            'currentBookingStatus' => $currentBookingStatus
         ]);
     }
 
@@ -172,16 +189,14 @@ class propertyListing{
             redirect('login');
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['p_id'])) {
-            $property_id = (int)$_GET['p_id'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['p_id'])) {
+            $property_id = (int)$_POST['p_id'];
             $person_id = (int)$_SESSION['user']->pid;
             $agent_id = null; // Set if you have agent logic
-            $check_in = $_GET['check_in'] ?? null;
-            $check_out = $_GET['check_out'] ?? null;
-
-            // Calculate duration and rental period
-            $rental_period = $_GET['rental_period'] ?? 'Daily';
-            $period_duration = $_GET['period_duration'] ?? null;
+            $check_in = $_POST['check_in'] ?? null;
+            $check_out = $_POST['check_out'] ?? null;
+            $rental_period = $_POST['rental_period'] ?? 'Daily';
+            $period_duration = $_POST['period_duration'] ?? null;
 
             // Get property details for price
             $propertyModel = new PropertyConcat();
@@ -199,19 +214,6 @@ class propertyListing{
             $days = $check_in_date->diff($check_out_date)->days;
             $duration = (strtolower($rental_period) == 'monthly') ? ceil($days / 30) : $days;
 
-            // Prepare booking data
-            $bookingData = [
-                'property_id'    => $property_id,
-                'person_id'      => $person_id,
-                'agent_id'       => $agent_id,
-                'start_date'     => $check_in,
-                'duration'       => $duration,
-                'rental_period'  => $rental_period,
-                'rental_price'   => $property->rental_price,
-                'payment_status' => 'Pending',
-                'booking_status' => 'Pending'
-            ];
-
             $BookingOrders = new BookingOrders();
 
             // Check if property is available for the selected dates
@@ -219,7 +221,7 @@ class propertyListing{
                 $_SESSION['flash']['msg'] = "Property is not available for the selected dates.";
                 $_SESSION['flash']['type'] = "error";
 
-                // Manually build the query string
+                // Manually build the query string for redirect
                 $params = [
                     'check_in'      => $check_in,
                     'check_out'     => $check_out,
@@ -237,6 +239,19 @@ class propertyListing{
                 return;
             }
 
+            // Prepare booking data
+            $bookingData = [
+                'property_id'    => $property_id,
+                'person_id'      => $person_id,
+                'agent_id'       => $agent_id,
+                'start_date'     => $check_in,
+                'duration'       => $duration,
+                'rental_period'  => $rental_period,
+                'rental_price'   => $property->rental_price,
+                'payment_status' => 'Pending',
+                'booking_status' => 'Pending'
+            ];
+
             $booking_id = $BookingOrders->createBooking($bookingData);
 
             if ($booking_id) {
@@ -247,9 +262,20 @@ class propertyListing{
             } else {
                 $_SESSION['flash']['msg'] = "Your booking was declined. Try again!";
                 $_SESSION['flash']['type'] = "error";
-                // Reload current page with GET params
-                $query = http_build_query($_GET);
-                redirect("propertyListing/showListingDetail/{$property_id}?" . $query);
+                // Reload current page with POST params as GET
+                $params = [
+                    'check_in'      => $check_in,
+                    'check_out'     => $check_out,
+                    'rental_period' => $rental_period,
+                    'period_duration' => $period_duration,
+                ];
+                $query = '';
+                foreach ($params as $key => $value) {
+                    if ($value !== null && $value !== '') {
+                        $query .= ($query === '' ? '' : '&') . $key . '=' . urlencode($value);
+                    }
+                }
+                redirect("propertyListing/showListingDetail/{$property_id}" . ($query ? "?{$query}" : ''));
                 return;
             }
         } else {

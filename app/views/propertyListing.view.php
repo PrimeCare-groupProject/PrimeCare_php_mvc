@@ -262,15 +262,15 @@
                         </div>
                     <?php endforeach; ?>
                     <?php else: ?>
-                <p>No properties found.</p>
-            <?php endif; ?>
                 </div>
+                <p style="text-align: center;">No properties found.</p>
+            <?php endif; ?>
                 <!-- Pagination Buttons -->
-                <div class="pagination">
+                <!-- <div class="pagination">
                     <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
                     <span class="current-page">1</span>
                     <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -332,10 +332,14 @@
                 const checkInInput = document.getElementById('propCheckInDate');
                 const checkOutInput = document.getElementById('propCheckOutDate');
                 const today = new Date();
-                checkInInput.value = today.toISOString().split('T')[0];
-                const tomorrow = new Date();
-                tomorrow.setDate(today.getDate() + 1);
-                checkOutInput.value = tomorrow.toISOString().split('T')[0];
+                if (!checkInInput.value) {
+                    checkInInput.value = today.toISOString().split('T')[0];
+                }
+                if (!checkOutInput.value) {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(today.getDate() + 1);
+                    checkOutInput.value = tomorrow.toISOString().split('T')[0];
+                }
 
                 // Ensure checkout is always at least 1 day after checkin
                 checkInInput.addEventListener('change', function() {
