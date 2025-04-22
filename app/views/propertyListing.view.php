@@ -83,8 +83,8 @@
                             <div style="display:flex; gap:10px;">
                                 <select id="propRentalPeriodSelect" name="rental_period" onchange="togglePeriodDuration(this.value)" style="flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
                                     <option value="">Any Period</option>
-                                    <option value="Monthly">Monthly</option>
-                                    <option value="Daily" selected>Daily</option>
+                                    <option value="Monthly" selected>Monthly</option>
+                                    <option value="Daily" >Daily</option>
                                 </select>
                                 <input type="number" id="periodDuration" name="period_duration" placeholder="No. of months" min="1" oninput="updateCheckoutDate()" style="width:100%; flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px; display:none;">
                             </div>
@@ -429,6 +429,69 @@
                 document.getElementById('propParkingSlotsInput').value = '';
                 document.getElementById('propParkingTypeSelect').selectedIndex = 0;
             }
+
+            function getDateDiff(start, end, period) {
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                if (period === 'Monthly') {
+                    let months = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+                    months += endDate.getMonth() - startDate.getMonth();
+                    // If endDate's day is greater than startDate's, count as an extra month
+                    if (endDate.getDate() > startDate.getDate()) months++;
+                    return months;
+                } else if (period === 'Daily') {
+                    const diffTime = endDate - startDate;
+                    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                }
+                return 0;
+            }
+
+            function updateCheckoutDate() {
+                const checkInInput = document.getElementById('propCheckInDate');
+                const checkOutInput = document.getElementById('propCheckOutDate');
+                const period = document.getElementById('propRentalPeriodSelect').value;
+                const duration = parseInt(document.getElementById('periodDuration').value) || 0;
+                const checkInDate = new Date(checkInInput.value);
+
+                if (checkInInput.value && duration > 0) {
+                    let checkOutDate = new Date(checkInDate);
+                    if (period === 'Monthly') {
+                        checkOutDate.setMonth(checkOutDate.getMonth() + duration);
+                    } else if (period === 'Daily') {
+                        checkOutDate.setDate(checkOutDate.getDate() + duration);
+                    }
+                    checkOutInput.value = checkOutDate.toISOString().split('T')[0];
+                }
+            }
+
+            function updatePeriodDuration() {
+                const checkInInput = document.getElementById('propCheckInDate');
+                const checkOutInput = document.getElementById('propCheckOutDate');
+                const period = document.getElementById('propRentalPeriodSelect').value;
+                const durationInput = document.getElementById('periodDuration');
+                if (checkInInput.value && checkOutInput.value) {
+                    const duration = getDateDiff(checkInInput.value, checkOutInput.value, period);
+                    durationInput.value = duration > 0 ? duration : '';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const checkInInput = document.getElementById('propCheckInDate');
+                const checkOutInput = document.getElementById('propCheckOutDate');
+                const durationInput = document.getElementById('periodDuration');
+                const periodSelect = document.getElementById('propRentalPeriodSelect');
+
+                // When check-in or duration changes, update check-out
+                checkInInput.addEventListener('change', updateCheckoutDate);
+                durationInput.addEventListener('input', updateCheckoutDate);
+                periodSelect.addEventListener('change', function() {
+                    togglePeriodDuration(this.value);
+                    updateCheckoutDate();
+                });
+
+                // When check-out changes, update duration
+                checkOutInput.addEventListener('change', updatePeriodDuration);
+            });
         </script>
 
     </form>

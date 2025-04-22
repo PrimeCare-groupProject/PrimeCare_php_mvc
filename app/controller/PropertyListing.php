@@ -10,31 +10,74 @@ class propertyListing{
 
     public function showListing(){
         if(isset($_POST) && !empty($_POST)){
-            show($_POST);
-            die;
-            $propertiesFromView = new PropertySearchView;
-            $propertiesids = $propertiesFromView->advancedSearch($_POST,  ['property_id']);
+            $searchTerm = '';
+            if(!empty($_POST['searchTerm'])){
+                $searchTerm = $_POST['searchTerm'];
+                unset($_POST['searchTerm']);
+            }
+            $sort_by = $_POST['sort_by'] ?? '';
+            $sort_direction = 'DESC'; // Default sort direction
+            $sort_column = ''; // Default no specific column sorting
             
-            if (!is_bool($propertiesids) && !empty($propertiesids)) {
-                $propertiesids = array_unique(array_map(function($obj) {
-                    return $obj->property_id;
-                }, $propertiesids));
-                
-                if(!empty($propertiesids)){
-                    $property = new PropertyConcat;
-                    $properties = $property->getByPropertyIds($propertiesids);
-                    $this->view('propertyListing' , ['properties' => $properties]);
-                    return;
-                }
-            } else {
-                $_SESSION['flash']['msg'] = "No properties found for the selected criteria.";
-                $_SESSION['flash']['type'] = "error";
+            if ($sort_by === 'price-desc') {
+                $sort_direction = 'DESC';
+                $sort_column = 'rental_price';
+            } elseif ($sort_by === 'price-asc') {
+                $sort_direction = 'ASC';
+                $sort_column = 'rental_price';
             }
 
+            $propertyData = [
+                'min_price' => $_POST['min_price'] ?? '',
+                'max_price' => $_POST['max_price'] ?? '',
+                'rental_period' => $_POST['rental_period'] ?? 'Daily',
+                'type' => $_POST['property_type'] ?? '',
+                'state_province' => $_POST['province'] ?? '',
+                'city' => $_POST['city'] ?? '',
+                'type_of_parking' => $_POST['parking_type'] ?? '',
+                'furnished' => $_POST['furnishing'] ?? '',
+
+                'bedrooms' => $_POST['bedrooms'] ?? '',
+                'bathrooms' => $_POST['bathrooms'] ?? '',
+                'kitchen' => $_POST['kitchens'] ?? '',
+                'living_room' => $_POST['living_rooms'] ?? '',
+                'parking_slots' => $_POST['parking_slots'] ?? '',
+            ];
+            $bookingData = [
+                'check_in' => $_POST['check_in'] ?? '',
+                'check_out' => $_POST['check_out'] ?? '',
+            ];
+            $propertyData = array_filter($propertyData, function($value) {
+                return $value !== '' && $value !== null;
+            });
+            $bookingData = array_filter($bookingData, function($value) {
+                return $value !== '' && $value !== null;
+            });
+
+            $PropertyConcat = new PropertyConcat;
+            $BookingOrders = new BookingOrders;
+
+            // 1. Get filtered properties
+            $filteredProperties = $PropertyConcat->whereWithSearchTerm($propertyData, [], $searchTerm, $sort_direction , 100, 0, $sort_column);
+            // show($filteredProperties);
+            // 2. Filter by availability if check_in and check_out are provided
+            // $availableProperties = [];
+            // if (!empty($bookingData['check_in']) && !empty($bookingData['check_out']) && is_array($filteredProperties)) {
+            //     foreach ($filteredProperties as $property) {
+            //         if ($BookingOrders->isPropertyAvailable($property->property_id, $bookingData['check_in'], $bookingData['check_out'])) {
+            //             $availableProperties[] = $property;
+            //         }
+            //     }
+            // } else {
+            //     $availableProperties = $filteredProperties;
+            // }
+
+            $this->view('propertyListing', ['properties' => $filteredProperties]);
+            return;
         }
+
         $property = new PropertyConcat;
         $properties = $property->where(['status' => 'pending']);
-
         $this->view('propertyListing' , ['properties' => $properties]);
     }
 
@@ -45,8 +88,6 @@ class propertyListing{
         }
         $property = new PropertyConcat;
         $propertyUnit = $property->where(['property_id' => $propertyID])[0];
-        // show($propertyUnit);
-        // die;
         $this->view('propertyUnit' , ['property' => $propertyUnit]);
     }
 
@@ -68,40 +109,26 @@ class propertyListing{
             
             switch ($action) {
                 case 'check_availability':
-                    // echo "Check Availability request received.<br>";
                     $bookingResults = $booking->checkPropertyAvailability((int)$_POST['property_id'], $_POST['check_in'], $_POST['check_out']);
                     
                     if($bookingResults) {
                         $_SESSION['flash']['msg'] = "Property is available for the selected dates.";
                         $_SESSION['flash']['type'] = "success";
-                        // echo "Property is available for the selected dates.<br>";
                     } else {
                         $_SESSION['flash']['msg'] = "Property is not available for the selected dates.";
                         $_SESSION['flash']['type'] = "error";
-                        // echo "Property is not available for the selected dates.<br>";
                     }
-
-                    // show($_POST);
-                    // show($_GET);
                     break;
                 case 'book_now':
-                    // echo "Book Now request received.";
-                    // show($_POST);
-                    // show($_GET);
                     $creationResults = $booking->createCommercialBooking((int)$_POST['property_id'], (int)$_SESSION['user']->pid, $_POST['check_in'], $_POST['check_out'], 10000);
                     if ($creationResults) {
                         $_SESSION['flash']['msg'] = "Your booking has been successfully created!";
                         $_SESSION['flash']['type'] = "success";
                         
                         redirect('propertyListing/showListing');
-
-                        // echo "Booking created successfully!<br>";
-                        // var_dump($creationResults);
                     } else {
                         $_SESSION['flash']['msg'] = "Your booking was declined. Try again!";
                         $_SESSION['flash']['type'] = "error";
-                        // echo "Errors: ";
-                        // print_r($creationResults);
                     }
                     die;
                     break;
@@ -118,7 +145,5 @@ class propertyListing{
         } else {
             redirect('propertyListing/showListing');
         }
-
-
     }
 }
