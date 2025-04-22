@@ -82,7 +82,7 @@
     <?php else: ?>
         <div id="service-logs-container" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; width: 100%;">
             <?php foreach ($serviceLogs as $serviceLog): ?>
-                <div class="service-card" style="width: 100%;" 
+                <div class="service-card" style="width: 96%;" 
                      data-date="<?= $serviceLog->date ?? '' ?>" 
                      data-property-id="<?= $serviceLog->property_id ?? '' ?>"
                      data-status="<?= strtolower($serviceLog->status ?? '') ?>">
