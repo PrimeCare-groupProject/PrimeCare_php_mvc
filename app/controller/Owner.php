@@ -17,37 +17,375 @@ class Owner
         $this->view('owner/propertyUnitShowing', ['property' => $propertyUnit, 'agent' => $agentDetails]);
     }
 
+    // public function index()
+    // {
+    //     $serviceLog = new ServiceLog();
+    //     $serviceLogs = $serviceLog->where(['requested_person_id' => $_SESSION['user']->pid]);
+
+    //     $properties = new PropertyConcat;
+    //     $properties = $properties->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
+    //     $propertyCount = count($properties);
+
+    //     $totalServiceCost = 0;
+    //     foreach ($serviceLogs as $log) {
+    //         $totalServiceCost += ($log->total_cost);
+    //     }
+
+    //     $this->view('owner/dashboard', [
+    //         'user' => $_SESSION['user'],
+    //         'serviceLogs' => $serviceLogs,
+    //         'propertyCount' => $propertyCount,
+    //         'totalServiceCost' => $totalServiceCost,
+    //     ]);
+    // }
+
     public function index()
     {
+        // Models initialization
         $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['requested_person_id' => $_SESSION['user']->pid]);
-
-        $properties = new PropertyConcat;
-        $properties = $properties->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
-        $propertyCount = count($properties);
-
-        $totalServiceCost = 0;
-        foreach ($serviceLogs as $log) {
-            $totalServiceCost += ($log->total_cost);
+        $booking = new BookingModel();
+        $property = new PropertyConcat();
+        
+        $ownerId = $_SESSION['user']->pid;
+        $currentYear = date('Y');
+        $currentMonth = date('n');
+        
+        // Get properties owned by the current user
+        $properties = $property->where(['person_id' => $ownerId]);
+        $propertyCount = count($properties ?? []);
+        
+        // Extract property IDs
+        $propertyIds = [];
+        $totalUnits = 0;
+        if ($properties) {
+            foreach ($properties as $p) {
+                $propertyIds[] = $p->property_id;
+                $totalUnits += ($p->units ?? 1);
+            }
         }
+        
+        // Get service logs for the owner
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $ownerId]);
+        
+        // Calculate total service costs
+        $totalServiceCost = 0;
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $totalServiceCost += ($log->total_cost ?? 0);
+            }
+        }
+        
+        // Get bookings for owner's properties
+        $allBookings = [];
+        foreach ($propertyIds as $propId) {
+            $propertyBookings = $booking->where(['property_id' => $propId]);
+            if ($propertyBookings) {
+                $allBookings = array_merge($allBookings, $propertyBookings);
+            }
+        }
+        
+        // Calculate total income from bookings
+        $totalIncome = 0;
+        $activeBookings = 0;
+        if ($allBookings) {
+            foreach ($allBookings as $booking) {
+                $totalIncome += ($booking->price ?? 0) * ($booking->renting_period ?? 0);
+                
+                // Count active bookings
+                if (isset($booking->status) && strtolower($booking->status) === 'active') {
+                    $activeBookings++;
+                } else if (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted') {
+                    $activeBookings++;
+                }
+            }
+        }
+        
+        // Calculate profit
+        $profit = $totalIncome - $totalServiceCost;
+        
+        // Calculate booking/occupancy rate
+        $bookingRate = ($totalUnits > 0) ? min(100, ($activeBookings / $totalUnits) * 100) : 0;
+        
+        // Prepare monthly data for charts - Last 6 months
+        $monthlyData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
+            $year = ($currentMonth - $i) > 0 ? $currentYear : ($currentYear - 1);
+            
+            $monthName = date('M', mktime(0, 0, 0, $month, 1, $year));
+            $monthlyData[$monthName] = [
+                'income' => 0,
+                'expense' => 0,
+                'profit' => 0,
+            ];
+        }
+        
+        // Fill in monthly booking data
+        if ($allBookings) {
+            foreach ($allBookings as $booking) {
+                if (isset($booking->start_date)) {
+                    $bookingMonth = date('M', strtotime($booking->start_date));
+                    if (isset($monthlyData[$bookingMonth])) {
+                        $monthlyData[$bookingMonth]['income'] += ($booking->price ?? 0);
+                    }
+                }
+            }
+        }
+        
+        // Fill in monthly service log data
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                if (isset($log->date)) {
+                    $logMonth = date('M', strtotime($log->date));
+                    if (isset($monthlyData[$logMonth])) {
+                        $monthlyData[$logMonth]['expense'] += ($log->total_cost ?? 0);
+                    }
+                }
+            }
+        }
+        
+        // Calculate monthly profit
+        foreach ($monthlyData as $month => &$data) {
+            $data['profit'] = $data['income'] - $data['expense'];
+        }
+        
+        // Get service types for pie chart
+        $expenseTypes = [];
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $type = $log->service_type ?? 'Other';
+                if (!isset($expenseTypes[$type])) {
+                    $expenseTypes[$type] = 0;
+                }
+                $expenseTypes[$type] += ($log->total_cost ?? 0);
+            }
+        }
+        
+        // Get recent transactions (combine service logs and bookings)
+        $recentTransactions = [];
+        
+        // Add service logs as expenses
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $recentTransactions[] = [
+                    'date' => $log->date ?? '',
+                    'description' => $log->service_description ?? $log->service_type ?? 'Service',
+                    'category' => 'Expense',
+                    'amount' => -($log->total_cost ?? 0),
+                    'status' => $log->status ?? 'Pending'
+                ];
+            }
+        }
+        
+        // Add bookings as income
+        if ($allBookings) {
+            foreach ($allBookings as $booking) {
+                $recentTransactions[] = [
+                    'date' => $booking->start_date ?? $booking->booked_date ?? '',
+                    'description' => 'Booking for Property ID: ' . ($booking->property_id ?? 'Unknown'),
+                    'category' => 'Income',
+                    'amount' => ($booking->price ?? 0),
+                    'status' => $booking->status ?? $booking->accept_status ?? 'Pending'
+                ];
+            }
+        }
+        
+        // Sort transactions by date (newest first)
+        usort($recentTransactions, function($a, $b) {
+            return strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0);
+        });
+        
+        // Take just the 10 most recent transactions
+        $recentTransactions = array_slice($recentTransactions, 0, 10);
 
         $this->view('owner/dashboard', [
             'user' => $_SESSION['user'],
-            'serviceLogs' => $serviceLogs,
+            'properties' => $properties,
             'propertyCount' => $propertyCount,
+            'serviceLogs' => $serviceLogs,
             'totalServiceCost' => $totalServiceCost,
+            'totalIncome' => $totalIncome,
+            'profit' => $profit,
+            'activeBookings' => $activeBookings,
+            'totalUnits' => $totalUnits,
+            'bookingRate' => $bookingRate,
+            'occupancyRate' => $bookingRate, // Using bookingRate as occupancyRate for consistency
+            'monthlyData' => $monthlyData,
+            'expenseTypes' => $expenseTypes,
+            'recentTransactions' => $recentTransactions,
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
         ]);
     }
 
     public function dashboard()
     {
+        // Models initialization
         $serviceLog = new ServiceLog();
-        $serviceLogs = $serviceLog->where(['requested_person_id' => $_SESSION['user']->pid]);
+        $booking = new BookingModel();
+        $property = new Property();
+        
+        $ownerId = $_SESSION['user']->pid;
+        $currentYear = date('Y');
+        $currentMonth = date('n');
+        
+        // Get properties owned by the current user
+        $properties = $property->where(['person_id' => $ownerId]);
+        $propertyCount = count($properties ?? []);
+        
+        // Extract property IDs
+        $propertyIds = [];
+        if ($properties) {
+            foreach ($properties as $p) {
+                $propertyIds[] = $p->property_id;
+            }
+        }
+        
+        // Get service logs for the owner
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $ownerId]);
+        
+        // Calculate total service costs
+        $totalServiceCost = 0;
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $totalServiceCost += ($log->total_cost ?? 0);
+            }
+        }
+        
+        // Get bookings for owner's properties
+        $allBookings = [];
+        foreach ($propertyIds as $propId) {
+            $propertyBookings = $booking->where(['property_id' => $propId]);
+            if ($propertyBookings) {
+                $allBookings = array_merge($allBookings, $propertyBookings);
+            }
+        }
+        
+        // Calculate total income from bookings
+        $totalIncome = 0;
+        $activeBookings = 0;
+        if ($allBookings) {
+            foreach ($allBookings as $booking) {
+                $totalIncome += ($booking->price ?? 0) * ($booking->renting_period ?? 0);
+                
+                // Count active bookings
+                if (isset($booking->status) && strtolower($booking->status) === 'active') {
+                    $activeBookings++;
+                } else if (isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted') {
+                    $activeBookings++;
+                }
+            }
+        }
+        
+        // Calculate profit
+        $profit = $totalIncome - $totalServiceCost;
+        
+        // Prepare monthly data for charts - Last 6 months
+        $monthlyData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = ($currentMonth - $i) > 0 ? ($currentMonth - $i) : (12 + ($currentMonth - $i));
+            $year = ($currentMonth - $i) > 0 ? $currentYear : ($currentYear - 1);
+            
+            $monthName = date('M', mktime(0, 0, 0, $month, 1, $year));
+            $monthlyData[$monthName] = [
+                'income' => 0,
+                'expense' => 0,
+                'profit' => 0,
+            ];
+        }
+        
+        // Fill in monthly booking data
+        if ($allBookings) {
+            foreach ($allBookings as $booking) {
+                if (isset($booking->start_date)) {
+                    $bookingMonth = date('M', strtotime($booking->start_date));
+                    if (isset($monthlyData[$bookingMonth])) {
+                        $monthlyData[$bookingMonth]['income'] += ($booking->price ?? 0);
+                    }
+                }
+            }
+        }
+        
+        // Fill in monthly service log data
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                if (isset($log->date)) {
+                    $logMonth = date('M', strtotime($log->date));
+                    if (isset($monthlyData[$logMonth])) {
+                        $monthlyData[$logMonth]['expense'] += ($log->total_cost ?? 0);
+                    }
+                }
+            }
+        }
+        
+        // Calculate monthly profit
+        foreach ($monthlyData as $month => &$data) {
+            $data['profit'] = $data['income'] - $data['expense'];
+        }
+        
+        // Get service types for pie chart
+        $expenseTypes = [];
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $type = $log->service_type ?? 'Other';
+                if (!isset($expenseTypes[$type])) {
+                    $expenseTypes[$type] = 0;
+                }
+                $expenseTypes[$type] += ($log->total_cost ?? 0);
+            }
+        }
+        
+        // Get recent transactions (combine service logs and bookings)
+        $recentTransactions = [];
+        
+        // Add service logs as expenses
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $recentTransactions[] = [
+                    'date' => $log->date ?? '',
+                    'description' => $log->service_description ?? $log->service_type ?? 'Service',
+                    'category' => 'Expense',
+                    'amount' => -($log->total_cost ?? 0),
+                    'status' => $log->status ?? 'Pending'
+                ];
+            }
+        }
+        
+        // Add bookings as income
+        if ($allBookings) {
+            foreach ($allBookings as $booking) {
+                $recentTransactions[] = [
+                    'date' => $booking->start_date ?? $booking->booked_date ?? '',
+                    'description' => 'Booking for Property ID: ' . ($booking->property_id ?? 'Unknown'),
+                    'category' => 'Income',
+                    'amount' => ($booking->price ?? 0),
+                    'status' => $booking->status ?? $booking->accept_status ?? 'Pending'
+                ];
+            }
+        }
+        
+        // Sort transactions by date (newest first)
+        usort($recentTransactions, function($a, $b) {
+            return strtotime($b['date'] ?? 0) - strtotime($a['date'] ?? 0);
+        });
+        
+        // Take just the 10 most recent transactions
+        $recentTransactions = array_slice($recentTransactions, 0, 10);
+        
         $this->view('owner/dashboard', [
             'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'],
-            'status' => $_SESSION['status'],
-            'serviceLogs' => $serviceLogs
+            'properties' => $properties,
+            'propertyCount' => $propertyCount,
+            'serviceLogs' => $serviceLogs,
+            'totalServiceCost' => $totalServiceCost,
+            'totalIncome' => $totalIncome,
+            'profit' => $profit,
+            'activeBookings' => $activeBookings,
+            'monthlyData' => $monthlyData,
+            'expenseTypes' => $expenseTypes,
+            'recentTransactions' => $recentTransactions,
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? ''
         ]);
     }
 
