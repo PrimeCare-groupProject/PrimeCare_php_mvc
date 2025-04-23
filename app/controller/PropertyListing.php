@@ -161,9 +161,29 @@ class propertyListing{
         $BookingOrders = new BookingOrders;
 
         // Default dates from GET or fallback
-        $check_in = $_GET['check_in'] ?? date('Y-m-d');
-        $check_out = $_GET['check_out'] ?? date('Y-m-d', strtotime('+1 day'));
+        // Get rental period from GET or use property's default
         $rental_period = $_GET['rental_period'] ?? $propertyUnit->rental_period;
+        
+        // Set default dates based on rental period if not provided in GET
+        if (isset($_GET['check_in']) && isset($_GET['check_out'])) {
+            $check_in = $_GET['check_in'];
+            $check_out = $_GET['check_out'];
+        } else {
+            $check_in = date('Y-m-d'); // Today as default check-in
+            
+            // Set check-out based on rental period
+            switch (strtolower($rental_period)) {
+            case 'monthly':
+                $check_out = date('Y-m-d', strtotime('+1 month'));
+                break;
+            case 'weekly':
+                $check_out = date('Y-m-d', strtotime('+1 week'));
+                break;
+            default: // Daily or any other period
+                $check_out = date('Y-m-d', strtotime('+1 day'));
+                break;
+            }
+        }
         $period_duration = $_GET['period_duration'] ?? null;
         $months = $_GET['months'] ?? null;
         $days = $_GET['days'] ?? null;
