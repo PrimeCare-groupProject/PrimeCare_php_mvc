@@ -56,6 +56,7 @@
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
+                    <li><a href="<?= ROOT ?>/dashboard"><button class="btn"><i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
                     <!-- <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers" data-section="propertyLisingToAllUsers"><button class="btn"><i class="fa-solid fa-magnifying-glass"></i>Search</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/payments" data-section="payments"><button class="btn"><i class="fa-solid fa-money-check-dollar"></i>Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/occupiedProperties" data-section="occupiedProperties"><button class="btn"><i class="fa-solid fa-house-user"></i>History</button></a></li>
