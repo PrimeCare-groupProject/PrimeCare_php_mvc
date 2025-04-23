@@ -1421,26 +1421,39 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 let currentImageIndex = 0;
 let imageGallery = [];
+let ROOT = "<?= ROOT ?>"; // Ensure ROOT is properly defined
 
 function openImageModal(imageSrc) {
+    console.log("Opening modal with image:", imageSrc); // Debugging
+    
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
-    const modalWrapper = document.getElementById('modalContentWrapper');
     const loadingOverlay = document.getElementById('imageLoadingOverlay');
     
-    // Reset and show modal
-    modal.style.display = 'flex';
-    modalWrapper.style.opacity = '0';
-    modalWrapper.style.transform = 'scale(0.95)';
-    loadingOverlay.style.display = 'flex';
-    
-    // Load single image
-    modalImg.onload = function() {
-        loadingOverlay.style.display = 'none';
-        modalWrapper.style.opacity = '1';
-        modalWrapper.style.transform = 'scale(1)';
+    if (!modal || !modalImg) {
+        console.error("Modal elements not found");
+        return;
     }
     
+    // Show the modal first
+    modal.style.display = 'flex';
+    
+    // Show loading while image loads
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    
+    // Set up image load handler
+    modalImg.onload = function() {
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        console.log("Image loaded successfully");
+    };
+    
+    modalImg.onerror = function() {
+        console.error("Failed to load image:", imageSrc);
+        // Show a fallback or error message
+        modalImg.src = ROOT + '/assets/images/default.jpg';
+    };
+    
+    // Set the image source
     modalImg.src = imageSrc;
     
     // Reset gallery display
@@ -1454,69 +1467,104 @@ function openImageModal(imageSrc) {
 }
 
 function showAllImages(images) {
+    console.log("Showing all images:", images); // Debugging
+    
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const gallery = document.getElementById('modalGallery');
-    const modalWrapper = document.getElementById('modalContentWrapper');
     const loadingOverlay = document.getElementById('imageLoadingOverlay');
     
-    // Reset and show modal
-    modal.style.display = 'flex';
-    modalWrapper.style.opacity = '0';
-    modalWrapper.style.transform = 'scale(0.95)';
-    loadingOverlay.style.display = 'flex';
-    
-    // Convert to array of full paths
-    imageGallery = images;
-    imageGallery = typeof imageGallery === 'string' ? JSON.parse(imageGallery) : imageGallery;
-    imageGallery = imageGallery.map(img => `${ROOT}/assets/images/${img}`);
-    
-    currentImageIndex = 0;
-    
-    // Update counter
-    document.getElementById('currentImageNum').textContent = '1';
-    document.getElementById('totalImages').textContent = imageGallery.length;
-    
-    // Show navigation buttons if multiple images
-    document.getElementById('prevImage').style.display = imageGallery.length > 1 ? 'flex' : 'none';
-    document.getElementById('nextImage').style.display = imageGallery.length > 1 ? 'flex' : 'none';
-    
-    // Create thumbnails with staggered animation
-    gallery.innerHTML = '';
-    imageGallery.forEach((img, index) => {
-        const thumb = document.createElement('div');
-        thumb.className = `thumbnail ${index === 0 ? 'active' : ''}`;
-        thumb.style.animationDelay = `${index * 0.05}s`;
-        thumb.classList.add('slide-in');
-        
-        const thumbImg = document.createElement('img');
-        thumbImg.src = img;
-        thumbImg.alt = `Thumbnail ${index + 1}`;
-        
-        thumb.appendChild(thumbImg);
-        thumb.onclick = () => {
-            setActiveImage(index);
-        };
-        
-        gallery.appendChild(thumb);
-    });
-    
-    // Load first image
-    modalImg.onload = function() {
-        loadingOverlay.style.display = 'none';
-        modalWrapper.style.opacity = '1';
-        modalWrapper.style.transform = 'scale(1)';
+    if (!modal || !modalImg || !gallery) {
+        console.error("Modal elements not found");
+        return;
     }
     
-    modalImg.src = imageGallery[0];
+    // Show the modal first
+    modal.style.display = 'flex';
+    
+    // Show loading overlay
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    
+    // Process image gallery array
+    try {
+        // Convert to array of full paths
+        imageGallery = images;
+        if (typeof imageGallery === 'string') {
+            imageGallery = JSON.parse(imageGallery);
+        }
+        
+        // Check if gallery is valid
+        if (!Array.isArray(imageGallery) || imageGallery.length === 0) {
+            console.error("Invalid image gallery:", imageGallery);
+            closeImageModal();
+            return;
+        }
+        
+        imageGallery = imageGallery.map(img => `${ROOT}/assets/images/${img}`);
+        console.log("Processed gallery:", imageGallery);
+        
+        currentImageIndex = 0;
+        
+        // Update counter
+        document.getElementById('currentImageNum').textContent = '1';
+        document.getElementById('totalImages').textContent = imageGallery.length;
+        
+        // Show navigation buttons if multiple images
+        document.getElementById('prevImage').style.display = imageGallery.length > 1 ? 'flex' : 'none';
+        document.getElementById('nextImage').style.display = imageGallery.length > 1 ? 'flex' : 'none';
+        
+        // Create thumbnails
+        gallery.innerHTML = '';
+        imageGallery.forEach((img, index) => {
+            const thumb = document.createElement('div');
+            thumb.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+            thumb.classList.add('slide-in');
+            
+            const thumbImg = document.createElement('img');
+            thumbImg.src = img;
+            thumbImg.alt = `Thumbnail ${index + 1}`;
+            
+            thumb.appendChild(thumbImg);
+            thumb.onclick = () => {
+                setActiveImage(index);
+            };
+            
+            gallery.appendChild(thumb);
+        });
+        
+        // Load first image
+        modalImg.onload = function() {
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
+            console.log("First image loaded successfully");
+        };
+        
+        modalImg.onerror = function() {
+            console.error("Failed to load image:", imageGallery[0]);
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
+            // Show a fallback image
+            modalImg.src = ROOT + '/assets/images/default.jpg';
+        };
+        
+        // Set the image source
+        modalImg.src = imageGallery[0];
+        
+    } catch (error) {
+        console.error("Error processing images:", error);
+        closeImageModal();
+    }
 }
 
 function setActiveImage(index) {
+    if (!imageGallery || !Array.isArray(imageGallery) || imageGallery.length === 0) {
+        console.error("Invalid image gallery when setting active image");
+        return;
+    }
+    
     if (index < 0) index = imageGallery.length - 1;
     if (index >= imageGallery.length) index = 0;
     
     const loadingOverlay = document.getElementById('imageLoadingOverlay');
-    loadingOverlay.style.display = 'flex';
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
     
     currentImageIndex = index;
     
@@ -1526,8 +1574,16 @@ function setActiveImage(index) {
     // Update image
     const modalImg = document.getElementById('modalImage');
     modalImg.onload = function() {
-        loadingOverlay.style.display = 'none';
-    }
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+    };
+    
+    modalImg.onerror = function() {
+        console.error("Failed to load image:", imageGallery[index]);
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        // Show a fallback image
+        modalImg.src = ROOT + '/assets/images/default.jpg';
+    };
+    
     modalImg.src = imageGallery[index];
     
     // Update thumbnail selection
@@ -1548,30 +1604,31 @@ function setActiveImage(index) {
 }
 
 function closeImageModal() {
-    const modal = document.getElementById('imageModal');
-    const modalWrapper = document.getElementById('modalContentWrapper');
-    
-    modalWrapper.style.opacity = '0';
-    modalWrapper.style.transform = 'scale(0.95)';
-    
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
+    document.getElementById('imageModal').style.display = 'none';
 }
 
 // Add event listeners for next/prev buttons
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('prevImage').addEventListener('click', () => {
-        setActiveImage(currentImageIndex - 1);
-    });
+    // Check if elements exist before adding listeners
+    const prevButton = document.getElementById('prevImage');
+    const nextButton = document.getElementById('nextImage');
     
-    document.getElementById('nextImage').addEventListener('click', () => {
-        setActiveImage(currentImageIndex + 1);
-    });
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            setActiveImage(currentImageIndex - 1);
+        });
+    }
+    
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            setActiveImage(currentImageIndex + 1);
+        });
+    }
     
     // Add keyboard navigation
     document.addEventListener('keydown', function(event) {
-        if (document.getElementById('imageModal').style.display === 'none') return;
+        const modal = document.getElementById('imageModal');
+        if (!modal || modal.style.display === 'none') return;
         
         if (event.key === 'ArrowLeft') {
             setActiveImage(currentImageIndex - 1);
@@ -1582,26 +1639,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Preload next and previous images for smoother experience
-    function preloadAdjacentImages() {
-        if (imageGallery.length <= 1) return;
-        
-        const nextIndex = (currentImageIndex + 1) % imageGallery.length;
-        const prevIndex = (currentImageIndex - 1 + imageGallery.length) % imageGallery.length;
-        
-        const nextImg = new Image();
-        nextImg.src = imageGallery[nextIndex];
-        
-        const prevImg = new Image();
-        prevImg.src = imageGallery[prevIndex];
+    // Make sure ROOT is defined
+    if (typeof ROOT === 'undefined') {
+        ROOT = '';
+        console.warn("ROOT variable is not defined, using empty string");
     }
-    
-    // Add preloading when changing images
-    const originalSetActiveImage = setActiveImage;
-    setActiveImage = function(index) {
-        originalSetActiveImage(index);
-        setTimeout(preloadAdjacentImages, 300);
-    };
 });
 </script>
 
