@@ -71,18 +71,74 @@
                     <h3 class="section-title"><i class="fas fa-home" style="color:#f1c40f"></i> Property Selection</h3>
                     <!-- Property selection part remains the same -->
                     <div class="form-group">
-                        <label for="property_id">Choose your property</label>
-                        <div class="select-wrapper">
-                            <select name="property_id" id="property_id" required>
+                        <label for="property_id" class="form-label">Choose your property</label>
+                        
+                        <div class="enhanced-select-wrapper">
+                            <div class="selected-property" id="selected-property-display">
+                                <div class="placeholder">
+                                    <i class="fas fa-home"></i>
+                                    <span>Select a property</span>
+                                </div>
+                            </div>
+                            
+                            <div class="property-dropdown" id="property-dropdown">
+                                <?php if(count($activeBookings) > 0): ?>
+                                    <?php foreach($activeBookings as $booking): ?>
+                                        <div class="property-option" data-value="<?= $booking->property_id ?>">
+                                            <!-- <div class="property-image">
+                                                <?php
+                                                    // Default image path
+                                                    $defaultImagePath = ROOT . "/assets/images/properties/default-property.jpg";
+                                                    $imageUrl = $defaultImagePath;
+                                                    
+                                                    // Check if property_images is available and not empty
+                                                    if (isset($booking->property_images)) {
+                                                        // If property_images is a JSON string, decode it first
+                                                        if (is_string($booking->property_images)) {
+                                                            $booking->property_images = json_decode($booking->property_images);
+                                                        }
+                                                        
+                                                        // Now check if we have an array with at least one image
+                                                        if (is_array($booking->property_images) && !empty($booking->property_images)) {
+                                                            $firstImage = $booking->property_images[0];
+                                                            $imageUrl = ROOT . "/assets/images/uploads/property_images/" . $firstImage;
+                                                        }
+                                                    }
+
+                                                ?>
+                                                <img src="<?= $imageUrl ?>" alt="Property image" 
+                                                     onerror="this.onerror=null; this.src='<?= $defaultImagePath ?>';">
+                                            </div> -->
+                                            <div class="property-details">
+                                                <h4><?= htmlspecialchars($booking->property_name) ?></h4>
+                                                <p class="property-address"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($booking->property_address ?? 'No address') ?></p>
+                                                <p class="property-dates">
+                                                    <i class="far fa-calendar-alt"></i> 
+                                                    <?= date('M d, Y', strtotime($booking->start_date)) ?> - 
+                                                    <?= date('M d, Y', strtotime($booking->end_date)) ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="no-properties">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        No active properties found
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Hidden actual select field that will be submitted with the form -->
+                            <select name="property_id" id="property_id" required class="hidden-select">
                                 <option value="">-- Select a Property --</option>
                                 <?php foreach ($activeBookings as $booking): ?>
                                     <option value="<?= $booking->property_id ?>" <?= (isset($old['property_id']) && $old['property_id'] == $booking->property_id) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($booking->property_name) ?> (<?= htmlspecialchars($booking->property_address ?? 'No address') ?>)
+                                        <?= htmlspecialchars($booking->property_name) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <i class="fas fa-chevron-down select-arrow"></i>
                         </div>
+                        
                         <?php if (isset($errors['property_id'])): ?>
                             <div class="input-error"><?= $errors['property_id'] ?></div>
                         <?php endif; ?>
@@ -424,8 +480,14 @@ label {
     font-weight: 500;
 }
 
-.select-wrapper, .input-wrapper {
+.select-wrapper {
     position: relative;
+}
+
+.input-wrapper{
+    margin-right: 30px;
+    position: relative;
+
 }
 
 select, input[type="datetime-local"] {
@@ -463,7 +525,7 @@ textarea:focus {
 }
 
 textarea {
-    width: 100%;
+    width: 97%;
     padding: 12px 15px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -584,6 +646,228 @@ textarea {
         margin-bottom: 0;
     }
 }
+
+/* Enhanced property selector styles */
+.form-label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.enhanced-select-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.selected-property {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--background-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.2s ease;
+}
+
+.selected-property:hover {
+    border-color: var(--primary-color);
+}
+
+.selected-property .placeholder {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    gap: 8px;
+}
+
+.selected-property .placeholder i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.selected-property.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(241,196,15,0.15);
+}
+
+.property-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    z-index: 100;
+    max-height: 320px;
+    overflow-y: auto;
+    display: none;
+}
+
+.property-option {
+    display: flex;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.property-option:last-child {
+    border-bottom: none;
+}
+
+.property-option:hover {
+    background-color: rgba(241,196,15,0.05);
+}
+
+.property-option.selected {
+    background-color: rgba(241,196,15,0.1);
+}
+
+.property-image {
+    width: 90px;
+    height: 70px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.property-details {
+    margin-left: 15px;
+    flex-grow: 1;
+}
+
+.property-details h4 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.property-address {
+    margin: 0 0 4px 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.property-dates {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.no-properties {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.no-properties i {
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.hidden-select {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+}
+
+.selected-property-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.selected-property-content .property-image {
+    width: 60px;
+    height: 45px;
+}
+
+@media (max-width: 576px) {
+    .property-image {
+        width: 70px;
+        height: 60px;
+    }
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedPropertyDisplay = document.getElementById('selected-property-display');
+    const propertyDropdown = document.getElementById('property-dropdown');
+    const propertyOptions = document.querySelectorAll('.property-option');
+    const hiddenSelect = document.getElementById('property_id');
+    
+    // Initially set selected property if there's a value in the hidden select
+    if (hiddenSelect.value) {
+        const selectedOption = document.querySelector(`.property-option[data-value="${hiddenSelect.value}"]`);
+        if (selectedOption) {
+            updateSelectedProperty(selectedOption);
+        }
+    }
+    
+    // Toggle dropdown
+    selectedPropertyDisplay.addEventListener('click', function() {
+        propertyDropdown.style.display = propertyDropdown.style.display === 'block' ? 'none' : 'block';
+        selectedPropertyDisplay.classList.toggle('active');
+    });
+    
+    // Handle property selection
+    propertyOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            updateSelectedProperty(this);
+            propertyDropdown.style.display = 'none';
+            selectedPropertyDisplay.classList.remove('active');
+            
+            // Update hidden select value
+            hiddenSelect.value = this.dataset.value;
+            
+            // Trigger change event on hidden select
+            const event = new Event('change', { bubbles: true });
+            hiddenSelect.dispatchEvent(event);
+        });
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!selectedPropertyDisplay.contains(e.target) && !propertyDropdown.contains(e.target)) {
+            propertyDropdown.style.display = 'none';
+            selectedPropertyDisplay.classList.remove('active');
+        }
+    });
+    
+    // Function to update selected property display
+    function updateSelectedProperty(selectedOption) {
+        // Mark option as selected
+        propertyOptions.forEach(opt => opt.classList.remove('selected'));
+        selectedOption.classList.add('selected');
+        
+        // Clone the content for display
+        const propertyDetails = selectedOption.innerHTML;
+        
+        // Update display
+        selectedPropertyDisplay.innerHTML = `<div class="selected-property-content">${propertyDetails}</div>`;
+    }
+});
+</script>
 
 <?php require 'customerFooter.view.php' ?>
