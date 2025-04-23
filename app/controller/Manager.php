@@ -6,13 +6,26 @@ class Manager
 {
     use controller;
     public function index()
-    {
-        $this->view('manager/dashboard');
+    {   
+        $userModel = new User();
+
+        // Fetch the count of agents (example: user_lvl = 3 for agents)
+        $agentCount = $userModel->getTotalCountWhere(['user_lvl' => 3]);
+
+        // Pass the data to the view
+        $this->view('manager/dashboard', ['agentCount' => $agentCount]);
     }
 
     public function dashboard()
     {
-        $this->view('manager/dashboard');
+        // Load the required model
+        $userModel = new User();
+
+        // Fetch the count of agents (example: user_lvl = 3 for agents)
+        $agentCount = $userModel->getTotalCountWhere(['user_lvl' => 3]);
+
+        // Pass the data to the view
+        $this->view('manager/dashboard', ['agentCount' => $agentCount]);
     }
 
     public function generateUsername($fname, $length = 10)
