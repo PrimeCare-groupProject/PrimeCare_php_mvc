@@ -55,11 +55,9 @@ class Customer
         
         // IMPORTANT FIX: Check if ServiceLog model has requested_person_id field, if not try other fields
         try {
-            // First attempt: try with requested_person_id
             $serviceRequests = $serviceRequestModel->where(['requested_person_id' => $userId]);
         } catch (Exception $e) {
             try {
-                // Second attempt: try with customer_id
                 $serviceRequests = $serviceRequestModel->where(['customer_id' => $userId]);
             } catch (Exception $e) {
                 // Final fallback: empty array if no suitable field exists
@@ -92,6 +90,7 @@ class Customer
         
         $allServiceRequestsRegular = [];
         $allServiceRequestsExternal = [];
+        // $allServiceRequests = [];
         
         // Add regular service requests with corrected field names
         if ($serviceRequests) {
@@ -117,8 +116,10 @@ class Customer
                     'date' => $service->date ?? $service->created_at ?? date('Y-m-d'),
                     'service_type' => $service->service_type ?? 'External Service',
                     'service_description' => $service->property_description ?? '',
+                    'property_address' => $service->property_address ?? '', // Add this line
                     'status' => $service->status ?? 'Pending',
-                    'cost' => (($service->total_hours ?? 0) * ($service->cost_per_hour ?? 0)) + ($service->additional_charges ?? 0)
+                    'cost' => (($service->total_hours ?? 0) * ($service->cost_per_hour ?? 0)) + ($service->additional_charges ?? 0),
+                    'service_images' => $service->service_images ?? null // Add this line
                 ];
             }
         }
