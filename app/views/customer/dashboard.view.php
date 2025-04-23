@@ -251,6 +251,14 @@
         padding: 1.5rem;
         box-shadow: 0 6px 18px rgba(0,0,0,0.05);
     }
+
+    .rental-history{
+        margin-top: 15px;
+        margin-bottom: 15px;
+        margin-left: 5px;
+        margin-right: 5px;
+
+    }
     
     .card-header {
         display: flex;
@@ -926,6 +934,13 @@
         .modal-header h3 {
             font-size: 1rem;
         }
+
+        /* .summary-card rental-history{
+            background-color: white;
+            border-radius: 15px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        } */
     }
 </style>
 
