@@ -499,6 +499,7 @@ class Owner
                 } else {
                     $_SESSION['flash']['msg'] = 'Images updated successfully.';
                     $_SESSION['flash']['type'] = 'success';
+                    enqueueNotification('Property images updated!', '', ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyId , 'Notification_green');
                 }
             } else{
                 $_SESSION['flash']['msg'] = 'No new images selected for upload.';

@@ -7,6 +7,7 @@ class SalaryPayment{
     protected $order_column = "payment_id";
     protected $allowedColumns = [
         'payment_id',
+        'person_id',
         'employee_id',
         'salary_amount',
         'payment_date',

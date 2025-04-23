@@ -8,6 +8,7 @@ class ServicePayment{
     protected $allowedColumns = [
         'payment_id',
         'service_id',
+        'person_id',
         'service_provider_id',
         'amount',
         'payment_date',

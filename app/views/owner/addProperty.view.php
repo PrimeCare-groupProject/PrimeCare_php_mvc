@@ -70,7 +70,10 @@ $allStates = array_keys($validLocations);
             </div>
             <div class="input-group-group">
                 <label class="input-label">Country*</label>
-                <input type="text" name="country" placeholder="Enter Property Country" class="input-field" required>
+                <!-- <input type="text" name="country" placeholder="Enter Property Country" class="input-field" required> -->
+                <select name="country" class="input-field" required>
+                    <option value="Sri Lanka">Sri Lanka</option>e
+                </select>
             </div>
         </div>
 
