@@ -743,29 +743,30 @@ img {
 </div>
 <div class="pms-dashboard">
   <main class="pms-main">
-    <section class="pms-section">
+  <!-- Metrics Overview -->
+  <section class="pms-section">
       <div class="pms-metrics-grid">
         <div class="pms-metric-card properties">
           <div class="pms-metric-label"><i class="fas fa-building"></i> Total Properties</div>
-          <div class="pms-metric-value">142</div>
+            <div class="pms-metric-value"><?= htmlspecialchars($totalProperties) ?></div>
           <div class="pms-metric-change positive"><i class="fas fa-arrow-up"></i> 12% from last month</div>
         </div>
 
         <div class="pms-metric-card agents">
           <div class="pms-metric-label"><i class="fas fa-user-tie"></i> Registered Agents</div>
-          <div class="pms-metric-value"><?= htmlspecialchars($agentCount) ?></div>
+          <div class="pms-metric-value"><?= htmlspecialchars($registeredAgents) ?></div>
           <div class="pms-metric-change positive"><i class="fas fa-arrow-up"></i> 5% from last month</div>
         </div>
 
         <div class="pms-metric-card tenants">
           <div class="pms-metric-label"><i class="fas fa-users"></i> Active Tenants</div>
-          <div class="pms-metric-value">324</div>
+          <div class="pms-metric-value"><?= htmlspecialchars($tenents) ?></div>
           <div class="pms-metric-change positive"><i class="fas fa-arrow-up"></i> 8% from last month</div>
         </div>
 
         <div class="pms-metric-card providers">
           <div class="pms-metric-label"><i class="fas fa-tools"></i> Service Providers</div>
-          <div class="pms-metric-value">45</div>
+            <div class="pms-metric-value"><?= htmlspecialchars($serviceProviders) ?></div>
           <div class="pms-metric-change negative"><i class="fas fa-arrow-down"></i> 2% from last month</div>
         </div>
       </div>

@@ -7,25 +7,47 @@ class Manager
     use controller;
     public function index()
     {   
+        // Load the required models
+        $propertyModel = new Property();
         $userModel = new User();
+        $bookingOrders = new BookingOrders();
 
-        // Fetch the count of agents (example: user_lvl = 3 for agents)
-        $agentCount = $userModel->getTotalCountWhere(['user_lvl' => 3]);
+        // Fetch the required data
+        $totalProperties = $propertyModel->getTotalCountWhere();
+        $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
+        $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
+        $tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']); // Assuming user_lvl = 2 for service providers
 
         // Pass the data to the view
-        $this->view('manager/dashboard', ['agentCount' => $agentCount]);
+        $this->view('manager/dashboard', [
+            'totalProperties' => $totalProperties,
+            'registeredAgents' => $registeredAgents,
+            'serviceProviders' => $serviceProviders,
+            'tenents' => $tenents
+        ]);
+        show($serviceProviders);
     }
 
     public function dashboard()
     {
-        // Load the required model
+        // Load the required models
+        $propertyModel = new Property();
         $userModel = new User();
+        $serviceProviderModel = new ServiceProvider();
 
-        // Fetch the count of agents (example: user_lvl = 3 for agents)
-        $agentCount = $userModel->getTotalCountWhere(['user_lvl' => 3]);
+        // Fetch the required data
+        $totalProperties = $propertyModel->getTotalCountWhere();
+        $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
+        $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for tenants
 
         // Pass the data to the view
-        $this->view('manager/dashboard', ['agentCount' => $agentCount]);
+        /*$this->view('manager/dashboard', [
+            'totalProperties' => $totalProperties,
+            'registeredAgents' => $registeredAgents,
+            'serviceProviders' => $serviceProviders
+        ]);*/
+
+        
     }
 
     public function generateUsername($fname, $length = 10)
