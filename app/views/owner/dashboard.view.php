@@ -57,7 +57,7 @@
         padding: 1.8rem;
         overflow: hidden;
         transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        z-index: 1;
+        z-index: 0;
         min-height: 180px;
         display: flex;
         flex-direction: column;
@@ -74,7 +74,7 @@
         bottom: 0;
         background-size: cover;
         background-position: center;
-        z-index: -2;
+        z-index: -3;
         filter: saturate(0.8);
         transition: all 0.4s ease;
     }
@@ -89,7 +89,7 @@
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px); 
-    z-index: -1;
+    z-index: -2;
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.4s ease;
 }
