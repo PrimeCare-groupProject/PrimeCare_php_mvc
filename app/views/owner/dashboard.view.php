@@ -28,6 +28,10 @@
         --card-hover-shadow: 0 15px 35px rgba(0,0,0,0.12);
     }
     
+    *{
+        font-family: 'Outfit', sans-serif;
+    }
+
     body {
         background-color: #f0f2f5;
         background-image: url('<?= ROOT ?>/assets/images/bg-pattern.png');
