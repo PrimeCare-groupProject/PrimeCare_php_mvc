@@ -1065,7 +1065,9 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1.25rem;
-    margin-bottom: 1.2rem;
+    margin-top: 1.2rem;
+    margin-left: 15px;
+    
 }
 
 .feature-item {
@@ -1159,12 +1161,12 @@
 }
 
 .accent-button {
-    background-color: var(--accent);
+    background-color: var(--color1);
     box-shadow: 0 4px 12px rgba(72, 149, 239, 0.2);
 }
 
 .accent-button:hover {
-    background-color: #3a86ff;
+    background-color: #06D001; 
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(72, 149, 239, 0.3);
 }
@@ -1438,15 +1440,15 @@
                 <div class="property-details">
                     <div class="property-info">
                         <!-- Property Name with Link -->
-                        <a href="<?= ROOT ?>/dashboard/property/<?= $currentProperty->property_id ?? 0 ?>" class="property-name-link">
+                        <a href="<?= ROOT ?>/property/propertyUnit/<?= $currentProperty->property_id ?>" class="property-name-link">
                             <h3 class="property-name"><?= htmlspecialchars($currentProperty->name ?? 'Property Name') ?></h3>
                         </a>
                         
                         <!-- Property Address -->
-                        <p class="property-address">
+                        <!-- <p class="property-address">
                             <i class="fas fa-map-marker-alt"></i>
                             <?= htmlspecialchars($currentProperty->address ?? 'Property Address') ?>
-                        </p>
+                        </p> -->
                         
                         <!-- Property Features -->
                         <div class="property-features">
@@ -1462,6 +1464,10 @@
                                 <i class="fas fa-ruler-combined"></i>
                                 <span><?= $squareFeet ?> sq ft</span>
                             </div>
+                            <p class="property-address">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <?= htmlspecialchars($currentProperty->address ?? 'Property Address') ?>
+                            </p>
                         </div>
                         
                         <!-- Booking Details -->
@@ -1722,7 +1728,7 @@
                         <th>Amount</th>
                         <th>Status</th>
                         <th>Payment</th>
-                        <th>Actions</th>
+                        <!-- <th>Actions</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -1770,7 +1776,7 @@
                                 ?>
                                 <span class="badge <?= $paymentStatusClass ?>"><?= htmlspecialchars($paymentStatus) ?></span>
                             </td>
-                            <td>
+                            <!-- <td>
                                 <?php if(strtolower($rental->status ?? '') !== 'cancelled' && strtolower($rental->payment_status ?? '') !== 'paid'): ?>
                                     <a href="<?= ROOT ?>/customer/markAsPaid/<?= $rental->booking_id ?>" class="action-button" style="padding: 3px 8px; font-size: 0.8rem; background-color: var(--success);">Pay</a>
                                 <?php endif; ?>
@@ -1778,7 +1784,7 @@
                                 <?php if(strtolower($rental->status ?? '') !== 'cancelled' && strtolower($rental->status ?? '') !== 'completed'): ?>
                                     <a href="<?= ROOT ?>/customer/cancelBooking/<?= $rental->booking_id ?>" class="action-button" style="padding: 3px 8px; font-size: 0.8rem; background-color: var(--danger);">Cancel</a>
                                 <?php endif; ?>
-                            </td>
+                            </td> -->
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
