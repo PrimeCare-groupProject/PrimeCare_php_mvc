@@ -343,10 +343,44 @@ class Customer
 
     public function occupiedProperties()
     {
+        $orders = [];
+        if (isset($_SESSION['user']) && !empty($_SESSION['user']->pid)) {
+            $BookingOrders = new BookingOrders();
+            $orders = $BookingOrders->getOrdersByOwner($_SESSION['user']->pid);
+
+            $property = new PropertyConcat();
+            foreach ($orders as $key => &$order) {
+                // include property details
+                $propertyData = $property->where(['property_id' => $order->property_id]);
+                if (!empty($propertyData)) {
+                    $order->property_images = $propertyData[0]->property_images;
+                }
+                //include hash
+                if (
+                    strtolower($order->payment_status) !== 'paid' &&
+                    strtolower($order->booking_status) === 'confirmed'
+                ) {
+                    $merchant_id = MERCHANT_ID;
+                    $merchant_secret = MERCHANT_SECRET;
+                    $order_id = $order->booking_id;
+                    $amount = number_format($order->total_amount, 2, '.', '');
+                    $currency = "LKR";
+                    $hash = strtoupper(
+                        md5(
+                            $merchant_id .
+                            $order_id .
+                            $amount .
+                            $currency .
+                            strtoupper(md5($merchant_secret))
+                        )
+                    );
+                    $order->payhere_hash = $hash;
+                }
+            }
+        }
+
         $this->view('customer/occupiedProperties', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'orders' => $orders
         ]);
     }
 
@@ -1489,4 +1523,58 @@ class Customer
         }
     }
 
+
+    public function cancelBooking($bookingId)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('login');
+            return;
+        }
+        $BookingOrders = new BookingOrders();
+        // Get the booking to verify ownership
+        $orders = $BookingOrders->getOrdersByOwner($_SESSION['user']->pid);
+        $booking = null;
+        foreach ($orders as $order) {
+            if ($order->booking_id == $bookingId) {
+                $booking = $order;
+                break;
+            }
+        }
+        if ($booking) {
+            $BookingOrders->updateBookingStatusByOwnerAndDates(
+                $booking->property_id,
+                $booking->person_id,
+                $booking->start_date,
+                $booking->end_date,
+                'Cancelled'
+            );
+            $_SESSION['flash']['msg'] = "Booking cancelled successfully.";
+            $_SESSION['flash']['type'] = "success";
+        } else {
+            $_SESSION['flash']['msg'] = "Booking not found or not authorized.";
+            $_SESSION['flash']['type'] = "error";
+        }
+        redirect('dashboard/occupiedProperties');
+    }
+
+    public function markAsPaid($booking_id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('login');
+            return;
+        }
+        $BookingOrders = new BookingOrders();
+        $order = $BookingOrders->findById($booking_id);
+        if ($order && $order->person_id == $_SESSION['user']->pid) {
+            $BookingOrders->updatePaymentStatus($booking_id, 'Paid');
+            $_SESSION['flash']['msg'] = "Payment successful!";
+            $_SESSION['flash']['type'] = "success";
+        } else {
+            $_SESSION['flash']['msg'] = "Unable to mark as paid.";
+            $_SESSION['flash']['type'] = "error";
+        }
+        redirect('dashboard/occupiedProperties');
+    }
+
+    
 }

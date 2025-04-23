@@ -74,82 +74,130 @@ CREATE TABLE propertyTable (
     FOREIGN KEY (agent_id) REFERENCES person(pid) ON DELETE SET NULL
 );
 
+CREATE TABLE property_bookings (
+    booking_id INT PRIMARY KEY AUTO_INCREMENT,
+    property_id INT NOT NULL,
+    person_id INT NOT NULL,
+    
+    -- Rental type classification
+    rental_type ENUM('short_term', 'commercial', 'monthly') NOT NULL COMMENT '
+        short_term = hourly rentals, 
+        commercial = daily rentals, 
+        monthly = long-term rentals',
+    
+    -- Rental period
+    check_in DATETIME NOT NULL,
+    check_out DATETIME NOT NULL,
+    
+    -- Automatic duration calculation
+    duration_hours DECIMAL(10,2) GENERATED ALWAYS AS (
+        TIMESTAMPDIFF(HOUR, check_in, check_out)
+    ) STORED,
+    duration_days INT GENERATED ALWAYS AS (
+        DATEDIFF(check_out, check_in)
+    ) STORED,
+    
+    -- Pricing
+    base_rate DECIMAL(10,2) NOT NULL,
+    rate_unit ENUM('per_hour', 'per_day', 'per_month') NOT NULL,
+    cleaning_fee DECIMAL(10,2) DEFAULT 0.00,
+    security_deposit DECIMAL(10,2) DEFAULT 0.00,
+    total_amount DECIMAL(12,2) GENERATED ALWAYS AS (
+        CASE rate_unit
+            WHEN 'per_hour' THEN base_rate * duration_hours
+            WHEN 'per_day' THEN base_rate * duration_days
+            WHEN 'per_month' THEN base_rate * CEILING(duration_days/30)
+        END + cleaning_fee + security_deposit
+    ) STORED,
+    
+    -- Status tracking
+    booking_status ENUM('pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled') DEFAULT 'pending',
+    is_active BOOLEAN DEFAULT TRUE,
+    cancellation_reason TEXT,
+    
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign keys
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id),
+    FOREIGN KEY (person_id) REFERENCES person(pid),
+    
+    -- Indexes
+    INDEX idx_property_dates (property_id, check_in, check_out),
+    INDEX idx_person_bookings (person_id, check_in),
+    INDEX idx_booking_status (booking_status, is_active)
+);
 
-CREATE OR REPLACE VIEW propertyTable_with_images AS
+CREATE VIEW property_search_view AS
 SELECT 
-    p.property_id AS property_id,
-    p.name AS name,
-    p.description AS description,
-    p.type AS type,
-    p.address AS address,
-    p.zipcode AS zipcode,
-    p.city AS city,
-    p.state_province AS state_province,
-    p.country AS country,
+    p.property_id,
+    p.name AS property_name,
+    p.type AS property_type,
+    p.description,
+    p.address,
+    p.zipcode,
+    p.city,
+    p.state_province,
+    p.country,
+    p.year_built,
+    p.size_sqr_ft,
+    p.number_of_floors,
+    p.units,
+    p.bedrooms,
+    p.bathrooms,
+    p.kitchen,
+    p.living_room,
+    p.furnished,
+    p.parking,
+    p.parking_slots,
+    p.type_of_parking,
+    p.security_features,
+    p.utilities_included,
+    p.additional_utilities,
+    p.additional_amenities,
+    p.purpose,
+    p.rental_period,
+    p.rental_price,
+    p.available_date,
+    p.owner_name,
+    p.owner_email,
+    p.owner_phone,
+    p.special_instructions,
+    p.legal_details,
+    p.status AS property_status,
+    p.person_id AS owner_id,
+    p.agent_id,
     
-    p.year_built AS year_built,
-    p.size_sqr_ft AS size_sqr_ft,
-    p.number_of_floors AS number_of_floors,
-    p.floor_plan AS floor_plan,
+    -- Available status based on bookings
+    CASE 
+        WHEN pb.booking_id IS NULL THEN 'Available'
+        WHEN pb.booking_status = 'cancelled' THEN 'Available'
+        WHEN pb.is_active = FALSE THEN 'Available'
+        ELSE 'Booked'
+    END AS availability_status,
     
-    p.units AS units,
-    p.bedrooms AS bedrooms,
-    p.bathrooms AS bathrooms,
-    p.kitchen AS kitchen,
-    p.living_room AS living_room,
+    -- Current booking details (if any)
+    pb.booking_id,
+    pb.rental_type,
+    pb.check_in,
+    pb.check_out,
+    pb.duration_days,
+    pb.booking_status,
+    pb.is_active AS booking_active,
     
-    p.furnished AS furnished,
-    p.furniture_description AS furniture_description,
+    -- Person who booked (if any)
+    pb.person_id AS booked_by_id
     
-    p.parking AS parking,
-    p.parking_slots AS parking_slots,
-    p.type_of_parking AS type_of_parking,
-    
-    p.security_features AS security_features,
-    p.utilities_included AS utilities_included,
-    p.additional_utilities AS additional_utilities,
-    p.additional_amenities AS additional_amenities,
-    
-    p.purpose AS purpose,
-    p.rental_period AS rental_period,
-    p.rental_price AS rental_price,
-    p.duration AS duration,
-    
-    p.owner_name AS owner_name,
-    p.owner_email AS owner_email,
-    p.owner_phone AS owner_phone,
-    p.additional_contact AS additional_contact,
-    
-    p.special_instructions AS special_instructions,
-    p.legal_details AS legal_details,
-    
-    p.status AS status,
-    p.person_id AS person_id,
-    p.agent_id AS agent_id,
-    
-    p.created_at AS created_at,
-    p.updated_at AS updated_at,
-    p.start_date AS start_date,
-    p.end_date AS end_date,
-    p.advance_paid AS advance_paid,
-
-    -- Concatenated property images
-    GROUP_CONCAT(DISTINCT pi.image_url ORDER BY pi.image_url ASC SEPARATOR ',') AS property_images,
-
-    -- Concatenated deed images
-    GROUP_CONCAT(DISTINCT pdi.image_url ORDER BY pdi.image_url ASC SEPARATOR ',') AS property_deed_images
-
 FROM 
     propertyTable p
 LEFT JOIN 
-    property_image pi ON p.property_id = pi.property_id
-LEFT JOIN 
-    property_deed_image pdi ON p.property_id = pdi.property_id
-
-GROUP BY 
-    p.property_id;
-
-
+    property_bookings pb ON p.property_id = pb.property_id
+    AND (
+        -- Only consider bookings that are active and not cancelled
+        pb.is_active = TRUE AND
+        pb.booking_status IN ('pending', 'confirmed', 'checked_in')
+    );
 
 
 

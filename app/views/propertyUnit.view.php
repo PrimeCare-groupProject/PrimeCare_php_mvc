@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/propertylisting.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
@@ -13,21 +15,27 @@
 </head>
 
 <body>
+    <?php
+        if (isset($_SESSION['flash'])) {
+            flash_message();
+        }
+    ?>
     <div class="PL__navigation-bar">
         <div class="PL__top-navigations">
             <ul>
                 <li><a href="<?= ROOT ?>/home"><img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare" class="header-logo-png"></a></li>
-                <li><?php
-                    if (isset($_SESSION['user'])) {
-                        echo "<button class='header__button' onClick=\"window.location.href = 'dashboard'\">";
-                        echo "<img src='" . get_img($_SESSION['user']->image_url) . "' alt='Profile' class='header_profile_picture'>";
-                        echo "Profile";
-                    } else {
-                        echo "<button class='header__button' onClick=\"window.location.href = 'login'\">";
-                        echo "Sign In | Log In";
-                    }
-
-                    ?></li>
+                <li>
+                    <?php if (isset($_SESSION['user'])) : ?>
+                        <button class="header__button" onclick="window.location.href = '<?= ROOT ?>/dashboard/profile'">
+                            <img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="Profile" class="header_profile_picture">
+                            Profile
+                        </button>
+                    <?php else : ?>
+                        <button class="header__button" onclick="window.location.href = '<?= ROOT ?>/login'">
+                            Sign In | Log In
+                        </button>
+                    <?php endif; ?>
+                </li>
             </ul>
         </div>
         <div class="PL_filter-section">
@@ -38,14 +46,17 @@
                         <p><?= $property->name ?></p>
                     </div>
                 </div>
+
                 <div class="content-section low-padding" id="content-section">
                     <div class="property-container">
                         <!-- Left Section: Image Slider -->
                         <?php $images = explode(',', $property->property_images) ?>
+
                         <div class="image-slider">
                             <div class="main-image">
                                 <img id="main-image" src="<?= get_img($images[0] , 'property') ?>" alt="Property Image">
                             </div>
+
                             <div class="thumbnails">
                                 <?php foreach ($images as $index => $image): ?>
                                     <img onclick="changeImage(this)" src="<?= get_img($image , 'property' ) ?>" alt="Thumbnail 1">
@@ -61,9 +72,10 @@
                                         <span class="stars-big">★★★★☆</span>
                                     </div>
                                 </div>
+
                                 <div class="PL__pricing">
                                     <span><?= $property->rental_price ?> LKR</span>
-                                    <small>PER MONTH</small>
+                                    <small><?= strtoupper($property->rental_period) ?></small>
                                 </div>
                             </div>
                             <h2>Description</h2>
@@ -105,19 +117,6 @@
                                     <td>Year Built:</td>
                                     <td><?= $property->year_built ?></td>
                                 </tr>
-                                <!-- <tr>
-                                    <td>Units:</td>
-                                    <td>4</td>
-                                </tr>
-                                <tr>
-                                    <td>Bedrooms:</td>
-                                    <td>2015</td>
-                                </tr>
-                                <tr>
-                                    <td>Size (sq. ft):</td>
-                                    <td>6000</td>
-                                </tr> 
-                            -->
                                 <tr>
                                     <td>Floor Plan:</td>
                                     <td><?= $property->floor_plan ?></td>
@@ -125,7 +124,7 @@
                             </table>
 
                             <h2>Overview</h2>
-                            <div class="overview">
+                            <div class="overview" style="width: auto;">
                                 <div class="overview-grid">
                                     <div class="PL__overview-item">
                                         <img src="<?= ROOT ?>/assets/images/bed.png" alt="Bed Icon">
@@ -154,12 +153,86 @@
                                 </div>
                             </div>
 
-                            <div class="agreement">
-                                <input type="checkbox" id="agree">
-                                <label for="agree">By Clicking, I Agree To Terms & Conditions.</label>
+                            <h2 style="margin-top:20px;">Booking Summary</h2>
+                            <div class="content-section low-padding" id="content-section" style="height:fit-content; margin-top: -20px; padding: 20px; background-color: var(--white-color); border-radius: 12px;">
+                                <div class="booking-summary" style="width: 100%; margin-bottom: 20px; padding: 15px; background: #f8f8f8; border-radius: 8px;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Check-in:</td>
+                                            <td><?= date('M d, Y', strtotime($bookingSummary['check_in'])) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Check-out:</td>
+                                            <td><?= date('M d, Y', strtotime($bookingSummary['check_out'])) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Number of Days:</td>
+                                            <td><?= $bookingSummary['days'] ?> days</td>
+                                        </tr>
+                                        <?php if ($property->rental_period == 'Monthly'): ?>
+                                        <tr>
+                                            <td style="font-weight: bold; padding: 8px 10px;">Rental Period:</td>
+                                            <td>Monthly (<?= $bookingSummary['months'] ?> months)</td>
+                                        </tr>
+                                        <?php endif; ?>
+                                        <tr style="border-top: 1px solid #ddd;">
+                                            <td style="font-weight: bold; padding: 12px 10px;">Total Price:</td>
+                                            <td style="font-weight: bold; color: #FF6B00;">LKR <?= number_format($bookingSummary['total_price'], 2) ?></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <form action="<?= ROOT ?>/propertyListing/showListingDetail/<?= esc($property->property_id) ?>" method="POST" class="booking-form" style="display: flex; flex-direction: column; gap: 15px; width: 100%">
+                                    <input type="hidden" name="action" value="update_booking">
+                                    <input type="hidden" name="p_id" value="<?= esc($property->property_id) ?>">
+                                    <input type="hidden" name="rental_period" value="<?= esc($_GET['rental_period'] ?? $property->rental_period) ?>">
+                                    <input type="hidden" name="period_duration" value="<?= esc($_GET['period_duration'] ?? '') ?>">
+                                    <div class="filter-row-instance" style="width: 100%; display: flex; gap: 15px;">
+                                        <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
+                                            <label for="check_in" style="font-weight: bold;">Check-in Date:</label>
+                                            <input type="date" id="check_in" name="check_in" value="<?= $bookingSummary['check_in'] ?>" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                        </div>
+                                        <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
+                                            <label for="check_out" style="font-weight: bold;">Check-out Date:</label>
+                                            <input type="date" id="check_out" name="check_out" value="<?= $bookingSummary['check_out'] ?>" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                    <button type="submit" style="width: 200px; padding: 10px; border-radius: 12px; background-color: orange; color: white; border: none; cursor: pointer; align-self: center; margin-top: 10px;">
+                                        Update Booking Details
+                                    </button>
+                                </form>
                             </div>
 
-                            <button class="book-btn">Book Property</button>
+                            <div class="agreement">
+                                <input type="checkbox" id="agree" onchange="toggleBookButton()">
+                                <label for="agree">By Clicking, I Agree To 
+                                    <a href="<?= ROOT ?>/termsAndConditions">
+                                        Terms & Conditions.
+                                    </a>
+                                </label>
+                            </div>
+
+                            <form action="<?= ROOT ?>/propertyListing/bookProperty" method="POST">
+                                <input type="hidden" name="p_id" value="<?= esc($property->property_id) ?>">
+                                <input type="hidden" name="check_in" value="<?= $bookingSummary['check_in'] ?>">
+                                <input type="hidden" name="check_out" value="<?= $bookingSummary['check_out'] ?>">
+                                <input type="hidden" name="rental_period" value="<?= esc($property->rental_period) ?>">
+                                <input type="hidden" name="period_duration" value="<?= $bookingSummary['months'] ?? '' ?>">
+
+                                <?php if (!empty($currentBookingStatus)): ?>
+                                    <div class="booking-status-info" style="margin-bottom:10px;">
+                                        <strong>Current Booking Status:</strong>
+                                        <span><?= esc($currentBookingStatus) ?></span>
+                                    </div>
+                                    <button type="submit" class="book-btn" id="book-btn" style="width: 100%;" disabled>
+                                        Booking Already Requested (<?= esc($currentBookingStatus) ?>)
+                                    </button>
+                                <?php else: ?>
+                                    <button type="submit" class="book-btn" id="book-btn" style="width: 100%;" disabled>
+                                        Please check the box to proceed payment.
+                                    </button>
+                                <?php endif; ?>
+                            </form>
 
                             <h2>Reviews</h2>
                             <div class="add-review-section">
@@ -217,46 +290,63 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
-
-            <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>
-            <script>
-                let currentIndex = 0;
-
-                function showSlide(index) {
-                    const slides = document.querySelector('.slides');
-                    const totalSlides = document.querySelectorAll('.slide').length;
-
-                    if (index >= totalSlides) {
-                        currentIndex = 0;
-                    } else if (index < 0) {
-                        currentIndex = totalSlides - 1;
-                    } else {
-                        currentIndex = index;
-                    }
-
-                    const translateX = -currentIndex * 100;
-                    slides.style.transform = `translateX(${translateX}%)`;
-                }
-
-                function nextSlide() {
-                    showSlide(currentIndex + 1);
-                }
-
-                function prevSlide() {
-                    showSlide(currentIndex - 1);
-                }
-            </script>
-
-            <script>
-                function changeImage(thumbnail) {
-                    const mainImage = document.getElementById('main-image');
-                    mainImage.src = thumbnail.src;
-                }
-            </script>
+        </div>
+    </div>
 </body>
 
+<script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>
+<script src="<?= ROOT ?>/assets/js/loader.js"></script>
+<script>
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        const slides = document.querySelector('.slides');
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        if (index >= totalSlides) {
+            currentIndex = 0;
+        } else if (index < 0) {
+            currentIndex = totalSlides - 1;
+        } else {
+            currentIndex = index;
+        }
+
+        const translateX = -currentIndex * 100;
+        slides.style.transform = `translateX(${translateX}%)`;
+    }
+
+    function nextSlide() {
+        showSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+        showSlide(currentIndex - 1);
+    }
+    function changeImage(thumbnail) {
+        const mainImage = document.getElementById('main-image');
+        mainImage.src = thumbnail.src;
+    }
+    function toggleBookButton() {
+        const agreeCheckbox = document.getElementById('agree');
+        const bookButton = document.getElementById('book-btn');
+        <?php if (!empty($currentBookingStatus)): ?>
+            bookButton.disabled = true;
+            bookButton.textContent = 'Booking Already Requested (<?= esc($currentBookingStatus) ?>)';
+        <?php else: ?>
+            bookButton.disabled = !agreeCheckbox.checked;
+            bookButton.textContent = agreeCheckbox.checked ? 'Book Property' : 'Please check the box to proceed payment.';
+        <?php endif; ?>
+    }
+</script>
+
+<script>
+    
+</script>
+
 </html>
+
+
+
+

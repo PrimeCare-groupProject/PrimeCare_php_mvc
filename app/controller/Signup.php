@@ -82,7 +82,10 @@ class Signup {
                     'type' => "welcome"
                 ];
 
-                redirect('home'); // Use a full URL or a path as necessary
+                $nxtUrl = $_SESSION['redirect_url'] ?? 'home';
+                unset($_SESSION['redirect_url']); 
+                redirect($nxtUrl);
+
                 exit; // Good practice to call exit after header
             } else {
                 // Handle the error case if insertion fails
