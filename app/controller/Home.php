@@ -12,7 +12,7 @@ class Home
 
         // Fetch services and pending properties
         $services = $services->findAll();
-        $properties = $property->where(['status' => 'pending']);
+        $properties = $property->where(['status' => 'Active' , 'purpose' => 'Rent']);
         return ['properties' => $properties, 'services' => $services];
     }
 

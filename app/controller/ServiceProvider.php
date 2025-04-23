@@ -15,19 +15,28 @@ class ServiceProvider {
             redirect('login');
             return;
         }
-
+    
         $serviceLog = new ServiceLog();
+        $externalService = new ExternalService(); 
         $provider_id = $_SESSION['user']->pid;
-
-        // Get all services for this provider
+    
+        // Get all regular services for this provider
         $conditions = ['service_provider_id' => $provider_id];
         $allServices = $serviceLog->where($conditions);
-
-        // Ensure $allServices is always an array
+    
+        // Get all external services for this provider
+        $externalConditions = ['service_provider_id' => $provider_id];
+        $allExternalServices = $externalService->where($externalConditions);
+    
+        // Ensure both are arrays
         if (!is_array($allServices)) {
             $allServices = [];
         }
-
+        
+        if (!is_array($allExternalServices)) {
+            $allExternalServices = [];
+        }
+    
         // Initialize analytics data
         $totalProfit = 0;
         $totalHoursWorked = 0;
@@ -38,54 +47,63 @@ class ServiceProvider {
         $monthlyIncome = [];
         $serviceTypeDistribution = [];
         $serviceTypeEarnings = [];
-        $weeklyEarnings = [];
-
+        $weeklyEarnings = [
+            'Mon' => 0, 'Tue' => 0, 'Wed' => 0, 
+            'Thu' => 0, 'Fri' => 0, 'Sat' => 0, 'Sun' => 0
+        ];
+    
         // Current month/year for monthly income
         $currentMonth = date('m');
         $currentYear = date('Y');
         $currentMonthIncome = 0;
-
-        // Process each service
+    
+        // Process regular services
         foreach ($allServices as $service) {
-            // Calculate cost
-            $serviceCost = $service->total_cost;
+            // Calculate cost using total_cost field
+            $serviceCost = $service->total_cost ?? 0;
             
             // Track totalProfit
-            $totalProfit += $serviceCost - $service->usual_cost;
+            if(isset($service->total_cost)) {
+                $totalProfit += $service->total_cost;
+            }
             
             // Track totalHours
-            $totalHoursWorked += $service->total_hours;
-
-            // Lowercase status for comparison
-            $status = strtolower($service->status);
-
-            //Comparisons in database
-            if ($status === 'done' || $status === 'Done') {
+            if(isset($service->total_hours)) {
+                $totalHoursWorked += $service->total_hours;
+            }
+    
+            // Lowercase status for consistent comparison
+            $status = strtolower($service->status ?? '');
+    
+            // Track status counts
+            if ($status === 'done') {
                 $completedWorks++;
-            } elseif ($status === 'pending' || $status === 'Pending') {
+            } elseif ($status === 'pending') {
                 $pendingWorks++;
-            } elseif ($status === 'ongoing' || $status === 'Ongoing') {
+            } elseif ($status === 'ongoing') {
                 $ongoingWorks[] = $service;
                 $worksToDo++;
             }
-
-            // Track monthly income if it matches current month/year
-            $serviceDate = strtotime($service->date);
-            $serviceMonth = date('m', $serviceDate);
-            $serviceYear = date('Y', $serviceDate);
-
-            if ($serviceYear == $currentYear && $serviceMonth == $currentMonth) {
-                $currentMonthIncome += $serviceCost;
+    
+            // Track monthly incme
+            if(isset($service->date)) {
+                $serviceDate = strtotime($service->date);
+                $serviceMonth = date('m', $serviceDate);
+                $serviceYear = date('Y', $serviceDate);
+    
+                if ($serviceYear == $currentYear && $serviceMonth == $currentMonth) {
+                    $currentMonthIncome += $serviceCost;
+                }
+    
+                // Track weekly earnings
+                $serviceWeekDay = date('D', $serviceDate);
+                if (!isset($weeklyEarnings[$serviceWeekDay])) {
+                    $weeklyEarnings[$serviceWeekDay] = 0;
+                }
+                $weeklyEarnings[$serviceWeekDay] += $serviceCost;
             }
-
-            // Example: track weekly earnings by day of this week
-            $serviceWeekDay = date('D', $serviceDate);
-            if (!isset($weeklyEarnings[$serviceWeekDay])) {
-                $weeklyEarnings[$serviceWeekDay] = 0;
-            }
-            $weeklyEarnings[$serviceWeekDay] += $serviceCost;
-
-            // Example: track service type distribution/earnings
+    
+            // Track service type distribution/earnings
             $type = $service->service_type ?: 'Unknown';
             if (!isset($serviceTypeDistribution[$type])) {
                 $serviceTypeDistribution[$type] = 0;
@@ -94,46 +112,147 @@ class ServiceProvider {
             $serviceTypeDistribution[$type]++;
             $serviceTypeEarnings[$type] += $serviceCost;
         }
-
+    
+        // Process external services
+        foreach ($allExternalServices as $service) {
+            // Calculate cost using total_cost field
+            $serviceCost = $service->total_cost ?? 0;
+            
+            // Track totalProfit
+            if(isset($service->total_cost)) {
+                $totalProfit += $service->total_cost;
+            }
+            
+            // Track totalHours
+            if(isset($service->total_hours)) {
+                $totalHoursWorked += $service->total_hours;
+            }
+    
+            // Status comparison - external services use lowercase status values
+            $status = strtolower($service->status ?? '');
+    
+            // Track status counts
+            if ($status === 'done') {
+                $completedWorks++;
+            } elseif ($status === 'pending') {
+                $pendingWorks++;
+            } elseif ($status === 'ongoing') {
+                // Create a standardized object for display
+                $standardizedService = (object)[
+                    'service_id' => $service->id,
+                    'service_type' => $service->service_type,
+                    'property_name' => $service->property_address,
+                    'date' => $service->date,
+                    'total_hours' => $service->total_hours,
+                    'cost_per_hour' => $service->cost_per_hour,
+                    'service_description' => $service->property_description,
+                    'is_external' => true // Flag to identify external services
+                ];
+                
+                $ongoingWorks[] = $standardizedService;
+                $worksToDo++;
+            }
+    
+            // Track monthly income
+            if(isset($service->date)) {
+                $serviceDate = strtotime($service->date);
+                $serviceMonth = date('m', $serviceDate);
+                $serviceYear = date('Y', $serviceDate);
+    
+                if ($serviceYear == $currentYear && $serviceMonth == $currentMonth) {
+                    $currentMonthIncome += $serviceCost;
+                }
+    
+                // Track weekly earnings
+                $serviceWeekDay = date('D', $serviceDate);
+                if (isset($weeklyEarnings[$serviceWeekDay])) {
+                    $weeklyEarnings[$serviceWeekDay] += $serviceCost;
+                }
+            }
+    
+            // Track service type distribution/earnings
+            $type = $service->service_type ?: 'External';
+            if (!isset($serviceTypeDistribution[$type])) {
+                $serviceTypeDistribution[$type] = 0;
+                $serviceTypeEarnings[$type] = 0;
+            }
+            $serviceTypeDistribution[$type]++;
+            $serviceTypeEarnings[$type] += $serviceCost;
+        }
+    
         // Sort ongoing works by date descending, then limit to 5
         if ($ongoingWorks) {
             usort($ongoingWorks, function($a, $b) {
-                return strtotime($b->date) - strtotime($a->date);
+                return strtotime($b->date ?? '') - strtotime($a->date ?? '');
             });
             $ongoingWorks = array_slice($ongoingWorks, 0, 5);
+            
+            // Add time_info and earnings to each ongoing work
+            foreach ($ongoingWorks as &$work) {
+                // Calculate time info
+                if (isset($work->date)) {
+                    $service_date = new DateTime($work->date);
+                    $current_date = new DateTime();
+                    $time_diff = $service_date->diff($current_date);
+                    $hours_passed = ($time_diff->days * 24) + $time_diff->h;
+                    $work->time_info = $hours_passed . ' hr' . ($hours_passed != 1 ? 's' : '') . ' ago';
+                } else {
+                    $work->time_info = 'N/A';
+                }
+                
+                // Calculate earnings
+                $work->earnings = isset($work->cost_per_hour) && isset($work->total_hours) ? 
+                    $work->cost_per_hour * $work->total_hours : 0;
+            }
         }
-
+    
         // Total works
         $totalWorks = $completedWorks + $pendingWorks + count($ongoingWorks);
-
+    
         // Completion rate
         $completionRate = $totalWorks ? round(($completedWorks / $totalWorks) * 100) : 0;
-
-        // Avg hours per service (if desired)
+    
+        // Avg hours per service 
         $avgHoursPerService = ($totalWorks && $totalHoursWorked) 
             ? round($totalHoursWorked / $totalWorks, 1) 
             : 0;
-
-
-        // Get 5 most recently completed tasks
+    
+        // Get 5 most recently completed tasks (combining both regular and external)
         $recentCompletedTasks = [];
+        
+        // Add completed regular services
         foreach ($allServices as $service) {
-            if (strtolower($service->status) === 'done') {
+            if (strtolower($service->status ?? '') === 'done') {
                 $recentCompletedTasks[] = $service;
             }
         }
-
+        
+        // Add completed external services (converting to regular service format)
+        foreach ($allExternalServices as $external) {
+            if (strtolower($external->status ?? '') === 'done') {
+                // Create a standardized object for display
+                $completedTask = (object)[
+                    'service_id' => $external->id,
+                    'service_type' => $external->service_type,
+                    'property_name' => $external->property_address, 
+                    'date' => $external->date,
+                    'cost_per_hour' => $external->cost_per_hour, 
+                    'total_hours' => $external->total_hours,
+                    'is_external' => true
+                ];
+                
+                $recentCompletedTasks[] = $completedTask;
+            }
+        }
+    
         // Sort by date descending
         usort($recentCompletedTasks, function($a, $b) {
-            return strtotime($b->date) - strtotime($a->date);
+            return strtotime($b->date ?? '') - strtotime($a->date ?? '');
         });
-
+    
         // Limit to 5 tasks
         $recentCompletedTasks = array_slice($recentCompletedTasks, 0, 5);
-
-        // Add to data array
-        $data['recentCompletedTasks'] = $recentCompletedTasks;
-
+    
         // Prepare final data
         $data = [
             'totalProfit' => $totalProfit,
@@ -151,7 +270,7 @@ class ServiceProvider {
             'serviceTypeEarnings' => $serviceTypeEarnings,
             'recentCompletedTasks' => $recentCompletedTasks,
         ];
-
+    
         // Load the dashboard view
         $this->view('serviceprovider/dashboard', $data);
     }
@@ -648,7 +767,7 @@ class ServiceProvider {
             $update_result = $serviceLog->update($service_id, $update_data, 'service_id');
     
             if ($update_result) {
-                // Only send notification if completing the service (not just saving)
+                // Only send notification if completing the service (not just saving :)
                 if (!$is_save_only) {
                     // Fetch the property details to get owner information
                     if (!empty($existing_log->property_id)) {
@@ -780,23 +899,36 @@ class ServiceProvider {
             redirect('login');
             return;
         }
-
+    
         $serviceLog = new ServiceLog();
+        $externalService = new ExternalService(); 
         $provider_id = $_SESSION['user']->pid;
-
-        // Fetch completed services with earnings details
+    
+        // Fetch completed services with earnings details from ServiceLog
         $conditions = [
             'service_provider_id' => $provider_id,
             'status' => 'Done'  // Only get completed services
         ];
         $completedServices = $serviceLog->where($conditions);
-
+    
         // Ensure $completedServices is always an array
         if (!is_array($completedServices)) {
             $completedServices = [];
         }
-
-        // Prepare chart data and complete service details
+    
+        // Fetch completed external services
+        $externalConditions = [
+            'service_provider_id' => $provider_id,
+            'status' => 'done'  
+        ];
+        $completedExternalServices = $externalService->where($externalConditions);
+    
+        // Ensure $completedExternalServices is always an array
+        if (!is_array($completedExternalServices)) {
+            $completedExternalServices = [];
+        }
+    
+        // Prepare chart data for regular services
         $chartData = [];
         foreach ($completedServices as $service) {
             // Calculate earnings
@@ -810,10 +942,58 @@ class ServiceProvider {
                 'date' => $service->date,
                 'total_hours' => $service->total_hours,
                 'service_images' => $service->service_images ?? null,
-                'service_provider_description' => $service->service_provider_description ?? null  // Add this line
+                'service_provider_description' => $service->service_provider_description ?? null,
+                'service_type' => 'regular'  // Mark as regular service for UI differentiation
             ];
         }
-
+    
+        // Add external services to the chart data
+        foreach ($completedExternalServices as $service) {
+            // Calculate earnings with the same formula
+            $totalEarnings = $service->total_cost; 
+            
+            // Process images properly
+            $serviceImages = null;
+            if (!empty($service->service_completion_images)) {
+                $images = json_decode($service->service_completion_images, true);
+                // Fix image paths if needed
+                if (is_array($images)) {
+                    // Ensure paths are properly formatted
+                    $serviceImages = array_map(function($img) {
+                        // If the path already has "uploads/" at the beginning, use as is
+                        if (strpos($img, 'uploads/') === 0) {
+                            return $img;
+                        }
+                        // If the path contains uploads but not at beginning, extract the filename
+                        else if (strpos($img, 'uploads/') !== false) {
+                            return substr($img, strpos($img, 'uploads/'));
+                        }
+                        // Otherwise assume it's just a filename and prepend the path
+                        else {
+                            return 'uploads/external_services/' . $img;
+                        }
+                    }, $images);
+                }
+            }
+            
+            // Add to chart data with fixed image paths
+            $chartData[] = [
+                'name' => $service->service_type ?? 'External Service',
+                'totalEarnings' => $totalEarnings,
+                'property_name' => $service->property_address ?? 'External Location',
+                'date' => $service->date,
+                'total_hours' => $service->total_hours,
+                'service_images' => $serviceImages, // Fixed service images
+                'service_provider_description' => $service->service_provider_description ?? null,
+                'service_type' => 'external'  // Mark as external service for UI differentiation
+            ];
+        }
+    
+        // Sort all services by date (newest first)
+        usort($chartData, function($a, $b) {
+            return strtotime($b['date']) - strtotime($a['date']);
+        });
+    
         // Pass data to the view
         $this->view('serviceprovider/earnings', ['chartData' => $chartData]);
     }
@@ -1245,7 +1425,7 @@ public function serviceOverview() {
                     return !in_array($img, $images_to_remove);
                 });
                 
-                // Physically delete the files (optional based on your requirements)
+                // Physically delete the files 
                 foreach ($images_to_remove as $image_path) {
                     $full_path = ROOTPATH . "public/assets/images/" . $image_path;
                     if (file_exists($full_path)) {

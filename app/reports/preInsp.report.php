@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/reports.css">
     <title>Pre-Inspection Report Checklist</title>
     <style>
-        *{
+        * {
             font-family: 'Outfit', sans-serif;
         }
-        body{
+
+        body {
             margin: 0;
             padding: 0;
         }
@@ -23,7 +24,7 @@ function setVisibility($data)
     if (!isset($data) || empty($data) || $data == 0) {
         return 'style="display:none;"';
     } else {
-        return 'style="display:none;"';
+        return 'style="display:block;"';
     }
 }
 
@@ -81,12 +82,13 @@ function setVisibility($data)
                     <label>Type</label>
                     <p><?= $property->type ?></p>
                 </div>
-
-                <div class="GR__detail-item">
-                    <label>Description</label>
-                    <p><?= $property->description ?></p>
-                </div>
             </div>
+
+            <div class="GR__detail-item">
+                <label>Description</label>
+                <p><?= $property->description ?></p>
+            </div>
+
             <div class="GR__property-details">
                 <div class="GR__detail-item" <?= setVisibility($property->address) ?>>
                     <label>Address</label>
@@ -118,7 +120,7 @@ function setVisibility($data)
                     <label>Size (sq ft)</label>
                     <p><?= $property->size_sqr_ft ?></p>
                 </div>
-                <div class="GR__detail-item"  <?= setVisibility($property->number_of_floors) ?>>
+                <div class="GR__detail-item" <?= setVisibility($property->number_of_floors) ?>>
                     <label>Floors</label>
                     <p><?= $property->number_of_floors ?></p>
                 </div>

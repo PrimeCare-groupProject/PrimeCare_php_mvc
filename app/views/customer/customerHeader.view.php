@@ -56,13 +56,18 @@
         <div class="content-section">
             <div class="user_view-sidemenu">
                 <ul>
-                    <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers" data-section="propertyLisingToAllUsers"><button class="btn"><i class="fa-solid fa-magnifying-glass"></i>Search</button></a></li>
+                    <!-- <li><a href="<?= ROOT ?>/dashboard/search/property/propertyLisingToAllUsers" data-section="propertyLisingToAllUsers"><button class="btn"><i class="fa-solid fa-magnifying-glass"></i>Search</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/payments" data-section="payments"><button class="btn"><i class="fa-solid fa-money-check-dollar"></i>Payments</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/occupiedProperties" data-section="occupiedProperties"><button class="btn"><i class="fa-solid fa-house-user"></i>History</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/repairListing" data-section="repairListing"><button class="btn"><i class="fa-solid fa-hammer"></i>Services</button></a></li>
                     <li>
                         <a href="<?= ROOT ?>/dashboard/requestService" data-section="requestService">
                             <button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Request Service</button>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= ROOT ?>/dashboard/externalMaintenance" data-section="externalMaintenance">
+                            <button class="btn" style="text-align: left;"><i class="fa-solid fa-clipboard-check"></i>Track External Repairs</button>
                         </a>
                     </li>
                     <li><a href="<?= ROOT ?>/dashboard/updateRole" data-section="updateRole"><button class="btn"><i class="fa-solid fa-square-pen"></i>Update Role</button></a></li>

@@ -42,7 +42,7 @@
     font-size: 14px;
 }
 .maintain .orange-link {
-    color: #ff9800;
+    color: var(--dark-grey-color);
     text-decoration: none;
     font-weight: bold;
     display: block;
@@ -1698,4 +1698,59 @@ a.agent-action-btn {
     font-weight: bold;
     min-width: 30px;
     text-align: center;
+}
+
+.back-btn-new {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.back-btn-new img {
+    width: 30px;
+    height: 30px;
+}
+
+.user_view-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    height: 10%;
+    background-color: var(--white-color);
+}
+
+.full-width-for-content{
+    width: 100% !important;
+}
+
+.success-msg-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(var(--green-color-rgb), 0.2);
+    color: var(--green-color);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.user_view-bar h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-family: 'outfit', sans-serif;
+    margin: 5px;
+}
+
+.user_view-bar p {
+    margin: 3px;
+    padding-left: 5px;
+    font-size: 0.9rem;
 }

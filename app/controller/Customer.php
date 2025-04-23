@@ -584,4 +584,909 @@ class Customer
             'service_id' => $_GET['service_id'] ?? ''
         ]);
     }
+
+
+    public function externalMaintenance()
+    {
+        // Get the current user's ID
+        $customerId = $_SESSION['user']->pid;
+        
+        // Instantiate the ExternalService model
+        $externalService = new ExternalService();
+        
+        // Get external service requests for the current customer
+        $serviceLogs = $externalService->where(['requested_person_id' => $customerId]);
+        
+        // If no service logs found, initialize as empty array
+        if (!$serviceLogs) {
+            $serviceLogs = [];
+        }
+    
+        // Apply status filtering
+        if (!empty($_GET['status_filter'])) {
+            $status = $_GET['status_filter'];
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                if (strtolower($log->status) == strtolower($status)) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+    
+        // Apply date range filtering
+        if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
+            $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
+            $dateTo = !empty($_GET['date_to']) ? strtotime($_GET['date_to'] . ' 23:59:59') : null;
+            
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                $logDate = strtotime($log->date);
+                
+                // Check if the log date is within the specified range
+                $includeLog = true;
+                if ($dateFrom && $logDate < $dateFrom) $includeLog = false;
+                if ($dateTo && $logDate > $dateTo) $includeLog = false;
+                
+                if ($includeLog) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+        
+        // Apply sorting with extended options
+        if (!empty($_GET['sort'])) {
+            $sort = $_GET['sort'];
+            
+            usort($serviceLogs, function($a, $b) use ($sort) {
+                switch ($sort) {
+                    case 'date_asc':
+                        return strtotime($a->date) - strtotime($b->date);
+                    case 'date_desc':
+                        return strtotime($b->date) - strtotime($a->date);
+                    case 'service_type':
+                        return strcasecmp($a->service_type ?? '', $b->service_type ?? '');
+                    case 'cost_asc':
+                        $costA = isset($a->total_cost) ? $a->total_cost : (($a->total_hours ?? 0) * ($a->cost_per_hour ?? 0) + ($a->additional_charges ?? 0));
+                        $costB = isset($b->total_cost) ? $b->total_cost : (($b->total_hours ?? 0) * ($b->cost_per_hour ?? 0) + ($b->additional_charges ?? 0));
+                        return $costA - $costB;
+                    case 'cost_desc':
+                        $costA = isset($a->total_cost) ? $a->total_cost : (($a->total_hours ?? 0) * ($a->cost_per_hour ?? 0) + ($a->additional_charges ?? 0));
+                        $costB = isset($b->total_cost) ? $b->total_cost : (($b->total_hours ?? 0) * ($b->cost_per_hour ?? 0) + ($b->additional_charges ?? 0));
+                        return $costB - $costA;
+                    default:
+                        return strtotime($b->date) - strtotime($a->date); // Default: newest first
+                }
+            });
+        }
+        
+        // Calculate total expenses with improved logic
+        $totalExpenses = 0;
+        $completedServices = 0;
+        $pendingServices = 0;
+        $ongoingServices = 0;
+        
+        foreach ($serviceLogs as $log) {
+            // First try to use total_cost if available
+            if (isset($log->total_cost) && $log->total_cost > 0) {
+                $totalExpenses += $log->total_cost;
+            } else {
+                // Otherwise calculate from hours, rate and additional charges
+                $hours = $log->total_hours ?? 0;
+                $rate = $log->cost_per_hour ?? 0;
+                $additionalCharges = $log->additional_charges ?? 0;
+                $totalExpenses += ($hours * $rate) + $additionalCharges;
+            }
+            
+            // Count services by status
+            $status = strtolower($log->status ?? '');
+            if ($status === 'done' || $status === 'paid') {
+                $completedServices++;
+            } elseif ($status === 'ongoing') {
+                $ongoingServices++;
+            } elseif ($status === 'pending') {
+                $pendingServices++;
+            }
+        }
+        
+        $this->view('customer/externalMaintenance', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLogs' => $serviceLogs,
+            'totalExpenses' => $totalExpenses,
+            'completedServices' => $completedServices,
+            'pendingServices' => $pendingServices,
+            'ongoingServices' => $ongoingServices,
+            'totalServices' => count($serviceLogs)
+        ]);
+    }
+
+
+    public function payExternalService($serviceId = null)
+    {
+        if (!$serviceId) {
+            $_SESSION['flash']['msg'] = "Invalid service selected for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/externalMaintenance');
+        }
+        
+        // Get the service details
+        $externalService = new ExternalService();
+        $service = $externalService->first(['id' => $serviceId]);
+        
+        // Check if service exists and belongs to the current user
+        if (!$service || $service->requested_person_id != $_SESSION['user']->pid) {
+            $_SESSION['flash']['msg'] = "You don't have permission to pay for this service.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/externalMaintenance');
+        }
+        
+        // Check if service is in the right status (done but not paid)
+        if (strtolower($service->status) !== 'done') {
+            $_SESSION['flash']['msg'] = "This service is not ready for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/externalMaintenance');
+        }
+        
+        // Calculate all costs
+        $usual_cost = ($service->cost_per_hour ?? 0) * ($service->total_hours ?? 0);
+        $additional_charges = $service->additional_charges ?? 0;
+        $service_cost = $usual_cost + $additional_charges;
+        $service_charge = $service_cost * 0.10; // 10% service charge
+        $total_amount = $service_cost + $service_charge;
+        
+        // Pass data to view
+        $data = [
+            'title' => "Pay for External Service",
+            'service' => $service,
+            'usual_cost' => $usual_cost,
+            'additional_charges' => $additional_charges,
+            'service_charge' => $service_charge,
+            'total_amount' => $total_amount
+        ];
+        
+        $this->view('customer/payExternalService', $data);
+    }
+
+
+    public function payRegularService($serviceId = null)
+    {
+        if (!$serviceId) {
+            $_SESSION['flash']['msg'] = "Invalid service selected for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/maintenance');
+        }
+        
+        // Get the service details
+        $serviceLog = new ServiceLog();
+        $service = $serviceLog->first(['service_id' => $serviceId]);
+        
+        // Check if service exists and belongs to the current user
+        if (!$service || $service->tenant_id != $_SESSION['user']->pid) {
+            $_SESSION['flash']['msg'] = "You don't have permission to pay for this service.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/maintenance');
+        }
+        
+        // Check if service is in the right status (Done but not paid)
+        if ($service->status !== 'Done') {
+            $_SESSION['flash']['msg'] = "This service is not ready for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/maintenance');
+        }
+        
+        // Calculate all costs
+        $service_cost = $service->cost ?? 0;
+        $service_charge = $service_cost * 0.10; // 10% service charge
+        $total_amount = $service_cost + $service_charge;
+        
+        // Pass data to view
+        $data = [
+            'title' => "Pay for Regular Service",
+            'service' => $service,
+            'service_cost' => $service_cost,
+            'service_charge' => $service_charge,
+            'total_amount' => $total_amount
+        ];
+        
+        $this->view('customer/payRegularService', $data);
+    }
+
+
+    public function completeExternalPayment($serviceId = null)
+    {
+        // Check if it's an AJAX request
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+        $response = ['success' => false, 'message' => ''];
+        
+        // Check if service ID is provided
+        if (!$serviceId) {
+            $response['message'] = "Invalid service selected for payment.";
+            if ($isAjax) {
+                echo json_encode($response);
+                exit;
+            } else {
+                $_SESSION['flash']['msg'] = $response['message'];
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/externalMaintenance');
+            }
+        }
+        
+        // Get the service details
+        $externalService = new ExternalService();
+        $service = $externalService->first(['id' => $serviceId]);
+        
+        // Check if service exists and belongs to the current user
+        if (!$service || $service->requested_person_id != $_SESSION['user']->pid) {
+            $response['message'] = "You don't have permission to pay for this service.";
+            if ($isAjax) {
+                echo json_encode($response);
+                exit;
+            } else {
+                $_SESSION['flash']['msg'] = $response['message'];
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/externalMaintenance');
+            }
+        }
+        
+        // Get payment method from request (form data or JSON)
+        if (isset($_POST['payment_method'])) {
+            $paymentMethod = $_POST['payment_method'];
+        } else {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $paymentMethod = $data['payment_method'] ?? '';
+        }
+        
+        // Process payment proof upload if bank transfer
+        $paymentProofPath = null;
+        if ($paymentMethod === 'bank_transfer' && !empty($_FILES['payment_proof']['name'])) {
+            $file = $_FILES['payment_proof'];
+            
+            // Check file type
+            $allowed_types = ['image/jpeg', 'image/png', 'application/pdf'];
+            if (!in_array($file['type'], $allowed_types)) {
+                $response['message'] = "Invalid file type. Only JPG, PNG and PDF are allowed.";
+                echo json_encode($response);
+                exit;
+            }
+            
+            // Check file size (max 5MB)
+            if ($file['size'] > 5 * 1024 * 1024) {
+                $response['message'] = "File size exceeds 5MB limit.";
+                echo json_encode($response);
+                exit;
+            }
+            
+            // Create specialized and unique filename structure
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $timestamp = date('Ymd_His');
+            $customerId = $_SESSION['user']->pid;
+            $randomString = bin2hex(random_bytes(8)); // 16 characters of randomness
+            
+            // Create directory structure
+            $yearMonth = date('Y/m');
+            $uploadDir = "payment_proofs/{$yearMonth}/";
+            $uploadPath = ROOTPATH . '/public/assets/images/' . $uploadDir;
+            
+            // Create directories if they don't exist
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            
+            // Build the unique filename:
+            // Format: INVOICE-NUMBER_SERVICE-ID_USER-ID_TIMESTAMP_RANDOM.EXT
+            $invoiceNumber = 'INV-'.date('Ymd').'-'.rand(1000, 9999);
+            $filename = "INV{$invoiceNumber}_SRV{$serviceId}_USR{$customerId}_{$timestamp}_{$randomString}.{$ext}";
+            $destination = $uploadPath . $filename;
+            $relativePath = $uploadDir . $filename;
+            
+            // Upload file
+            if (move_uploaded_file($file['tmp_name'], $destination)) {
+                $paymentProofPath = $relativePath;
+            } else {
+                $response['message'] = "Error uploading payment proof.";
+                echo json_encode($response);
+                exit;
+            }
+        }
+        
+        // Calculate total amount
+        $usual_cost = ($service->cost_per_hour ?? 0) * ($service->total_hours ?? 0);
+        $additional_charges = $service->additional_charges ?? 0;
+        $service_cost = $usual_cost + $additional_charges;
+        $service_charge = $service_cost * 0.10; // 10% service charge
+        $total_amount = $service_cost + $service_charge;
+        
+        // Create payment record using our enhanced method
+        $servicePayment = new ServicePayment();
+        $invoice_number = $servicePayment->generateInvoiceNumber();
+        $paymentData = [
+            'service_id' => $serviceId,
+            'amount' => $total_amount,
+            'payment_date' => date('Y-m-d H:i:s'),
+            'invoice_number' => $invoice_number,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $paymentId = $servicePayment->createPayment($paymentData);
+        
+        // Update service status to "paid"
+        if ($paymentId) {
+            $updated = $externalService->update($serviceId, [
+                'status' => 'paid',
+                'payment_date' => date('Y-m-d H:i:s')
+            ]);
+            
+            if ($updated) {
+                $response['success'] = true;
+                $response['message'] = "Payment processed successfully.";
+                if ($isAjax) {
+                    echo json_encode($response);
+                    exit;
+                } else {
+                    $_SESSION['flash']['msg'] = "Payment processed successfully.";
+                    $_SESSION['flash']['type'] = "success";
+                    redirect('dashboard/externalMaintenance');
+                }
+            } else {
+                $response['message'] = "Payment recorded but service status update failed.";
+                if ($isAjax) {
+                    echo json_encode($response);
+                    exit;
+                } else {
+                    $_SESSION['flash']['msg'] = $response['message'];
+                    $_SESSION['flash']['type'] = "warning";
+                    redirect('dashboard/externalMaintenance');
+                }
+            }
+        } else {
+            $response['message'] = "Failed to process payment. Please try again.";
+            if ($isAjax) {
+                echo json_encode($response);
+                exit;
+            } else {
+                $_SESSION['flash']['msg'] = $response['message'];
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/externalMaintenance');
+            }
+        }
+    }
+
+
+    public function completeRegularPayment($serviceId = null)
+    {
+        // Check if it's an AJAX request
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+        $response = ['success' => false, 'message' => ''];
+        
+        // Check if service ID is provided
+        if (!$serviceId) {
+            $response['message'] = "Invalid service selected for payment.";
+            if ($isAjax) {
+                echo json_encode($response);
+                exit;
+            } else {
+                $_SESSION['flash']['msg'] = $response['message'];
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/maintenance');
+            }
+        }
+        
+        // Get the service details
+        $serviceLog = new ServiceLog();
+        $service = $serviceLog->first(['service_id' => $serviceId]);
+        
+        // Check if service exists and belongs to the current user
+        if (!$service || $service->tenant_id != $_SESSION['user']->pid) {
+            $response['message'] = "You don't have permission to pay for this service.";
+            if ($isAjax) {
+                echo json_encode($response);
+                exit;
+            } else {
+                $_SESSION['flash']['msg'] = $response['message'];
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/maintenance');
+            }
+        }
+        
+        // Get payment method from request
+        if (isset($_POST['payment_method'])) {
+            $paymentMethod = $_POST['payment_method'];
+        } else {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $paymentMethod = $data['payment_method'] ?? '';
+        }
+        
+        // // Process payment proof upload if bank transfer (same as external payment)
+        // $paymentProofPath = null;
+        // if ($paymentMethod === 'bank_transfer' && !empty($_FILES['payment_proof']['name'])) {
+        //     // File upload handling code (same as in completeExternalPayment)
+        //     // ...
+        // }
+        
+        // Calculate total amount
+        $service_cost = $service->cost ?? 0;
+        $service_charge = $service_cost * 0.10; // 10% service charge
+        $total_amount = $service_cost + $service_charge;
+        
+        // Create payment record using our enhanced method
+        $servicePayment = new ServicePayment();
+        $paymentData = [
+            'service_id' => $serviceId,
+            'amount' => $total_amount,
+            'payment_date' => date('Y-m-d H:i:s'),
+            'invoice_number' => $servicePayment->generateInvoiceNumber(),
+            'payment_method' => $paymentMethod,
+            // 'payment_proof' => $paymentProofPath,
+            'status' => 'completed',
+            'transaction_id' => 'TXN-'.strtoupper(substr(md5(time()), 0, 10)),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $paymentId = $servicePayment->createPayment($paymentData);
+        
+        // Update service status to "Paid"
+        if ($paymentId) {
+            $updated = $serviceLog->update($serviceId, [
+                'status' => 'Paid',
+                'payment_date' => date('Y-m-d H:i:s')
+            ], 'service_id');
+            
+            if ($updated) {
+                $response['success'] = true;
+                $response['message'] = "Payment processed successfully.";
+                if ($isAjax) {
+                    echo json_encode($response);
+                    exit;
+                } else {
+                    $_SESSION['flash']['msg'] = "Payment processed successfully.";
+                    $_SESSION['flash']['type'] = "success";
+                    redirect('dashboard/maintenance');
+                }
+            } else {
+                $response['message'] = "Payment recorded but service status update failed.";
+                if ($isAjax) {
+                    echo json_encode($response);
+                    exit;
+                } else {
+                    $_SESSION['flash']['msg'] = $response['message'];
+                    $_SESSION['flash']['type'] = "warning";
+                    redirect('dashboard/maintenance');
+                }
+            }
+        } else {
+            $response['message'] = "Failed to process payment. Please try again.";
+            if ($isAjax) {
+                echo json_encode($response);
+                exit;
+            } else {
+                $_SESSION['flash']['msg'] = $response['message'];
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/maintenance');
+            }
+        }
+    }
+
+    public function preparePayHerePayment($serviceId = null)
+    {
+        try {
+            // Disable error reporting and display
+            error_reporting(0);
+            ini_set('display_errors', 0);
+            
+            // Clear any previous output
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            // Set critical headers - do this before ANY output
+            header('Content-Type: application/json');
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+            
+            // Close session writing to prevent locks
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+            
+            // Create a log file for debugging
+            $logFile = ROOTPATH . '/payhere_fix.log';
+            file_put_contents($logFile, date('Y-m-d H:i:s') . ' - Starting payment for service: ' . $serviceId . PHP_EOL, FILE_APPEND);
+            
+            // Skip regular AJAX checking and other unnecessary validation that might output errors
+            
+            // Get the JSON data directly
+            $json_data = file_get_contents('php://input');
+            $data = json_decode($json_data, true) ?: [];
+            
+            // Get the service details
+            $externalService = new ExternalService();
+            $service = $externalService->first(['id' => $serviceId]);
+            
+            if (!$service) {
+                echo json_encode(['success' => false, 'message' => 'Service not found']);
+                exit;
+            }
+            
+            // Calculate total amount
+            $usual_cost = ($service->cost_per_hour ?? 0) * ($service->total_hours ?? 0);
+            $additional_charges = $service->additional_charges ?? 0;
+            $service_cost = $usual_cost + $additional_charges;
+            $service_charge = $service_cost * 0.10; // 10% service charge
+            $total_amount = $service_cost + $service_charge;
+            
+            // Create payment record
+            $servicePayment = new ServicePayment();
+            $invoice_number = $servicePayment->generateInvoiceNumber();
+            $paymentData = [
+                'service_id' => $serviceId,
+                'amount' => $total_amount,
+                'payment_date' => date('Y-m-d H:i:s'),
+                'invoice_number' => $invoice_number,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            
+            $paymentId = $servicePayment->createPayment($paymentData);
+            
+            // Get user details
+            $user = $_SESSION['user'] ?? null;
+            if (!$user) {
+                echo json_encode(['success' => false, 'message' => 'User session expired']);
+                exit;
+            }
+            
+            $names = explode(' ', trim($user->fname . ' ' . $user->lname));
+            $firstName = $names[0] ?? '';
+            $lastName = (count($names) > 1) ? end($names) : '';
+            
+            // Prepare response
+            $response = [
+                'success' => true,
+                'merchant_id' => '1221145', // PayHere merchant ID
+                'return_url' => ROOT . "/customer/payhereReturn/{$paymentId}/{$serviceId}/1",
+                'cancel_url' => ROOT . "/customer/payhereCancel/{$paymentId}/{$serviceId}/1",
+                'notify_url' => ROOT . "/customer/payhereNotify",
+                'order_id' => $paymentData['invoice_number'],
+                'amount' => number_format($total_amount, 2, '.', ''),
+                'currency' => 'LKR',
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => $data['email'] ?? $user->email,
+                'phone' => $data['phone'] ?? $user->phone,
+                'address' => $user->address ?? 'Not provided',
+                'city' => $user->city ?? 'Not provided',
+                'country' => 'Sri Lanka',
+                'delivery_address' => $service->property_address ?? 'Not applicable',
+                'delivery_city' => 'Not applicable',
+                'delivery_country' => 'Sri Lanka',
+                'service_id' => $serviceId,
+                'user_id' => $user->pid
+            ];
+            
+            // Log the successful response
+            file_put_contents($logFile, date('Y-m-d H:i:s') . ' - Success: ' . json_encode($response) . PHP_EOL, FILE_APPEND);
+            
+            // Output JSON and exit
+            echo json_encode($response);
+            exit;
+            
+        } catch (Exception $e) {
+            // Log any errors
+            $logFile = ROOTPATH . '/payhere_fix_error.log';
+            file_put_contents($logFile, date('Y-m-d H:i:s') . ' - Error: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            
+            // Return error JSON
+            echo json_encode([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+     
+
+    public function payhereReturn($paymentId = null, $serviceId = null, $isExternal = 1)
+    {
+        $isExternal = (int)$isExternal === 1;
+        
+        if (!$paymentId || !$serviceId) {
+            $_SESSION['flash']['msg'] = "Invalid payment information.";
+            $_SESSION['flash']['type'] = "error";
+            redirect($isExternal ? 'dashboard/externalMaintenance' : 'dashboard/maintenance');
+        }
+        
+        // Update status based on payment ID
+        $servicePayment = new ServicePayment();
+        $payment = $servicePayment->first(['payment_id' => $paymentId]);
+        
+        if (!$payment) {
+            $_SESSION['flash']['msg'] = "Payment record not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect($isExternal ? 'dashboard/externalMaintenance' : 'dashboard/maintenance');
+        }
+        
+        // Check payment status
+        if ($payment->status == 'completed') {
+            // Payment was successful (already confirmed via notify_url)
+            $_SESSION['flash']['msg'] = "Payment completed successfully!";
+            $_SESSION['flash']['type'] = "success";
+        } else {
+            // Payment status might still be pending as notification might come after return
+            $_SESSION['flash']['msg'] = "Your payment is being processed. Thank you!";
+            $_SESSION['flash']['type'] = "info";
+            
+            // Optionally update the payment status if PayHere didn't notify yet
+            if (isset($_GET['order_id']) && $_GET['order_id'] == $payment->invoice_number) {
+                // Update payment record to completed
+                $servicePayment->update($paymentId, [
+                    'status' => 'completed', 
+                    'transaction_id' => $_GET['payment_id'] ?? null,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                
+                // Update service status based on service type
+                if ($isExternal) {
+                    $externalService = new ExternalService();
+                    $externalService->update($serviceId, [
+                        'status' => 'paid',
+                        'payment_date' => date('Y-m-d H:i:s')
+                    ]);
+                } else {
+                    $serviceLog = new ServiceLog();
+                    $serviceLog->update($serviceId, [
+                        'status' => 'Paid',  // Note capital P in Paid to match ServiceLog validation
+                        'payment_date' => date('Y-m-d H:i:s')
+                    ], 'service_id');
+                }
+                
+                $_SESSION['flash']['msg'] = "Payment completed successfully!";
+                $_SESSION['flash']['type'] = "success";
+            }
+        }
+        
+        redirect($isExternal ? 'dashboard/externalMaintenance' : 'dashboard/maintenance');
+    }
+
+    /**
+     * Handle PayHere cancel callback
+     */
+    public function payhereCancel($paymentId = null, $serviceId = null, $isExternal = 1)
+    {
+        $isExternal = (int)$isExternal === 1;
+        
+        if (!$paymentId || !$serviceId) {
+            $_SESSION['flash']['msg'] = "Payment was cancelled.";
+            $_SESSION['flash']['type'] = "warning";
+            redirect($isExternal ? 'dashboard/externalMaintenance' : 'dashboard/maintenance');
+        }
+        
+        // Update payment status to cancelled
+        $servicePayment = new ServicePayment();
+        $servicePayment->update($paymentId, [
+            'status' => 'cancelled',
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+        
+        $_SESSION['flash']['msg'] = "You cancelled the payment process.";
+        $_SESSION['flash']['type'] = "warning";
+        redirect($isExternal ? 
+            'customer/payExternalService/' . $serviceId : 
+            'customer/payRegularService/' . $serviceId);
+    }
+
+    /**
+     * Handle PayHere notification callback (async)
+     */
+    public function payhereNotify()
+    {
+        // Create a log file for debugging
+        $logFile = ROOTPATH . '/payhere_notify.log';
+        file_put_contents($logFile, date('Y-m-d H:i:s') . ' - PayHere notification received' . PHP_EOL, FILE_APPEND);
+        file_put_contents($logFile, json_encode($_POST) . PHP_EOL, FILE_APPEND);
+        
+        // Verify the payment notification
+        if (!isset($_POST['merchant_id']) || !isset($_POST['order_id']) || !isset($_POST['payment_id']) || !isset($_POST['status_code'])) {
+            file_put_contents($logFile, 'Invalid notification data' . PHP_EOL, FILE_APPEND);
+            exit;
+        }
+        
+        $merchantId = $_POST['merchant_id'];
+        $orderId = $_POST['order_id'];
+        $payherePaymentId = $_POST['payment_id'];
+        $statusCode = (int)$_POST['status_code'];
+        $paymentAmount = $_POST['payhere_amount'] ?? 0;
+        $paymentCurrency = $_POST['payhere_currency'] ?? 'LKR';
+        
+        // Verify merchant ID
+        if ($merchantId !== '1221145') {
+            file_put_contents($logFile, 'Invalid merchant ID' . PHP_EOL, FILE_APPEND);
+            exit;
+        }
+        
+        // Get the payment record
+        $servicePayment = new ServicePayment();
+        $payment = $servicePayment->first(['invoice_number' => $orderId]);
+        
+        if (!$payment) {
+            file_put_contents($logFile, 'Payment record not found for order: ' . $orderId . PHP_EOL, FILE_APPEND);
+            exit;
+        }
+        
+        // Verify payment amount (to prevent fraud)
+        if (abs($payment->amount - $paymentAmount) > 0.01) { // Use a small tolerance for floating point comparison
+            file_put_contents($logFile, "Amount mismatch: Expected {$payment->amount}, Got {$paymentAmount}" . PHP_EOL, FILE_APPEND);
+            // Continue processing but log the discrepancy
+        }
+        
+        // Update payment status based on PayHere status code
+        if ($statusCode == 2) { // Payment successful
+            // Update payment record
+            $servicePayment->update($payment->payment_id, [
+                'status' => 'completed',
+                'transaction_id' => $payherePaymentId,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            // Update service record based on service type
+            if ($payment->serviceType === 'external') {
+                $externalService = new ExternalService();
+                $externalService->update($payment->service_id, [
+                    'status' => 'paid',
+                    'payment_date' => date('Y-m-d H:i:s')
+                ]);
+                file_put_contents($logFile, 'External service payment completed for order: ' . $orderId . PHP_EOL, FILE_APPEND);
+            } else if ($payment->serviceType === 'regular') {
+                $serviceLog = new ServiceLog();
+                $serviceLog->update($payment->service_id, [
+                    'status' => 'Paid',
+                    'payment_date' => date('Y-m-d H:i:s')
+                ], 'service_id');
+                file_put_contents($logFile, 'Regular service payment completed for order: ' . $orderId . PHP_EOL, FILE_APPEND);
+            } else {
+                file_put_contents($logFile, 'Unknown service type for payment: ' . $payment->serviceType . PHP_EOL, FILE_APPEND);
+            }
+        } elseif ($statusCode == 0) { // Payment pending
+            $servicePayment->update($payment->payment_id, [
+                'status' => 'pending',
+                'transaction_id' => $payherePaymentId,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            file_put_contents($logFile, 'Payment pending for order: ' . $orderId . PHP_EOL, FILE_APPEND);
+        } else { // Payment failed or canceled
+            $servicePayment->update($payment->payment_id, [
+                'status' => 'failed',
+                'transaction_id' => $payherePaymentId,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            file_put_contents($logFile, 'Payment failed for order: ' . $orderId . ' with status code: ' . $statusCode . PHP_EOL, FILE_APPEND);
+        }
+        
+        // Return 200 OK to PayHere
+        http_response_code(200);
+        exit;
+    }
+
+    public function testPayHereAPI()
+    {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        header('Content-Type: application/json');
+        
+        // Log access to this endpoint
+        $logFile = ROOTPATH . '/payhere_test.log';
+        file_put_contents($logFile, date('Y-m-d H:i:s') . ' - Test API accessed' . PHP_EOL, FILE_APPEND);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'API is working correctly',
+            'timestamp' => time()
+        ]);
+        exit;
+    }
+
+    public function directJsonAPI()
+    {
+        // Disable error display and reporting for API responses
+        error_reporting(0);
+        ini_set('display_errors', 0);
+        
+        // End any active output buffering
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Close session writing to prevent locks
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        
+        // Set essential headers
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        
+        // Log access for debugging
+        $log_file = ROOTPATH . '/api_test.log';
+        file_put_contents($log_file, date('Y-m-d H:i:s') . ' - Direct JSON API accessed' . PHP_EOL, FILE_APPEND);
+        
+        // Return clean JSON response
+        echo json_encode([
+            'success' => true,
+            'message' => 'API is working correctly',
+            'timestamp' => time()
+        ]);
+        exit;
+    }
+
+    public function directPayHereAPI($serviceId = null) 
+    {
+        // Disable error display and reporting for API responses
+        error_reporting(0);
+        ini_set('display_errors', 0);
+        
+        // End any active output buffering
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Close session writing early
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        
+        // Set essential headers
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        
+        try {
+            // Get JSON data
+            $json_data = file_get_contents('php://input');
+            $data = json_decode($json_data, true);
+            
+            // Mock response for testing - replace with actual PayHere integration
+            $mockMerchantData = [
+                'success' => true,
+                'merchant_id' => '1221145', 
+                'return_url' => ROOT . "/customer/payhereReturn/123/{$serviceId}/1",
+                'cancel_url' => ROOT . "/customer/payhereCancel/123/{$serviceId}/1",
+                'notify_url' => ROOT . "/customer/payhereNotify",
+                'order_id' => 'INV-'.date('Ymd').'-'.rand(1000, 9999),
+                'amount' => '1000.00',
+                'currency' => 'LKR',
+                'first_name' => 'Test',
+                'last_name' => 'User',
+                'email' => $data['email'] ?? 'test@example.com',
+                'phone' => $data['phone'] ?? '0771234567',
+                'address' => 'Test Address',
+                'city' => 'Colombo',
+                'country' => 'Sri Lanka'
+            ];
+            
+            // Log success
+            file_put_contents(ROOTPATH . '/payhere_direct.log', date('Y-m-d H:i:s') . ' - Success: ' . json_encode($mockMerchantData) . PHP_EOL, FILE_APPEND);
+            
+            echo json_encode($mockMerchantData);
+            exit;
+            
+        } catch (Exception $e) {
+            // Log error
+            file_put_contents(ROOTPATH . '/payhere_direct_error.log', date('Y-m-d H:i:s') . ' - Error: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            
+            echo json_encode([
+                'success' => false,
+                'message' => 'API error: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
 }

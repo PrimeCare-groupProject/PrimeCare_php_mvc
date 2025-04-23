@@ -13,6 +13,22 @@ if (isset($_SESSION['flash'])) {
 }
 ?>
 
+<?php
+$validLocations = [
+    'Western' => ['Colombo', 'Gampaha', 'Kalutara'],
+    'Central' => ['Kandy', 'Matale', 'Nuwara Eliya'],
+    'Southern' => ['Galle', 'Matara', 'Hambantota'],
+    'Northern' => ['Jaffna', 'Kilinochchi', 'Mullaitivu', 'Vavuniya', 'Mannar'],
+    'Eastern' => ['Trincomalee', 'Batticaloa', 'Ampara',],
+    'North Western' => ['Kurunegala', 'Puttalam'],
+    'North Central' => ['Anuradhapura', 'Polonnaruwa'],
+    'Uva' => ['Badulla', 'Monaragala'],
+    'Sabaragamuwa' => ['Ratnapura', 'Kegalle']
+];
+
+$allStates = array_keys($validLocations);
+?>
+
 <form method="POST" action="<?= ROOT ?>/dashboard/propertylisting/create" enctype="multipart/form-data">
     <div class="owner-addProp-form">
         <h3 class="form-headers no-top-border">Property Details</h3>
@@ -41,24 +57,57 @@ if (isset($_SESSION['flash'])) {
         </div>
         <div class="input-group">
             <div class="input-group-group">
-                <label class="input-label">City*</label>
-                <input type="text" name="city" placeholder="Enter Property City" class="input-field" required>
-            </div>
-            <div class="input-group-group">
-                <label class="input-label">Zip Code*</label>
-                <input type="text" name="zipcode" placeholder="Enter Property Zip Code" class="input-field" required>
-            </div>
-        </div>
-        <div class="input-group">
-            <div class="input-group-group">
                 <label class="input-label">State*</label>
-                <input type="text" name="state_province" placeholder="Enter Property State" class="input-field" required>
+                <!-- <input type="text" name="state_province" placeholder="Enter Property State" class="input-field" required> -->
+                <select name="state_province" id="stateSelect" class="input-field" required>
+                    <option value="">-- Enter Property State --</option>
+                    <?php
+                    foreach ($allStates as $state) {
+                        echo "<option value='$state'>$state</option>";
+                    }
+                    ?>
+                </select>
             </div>
             <div class="input-group-group">
                 <label class="input-label">Country*</label>
                 <input type="text" name="country" placeholder="Enter Property Country" class="input-field" required>
             </div>
         </div>
+
+        <div class="input-group">
+            <div class="input-group-group">
+                <label class="input-label">City*</label>
+                <select name="city" id="citySelect" class="input-field" required>
+                    <option value="">-- Select City --</option>
+                </select>
+            </div>
+            <div class="input-group-group">
+                <label class="input-label">Zip Code*</label>
+                <input type="text" name="zipcode" placeholder="Enter Property Zip Code" class="input-field" required>
+            </div>
+        </div>
+
+        <script>
+            const stateCityMap = <?php echo json_encode($validLocations); ?>;
+            console.log(stateCityMap); // For debugging
+            const stateSelect = document.getElementById('stateSelect');
+            const citySelect = document.getElementById('citySelect');
+
+            stateSelect.addEventListener('change', function() {
+                const selectedState = this.value;
+                citySelect.innerHTML = '<option value="">-- Select City --</option>';
+
+                if (selectedState in stateCityMap) {
+                    stateCityMap[selectedState].forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.textContent = city;
+                        citySelect.appendChild(option);
+                    });
+                }
+            });
+        </script>
+
 
         <h3 class="form-headers">Rental Information*</h3>
 
@@ -69,7 +118,7 @@ if (isset($_SESSION['flash'])) {
                     <option value="">-- Select Purpose --</option>
                     <option value="Rent">For Rent</option>
                     <option value="Safeguard">For Safeguard (Security Purposes)</option>
-                    <option value="Vacation_Rental">Vacation Rental</option>
+                    <!-- <option value="Vacation_Rental">Vacation Rental</option> -->
                 </select>
             </div>
         </div>
@@ -77,19 +126,19 @@ if (isset($_SESSION['flash'])) {
         <!-- Section shown only for Rent -->
         <div class="input-group" id="rent-fields" style="display:none;">
             <div class="input-group-group">
-                <label class="input-label">Rental Period*</label>
+                <label class="input-label">Rental Period Unit*</label>
                 <select name="rental_period" class="input-field">
-                    <option value="Monthly">Monthly</option>
-                    <option value="Annually">Annually</option>
                     <option value="Daily">Daily</option>
+                    <option value="Monthly">Monthly</option>
+                    <!-- <option value="Annually">Annually</option> -->
                 </select>
             </div>
             <div class="input-group-group">
-                <label class="input-label">Duration (in months)*</label>
+                <label class="input-label">Duration (in units)*</label>
                 <input type="number" id="duration" name="duration" class="input-field" min="1" value="1" oninput="calculateRental()">
             </div>
             <div class="input-group-group">
-                <label class="input-label">Rental Price*</label>
+                <label class="input-label">Rental Price Per Unit*</label>
                 <input type="number" name="rental_price" placeholder="Enter the rental price" class="input-field">
             </div>
         </div>
@@ -303,66 +352,21 @@ if (isset($_SESSION['flash'])) {
             </div>
         </div>
 
-
-
-
-
-        <!-- <h3 class="form-headers">Rental Information*</h3>
-        <div class="input-group">
-            <div class="input-group-group">
-                <label class="input-label">Purpose*</label>
-                <select name="purpose" class="input-field">
-                    <option value="Rent">For Rent</option>
-                    <option value="Safeguard">For Safeguard (Security Purposes)</option>
-                    <option value="Vacation_Rental">Vacation Rental</option>
-                </select>
-            </div>
-        </div>
-        <div class="input-group">
-            <div class="input-group-group">
-                <label class="input-label">Rental Period*</label>
-                <select name="rental_period" class="input-field">
-                    <option value="Monthly">Monthly</option>
-                    <option value="Annually">Annually</option>
-                    <option value="Daily">Daily</option>
-                </select>
-            </div>
-            <div class="input-group-group">
-                <label class="input-label">Rental Price*</label>
-                <input type="number" name="rental_price" placeholder="Enter the rental" class="input-field">
-            </div>
-        </div> -->
-        <!-- <div class="input-group">
-            <div class="input-group-group">
-                <label class="input-label">Available Date*</label>
-                <div class="checkbox-group checkbox-group-row">
-                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Monday"> Monday</label>
-                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Tuesday"> Tuesday</label>
-                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Wednesday"> Wednesday</label>
-                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Thursday"> Thursday</label>
-                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Friday"> Friday</label>
-                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Saturday"> Saturday</label>
-                    <label class="inline-label"><input type="checkbox" name="available_date[]" value="Sunday"> Sunday</label>
-                </div>
-            </div>
-        </div> -->
-
-
         <h3 class="form-headers">Owner Information*</h3>
         <div class="input-group">
             <div class="input-group-group">
                 <label class="input-label">Owner Name*</label>
-                <input type="text" name="owner_name" placeholder="Enter the Owner Name" class="input-field" required>
+                <input type="text" name="owner_name" placeholder="Enter the Owner Name" class="input-field" value="<?= $_SESSION['user']->fname . ' ' . $_SESSION['user']->lname; ?>" required>
             </div>
             <div class="input-group-group">
                 <label class="input-label">Owner Email*</label>
-                <input type="text" name="owner_email" placeholder="Enter the Owner Email" class="input-field" required>
+                <input type="text" name="owner_email" placeholder="Enter the Owner Email" class="input-field" value="<?= $_SESSION['user']->email; ?>" required>
             </div>
         </div>
         <div class="input-group">
             <div class="input-group-group">
                 <label class="input-label">Owner Contact Number*</label>
-                <input type="text" name="owner_phone" placeholder="Enter the Owner Contact Number" class="input-field" required>
+                <input type="text" name="owner_phone" placeholder="Enter the Owner Contact Number" class="input-field" value="<?= $_SESSION['user']->contact ?>" required>
             </div>
             <div class="input-group-group">
                 <label class="input-label">Owner Additional Contact*</label>

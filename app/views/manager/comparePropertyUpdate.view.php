@@ -859,8 +859,8 @@ function check_equality($property, $propertyUpdate, $field)
 
 <div class="CP__button_container">
     <div class="CP__buttons">
-        <button class="primary-btn" >Accept Update</button>
-        <button class="primary-btn red">Reject Update</button>
+        <button class="primary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/confirmUpdate/<?= $property->property_id ?>'">Accept Update</button>
+        <button class="primary-btn red" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/rejectUpdate/<?= $property->property_id ?>'">Reject Update</button>
     </div>
 </div>
 

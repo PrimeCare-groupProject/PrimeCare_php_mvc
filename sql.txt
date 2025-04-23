@@ -21,6 +21,7 @@ CREATE TABLE propertyTable (
     kitchen INT,
     living_room INT,
     duration INT DEFAULT 0,
+    advance_paid ENUM('Paid' , 'Not_paid') DEFAULT 'Not_paid',
 
     start_date DATE,
     end_date DATE,
@@ -130,6 +131,7 @@ SELECT
     p.updated_at AS updated_at,
     p.start_date AS start_date,
     p.end_date AS end_date,
+    p.advance_paid AS advance_paid,
 
     -- Concatenated property images
     GROUP_CONCAT(DISTINCT pi.image_url ORDER BY pi.image_url ASC SEPARATOR ',') AS property_images,
@@ -294,6 +296,7 @@ CREATE TABLE share_payments (
     rental_period_end DATE,
     transaction_id VARCHAR(255), 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_type ENUM('advance' , 'full') NOT NULL,
 
     FOREIGN KEY (person_id) REFERENCES person(pid),
     FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) 
@@ -332,4 +335,17 @@ CREATE TABLE notifications (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (user_id) REFERENCES person(pid)
+);
+
+
+CREATE TABLE deleteRequests(
+    property_id INT PRIMARY KEY,
+    owner_id INT NOT NULL,
+    agent_id INT NOT NULL,
+    created_at DATETIME,
+    request_status ENUM('Pending' , 'Approved' , 'Decline') DEFAULT 'Pending',
+
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id),
+    FOREIGN KEY (owner_id) REFERENCES person(pid),
+    FOREIGN KEY (agent_id) REFERENCES person(pid)
 );
