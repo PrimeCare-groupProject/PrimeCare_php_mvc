@@ -94,16 +94,23 @@
                     const currentURL = window.location.href;
                     const url = new URL(window.location.href); // Get the current page URL
                     const path = url.pathname.replace(/^\/|\/$/g, '').split('/'); // Split the URL into an array
-                    const currentPage = path[3] || "dashboard";
-                    console.log("current page is" + path[3]);
+                    
+                    // Fix: Correct path index logic for different URL structures
+                    const currentPage = path.length > 1 ? path[1] : "dashboard";
+                    
+                    console.log("Current path:", path);
+                    console.log("Current page:", currentPage);
+                    
                     // Loop through each sidebar link
                     sidebarLinks.forEach(link => {
                         const button = link.querySelector('button');
                         const href = link.getAttribute('href');
-                        // Check if the current page matches the link's href
-                        if (currentURL.includes(href)) {
+                        const hrefPath = href.split('/');
+                        const hrefPage = hrefPath[hrefPath.length - 1];
+                        
+                        // Fix: Check if the current URL matches this link's target
+                        if (currentURL.includes(href) && href !== BASE_URL + "/dashboard") {
                             // Add 'active' class to the button
-                            console.log("href is" + href);
                             button.classList.add('active');
                             button.classList.remove('btn');
                             isTabActive = true; // Mark that a tab is active
@@ -114,16 +121,23 @@
                         }
                     });
 
-                    // If no tab is active, set the dashboard as the default active
-                    const dashboardButton = document.querySelector('a[href*="dashboard"] button');
-                    if (!isTabActive) {
-                        if (currentPage == "dashboard") {
-                            dashboardButton.classList.add('active');
-                            dashboardButton.classList.remove('btn');
-                        } else {
-                            dashboardButton.classList.add('btn');
-                            dashboardButton.classList.remove('active');
-                        }
+                    // Fix: Properly handle the dashboard button
+                    const dashboardButton = document.querySelector('a[href="' + BASE_URL + '/dashboard"] button');
+                    
+                    // Fix: Special case for root dashboard URL
+                    const isDashboardPath = path.length <= 2 || 
+                                          (path.length === 3 && path[2] === '') || 
+                                          currentURL === BASE_URL + "/dashboard" || 
+                                          currentURL === BASE_URL + "/dashboard/";
+                    
+                    if (isDashboardPath) {
+                        // We're at the dashboard root
+                        dashboardButton.classList.add('active');
+                        dashboardButton.classList.remove('btn');
+                    } else if (isTabActive) {
+                        // We're on another page
+                        dashboardButton.classList.remove('active');
+                        dashboardButton.classList.add('btn');
                     }
 
                     const logoutBtn = document.getElementById('logout-btn');
