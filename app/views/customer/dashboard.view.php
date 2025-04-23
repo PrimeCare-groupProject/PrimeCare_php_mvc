@@ -1419,7 +1419,7 @@
                     }
                 }
             } catch (Exception $e) {
-                // Silently fail and use default image
+                $imageUrl = ROOT . '/assets/images/uploads/property_images/default-property.jpg';
             }
             
             // Get correct square footage
