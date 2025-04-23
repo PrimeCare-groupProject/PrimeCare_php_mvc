@@ -731,39 +731,154 @@ class Customer
     }
 
     public function requestServiceOccupied() {
-        // ...in progress...
-    }
-
-    public function externalRepairListing()
-    {
+        // Initialize needed models
+        $bookingOrdersModel = new BookingOrders();
+        $propertyModel = new PropertyConcat();
+        $serviceLogModel = new ServiceLog();
         $servicesModel = new Services();
-        $services = $servicesModel->getAllServices();
-
-        if (!empty($services)) {
-            foreach ($services as $key => $service) {
-                if (empty($service->service_img)) continue;
-                $imagePath = ROOTPATH . 'public/assets/images/repairimages/' . $service->service_img;
-                if (!file_exists($imagePath)) {
-                    $found = false;
-                    $extensions = ['jpg', 'jpeg', 'png', 'gif'];
-                    $baseName = pathinfo($service->service_img, PATHINFO_FILENAME);
-                    foreach ($extensions as $ext) {
-                        $testPath = ROOTPATH . 'public/assets/images/repairimages/' . $baseName . '.' . $ext;
-                        if (file_exists($testPath)) {
-                            $services[$key]->service_img = $baseName . '.' . $ext;
-                            $found = true;
-                            break;
+        
+        // Get current user ID
+        $userId = $_SESSION['user']->pid;
+        
+        // ADDED: Check if user has more than 4 done service requests
+        $doneRequests = $serviceLogModel->where([
+            'requested_person_id' => $userId,
+            'status' => 'Done'
+        ]);
+        
+        // If there are more than 4 done requests, show error and redirect
+        if ($doneRequests && count($doneRequests) >= 4) {
+            $_SESSION['flash']['msg'] = "You have reached the maximum limit of 4 completed service requests. Please pay for your completed requests before submitting new ones.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/maintenance');
+            return;
+        }
+        
+        // Get active/occupied properties for this user
+        $bookings = $bookingOrdersModel->getOrdersByOwner($userId);
+        $activeBookings = [];
+        
+        if ($bookings) {
+            foreach ($bookings as $booking) {
+                // Convert status to lowercase for case-insensitive comparison
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                
+                // Consider a booking active if it's confirmed/active and not cancelled
+                if ($bookingStatus === 'confirmed' || $bookingStatus === 'active') {
+                    // Check that the booking period includes the current date
+                    $today = strtotime('now');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
+                    
+                    if ($today >= $startDate && $today <= $endDate) {
+                        // Get property details for the booking
+                        $property = $propertyModel->first(['property_id' => $booking->property_id]);
+                        if ($property) {
+                            $booking->property_name = $property->name;
+                            $booking->property_address = $property->address;
+                            $activeBookings[] = $booking;
                         }
-                    }
-                    if (!$found) {
-                        $services[$key]->service_img = '';
                     }
                 }
             }
         }
-
-        $this->view('customer/externalRepairListing', [
-            'services' => $services
+        
+        // Get available service types
+        $serviceTypes = $servicesModel->getAllServices();
+        
+        // Process form submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = [];
+            
+            // ADDED: Check again for done service requests (in case another request was processed while form was open)
+            $doneRequests = $serviceLogModel->where([
+                'requested_person_id' => $userId,
+                'status' => 'Done'
+            ]);
+            
+            if ($doneRequests && count($doneRequests) >= 4) {
+                $errors['limit_exceeded'] = "You have reached the maximum limit of 4 completed service requests. Please pay for your completed requests before submitting new ones.";
+            }
+            
+            // Validate required fields
+            if (empty($_POST['property_id'])) {
+                $errors['property_id'] = "Please select a property";
+            }
+            
+            if (empty($_POST['service_type'])) {
+                $errors['service_type'] = "Please select a service type";
+            }
+            
+            if (empty($_POST['service_description'])) {
+                $errors['service_description'] = "Please provide a description of the issue";
+            } elseif (strlen($_POST['service_description']) < 10) {
+                $errors['service_description'] = "Description should be at least 10 characters";
+            }
+            
+            // If validation passes, create the service request
+            if (empty($errors)) {
+                // Get the property details for the selected property
+                $propertyId = $_POST['property_id'];
+                $property = $propertyModel->first(['property_id' => $propertyId]);
+                
+                // Get the service type details
+                $serviceTypeId = $_POST['service_type'];
+                $serviceType = $servicesModel->getServiceById($serviceTypeId);
+                
+                // Get the booking for the selected property
+                $booking = null;
+                foreach ($activeBookings as $activeBooking) {
+                    if ($activeBooking->property_id == $propertyId) {
+                        $booking = $activeBooking;
+                        break;
+                    }
+                }
+                
+                // Prepare data for service log
+                $data = [
+                    'service_type' => $serviceType ? $serviceType->name : 'Maintenance',
+                    'date' => date('Y-m-d'),
+                    'property_id' => $propertyId,
+                    'property_name' => $property ? $property->name : '',
+                    'status' => 'Pending',
+                    'service_description' => $_POST['service_description'],
+                    'requested_person_id' => $userId,
+                    'tenant_id' => $userId
+                ];
+                
+                // If there's a service type with cost per hour
+                if ($serviceType && isset($serviceType->cost_per_hour)) {
+                    $data['cost_per_hour'] = $serviceType->cost_per_hour;
+                }
+                
+                // Validate and insert the service request
+                if ($serviceLogModel->validate($data)) {
+                    $serviceLogModel->insert($data);
+                    
+                    $_SESSION['flash']['msg'] = "Service request submitted successfully!";
+                    $_SESSION['flash']['type'] = "success";
+                    redirect('dashboard');
+                    exit;
+                } else {
+                    $errors = $serviceLogModel->errors;
+                }
+            }
+            
+            // If we get here, there were validation errors
+            $this->view('customer/requestServiceOccupied', [
+                'activeBookings' => $activeBookings,
+                'serviceTypes' => $serviceTypes,
+                'errors' => $errors,
+                'old' => $_POST
+            ]);
+            return;
+        }
+        
+        // Display the form
+        $this->view('customer/requestServiceOccupied', [
+            'activeBookings' => $activeBookings,
+            'serviceTypes' => $serviceTypes,
+            'errors' => []
         ]);
     }
 
