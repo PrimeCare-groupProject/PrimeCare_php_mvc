@@ -7,45 +7,33 @@ class Manager
     use controller;
     public function index()
     {   
-        // Load the required models
-        $propertyModel = new Property();
-        $userModel = new User();
-        $bookingOrders = new BookingOrders();
+        $this->dashboard();
+    }
 
-        // Fetch the required data
-        $totalProperties = $propertyModel->getTotalCountWhere();
-        $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
-        $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
-        $tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']); // Assuming user_lvl = 2 for service providers
+    public function dashboard()
+    {
+         // Load the required models
+         $propertyModel = new Property();
+         $userModel = new User();
+         $bookingOrders = new BookingOrders();
+         $agentAssignmentModel = new agentAssignment();
+ 
+         // Fetch recent agent assignments
+        $recentAssignments = $agentAssignmentModel->where([], [], 'ORDER BY created_at DESC LIMIT 5');
 
+         // Fetch the required data
+         $totalProperties = $propertyModel->getTotalCountWhere();
+         $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
+         $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
+         $tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']); // Assuming user_lvl = 2 for service providers
         // Pass the data to the view
         $this->view('manager/dashboard', [
             'totalProperties' => $totalProperties,
             'registeredAgents' => $registeredAgents,
             'serviceProviders' => $serviceProviders,
-            'tenents' => $tenents
+            'tenents' => $tenents,
+            'recentAssignments' => $recentAssignments
         ]);
-        show($serviceProviders);
-    }
-
-    public function dashboard()
-    {
-        // Load the required models
-        $propertyModel = new Property();
-        $userModel = new User();
-        $serviceProviderModel = new ServiceProvider();
-
-        // Fetch the required data
-        $totalProperties = $propertyModel->getTotalCountWhere();
-        $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
-        $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for tenants
-
-        // Pass the data to the view
-        /*$this->view('manager/dashboard', [
-            'totalProperties' => $totalProperties,
-            'registeredAgents' => $registeredAgents,
-            'serviceProviders' => $serviceProviders
-        ]);*/
 
         
     }

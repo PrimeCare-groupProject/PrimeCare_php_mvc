@@ -783,12 +783,12 @@ img {
           <span>Register Employee</span>
         </a>
 
-        <a href="#" class="pms-action-card">
+        <a href="<?=ROOT?>/dashboard/managementhome/propertymanagement" class="pms-action-card">
           <i class="fas fa-home"></i>
           <span>Approve Property</span>
         </a>
 
-        <a href="#" class="pms-action-card">
+        <a href="<?=ROOT?>/dashboard/managementhome/financemanagement" class="pms-action-card">
           <i class="fas fa-file-invoice-dollar"></i>
           <span>Process Payments</span>
         </a>
