@@ -90,13 +90,13 @@ class Customer
         // Total expenses (both regular and external)
         $totalExpenses = $totalRegularServiceCost + $totalExternalServiceCost;
         
-        // Combine service requests
-        $allServiceRequests = [];
+        $allServiceRequestsRegular = [];
+        $allServiceRequestsExternal = [];
         
         // Add regular service requests with corrected field names
         if ($serviceRequests) {
             foreach ($serviceRequests as $service) {
-                $allServiceRequests[] = (object)[
+                $allServiceRequestsRegular[] = (object)[
                     'id' => $service->service_id ?? $service->id ?? null,
                     'type' => 'regular',
                     'date' => $service->date ?? $service->created_at ?? date('Y-m-d'),
@@ -111,7 +111,7 @@ class Customer
         // Add external service requests
         if ($externalRequests) {
             foreach ($externalRequests as $service) {
-                $allServiceRequests[] = (object)[
+                $allServiceRequestsExternal[] = (object)[
                     'id' => $service->id ?? null,
                     'type' => 'external',
                     'date' => $service->date ?? $service->created_at ?? date('Y-m-d'),
@@ -124,8 +124,16 @@ class Customer
         }
         
         // Sort by date, newest first (with better error handling)
-        if (!empty($allServiceRequests)) {
-            usort($allServiceRequests, function($a, $b) {
+        if (!empty($allServiceRequestsRegular)) {
+            usort($allServiceRequestsRegular, function($a, $b) {
+                $dateA = isset($a->date) && $a->date ? strtotime($a->date) : strtotime('now');
+                $dateB = isset($b->date) && $b->date ? strtotime($b->date) : strtotime('now');
+                return $dateB - $dateA;
+            });
+        }
+
+        if (!empty($allServiceRequestsExternal)) {
+            usort($allServiceRequestsExternal, function($a, $b) {
                 $dateA = isset($a->date) && $a->date ? strtotime($a->date) : strtotime('now');
                 $dateB = isset($b->date) && $b->date ? strtotime($b->date) : strtotime('now');
                 return $dateB - $dateA;
@@ -203,7 +211,8 @@ class Customer
             'currentProperty' => $currentProperty,
             'currentBooking' => $currentBooking,
             'totalExpenses' => $totalExpenses,
-            'serviceRequests' => $allServiceRequests,
+            'serviceRequestsRegular' => $allServiceRequestsRegular,
+            'serviceRequestsExternal' => $allServiceRequestsExternal,
             'rentalHistory' => $rentalHistory,
             'monthlyExpenses' => $monthlyExpenses,
             'monthlyExpensesArray' => $monthlyExpensesArray,
