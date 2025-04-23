@@ -740,13 +740,12 @@ class Customer
         // Get current user ID
         $userId = $_SESSION['user']->pid;
         
-        // ADDED: Check if user has more than 4 done service requests
+        // Check if user has more than 4 done service requests
         $doneRequests = $serviceLogModel->where([
             'requested_person_id' => $userId,
             'status' => 'Done'
         ]);
         
-        // If there are more than 4 done requests, show error and redirect
         if ($doneRequests && count($doneRequests) >= 4) {
             $_SESSION['flash']['msg'] = "You have reached the maximum limit of 4 completed service requests. Please pay for your completed requests before submitting new ones.";
             $_SESSION['flash']['type'] = "error";
@@ -757,25 +756,67 @@ class Customer
         // Get active/occupied properties for this user
         $bookings = $bookingOrdersModel->getOrdersByOwner($userId);
         $activeBookings = [];
+        $propertyIds = [];
         
         if ($bookings) {
             foreach ($bookings as $booking) {
-                // Convert status to lowercase for case-insensitive comparison
                 $bookingStatus = strtolower($booking->booking_status ?? '');
                 
-                // Consider a booking active if it's confirmed/active and not cancelled
                 if ($bookingStatus === 'confirmed' || $bookingStatus === 'active') {
-                    // Check that the booking period includes the current date
                     $today = strtotime('now');
                     $startDate = strtotime($booking->start_date ?? 'now');
                     $endDate = strtotime($booking->end_date ?? 'now');
                     
                     if ($today >= $startDate && $today <= $endDate) {
-                        // Get property details for the booking
-                        $property = $propertyModel->first(['property_id' => $booking->property_id]);
-                        if ($property) {
+                        $propertyIds[] = $booking->property_id;
+                    }
+                }
+            }
+            
+            // Fetch all property details in a single query for better performance
+            $properties = [];
+            if (!empty($propertyIds)) {
+                $fetchedProperties = $propertyModel->getByPropertyIds($propertyIds);
+                if ($fetchedProperties) {
+                    foreach ($fetchedProperties as $property) {
+                        // Decode property_images if it's a JSON string
+                        if (!empty($property->property_images) && is_string($property->property_images)) {
+                            $decodedImages = json_decode($property->property_images);
+                            if (json_last_error() === JSON_ERROR_NONE && is_array($decodedImages)) {
+                                $property->property_images = $decodedImages;
+                            }
+                        }
+                        $properties[$property->property_id] = $property;
+                    }
+                }
+            }
+            
+            // Append property details to their respective bookings
+            foreach ($bookings as $booking) {
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                
+                if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                    in_array($booking->property_id, $propertyIds)) {
+                    
+                    $today = strtotime('now');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
+                    
+                    if ($today >= $startDate && $today <= $endDate) {
+                        if (isset($properties[$booking->property_id])) {
+                            $property = $properties[$booking->property_id];
+                            
                             $booking->property_name = $property->name;
                             $booking->property_address = $property->address;
+                            
+                            // Handle property images
+                            if (!empty($property->property_images)) {
+                                $booking->property_images = $property->property_images;
+                            } else {
+                                // Fallback to default image if no images are available
+                                $booking->property_images = ['default-property.jpg'];
+                            }
+                            
                             $activeBookings[] = $booking;
                         }
                     }
@@ -790,7 +831,7 @@ class Customer
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = [];
             
-            // ADDED: Check again for done service requests (in case another request was processed while form was open)
+            // Check again for done service requests (in case another request was processed while form was open)
             $doneRequests = $serviceLogModel->where([
                 'requested_person_id' => $userId,
                 'status' => 'Done'
@@ -803,6 +844,21 @@ class Customer
             // Validate required fields
             if (empty($_POST['property_id'])) {
                 $errors['property_id'] = "Please select a property";
+            } else {
+                // Verify that the selected property is still active (rental period not ended)
+                $propertyId = $_POST['property_id'];
+                $propertyActive = false;
+                
+                foreach ($activeBookings as $booking) {
+                    if ($booking->property_id == $propertyId) {
+                        $propertyActive = true;
+                        break;
+                    }
+                }
+                
+                if (!$propertyActive) {
+                    $errors['property_id'] = "This property's rental period has ended or is not active. You cannot request services for it.";
+                }
             }
             
             if (empty($_POST['service_type'])) {
@@ -881,7 +937,7 @@ class Customer
             'errors' => []
         ]);
     }
-
+    
     public function requestServiceExternal()
     {
         $servicesModel = new Services();
