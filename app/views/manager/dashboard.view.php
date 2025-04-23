@@ -778,7 +778,7 @@ img {
       </div>
 
       <div class="pms-actions-grid">
-        <a href="#" class="pms-action-card">
+        <a href="<?= ROOT ?>/dashboard/managementhome/agentmanagement" class="pms-action-card">
           <i class="fas fa-user-plus"></i>
           <span>Register Employee</span>
         </a>
