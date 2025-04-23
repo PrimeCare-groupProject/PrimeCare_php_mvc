@@ -22,27 +22,39 @@ class Customer
         $userId = $_SESSION['user']->pid;
         
         // Initialize models
-        $bookingModel = new BookingModel();
+        $bookingOrdersModel = new BookingOrders();
         $serviceRequestModel = new ServiceLog();
         $externalServiceModel = new ExternalService();
         $propertyModel = new PropertyConcat();
         
-        // Get active bookings for this customer
-        $bookings = $bookingModel->where(['tenant_id' => $userId]);
+        // Get all bookings for this customer
+        $bookings = $bookingOrdersModel->getOrdersByOwner($userId);
         
-        // Filter for active bookings
+        // Filter for active bookings and get current property
         $activeBookings = [];
-        $currentProperty = null;
         $currentBooking = null;
+        $currentProperty = null;
+        
         if ($bookings) {
             foreach ($bookings as $booking) {
-                if (strtolower($booking->status ?? '') === 'active' || 
-                    strtolower($booking->accept_status ?? '') === 'accepted') {
-                    $activeBookings[] = $booking;
+                // Convert status to lowercase for case-insensitive comparison
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                $paymentStatus = strtolower($booking->payment_status ?? '');
+                
+                // Consider a booking active if it's confirmed/active and not cancelled
+                if ($bookingStatus === 'confirmed' || $bookingStatus === 'active') {
+                    // Check that the booking period includes the current date
+                    $today = strtotime('now');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
                     
-                    // Get the most recent active booking for current property display
-                    if (!$currentBooking || strtotime($booking->start_date) > strtotime($currentBooking->start_date)) {
-                        $currentBooking = $booking;
+                    if ($today >= $startDate && $today <= $endDate) {
+                        $activeBookings[] = $booking;
+                        
+                        // Set the most recent active booking for current property display
+                        if (!$currentBooking || strtotime($booking->start_date) > strtotime($currentBooking->start_date)) {
+                            $currentBooking = $booking;
+                        }
                     }
                 }
             }
@@ -50,49 +62,56 @@ class Customer
         
         // Get current property details if there's an active booking
         if ($currentBooking) {
+            
             $currentProperty = $propertyModel->first(['property_id' => $currentBooking->property_id]);
+            
+            // If property_images exists but needs decoding
+            if ($currentProperty && !empty($currentProperty->property_images) && is_string($currentProperty->property_images)) {
+                // Try to decode JSON property_images
+                $decodedImages = json_decode($currentProperty->property_images);
+                if (is_array($decodedImages)) {
+                    $currentProperty->property_images = $decodedImages;
+                }
+            }
         }
         
-        // IMPORTANT FIX: Check if ServiceLog model has requested_person_id field, if not try other fields
+        // Get service requests
         try {
             $serviceRequests = $serviceRequestModel->where(['requested_person_id' => $userId]);
         } catch (Exception $e) {
             try {
                 $serviceRequests = $serviceRequestModel->where(['customer_id' => $userId]);
             } catch (Exception $e) {
-                // Final fallback: empty array if no suitable field exists
                 $serviceRequests = [];
             }
         }
         
+        // Calculate regular service costs
         $totalRegularServiceCost = 0;
         if ($serviceRequests) {
             foreach ($serviceRequests as $service) {
-                // Try both field names
                 $totalRegularServiceCost += ($service->total_cost ?? $service->cost ?? 0);
             }
         }
         
-        // Get external service requests and calculate expenses
+        // Get external service requests
         $externalRequests = $externalServiceModel->where(['requested_person_id' => $userId]);
         $totalExternalServiceCost = 0;
         if ($externalRequests) {
             foreach ($externalRequests as $service) {
-                // Calculate cost for each external service
                 $hoursCost = ($service->total_hours ?? 0) * ($service->cost_per_hour ?? 0);
                 $additionalCost = $service->additional_charges ?? 0;
                 $totalExternalServiceCost += ($hoursCost + $additionalCost);
             }
         }
         
-        // Total expenses (both regular and external)
+        // Total expenses
         $totalExpenses = $totalRegularServiceCost + $totalExternalServiceCost;
         
+        // Process service requests arrays
         $allServiceRequestsRegular = [];
         $allServiceRequestsExternal = [];
-        // $allServiceRequests = [];
         
-        // Add regular service requests with corrected field names
         if ($serviceRequests) {
             foreach ($serviceRequests as $service) {
                 $allServiceRequestsRegular[] = (object)[
@@ -107,7 +126,6 @@ class Customer
             }
         }
         
-        // Add external service requests
         if ($externalRequests) {
             foreach ($externalRequests as $service) {
                 $allServiceRequestsExternal[] = (object)[
@@ -116,15 +134,15 @@ class Customer
                     'date' => $service->date ?? $service->created_at ?? date('Y-m-d'),
                     'service_type' => $service->service_type ?? 'External Service',
                     'service_description' => $service->property_description ?? '',
-                    'property_address' => $service->property_address ?? '', // Add this line
+                    'property_address' => $service->property_address ?? '',
                     'status' => $service->status ?? 'Pending',
                     'cost' => (($service->total_hours ?? 0) * ($service->cost_per_hour ?? 0)) + ($service->additional_charges ?? 0),
-                    'service_images' => $service->service_images ?? null // Add this line
+                    'service_images' => $service->service_images ?? null
                 ];
             }
         }
         
-        // Sort by date, newest first (with better error handling)
+        // Sort service requests
         if (!empty($allServiceRequestsRegular)) {
             usort($allServiceRequestsRegular, function($a, $b) {
                 $dateA = isset($a->date) && $a->date ? strtotime($a->date) : strtotime('now');
@@ -132,7 +150,7 @@ class Customer
                 return $dateB - $dateA;
             });
         }
-
+    
         if (!empty($allServiceRequestsExternal)) {
             usort($allServiceRequestsExternal, function($a, $b) {
                 $dateA = isset($a->date) && $a->date ? strtotime($a->date) : strtotime('now');
@@ -141,20 +159,38 @@ class Customer
             });
         }
         
-        // Get rental history
+        // Get rental history with enhanced details using BookingOrders
         $rentalHistory = [];
         if ($bookings) {
             foreach ($bookings as $booking) {
-                // Get property details for each booking
+                // Get property details for each booking using PropertyConcat for images
                 $property = $propertyModel->first(['property_id' => $booking->property_id]);
+                
+                // Calculate rental status based on dates and booking status
+                $rentalStatus = $booking->booking_status ?? 'Unknown';
+                $today = strtotime('now');
+                $startDate = strtotime($booking->start_date ?? 'now');
+                $endDate = strtotime($booking->end_date ?? 'now');
+                
+                // Override with more descriptive status
+                if (strtolower($rentalStatus) === 'confirmed' && $today >= $startDate && $today <= $endDate) {
+                    $rentalStatus = 'Active';
+                } else if (strtolower($rentalStatus) === 'confirmed' && $today > $endDate) {
+                    $rentalStatus = 'Completed';
+                } else if (strtolower($rentalStatus) === 'confirmed' && $today < $startDate) {
+                    $rentalStatus = 'Upcoming';
+                }
                 
                 $rentalHistory[] = (object)[
                     'property_id' => $booking->property_id,
+                    'booking_id' => $booking->booking_id,
                     'property_name' => $property ? ($property->name ?? "Property #" . $booking->property_id) : "Property #" . $booking->property_id,
+                    'property_images' => $property ? $property->property_images : null,
                     'start_date' => $booking->start_date ?? '',
                     'end_date' => $booking->end_date ?? '',
-                    'price' => $booking->price ?? 0,
-                    'status' => $booking->status ?? $booking->accept_status ?? 'Unknown'
+                    'price' => $booking->total_amount ?? $booking->rental_price ?? 0,
+                    'payment_status' => $booking->payment_status ?? 'Unknown',
+                    'status' => $rentalStatus
                 ];
             }
         }
@@ -163,13 +199,11 @@ class Customer
         $monthlyExpenses = [];
         $sixMonthsAgo = strtotime('-6 months');
         
-        // Initialize monthly data array with zeros
         for ($i = 5; $i >= 0; $i--) {
             $month = date('M', strtotime("-$i months"));
             $monthlyExpenses[$month] = 0;
         }
         
-        // Fill in regular service expenses with corrected field access
         if ($serviceRequests) {
             foreach ($serviceRequests as $service) {
                 if (isset($service->date)) {
@@ -177,7 +211,6 @@ class Customer
                     if ($serviceTime >= $sixMonthsAgo) {
                         $month = date('M', $serviceTime);
                         if (isset($monthlyExpenses[$month])) {
-                            // Try both field names
                             $monthlyExpenses[$month] += ($service->total_cost ?? $service->cost ?? 0);
                         }
                     }
@@ -185,7 +218,6 @@ class Customer
             }
         }
         
-        // Fill in external service expenses
         if ($externalRequests) {
             foreach ($externalRequests as $service) {
                 if (isset($service->date)) {
@@ -201,7 +233,6 @@ class Customer
             }
         }
         
-        // Convert to array format for chart
         $monthlyExpensesArray = array_values($monthlyExpenses);
         
         // Pass all data to the view
