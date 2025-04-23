@@ -43,13 +43,13 @@
         border-radius: 16px;
         padding: 1.8rem;
         overflow: hidden;
-        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition: all 0.3s ease;
         z-index: 1;
         min-height: 180px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
     }
     
     /* Background image styles */
@@ -100,21 +100,25 @@
         -webkit-backdrop-filter: blur(1px);
     }
     
-    /* Individual card background images */
+    /* Individual card background images - UPDATED with unique images */
     .summary-card.current-rental::before {
         background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3');
     }
     
-    .summary-card.payment-history::before {
+    .summary-card.expenses::before {
         background-image: url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-4.0.3');
     }
     
-    .summary-card.service-requests::before {
-        background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3');
+    .summary-card.service-regular::before {
+        background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3');
     }
     
-    .summary-card.upcoming-payment::before {
-        background-image: url('https://images.unsplash.com/photo-1543286386-2e659306cd6c?ixlib=rb-4.0.3');
+    .summary-card.service-external::before {
+        background-image: url('https://images.unsplash.com/photo-1565183997392-2f6f122e5912?ixlib=rb-4.0.3');
+    }
+    
+    .summary-card.rental-history::before {
+        background-image: url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3');
     }
     
     /* Modern icon containers */
@@ -128,16 +132,38 @@
         font-size: 1.6rem;
         margin-bottom: 1rem;
         position: relative;
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(5px);
         border: 1px solid rgba(255, 255, 255, 0.3);
         transition: all 0.3s ease;
     }
     
+    /* Improved icon container colors */
+    .summary-card .icon-container.primary-icon {
+        color: var(--primary);
+        background: rgba(255, 193, 7, 0.15);
+        box-shadow: 0 8px 20px rgba(255, 193, 7, 0.2);
+    }
+    
+    .summary-card .icon-container.warning-icon {
+        color: var(--warning);
+        background: rgba(247, 37, 133, 0.15);
+        box-shadow: 0 8px 20px rgba(247, 37, 133, 0.2);
+    }
+    
+    .summary-card .icon-container.success-icon {
+        color: var(--success);
+        background: rgba(76, 201, 240, 0.15);
+        box-shadow: 0 8px 20px rgba(76, 201, 240, 0.2);
+    }
+    
+    .summary-card .icon-container.color1-icon {
+        color: var(--color1);
+        background: rgba(6, 208, 1, 0.15);
+        box-shadow: 0 8px 20px rgba(6, 208, 1, 0.2);
+    }
+    
     .summary-card:hover .icon-container {
         transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
     }
     
     /* Card content styles */
@@ -196,7 +222,7 @@
     
     .card-footer a {
         text-decoration: none;
-        color: var(--primary);
+        color: var(--color1);
         font-weight: 500;
         transition: all 0.2s ease;
     }
@@ -376,6 +402,531 @@
         padding: 2rem;
         color: #757575;
     }
+    
+    /* Improved service card styles */
+    .service-card {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        display: flex;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        min-height: 120px;
+        position: relative;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .service-details {
+        padding: 18px;
+        flex: 1;
+    }
+    
+    .service-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+        color: #333;
+    }
+    
+    .service-date {
+        color: #777;
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .service-date i {
+        margin-right: 5px;
+        font-size: 0.85rem;
+        color: #aaa;
+    }
+    
+    .service-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        font-size: 0.9rem;
+        padding-top: 12px;
+        border-top: 1px solid #f5f5f5;
+    }
+    
+    .service-address {
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        color: #555;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .service-address i {
+        margin-right: 8px;
+        margin-top: 3px;
+        color: #888;
+    }
+    
+    .service-cost {
+        font-weight: 600;
+        color: var(--warning);
+        padding: 5px 10px;
+        border-radius: 20px;
+        background-color: rgba(247, 37, 133, 0.1);
+    }
+    
+    .service-image-segment {
+        width: 180px;
+        min-width: 180px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .service-image {
+        width: 100%;
+        height: 100%;
+        min-height: 160px;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.4s cubic-bezier(0.4,0.2,0.2,1), box-shadow 0.3s;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .service-card:hover .service-image {
+        transform: scale(1.07) rotate(-2deg);
+        box-shadow: 0 8px 32px rgba(76,201,240,0.18), 0 2px 10px rgba(0,0,0,0.10);
+        filter: brightness(1.08) saturate(1.15) contrast(1.08);
+        border-radius: 16px;
+    }
+    
+    .service-card:hover .service-image {
+        /* transform: scale(1.05); */
+        border-radius: 10px;
+    }
+    
+    .service-status-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+        font-size: 0.85rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .image-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 15px;
+        justify-content: center;
+        background: rgba(0,0,0,0.02);
+    }
+    
+    .image-thumbnail {
+        width: 60px;
+        height: 60px;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        cursor: pointer;
+        background: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .image-thumbnail:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: var(--primary);
+    }
+    
+    .image-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .property-images-label {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        z-index: 2;
+    }
+    
+    @media (max-width: 768px) {
+        .service-card {
+            flex-direction: column;
+        }
+        
+        .service-image-segment {
+            width: 100%;
+            min-width: 100%;
+            height: 180px;
+        }
+        
+        .property-meta {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    }
+    
+    @keyframes zoomIn {
+        from {transform: scale(0.1); opacity: 0;}
+        to {transform: scale(1); opacity: 1;}
+    }
+
+    .view-all-images-btn {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        overflow: hidden;
+        z-index: 5;
+    }
+    
+    .view-all-images-btn .btn-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .view-all-images-btn .image-count {
+        background-color: var(--primary);
+        color: #000;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.75rem;
+        margin-left: 2px;
+        transition: transform 0.3s ease;
+    }
+    
+    .view-all-images-btn:hover {
+        background: rgba(0,0,0,0.85);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+    
+    .view-all-images-btn:hover .image-count {
+        transform: scale(1.15);
+    }
+    
+    /* Futuristic Image Modal Styles */
+    #imageModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        overflow: auto;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    .modal-content-wrapper {
+        position: relative;
+        width: 85%;
+        max-width: 1200px;
+        margin: auto;
+        text-align: center;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(20, 20, 20, 0.7);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: rgba(30, 30, 30, 0.7);
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    
+    .modal-header h3 {
+        color: white;
+        margin: 0;
+        font-weight: 500;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .modal-header h3 .image-counter {
+        background: var(--primary);
+        color: #000;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+    
+    .modal-close {
+        color: #f1f1f1;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.2);
+    }
+    
+    .modal-close:hover {
+        background: rgba(255,255,255,0.15);
+        transform: rotate(90deg);
+    }
+    
+    .modal-body {
+        padding: 20px;
+        overflow: hidden;
+    }
+    
+    .modal-image-container {
+        position: relative;
+        height: calc(70vh - 140px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    
+    #modalImage {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+        animation: fadeZoomIn 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 2;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .nav-button:hover {
+        background: rgba(0,0,0,0.7);
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    #prevImage {
+        left: 20px;
+    }
+    
+    #nextImage {
+        right: 20px;
+    }
+    
+    .nav-icon {
+        font-size: 1.5rem;
+    }
+    
+    #modalGallery {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        overflow-x: auto;
+        padding: 15px 5px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,0.3) transparent;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        background: rgba(0,0,0,0.3);
+        border-radius: 12px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    
+    #modalGallery::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    #modalGallery::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.2);
+        border-radius: 10px;
+    }
+    
+    #modalGallery::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
+    
+    .thumbnail {
+        width: 80px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        flex-shrink: 0;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .thumbnail.active {
+        border-color: var(--primary);
+        transform: scale(1.05);
+    }
+    
+    .thumbnail:hover {
+        transform: translateY(-4px);
+    }
+    
+    .thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .image-index {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+    
+    @keyframes fadeZoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .slide-in {
+        animation: slideIn 0.4s forwards;
+    }
+    
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+    }
+    
+    .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .modal-content-wrapper {
+            width: 95%;
+        }
+        
+        .modal-image-container {
+            height: calc(60vh - 140px);
+        }
+        
+        .nav-button {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .thumbnail {
+            width: 60px;
+            height: 45px;
+        }
+        
+        .modal-header h3 {
+            font-size: 1rem;
+        }
+    }
 </style>
 
 <div class="user_view-menu-bar">
@@ -387,7 +938,7 @@
     <div class="summary-cards">
         <!-- Current Rental -->
         <div class="summary-card current-rental">
-            <div class="icon-container" style="color: var(--primary);">
+            <div class="icon-container primary-icon">
                 <i class="fas fa-home"></i>
             </div>
             <div class="card-content">
@@ -409,55 +960,75 @@
         </div>
         
         <!-- Total Expenses Card -->
-        <div class="summary-card service-requests">
-            <div class="icon-container" style="color: var(--warning);">
+        <div class="summary-card expenses">
+            <div class="icon-container warning-icon">
                 <i class="fas fa-file-invoice"></i>
             </div>
             <div class="card-content">
                 <h3>Service Expenses</h3>
-                <div class="value">
+                <div class="value" style="color: var(--warning);">
                     <?php echo 'LKR ' . number_format($totalExpenses ?? 0, 2); ?>
                 </div>
                 <div class="card-footer">
-                    <i class="fas fa-tools" style="color: var(--warning);"></i>
+                    <i class="fas fa-coins" style="color: var(--warning);"></i>
                     <span>Total maintenance costs</span>
                 </div>
             </div>
         </div>
         
-        <!-- Service Requests Card -->
-        <div class="summary-card service-requests">
-            <div class="icon-container" style="color: var(--warning);">
+        <!-- Regular Service Requests Card -->
+        <div class="summary-card service-regular">
+            <div class="icon-container success-icon">
                 <i class="fas fa-tools"></i>
             </div>
             <div class="card-content">
-                <h3>Service Requests</h3>
-                <div class="value">
+                <h3>Regular Service Requests</h3>
+                <div class="value" style="color: var(--success);">
                     <?php
-                    // Count of service requests
-                    $serviceRequestCount = isset($serviceRequests) && is_array($serviceRequests)
-                        ? count($serviceRequests)
+                    $serviceRequestsRegularCount = isset($serviceRequestsRegular) && is_array($serviceRequestsRegular)
+                        ? count($serviceRequestsRegular)
                         : 0;
-                    echo $serviceRequestCount;
+                    echo $serviceRequestsRegularCount;
                     ?>
                 </div>
                 <div class="card-footer">
-                    <i class="fas fa-wrench" style="color: var(--warning);"></i>
+                    <i class="fas fa-wrench" style="color: var(--success);"></i>
                     <a href="<?= ROOT ?>/dashboard/requestService">Request New Service</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- External Service Requests Card -->
+        <div class="summary-card service-external">
+            <div class="icon-container color1-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <div class="card-content">
+                <h3>External Service Requests</h3>
+                <div class="value" style="color: var(--color1);">
+                    <?php
+                    $serviceRequestsExternalCount = isset($serviceRequestsExternal) && is_array($serviceRequestsExternal)
+                        ? count($serviceRequestsExternal)
+                        : 0;
+                    echo $serviceRequestsExternalCount;
+                    ?>
+                </div>
+                <div class="card-footer">
+                    <i class="fas fa-hammer" style="color: var(--color1);"></i>
+                    <a href="<?= ROOT ?>/dashboard/requestServiceExternal">Request External Service</a>
                 </div>
             </div>
         </div>
         
         <!-- Rental History Card -->
-        <div class="summary-card current-rental">
-            <div class="icon-container" style="color: var(--color1);">
+        <div class="summary-card rental-history">
+            <div class="icon-container primary-icon">
                 <i class="fas fa-history"></i>
             </div>
             <div class="card-content">
                 <h3>Rental History</h3>
                 <div class="value">
                     <?php
-                    // Count of all bookings
                     $bookingCount = isset($bookings) && is_array($bookings)
                         ? count($bookings)
                         : 0;
@@ -465,7 +1036,7 @@
                     ?>
                 </div>
                 <div class="card-footer">
-                    <i class="fas fa-list" style="color: var(--color1);"></i>
+                    <i class="fas fa-list" style="color: var(--primary);"></i>
                     <a href="<?= ROOT ?>/dashboard/occupiedProperties">View Rental History</a>
                 </div>
             </div>
@@ -524,7 +1095,7 @@
             <div class="card-header">
                 <h3>Expense History</h3>
                 <div class="period-selector">
-                    <select id="chartPeriod">
+                    <select id="chartPeriod" class="form-select" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #ddd;">
                         <option value="6months">Last 6 Months</option>
                         <option value="1year">Last Year</option>
                     </select>
@@ -577,7 +1148,7 @@
                 <a href="<?= ROOT ?>/dashboard/repairListing" class="action-button">View All</a>
             </div>
             
-            <?php if (isset($serviceRequests) && is_array($serviceRequests) && count($serviceRequests) > 0): ?>
+            <?php if (isset($serviceRequestsRegular) && is_array($serviceRequestsRegular) && count($serviceRequestsRegular) > 0): ?>
                 <table class="service-table">
                     <thead>
                         <tr>
@@ -588,7 +1159,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach(array_slice($serviceRequests, 0, 5) as $request): ?>
+                        <?php foreach(array_slice($serviceRequestsRegular, 0, 5) as $request): ?>
                             <tr>
                                 <td><?= date('M d, Y', strtotime($request->date ?? 'now')) ?></td>
                                 <td><?= htmlspecialchars($request->service_type ?? 'General') ?></td>
@@ -618,105 +1189,166 @@
         </div>
     </div>
     
-    <!-- Two Columns Section -->
-    <div class="two-columns">
-        <!-- Service Requests Section -->
-        <div class="service-section">
-            <div class="card-header">
-                <h3>Service Requests</h3>
-                <a href="<?= ROOT ?>/dashboard/repairListing" class="action-button">View All</a>
-            </div>
-            
-            <?php if (isset($serviceRequests) && is_array($serviceRequests) && count($serviceRequests) > 0): ?>
-                <table class="service-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach(array_slice($serviceRequests, 0, 5) as $request): ?>
-                            <tr>
-                                <td><?= date('M d, Y', strtotime($request->date ?? 'now')) ?></td>
-                                <td><?= htmlspecialchars($request->service_type ?? 'General') ?></td>
-                                <td><?= htmlspecialchars(substr($request->service_description ?? 'No description', 0, 30)) . (strlen($request->service_description ?? '') > 30 ? '...' : '') ?></td>
-                                <td>
-                                    <?php
-                                        $statusClass = 'badge-info';
-                                        $status = $request->status ?? 'Pending';
-                                        
-                                        if(strtolower($status) === 'completed' || strtolower($status) === 'done') $statusClass = 'badge-success';
-                                        else if(strtolower($status) === 'pending') $statusClass = 'badge-warning';
-                                        else if(strtolower($status) === 'rejected' || strtolower($status) === 'cancelled') $statusClass = 'badge-danger';
-                                    ?>
-                                    <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($status) ?></span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <div class="no-data">
-                    <i class="fas fa-tools" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
-                    <p>No service requests found.</p>
-                    <a href="<?= ROOT ?>/dashboard/requestService" class="action-button">Request Service</a>
+    <!-- External Service Requests Section -->
+    <div class="service-section">
+    <div class="card-header">
+        <h3>External Service Requests</h3>
+        <a href="<?= ROOT ?>/dashboard/externalMaintenance" class="action-button">View All</a>
+    </div>
+
+    <?php if (isset($serviceRequestsExternal) && is_array($serviceRequestsExternal) && count($serviceRequestsExternal) > 0): ?>
+        <div class="service-cards">
+            <?php foreach($serviceRequestsExternal as $request): ?>
+                <?php 
+                    $service_images = !empty($request->service_images) ? 
+                        (is_string($request->service_images) ? json_decode($request->service_images) : $request->service_images) : 
+                        [];
+                    if (is_array($service_images)) {
+                        $service_images = array_unique(array_filter($service_images, function($img) { return !empty($img); }));
+                    } else {
+                        $service_images = [];
+                    }
+                    $firstImage = (!empty($service_images) && is_array($service_images)) ? $service_images[0] : null;
+                    $imagePath = $firstImage ? (ROOT . '/assets/images/' . htmlspecialchars($firstImage)) : (ROOT . '/assets/images/default.jpg');
+                    $statusClass = 'badge-info';
+                    $status = $request->status ?? 'Pending';
+                    if(strtolower($status) === 'completed' || strtolower($status) === 'done') $statusClass = 'badge-success';
+                    else if(strtolower($status) === 'pending') $statusClass = 'badge-warning';
+                    else if(strtolower($status) === 'rejected' || strtolower($status) === 'cancelled') $statusClass = 'badge-danger';
+                ?>
+                <div class="service-card">
+                    <div class="service-details">
+                        <div class="service-title"><?= htmlspecialchars($request->service_type ?? 'External Service') ?></div>
+                        <div class="service-date">
+                            <i class="far fa-calendar-alt"></i>
+                            <?= date('M d, Y', strtotime($request->date ?? 'now')) ?>
+                        </div>
+                        <div class="service-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>
+                                <?php
+                                $address = $request->property_address ?? 'Address not available';
+                                echo htmlspecialchars(substr($address, 0, 40)) . (strlen($address) > 40 ? '...' : '');
+                                ?>
+                            </span>
+                        </div>
+                        <div class="service-footer">
+                            <span class="service-cost"><i class="fas fa-coins" style="margin-right:5px;"></i> LKR <?= number_format($request->cost ?? 0, 2) ?></span>
+                            <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($status) ?></span>
+                        </div>
+                    </div>
+                    <div class="service-image-segment">
+                        <?php if (!empty($service_images) && is_array($service_images)): ?>
+                            <div class="property-images-label"><i class="far fa-images"></i> <?= count($service_images) ?> Images</div>
+                            <div class="service-image" 
+                                 style="background-image: url('<?= ROOT ?>/assets/images/<?= htmlspecialchars($service_images[0]) ?>');"
+                                 onclick="openImageModal('<?= ROOT ?>/assets/images/<?= htmlspecialchars($service_images[0]) ?>')">
+                            </div>
+                            <?php if (count($service_images) > 1): ?>
+                                <div class="view-all-images-btn" onclick="showAllImages(<?= htmlspecialchars(json_encode($service_images)) ?>)">
+                                    <div class="btn-content">
+                                        <i class="far fa-images"></i>
+                                        <span>View Gallery</span>
+                                    </div>
+                                    <div class="image-count"><?= count($service_images) ?></div>
+                                </div>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <div class="service-image" style="background-image: url('<?= $imagePath ?>');"></div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+            <div class="no-data">
+                <i class="fas fa-tools" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                <p>No external service requests found.</p>
+                <a href="<?= ROOT ?>/dashboard/requestServiceExternal" class="action-button">Request External Service</a>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <!-- Rental History Section -->
+    <div class="rental-history">
+        <div class="card-header">
+            <h3>Rental History</h3>
+            <a href="<?= ROOT ?>/dashboard/occupiedProperties" class="action-button">View All</a>
         </div>
         
-        <!-- Rental History Section -->
-        <div class="rental-history">
-            <div class="card-header">
-                <h3>Rental History</h3>
-                <a href="<?= ROOT ?>/dashboard/occupiedProperties" class="action-button">View All</a>
-            </div>
-            
-            <?php if (isset($rentalHistory) && is_array($rentalHistory) && count($rentalHistory) > 0): ?>
-                <table class="rental-table">
-                    <thead>
+        <?php if (isset($rentalHistory) && is_array($rentalHistory) && count($rentalHistory) > 0): ?>
+            <table class="rental-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Period</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach(array_slice($rentalHistory, 0, 5) as $rental): ?>
                         <tr>
-                            <th>Property</th>
-                            <th>Period</th>
-                            <th>Amount</th>
-                            <th>Status</th>
+                            <td><?= htmlspecialchars($rental->property_name ?? 'Unknown Property') ?></td>
+                            <td>
+                                <?= 
+                                date('M d, Y', strtotime($rental->start_date ?? 'now')) . ' - ' . 
+                                (isset($rental->end_date) ? date('M d, Y', strtotime($rental->end_date)) : 'Present')
+                                ?>
+                            </td>
+                            <td>LKR <?= number_format($rental->price ?? 0, 2) ?></td>
+                            <td>
+                                <?php
+                                    $statusClass = 'badge-info';
+                                    $status = $rental->status ?? 'Unknown';
+                                    
+                                    if(strtolower($status) === 'active' || strtolower($status) === 'accepted') $statusClass = 'badge-success';
+                                    else if(strtolower($status) === 'pending') $statusClass = 'badge-warning';
+                                    else if(strtolower($status) === 'completed' || strtolower($status) === 'past') $statusClass = 'badge-info';
+                                    else if(strtolower($status) === 'cancelled' || strtolower($status) === 'rejected') $statusClass = 'badge-danger';
+                                ?>
+                                <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($status) ?></span>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach(array_slice($rentalHistory, 0, 5) as $rental): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($rental->property_name ?? 'Unknown Property') ?></td>
-                                <td>
-                                    <?= 
-                                    date('M d, Y', strtotime($rental->start_date ?? 'now')) . ' - ' . 
-                                    (isset($rental->end_date) ? date('M d, Y', strtotime($rental->end_date)) : 'Present')
-                                    ?>
-                                </td>
-                                <td>LKR <?= number_format($rental->price ?? 0, 2) ?></td>
-                                <td>
-                                    <?php
-                                        $statusClass = 'badge-info';
-                                        $status = $rental->status ?? 'Unknown';
-                                        
-                                        if(strtolower($status) === 'active' || strtolower($status) === 'accepted') $statusClass = 'badge-success';
-                                        else if(strtolower($status) === 'pending') $statusClass = 'badge-warning';
-                                        else if(strtolower($status) === 'completed' || strtolower($status) === 'past') $statusClass = 'badge-info';
-                                        else if(strtolower($status) === 'cancelled' || strtolower($status) === 'rejected') $statusClass = 'badge-danger';
-                                    ?>
-                                    <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($status) ?></span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <div class="no-data">
-                    <i class="fas fa-history" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
-                    <p>No rental history found.</p>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <div class="no-data">
+                <i class="fas fa-history" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                <p>No rental history found.</p>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Improved Image Modal -->
+<div id="imageModal" style="display: none;">
+    <div class="modal-content-wrapper" id="modalContentWrapper">
+        <div class="modal-header">
+            <h3>
+                <i class="far fa-images"></i> 
+                Image Gallery
+                <span class="image-counter">
+                    <span id="currentImageNum">1</span>/<span id="totalImages">0</span>
+                </span>
+            </h3>
+            <span class="modal-close" onclick="closeImageModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="modal-image-container">
+                <button class="nav-button" id="prevImage">
+                    <i class="fas fa-chevron-left nav-icon"></i>
+                </button>
+                <img id="modalImage" src="" alt="Service image">
+                <button class="nav-button" id="nextImage">
+                    <i class="fas fa-chevron-right nav-icon"></i>
+                </button>
+                <div id="imageLoadingOverlay" class="loading-overlay">
+                    <div class="loader"></div>
                 </div>
-            <?php endif; ?>
+            </div>
+            <div id="modalGallery"></div>
         </div>
     </div>
 </div>
@@ -776,7 +1408,200 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+        
+        // Period selector functionality
+        document.getElementById('chartPeriod').addEventListener('change', function() {
+            // In a real app, this would fetch new data based on the selected period
+            alert('This would update the chart with data for: ' + this.value);
+        });
     }
+});
+</script>
+
+<script>
+let currentImageIndex = 0;
+let imageGallery = [];
+
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalWrapper = document.getElementById('modalContentWrapper');
+    const loadingOverlay = document.getElementById('imageLoadingOverlay');
+    
+    // Reset and show modal
+    modal.style.display = 'flex';
+    modalWrapper.style.opacity = '0';
+    modalWrapper.style.transform = 'scale(0.95)';
+    loadingOverlay.style.display = 'flex';
+    
+    // Load single image
+    modalImg.onload = function() {
+        loadingOverlay.style.display = 'none';
+        modalWrapper.style.opacity = '1';
+        modalWrapper.style.transform = 'scale(1)';
+    }
+    
+    modalImg.src = imageSrc;
+    
+    // Reset gallery display
+    document.getElementById('modalGallery').innerHTML = '';
+    document.getElementById('prevImage').style.display = 'none';
+    document.getElementById('nextImage').style.display = 'none';
+    
+    // Update counter
+    document.getElementById('currentImageNum').textContent = '1';
+    document.getElementById('totalImages').textContent = '1';
+}
+
+function showAllImages(images) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const gallery = document.getElementById('modalGallery');
+    const modalWrapper = document.getElementById('modalContentWrapper');
+    const loadingOverlay = document.getElementById('imageLoadingOverlay');
+    
+    // Reset and show modal
+    modal.style.display = 'flex';
+    modalWrapper.style.opacity = '0';
+    modalWrapper.style.transform = 'scale(0.95)';
+    loadingOverlay.style.display = 'flex';
+    
+    // Convert to array of full paths
+    imageGallery = images;
+    imageGallery = typeof imageGallery === 'string' ? JSON.parse(imageGallery) : imageGallery;
+    imageGallery = imageGallery.map(img => `${ROOT}/assets/images/${img}`);
+    
+    currentImageIndex = 0;
+    
+    // Update counter
+    document.getElementById('currentImageNum').textContent = '1';
+    document.getElementById('totalImages').textContent = imageGallery.length;
+    
+    // Show navigation buttons if multiple images
+    document.getElementById('prevImage').style.display = imageGallery.length > 1 ? 'flex' : 'none';
+    document.getElementById('nextImage').style.display = imageGallery.length > 1 ? 'flex' : 'none';
+    
+    // Create thumbnails with staggered animation
+    gallery.innerHTML = '';
+    imageGallery.forEach((img, index) => {
+        const thumb = document.createElement('div');
+        thumb.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+        thumb.style.animationDelay = `${index * 0.05}s`;
+        thumb.classList.add('slide-in');
+        
+        const thumbImg = document.createElement('img');
+        thumbImg.src = img;
+        thumbImg.alt = `Thumbnail ${index + 1}`;
+        
+        thumb.appendChild(thumbImg);
+        thumb.onclick = () => {
+            setActiveImage(index);
+        };
+        
+        gallery.appendChild(thumb);
+    });
+    
+    // Load first image
+    modalImg.onload = function() {
+        loadingOverlay.style.display = 'none';
+        modalWrapper.style.opacity = '1';
+        modalWrapper.style.transform = 'scale(1)';
+    }
+    
+    modalImg.src = imageGallery[0];
+}
+
+function setActiveImage(index) {
+    if (index < 0) index = imageGallery.length - 1;
+    if (index >= imageGallery.length) index = 0;
+    
+    const loadingOverlay = document.getElementById('imageLoadingOverlay');
+    loadingOverlay.style.display = 'flex';
+    
+    currentImageIndex = index;
+    
+    // Update counter
+    document.getElementById('currentImageNum').textContent = index + 1;
+    
+    // Update image
+    const modalImg = document.getElementById('modalImage');
+    modalImg.onload = function() {
+        loadingOverlay.style.display = 'none';
+    }
+    modalImg.src = imageGallery[index];
+    
+    // Update thumbnail selection
+    const thumbs = document.getElementById('modalGallery').children;
+    for (let i = 0; i < thumbs.length; i++) {
+        thumbs[i].classList.toggle('active', i === index);
+    }
+    
+    // Scroll thumbnail into view if needed
+    const activeThumb = thumbs[index];
+    if (activeThumb) {
+        activeThumb.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
+        });
+    }
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    const modalWrapper = document.getElementById('modalContentWrapper');
+    
+    modalWrapper.style.opacity = '0';
+    modalWrapper.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+// Add event listeners for next/prev buttons
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('prevImage').addEventListener('click', () => {
+        setActiveImage(currentImageIndex - 1);
+    });
+    
+    document.getElementById('nextImage').addEventListener('click', () => {
+        setActiveImage(currentImageIndex + 1);
+    });
+    
+    // Add keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        if (document.getElementById('imageModal').style.display === 'none') return;
+        
+        if (event.key === 'ArrowLeft') {
+            setActiveImage(currentImageIndex - 1);
+        } else if (event.key === 'ArrowRight') {
+            setActiveImage(currentImageIndex + 1);
+        } else if (event.key === 'Escape') {
+            closeImageModal();
+        }
+    });
+    
+    // Preload next and previous images for smoother experience
+    function preloadAdjacentImages() {
+        if (imageGallery.length <= 1) return;
+        
+        const nextIndex = (currentImageIndex + 1) % imageGallery.length;
+        const prevIndex = (currentImageIndex - 1 + imageGallery.length) % imageGallery.length;
+        
+        const nextImg = new Image();
+        nextImg.src = imageGallery[nextIndex];
+        
+        const prevImg = new Image();
+        prevImg.src = imageGallery[prevIndex];
+    }
+    
+    // Add preloading when changing images
+    const originalSetActiveImage = setActiveImage;
+    setActiveImage = function(index) {
+        originalSetActiveImage(index);
+        setTimeout(preloadAdjacentImages, 300);
+    };
 });
 </script>
 
