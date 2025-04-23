@@ -753,7 +753,7 @@ img {
 
         <div class="pms-metric-card agents">
           <div class="pms-metric-label"><i class="fas fa-user-tie"></i> Registered Agents</div>
-          <div class="pms-metric-value">86</div>
+          <div class="pms-metric-value"><?= htmlspecialchars($agentCount) ?></div>
           <div class="pms-metric-change positive"><i class="fas fa-arrow-up"></i> 5% from last month</div>
         </div>
 
@@ -921,92 +921,6 @@ img {
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pms-section">
-      <div class="pms-section-header">
-        <h2 class="pms-section-title">Financial Overview</h2>
-        <div class="pms-time-filters">
-          <button class="pms-btn pms-btn-sm pms-btn-outline-primary active">Monthly</button>
-          <button class="pms-btn pms-btn-sm pms-btn-outline-primary">Quarterly</button>
-          <button class="pms-btn pms-btn-sm pms-btn-outline-primary">Yearly</button>
-        </div>
-      </div>
-
-      <div class="pms-card">
-        <div class="pms-card-body">
-          <div class="pms-chart-container">
-            <canvas id="pmsFinancialChart"></canvas>
-          </div>
-        </div>
-        <div class="pms-card-footer">
-          <div class="pms-footer-stats">
-            <div class="pms-stat-card">
-              <div class="pms-stat-label">Total Revenue</div>
-              <div class="pms-stat-value">$124,568</div>
-            </div>
-            <div class="pms-stat-card">
-              <div class="pms-stat-label">Total Expenses</div>
-              <div class="pms-stat-value">$78,234</div>
-            </div>
-            <div class="pms-stat-card">
-              <div class="pms-stat-label">Net Profit</div>
-              <div class="pms-stat-value">$46,334</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pms-section">
-      <div class="pms-section-header">
-        <h2 class="pms-section-title">Recent Activity</h2>
-      </div>
-
-      <div class="pms-card">
-        <div class="pms-card-body">
-          <div class="pms-activity-timeline">
-            <div class="pms-activity-item">
-              <div class="pms-activity-icon bg-primary">
-                <i class="fas fa-user-plus"></i>
-              </div>
-              <div class="pms-activity-content">
-                <div class="pms-activity-header">
-                  <strong>New Employee Registered</strong>
-                  <span class="pms-activity-time">10 min ago</span>
-                </div>
-                <p>Mark Johnson was added to the system as a Property Agent</p>
-              </div>
-            </div>
-
-            <div class="pms-activity-item">
-              <div class="pms-activity-icon bg-success">
-                <i class="fas fa-home"></i>
-              </div>
-              <div class="pms-activity-content">
-                <div class="pms-activity-header">
-                  <strong>Property Approved</strong>
-                  <span class="pms-activity-time">2 hours ago</span>
-                </div>
-                <p>Beachfront Villa listing was approved and published</p>
-              </div>
-            </div>
-
-            <div class="pms-activity-item">
-              <div class="pms-activity-icon bg-warning">
-                <i class="fas fa-exclamation-triangle"></i>
-              </div>
-              <div class="pms-activity-content">
-                <div class="pms-activity-header">
-                  <strong>Payment Issue</strong>
-                  <span class="pms-activity-time">5 hours ago</span>
-                </div>
-                <p>Tenant #T-1004 has overdue payment for Urban Loft</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
