@@ -320,8 +320,8 @@
     }
     
     .badge-success {
-        background-color: rgba(76, 201, 240, 0.15);
-        color: var(--success);
+        background-color: rgba(6, 208, 1, 0.15);
+        color: var(--color1);
     }
     
     .badge-warning {
@@ -361,6 +361,7 @@
         background-size: cover;
         background-position: center;
         flex-shrink: 0;
+        margin-left: auto;
     }
     
     .property-details {
@@ -942,6 +943,291 @@
             margin-bottom: 15px;
         } */
     }
+
+    /* Current Rental Property Styles */
+.recent-props-section {
+    margin-bottom: 2rem;
+}
+
+.current-property-card {
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+    background: white;
+}
+
+/* Property Image Styles - Full Height Cover */
+.property-image-container {
+    text-decoration: none;
+    display: block;
+    width: 35%;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+.property-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-size: cover;
+    background-position: center;
+    transition: all 0.5s ease;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    color: white;
+}
+
+.image-overlay i {
+    font-size: 2.5rem;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+}
+
+.property-image-container:hover .property-image {
+    transform: scale(1.05);
+}
+
+.property-image-container:hover .image-overlay {
+    opacity: 1;
+}
+
+.property-image-container:hover .image-overlay i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Property Details Styles */
+.property-details {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.property-info {
+    margin-bottom: 1rem;
+}
+
+.property-name-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.property-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: var(--dark);
+    transition: color 0.2s ease;
+}
+
+.property-name-link:hover .property-name {
+    color: var(--primary);
+}
+
+.property-address {
+    font-size: 0.95rem;
+    color: #555;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.property-address i {
+    margin-right: 8px;
+    color: var(--primary);
+}
+
+.property-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-bottom: 1.2rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+}
+
+.feature-item i {
+    color: var(--primary);
+    margin-right: 8px;
+}
+
+.feature-item span {
+    font-size: 0.95rem;
+}
+
+.booking-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin: 0.75rem 0;
+    border-top: 1px dashed #eee;
+    padding-top: 1rem;
+}
+
+.booking-item {
+    display: flex;
+    align-items: center;
+}
+
+.booking-item i {
+    color: var(--accent);
+    margin-right: 8px;
+}
+
+.booking-item:nth-child(2) i {
+    color: var(--warning);
+}
+
+.booking-item span {
+    font-size: 0.9rem;
+}
+
+/* Action Section Styles */
+.action-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    border-top: 1px solid #f5f5f5;
+    padding-top: 1rem;
+}
+
+.status-container .badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-button {
+    background-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+}
+
+.primary-button:hover {
+    background-color: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 193, 7, 0.3);
+}
+
+.accent-button {
+    background-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(72, 149, 239, 0.2);
+}
+
+.accent-button:hover {
+    background-color: #3a86ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(72, 149, 239, 0.3);
+}
+
+.success-button {
+    background-color: var(--success);
+    box-shadow: 0 4px 12px rgba(76, 201, 240, 0.2);
+}
+
+.success-button:hover {
+    background-color: #3a86ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(76, 201, 240, 0.3);
+}
+
+/* No Rental Data Styles */
+.no-rental-data {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.no-rental-data i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 1.5rem;
+}
+
+.no-rental-data h3 {
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+.no-rental-data p {
+    margin-bottom: 1.5rem;
+    color: #777;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .current-property-card {
+        flex-direction: column;
+    }
+    
+    .property-image-container {
+        width: 100%;
+        height: 200px;
+        min-height: auto;
+    }
+    
+    .action-section {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .action-buttons {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
 </style>
 
 <div class="user_view-menu-bar">
@@ -1059,50 +1345,186 @@
     </div>
     
     <!-- Current Rental Property -->
-    <div class="property-card">
+    <div class="recent-props-section">
+        <div class="card-header">
+            <h3>Current Rental Property</h3>
+            <?php if (isset($currentProperty) && $currentProperty): ?>
+                <a href="<?= ROOT ?>/dashboard/search" class="action-button">
+                    <i class="fas fa-search" style="margin-right: 6px;"></i>Search for more...
+                </a>
+            <?php endif; ?>
+        </div>
+
         <?php if (isset($currentProperty) && $currentProperty): ?>
-            <div class="property-image" style="background-image: url('<?= ROOT ?>/assets/images/uploads/property_images/<?= $currentProperty->image_url ?? 'default.jpg' ?>');"></div>
-            <div class="property-details">
-                <h3 class="property-title"><?= htmlspecialchars($currentProperty->name ?? 'Property Name') ?></h3>
-                <p class="property-address"><?= htmlspecialchars($currentProperty->address ?? 'Property Address') ?></p>
+            <?php 
+            // Properly handle property image
+            $imageUrl = ROOT . '/assets/images/property-default.jpg';
+            
+            try {
+                if (!empty($currentProperty->property_images)) {
+                    // Handle property_images as JSON string or array
+                    if (is_string($currentProperty->property_images)) {
+                        $propertyImages = json_decode($currentProperty->property_images);
+                        if (is_array($propertyImages) && !empty($propertyImages[0])) {
+                            $imageUrl = ROOT . '/assets/images/uploads/property_images/' . $propertyImages[0];
+                        }
+                    } else if (is_array($currentProperty->property_images) && !empty($currentProperty->property_images[0])) {
+                        $imageUrl = ROOT . '/assets/images/uploads/property_images/' . $currentProperty->property_images[0];
+                    }
+                }
+                // Fallback to image_url if no property_images found
+                else if (!empty($currentProperty->image_url)) {
+                    $imageUrl = ROOT . '/assets/images/uploads/property_images/' . $currentProperty->image_url;
+                }
                 
-                <div class="property-meta">
-                    <div class="meta-item">
-                        <i class="fas fa-bed"></i>
-                        <span><?= $currentProperty->bedrooms ?? '?' ?> Bedrooms</span>
+                // Try PropertyImageModel as a last resort (same approach as owner dashboard)
+                if ($imageUrl == ROOT . '/assets/images/property-default.jpg' && isset($currentProperty->property_id)) {
+                    if (!class_exists('PropertyImageModel')) {
+                        class PropertyImageModel {
+                            use Model;
+                            protected $table = 'property_images';
+                            public function where($conditions) {
+                                $query = "SELECT * FROM {$this->table} WHERE ";
+                                $params = [];
+                                foreach ($conditions as $key => $value) {
+                                    $query .= "{$key} = ? AND ";
+                                    $params[] = $value;
+                                }
+                                $query = rtrim($query, " AND ");
+                                return $this->query($query, $params);
+                            }
+                            
+                            protected function query($query, $params = [])
+                            {
+                                try {
+                                    $conn = new PDO("mysql:host=localhost;dbname=property_finder", "root", "");
+                                    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                    $stmt = $conn->prepare($query);
+                                    $stmt->execute($params);
+                                    $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+                                    return $result;
+                                } catch (PDOException $e) {
+                                    return [];
+                                }
+                            }
+                        }
+                    }
+                    
+                    $propertyImage = new PropertyImageModel();
+                    $images = $propertyImage->where(['property_id' => $currentProperty->property_id ?? 0]);
+                    if (!empty($images)) {
+                        $imageUrl = ROOT . '/assets/images/uploads/property_images/' . $images[0]->image_url;
+                    }
+                }
+            } catch (Exception $e) {
+                // Silently fail and use default image
+            }
+            
+            // Get correct square footage
+            $squareFeet = $currentProperty->size_sqr_ft ?? $currentProperty->area ?? $currentProperty->size ?? '?';
+            ?>
+            
+            <div class="current-property-card">
+                <!-- Property Image with onClick event -->
+                <a href="<?= ROOT ?>/property/propertyUnit/<?= $currentProperty->property_id ?>" class="property-image-container">
+                    <div class="property-image" style="background-image: url('<?= $imageUrl ?>');">
+                        <div class="image-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
                     </div>
-                    <div class="meta-item">
-                        <i class="fas fa-bath"></i>
-                        <span><?= $currentProperty->bathrooms ?? '?' ?> Bathrooms</span>
-                    </div>
-                    <div class="meta-item">
-                        <i class="fas fa-ruler-combined"></i>
-                        <span><?= $currentProperty->area ?? '?' ?> sq ft</span>
-                    </div>
-                    <div class="meta-item">
-                        <i class="fas fa-calendar-day"></i>
-                        <span>Since: <?= isset($currentBooking) && isset($currentBooking->start_date) 
-                            ? date('M d, Y', strtotime($currentBooking->start_date)) 
-                            : 'Unknown' ?>
-                        </span>
-                    </div>
-                </div>
+                </a>
                 
-                <div style="margin-top: 1rem;">
-                    <a href="<?= ROOT ?>/dashboard/property/<?= $currentProperty->property_id ?? 0 ?>" class="action-button">View Details</a>
-                    <a href="<?= ROOT ?>/dashboard/requestService" class="action-button">Request Service</a>
+                <!-- Property Details Section -->
+                <div class="property-details">
+                    <div class="property-info">
+                        <!-- Property Name with Link -->
+                        <a href="<?= ROOT ?>/dashboard/property/<?= $currentProperty->property_id ?? 0 ?>" class="property-name-link">
+                            <h3 class="property-name"><?= htmlspecialchars($currentProperty->name ?? 'Property Name') ?></h3>
+                        </a>
+                        
+                        <!-- Property Address -->
+                        <p class="property-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <?= htmlspecialchars($currentProperty->address ?? 'Property Address') ?>
+                        </p>
+                        
+                        <!-- Property Features -->
+                        <div class="property-features">
+                            <div class="feature-item">
+                                <i class="fas fa-bed"></i>
+                                <span><?= $currentProperty->bedrooms ?? '?' ?> Bedrooms</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-bath"></i>
+                                <span><?= $currentProperty->bathrooms ?? '?' ?> Bathrooms</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-ruler-combined"></i>
+                                <span><?= $squareFeet ?> sq ft</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Details -->
+                        <?php if (isset($currentBooking)): ?>
+                            <div class="booking-details">
+                                <div class="booking-item">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span>
+                                        <?= date('M d, Y', strtotime($currentBooking->start_date ?? 'now')) ?> to 
+                                        <?= isset($currentBooking->end_date) ? date('M d, Y', strtotime($currentBooking->end_date)) : 'Ongoing' ?>
+                                    </span>
+                                </div>
+                                <div class="booking-item">
+                                    <i class="fas fa-money-bill"></i>
+                                    <span>
+                                        LKR <?= number_format($currentBooking->total_amount ?? $currentBooking->rental_price ?? 0, 2) ?>
+                                        (<?= $currentBooking->rental_period ?? 'Unknown' ?> rate)
+                                    </span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Action Section -->
+                    <div class="action-section">
+                        <div class="status-container">
+                            <?php if (isset($currentBooking)): ?>
+                                <?php 
+                                    $paymentStatus = $currentBooking->payment_status ?? 'Pending';
+                                    $statusClass = 'badge-warning';
+                                    
+                                    if (strtolower($paymentStatus) === 'paid') {
+                                        $statusClass = 'badge-success';
+                                    } else if (strtolower($paymentStatus) === 'cancelled') {
+                                        $statusClass = 'badge-danger';
+                                    }
+                                ?>
+                                <span class="badge <?= $statusClass ?>">
+                                    Payment: <?= htmlspecialchars($paymentStatus) ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <a href="<?= ROOT ?>/property/propertyUnit/<?= $currentProperty->property_id ?>" class="action-button primary-button">View Details</a>
+                            <a href="<?= ROOT ?>/dashboard/requestService" class="action-button accent-button">Request Service</a>
+                            <?php if (isset($currentBooking) && strtolower($currentBooking->payment_status ?? '') !== 'paid'): ?>
+                                <a href="<?= ROOT ?>/customer/markAsPaid/<?= $currentBooking->booking_id ?>" class="action-button success-button">Pay Now</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         <?php else: ?>
-            <div class="property-details" style="text-align: center; width: 100%;">
-                <i class="fas fa-home" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+            <div class="no-rental-data">
+                <i class="fas fa-home"></i>
                 <h3>No Current Rental</h3>
                 <p>You don't have any active rentals at the moment.</p>
-                <a href="<?= ROOT ?>/properties" class="action-button">Browse Properties</a>
+                <a href="<?= ROOT ?>/properties" class="action-button primary-button">Browse Properties</a>
             </div>
         <?php endif; ?>
     </div>
-    
+        
     <!-- Two Columns Section -->
     <div class="two-columns">
         <!-- Expense History Section -->
@@ -1299,6 +1721,8 @@
                         <th>Period</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Payment</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1306,10 +1730,10 @@
                         <tr>
                             <td><?= htmlspecialchars($rental->property_name ?? 'Unknown Property') ?></td>
                             <td>
-                                <?= 
-                                date('M d, Y', strtotime($rental->start_date ?? 'now')) . ' - ' . 
-                                (isset($rental->end_date) ? date('M d, Y', strtotime($rental->end_date)) : 'Present')
-                                ?>
+                                <?= date('M d, Y', strtotime($rental->start_date ?? 'now')) ?>
+                                <?php if (isset($rental->end_date)): ?>
+                                    <br><small>to <?= date('M d, Y', strtotime($rental->end_date)) ?></small>
+                                <?php endif; ?>
                             </td>
                             <td>LKR <?= number_format($rental->price ?? 0, 2) ?></td>
                             <td>
@@ -1317,12 +1741,43 @@
                                     $statusClass = 'badge-info';
                                     $status = $rental->status ?? 'Unknown';
                                     
-                                    if(strtolower($status) === 'active' || strtolower($status) === 'accepted') $statusClass = 'badge-success';
-                                    else if(strtolower($status) === 'pending') $statusClass = 'badge-warning';
-                                    else if(strtolower($status) === 'completed' || strtolower($status) === 'past') $statusClass = 'badge-info';
-                                    else if(strtolower($status) === 'cancelled' || strtolower($status) === 'rejected') $statusClass = 'badge-danger';
+                                    if(strtolower($status) === 'active' || strtolower($status) === 'accepted') {
+                                        $statusClass = 'badge-success';
+                                    }
+                                    else if(strtolower($status) === 'pending' || strtolower($status) === 'upcoming') {
+                                        $statusClass = 'badge-warning';
+                                    }
+                                    else if(strtolower($status) === 'completed') {
+                                        $statusClass = 'badge-info';
+                                    }
+                                    else if(strtolower($status) === 'cancelled' || strtolower($status) === 'rejected') {
+                                        $statusClass = 'badge-danger';
+                                    }
                                 ?>
                                 <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($status) ?></span>
+                            </td>
+                            <td>
+                                <?php
+                                    $paymentStatusClass = 'badge-warning';
+                                    $paymentStatus = $rental->payment_status ?? 'Pending';
+                                    
+                                    if(strtolower($paymentStatus) === 'paid') {
+                                        $paymentStatusClass = 'badge-success';
+                                    }
+                                    else if(strtolower($paymentStatus) === 'cancelled') {
+                                        $paymentStatusClass = 'badge-danger';
+                                    }
+                                ?>
+                                <span class="badge <?= $paymentStatusClass ?>"><?= htmlspecialchars($paymentStatus) ?></span>
+                            </td>
+                            <td>
+                                <?php if(strtolower($rental->status ?? '') !== 'cancelled' && strtolower($rental->payment_status ?? '') !== 'paid'): ?>
+                                    <a href="<?= ROOT ?>/customer/markAsPaid/<?= $rental->booking_id ?>" class="action-button" style="padding: 3px 8px; font-size: 0.8rem; background-color: var(--success);">Pay</a>
+                                <?php endif; ?>
+                                
+                                <?php if(strtolower($rental->status ?? '') !== 'cancelled' && strtolower($rental->status ?? '') !== 'completed'): ?>
+                                    <a href="<?= ROOT ?>/customer/cancelBooking/<?= $rental->booking_id ?>" class="action-button" style="padding: 3px 8px; font-size: 0.8rem; background-color: var(--danger);">Cancel</a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -1335,7 +1790,6 @@
             </div>
         <?php endif; ?>
     </div>
-</div>
 
 <!-- Improved Image Modal -->
 <div id="imageModal" style="display: none;">
