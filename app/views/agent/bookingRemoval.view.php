@@ -1,20 +1,14 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <div class="gap"></div>
-    <h2>Bookings Request</h2>
+    <a href='<?= ROOT ?>/dashboard/bookings'>
+        <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
+    </a>
+    <h2>Bookings Removal</h2>
     <div class="flex-bar" style="gap: 0px;">	
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Anything...">
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
-        </div>
-        <div class="tooltip-container" style="margin-left: 10px;">
-            <a href='<?= ROOT ?>/dashboard/bookings/history'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/assignment.png" alt="Add" class="navigate-icons"></button></a>
-            <span class="tooltip-text">History</span>
-        </div>
-        <div class="tooltip-container">
-            <a href='<?= ROOT ?>/dashboard/bookings/bookingremoval'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/delete.png" alt="Add" class="navigate-icons"></button></a>
-            <span class="tooltip-text">Approve Removal</span>
         </div>
     </div>
 </div>
@@ -96,17 +90,17 @@
                             <!-- No buttons shown if cancelled or completed -->
                         <?php elseif (strtolower($order->booking_status) === 'pending'): ?>
                             <form method="POST" action="<?= ROOT ?>/dashboard/confirmBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn green-solid">Confirm</button>
+                                <button type="submit" class="primary-btn green-solid">Accept cancellation</button>
                             </form>
                             <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn red-solid">Cancel</button>
+                                <button type="submit" class="primary-btn red-solid">Terminate Booking</button>
                             </form>
                         <?php elseif (strtolower($order->booking_status) === 'cancel requested'): ?>
                             <form method="POST" action="<?= ROOT ?>/dashboard/continueBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn green-solid">Continue Booking</button>
+                                <button type="submit" class="primary-btn green-solid">Accept cancellation</button>
                             </form>
                             <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn red-solid">Cancel</button>
+                                <button type="submit" class="primary-btn red-solid">Terminate Booking</button>
                             </form>
                         <?php elseif (strtolower($order->booking_status) === 'confirmed'): ?>
                             <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">

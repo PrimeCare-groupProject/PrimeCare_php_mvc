@@ -61,8 +61,8 @@ class BookingOrders
             $this->errors['payment_status'] = "Payment status must be Pending, Paid, or Cancelled";
         }
 
-        if (!empty($data['booking_status']) && !in_array($data['booking_status'], ['Confirmed', 'Cancelled', 'Completed', 'Pending'])) {
-            $this->errors['booking_status'] = "Booking status must be Confirmed, Cancelled, Completed, or Pending";
+        if (!empty($data['booking_status']) && !in_array($data['booking_status'], ['Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested'])) {
+            $this->errors['booking_status'] = "Booking status must be Confirmed, Cancelled, Completed, Pending, or Cancel Requested";
         }
 
         return empty($this->errors);
@@ -224,19 +224,26 @@ class BookingOrders
         }
         
         // Validate the status is one of the allowed values
-        $allowed_statuses = ['Confirmed', 'Cancelled', 'Completed', 'Pending'];
+        $allowed_statuses = ['Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested'];
         if (!in_array($new_status, $allowed_statuses)) {
-            $this->errors['booking_status'] = "Booking status must be Confirmed, Cancelled, Completed, or Pending";
+            $this->errors['booking_status'] = "Booking status must be Confirmed, Cancelled, Completed, Pending, or Cancel Requested";
             return false;
         }
         
         $query = "UPDATE $this->table
-                  SET booking_status = :new_status
-                  WHERE property_id = :property_id
+                  SET booking_status = :new_status";
+        
+        // If cancelling, update the end_date to current date
+        if ($new_status == 'Cancelled') {
+            $query .= ", end_date = CURRENT_DATE()";
+        }
+        
+        $query .= " WHERE property_id = :property_id
                     AND person_id = :owner_id
                     AND start_date = :check_in
                     AND end_date = :check_out
-                  LIMIT 1";
+                    LIMIT 1";
+        
         $data = [
             'new_status'  => $new_status,
             'property_id' => $property_id,
@@ -285,6 +292,42 @@ class BookingOrders
         ];
         return $this->instance->query($query, $data);
     }
+
+    /**
+     * Get pending bookings for a property with optional filters
+     *
+     * @param int $property_id The ID of the property
+     * @param array $filters Optional additional filters (e.g., ['payment_status' => 'Pending'])
+     * @return array|null Array of pending bookings or false if none found
+     */
+    public function getBookingsByPropertyId($property_id, $status = 'Pending' , array $filters = [])
+    {
+        if (!$property_id || !is_numeric($property_id)) {
+            $this->errors['property_id'] = "Valid property ID is required";
+            return null;
+        }
+        // Validate the status parameter
+        if (!in_array($status, ['Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested'])) {
+            $this->errors['status'] = "Invalid booking status";
+            return null;
+        }
+
+        $query = "SELECT * FROM $this->table WHERE property_id = :property_id AND booking_status = :status";
+        $data = ['property_id' => $property_id, 'status' => $status];
+        
+        // Add additional filters if provided
+        foreach ($filters as $key => $value) {
+            if (in_array($key, $this->allowedColumns)) {
+                $query .= " AND $key = :$key";
+                $data[$key] = $value;
+            }
+        }
+        
+        $query .= " ORDER BY booking_id DESC";
+        $result = $this->instance->query($query, $data);
+
+        return $result;
+    }
 }
 // CREATE TABLE booking_orders (
 //     booking_id INT AUTO_INCREMENT PRIMARY KEY, -- Unique ID for each booking
@@ -312,7 +355,7 @@ class BookingOrders
 //     ) STORED,
 
 //     payment_status ENUM('Pending', 'Paid', 'Cancelled') DEFAULT 'Pending', -- Payment status
-//     booking_status ENUM('Confirmed', 'Cancelled', 'Completed', 'Pending') DEFAULT 'Pending', -- Booking status
+//     booking_status ENUM('Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested') DEFAULT 'Pending', -- Booking status
 
 //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Time of booking creation
 //     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Last update time

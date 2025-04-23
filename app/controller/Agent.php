@@ -1964,6 +1964,9 @@ class Agent
     public function bookings($b = '', $c = '', $d = '')
     {
         switch ($b) {
+            case 'bookingremoval':
+                $this->bookingRemoval($c);
+                break;
             case 'bookingaccept':
                 $this->bookingAccept($c);
                 break;
@@ -1971,21 +1974,33 @@ class Agent
                 $this->bookinghistory($c, $d);
                 break;
             default:
-                $book = new BookingModel;
-                $property = new Property;
-                $bookings = $book->selecttwotables(
-                    $property->table,
-                    'property_id',
-                    'property_id',
-                    'accept_status',
-                    '\'pending\''
-                );
-                $image1 = new PropertyImageModel;
-                $images = $image1->findAll();
-                /*echo "<pre>";
-                print_r($images);
-                echo "</pre>";*/
-                $this->view('agent/booking', ['bookings' => $bookings, 'images' => $images]);
+                $BookingOrders = new BookingOrders();
+                $property = new PropertyConcat();
+                // Get all properties managed by this agent
+                $properties = $property->where(['agent_id' => $_SESSION['user']->pid]);
+                $properties = is_array($properties) ? $properties : [];
+                $propertyIds = array_map(function ($property) {
+                    return $property->property_id;
+                }, $properties);
+                // Fetch all pending bookings for all properties
+                $pendingOrders = [];
+                foreach ($propertyIds as $propertyId) {
+                    $pending = $BookingOrders->getBookingsByPropertyId($propertyId);
+                    if (!empty($pending)) {
+                        foreach ($pending as $order) {
+                            // Optionally, attach property images/details here if needed
+                            $propertyData = $property->where(['property_id' => $order->property_id]);
+                            if (!empty($propertyData)) {
+                                $order->property_images = $propertyData[0]->property_images ?? null;
+                            }
+                            $pendingOrders[] = $order;
+                        }
+                    }
+                }
+
+                $this->view('agent/booking', [
+                    'orders' => $pendingOrders
+                ]);
                 break;
         }
     }
@@ -2068,12 +2083,95 @@ class Agent
         $this->view('agent/showhistory', ['bookings' => $bookings, 'images' => $images]);
     }
 
+    public function confirmBooking($bookingId) {
+        $BookingOrders = new BookingOrders();
+        $booking = $BookingOrders->findById($bookingId);
+        if ($booking && strtolower($booking->booking_status) === 'pending') {
+            $BookingOrders->updateBookingStatusByOwnerAndDates(
+                $booking->property_id,
+                $booking->person_id,
+                $booking->start_date,
+                $booking->end_date,
+                'Confirmed'
+            );
+            $_SESSION['flash']['msg'] = "Booking confirmed.";
+            $_SESSION['flash']['type'] = "success";
+        }
+        redirect('dashboard/bookings');
+    }
+
+    public function cancelBooking($bookingId) {
+        $BookingOrders = new BookingOrders();
+        $booking = $BookingOrders->findById($bookingId);
+        if ($booking && in_array(strtolower($booking->booking_status), ['pending', 'confirmed', 'cancel requested'])) {
+            $BookingOrders->updateBookingStatusByOwnerAndDates(
+                $booking->property_id,
+                $booking->person_id,
+                $booking->start_date,
+                $booking->end_date,
+                'Cancelled'
+            );
+            $_SESSION['flash']['msg'] = "Booking cancelled.";
+            $_SESSION['flash']['type'] = "success";
+        }
+        redirect('dashboard/bookings');
+    }
+
+    public function continueBooking($bookingId) {
+        $BookingOrders = new BookingOrders();
+        $booking = $BookingOrders->findById($bookingId);
+        if ($booking && strtolower($booking->booking_status) === 'cancel requested') {
+            $BookingOrders->updateBookingStatusByOwnerAndDates(
+                $booking->property_id,
+                $booking->person_id,
+                $booking->start_date,
+                $booking->end_date,
+                'Confirmed'
+            );
+            $_SESSION['flash']['msg'] = "Booking continued.";
+            $_SESSION['flash']['type'] = "success";
+        }
+        redirect('dashboard/bookings');
+    }
+
     private function logout()
     {
         session_unset();
         session_destroy();
         redirect('home');
         exit;
+    }
+
+    public function bookingRemoval(){
+        $BookingOrders = new BookingOrders();
+        $property = new PropertyConcat();
+
+        // Get all properties managed by this agent
+        $properties = $property->where(['agent_id' => $_SESSION['user']->pid]);
+        $properties = is_array($properties) ? $properties : [];
+        $propertyIds = array_map(function ($property) {
+            return $property->property_id;
+        }, $properties);
+        // Fetch all pending bookings for all properties
+        $pendingOrders = [];
+        foreach ($propertyIds as $propertyId) {
+            $pending = $BookingOrders->getBookingsByPropertyId($propertyId, 'Cancel Requested');
+            if (!empty($pending)) {
+                foreach ($pending as $order) {
+                    // Optionally, attach property images/details here if needed
+                    $propertyData = $property->where(['property_id' => $order->property_id]);
+                    if (!empty($propertyData)) {
+                        $order->property_images = $propertyData[0]->property_images ?? null;
+                    }
+                    $pendingOrders[] = $order;
+                }
+            }
+        }
+
+        $this->view('agent/bookingRemoval', [
+            'orders' => $pendingOrders
+        ]);
+        
     }
 
     // public function reportGen($property_id)
