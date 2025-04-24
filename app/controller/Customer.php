@@ -2000,7 +2000,6 @@ class Customer
         ]);
     }
 
-    // Show repair listings for an occupied property
 
     public function repairListingOcc($property_id = null)
     {
@@ -2074,7 +2073,28 @@ class Customer
     public function serviceRequest()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Handle form submission
+            // Check for outstanding balance before accepting new requests
+            $serviceLog = new ServiceLog();
+            $userCompletedServices = $serviceLog->where([
+                'requested_person_id' => $_SESSION['user']->pid,
+                'status' => 'Done'
+            ]);
+            
+            // Calculate total costs of completed services
+            $totalOutstandingCost = 0;
+            foreach ($userCompletedServices as $service) {
+                $totalOutstandingCost += ($service->total_cost ?? 0);
+            }
+            
+            // If total cost exceeds 20,000 LKR, show error and prevent submission
+            if ($totalOutstandingCost > 20000) {
+                $_SESSION['flash']['msg'] = "You have exceeded the maximum allowed outstanding balance (20,000 LKR). Please settle your previous service payments before requesting new services.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/requestServiceOccupied');
+                return;
+            }
+            
+            // Handle form submission if balance check passed
             $data = [
                 'service_type' => $_POST['service_type'],
                 'date' => $_POST['date'],
@@ -2085,7 +2105,7 @@ class Customer
                 'cost_per_hour' => $_POST['cost_per_hour'],
                 'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
             ];
-
+    
             // Add service request to database
             $service = new ServiceLog();
             if ($service->insert($data)) {
@@ -2116,13 +2136,13 @@ class Customer
             
             return;
         }
-
+    
         // Get property information from URL parameters
         $property_id = $_GET['property_id'] ?? null;
         $property_name = urldecode($_GET['property_name'] ?? '');
         $service_type = $_GET['type'] ?? '';
         $cost_per_hour = $_GET['cost_per_hour'] ?? '';
-
+    
         // Validate the property belongs to this user through an active booking
         if ($property_id) {
             $bookingModel = new BookingOrders();
@@ -2161,7 +2181,7 @@ class Customer
             redirect('dashboard/requestServiceOccupied');
             return;
         }
-
+    
         // Fetch property image if property_id is provided
         $propertyImage = null;
         if ($property_id) {
@@ -2171,7 +2191,7 @@ class Customer
                 $propertyImage = $images[0]->image_url;
             }
         }
-
+    
         $this->view('customer/serviceRequest', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
@@ -2182,7 +2202,7 @@ class Customer
             'property_image' => $propertyImage,
             'cost_per_hour' => $cost_per_hour,
         ]);
-
+    
         // Clear session messages after displaying
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
