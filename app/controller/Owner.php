@@ -52,7 +52,7 @@ class Owner
         
         // Get properties owned by the current user
         $properties = $property->where(['person_id' => $ownerId]);
-        $propertyCount = count($properties ?? []);
+        $propertyCount = is_array($properties) ? count($properties) : 0;
         
         // Extract property IDs
         $propertyIds = [];
@@ -1760,7 +1760,7 @@ class Owner
 
                 'status' => 'pending',
                 'person_id' => $_SESSION['user']->pid,
-                'agent_id' => 110,
+                'agent_id' => MANAGER_ID,
                 'duration' => $_POST['duration'] ?? 1
             ];
 
@@ -1821,8 +1821,8 @@ class Owner
                 // Redirect on success
                 $_SESSION['flash']['msg'] = "Property added successfully!";
                 $_SESSION['flash']['type'] = "success";
-                enqueueNotification('Property Added', 'New property has been added!', 'dashboard/managementhome/propertymanagement/assignagents', 'Notification_green', MANAGER_ID);
-                enqueueNotification('Property Added', 'Your property has been added successfully.', '', 'Notification_green');
+                //enqueueNotification('Property Added', 'New property has been added!', 'dashboard/managementhome/propertymanagement/assignagents', 'Notification_green', MANAGER_ID);
+                //enqueueNotification('Property Added', 'Your property has been added successfully.', '', 'Notification_green');
                 redirect('property/propertyListing');
             } else {
                 enqueueNotification('Property Addition Failed', 'Failed to add property. Please try again.', '', 'Notification_red');

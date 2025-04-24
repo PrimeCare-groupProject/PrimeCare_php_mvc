@@ -40,7 +40,7 @@
                 </ul>
             </div>
 
-            <form action="<?= ROOT ?>/propertyListing/showListing" method="POST">
+            <form action="<?= ROOT ?>/propertyListing/showListing" method="GET">
             <!-- Replace the nested form with a div -->
             <div class="PL_filter-section">
                 <div class="PL__filter">
@@ -81,10 +81,10 @@
                             <div style="display:flex; gap:10px;">
                                 <select id="propRentalPeriodSelect" name="rental_period" onchange="togglePeriodDuration(this.value)" style="flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
                                     <option value="" selected<?= old_select('rental_period', '') ?>>Any Period</option>
-                                    <option value="Monthly"<?= old_select('rental_period', 'Monthly') ?>>Monthly</option>
-                                    <option value="Daily"<?= old_select('rental_period', 'Daily') ?>>Daily</option>
+                                    <option value="Monthly"<?= old_select('rental_period', 'Monthly') ?> selected>Monthly</option>
+                                    <option value="Daily"<?= old_select('rental_period', 'Daily') ?> >Daily</option>
                                 </select>
-                                <input type="number" id="periodDuration" name="period_duration" placeholder="No. of months" min="1" oninput="updateCheckoutDate()" style="width:100%; flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px; display:none;" value="<?= old_value('period_duration') ?>">
+                                <input type="number" id="periodDuration" name="period_duration" placeholder="No. of .." min="1" oninput="updateCheckoutDate()" style="width:100%; flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px; " value="<?= old_value('period_duration') ?>">
                             </div>
                         </div>
                         
@@ -116,10 +116,10 @@
                     <div style="margin-bottom:20px;">
                         <h3 style="margin-top:0; color:#333; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:5px;">Price Range</h3>
                         <div>
-                            <input type="number" id="propMinPriceInput" name="min_price" placeholder="Min Price" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('min_price') ?>">
+                            <input type="number" id="propMinPriceInput" name="min_price" placeholder="Min Price Per Unit" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('min_price') ?>">
                         </div>
                         <div>
-                            <input type="number" id="propMaxPriceInput" name="max_price" placeholder="Max Price" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('max_price') ?>">
+                            <input type="number" id="propMaxPriceInput" name="max_price" placeholder="Max Price Per Unit" style="width:100%; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;" value="<?= old_value('max_price') ?>">
                         </div>
                     </div>
                     
@@ -199,19 +199,11 @@
                     <?php foreach($properties as $property): ?>
                         <div class="PL_property-card">
                             <?php
-                            // Extract the parameters separately and trim whitespace
-                            $check_in = trim($_POST['check_in'] ?? $_GET['check_in'] ?? date('Y-m-d'));
-                            $check_out = trim($_POST['check_out'] ?? $_GET['check_out'] ?? date('Y-m-d', strtotime('+1 day')));
-                            $rental_period = !empty($_POST['rental_period'] ?? $_GET['rental_period'] ?? '') ? trim($_POST['rental_period'] ?? $_GET['rental_period']) : 'Daily';
 
-                            $period_duration = trim($_POST['period_duration'] ?? $_GET['period_duration'] ?? '');
-                            
-                            // Build the URL with proper formatting
                             $detail_url = ROOT . "/propertyListing/showListingDetail/" . $property->property_id;
-                            $detail_url .= "?check_in=" . $check_in;
-                            $detail_url .= "&check_out=" . $check_out;
-                            $detail_url .= "&rental_period=" . $rental_period;
-                            $detail_url .= "&period_duration=" . $period_duration;
+                            if (!empty($query_string)) {
+                                $detail_url .= '?' . $query_string;
+                            }
                             ?>
                             <a href="<?= $detail_url ?>">
                                 <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image">
@@ -274,8 +266,10 @@
             </div>
         </div>
 
-        <script>
-            // Place this above your DOMContentLoaded event or in your main JS file
+    </form>
+
+    <script>
+            // Location data and filter logic
             const validLocations = {
                 'Western': {
                     'Colombo': ['Colombo', 'Dehiwala-Mount Lavinia', 'Moratuwa', 'Battaramulla', 'Sri Jayawardenepura Kotte', 'Nugegoda', 'Maharagama', 'Kesbewa', 'Kaduwela', 'Kolonnawa', 'Homagama', 'Piliyandala', 'Boralesgamuwa', 'Malabe', 'Pita Kotte', 'Avissawella', 'Padukka', 'Hanwella'],
@@ -323,15 +317,15 @@
             };
 
             document.addEventListener('DOMContentLoaded', function() {
-                // Populate province select using the same data structure from the main form
+                // Province/District/City population
                 const propProvinceSelect = document.getElementById('propProvinceSelect');
                 const propDistrictSelect = document.getElementById('propDistrictSelect');
                 const propCitySelect = document.getElementById('propCitySelect');
-                
-                // Set default dates
                 const checkInInput = document.getElementById('propCheckInDate');
                 const checkOutInput = document.getElementById('propCheckOutDate');
                 const today = new Date();
+
+                // Set default dates if not set
                 if (!checkInInput.value) {
                     checkInInput.value = today.toISOString().split('T')[0];
                 }
@@ -347,34 +341,31 @@
                     let minCheckOutDate = new Date(checkInDate);
                     minCheckOutDate.setDate(checkInDate.getDate() + 1);
                     checkOutInput.min = minCheckOutDate.toISOString().split('T')[0];
-
-                    // If current checkout is before min, update it
                     if (new Date(checkOutInput.value) <= checkInDate) {
                         checkOutInput.value = minCheckOutDate.toISOString().split('T')[0];
                     }
                 });
 
                 // Set initial min for checkout
+                const tomorrow = new Date();
+                tomorrow.setDate(today.getDate() + 1);
                 checkOutInput.min = tomorrow.toISOString().split('T')[0];
-                
+
                 // Add provinces
-                const provinces = Object.keys(validLocations);
-                provinces.forEach(province => {
+                Object.keys(validLocations).forEach(province => {
                     const option = document.createElement('option');
                     option.value = province;
                     option.textContent = province;
                     propProvinceSelect.appendChild(option);
                 });
-                
+
                 // Update district select when province changes
                 propProvinceSelect.addEventListener('change', function() {
                     const selectedProvince = this.value;
                     propDistrictSelect.innerHTML = '<option value="">-- Select District --</option>';
                     propCitySelect.innerHTML = '<option value="">-- Select City --</option>';
-                    
                     if(selectedProvince) {
-                        const districts = Object.keys(validLocations[selectedProvince]);
-                        districts.forEach(district => {
+                        Object.keys(validLocations[selectedProvince]).forEach(district => {
                             const option = document.createElement('option');
                             option.value = district;
                             option.textContent = district;
@@ -382,16 +373,14 @@
                         });
                     }
                 });
-                
+
                 // Update city select when district changes
                 propDistrictSelect.addEventListener('change', function() {
                     const selectedProvince = propProvinceSelect.value;
                     const selectedDistrict = this.value;
                     propCitySelect.innerHTML = '<option value="">-- Select City --</option>';
-                    
                     if(selectedProvince && selectedDistrict) {
-                        const cities = validLocations[selectedProvince][selectedDistrict];
-                        cities.forEach(city => {
+                        validLocations[selectedProvince][selectedDistrict].forEach(city => {
                             const option = document.createElement('option');
                             option.value = city;
                             option.textContent = city;
@@ -400,43 +389,17 @@
                     }
                 });
             });
-            
+
             function resetPropertyFilters() {
-                document.getElementById('propSearchInput').value = '';
-                document.getElementById('propTypeSelect').selectedIndex = 0;
-                document.getElementById('propProvinceSelect').selectedIndex = 0;
-                document.getElementById('propDistrictSelect').innerHTML = '<option value="">-- Select District --</option>';
-                document.getElementById('propCitySelect').innerHTML = '<option value="">-- Select City --</option>';
-                document.getElementById('propCheckInDate').value = new Date().toISOString().split('T')[0];
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                document.getElementById('propCheckOutDate').value = tomorrow.toISOString().split('T')[0];
-                document.getElementById('propBedroomsInput').value = '';
-                document.getElementById('propBathroomsInput').value = '';
-                document.getElementById('propKitchenInput').value = '';
-                document.getElementById('propLivingRoomInput').value = '';
-                document.getElementById('propFurnishedSelect').selectedIndex = 0;
-                document.getElementById('propParkingCheck').checked = false;
-                document.getElementById('propParkingSlotsInput').value = '';
-                document.getElementById('propParkingTypeSelect').selectedIndex = 0;
-                document.getElementById('propMinPriceInput').value = '';
-                document.getElementById('propMaxPriceInput').value = '';
-                document.getElementById('propSortBySelect').selectedIndex = 0;
-            }
-
-            function resetFilters() {
                 document.getElementById('searchTerm').value = '';
-                document.getElementById('propSortBySelect').selectedIndex = 0;
-                document.getElementById('propMinPriceInput').value = '';
-                document.getElementById('propMaxPriceInput').value = '';
+                document.getElementById('propTypeSelect').selectedIndex = 0;
+                document.getElementById('propProvinceSelect').selectedIndex = 0;
+                document.getElementById('propDistrictSelect').innerHTML = '<option value="">-- Select District --</option>';
+                document.getElementById('propCitySelect').innerHTML = '<option value="">-- Select City --</option>';
                 document.getElementById('propCheckInDate').value = new Date().toISOString().split('T')[0];
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 document.getElementById('propCheckOutDate').value = tomorrow.toISOString().split('T')[0];
-                document.getElementById('propProvinceSelect').selectedIndex = 0;
-                document.getElementById('propDistrictSelect').innerHTML = '<option value="">-- Select District --</option>';
-                document.getElementById('propCitySelect').innerHTML = '<option value="">-- Select City --</option>';
-                document.getElementById('propTypeSelect').selectedIndex = 0;
                 document.getElementById('propBedroomsInput').value = '';
                 document.getElementById('propBathroomsInput').value = '';
                 document.getElementById('propKitchenInput').value = '';
@@ -445,8 +408,12 @@
                 document.getElementById('propParkingCheck').checked = false;
                 document.getElementById('propParkingSlotsInput').value = '';
                 document.getElementById('propParkingTypeSelect').selectedIndex = 0;
+                document.getElementById('propMinPriceInput').value = '';
+                document.getElementById('propMaxPriceInput').value = '';
+                document.getElementById('propSortBySelect').selectedIndex = 0;
             }
 
+            // return date diff depending on the period type
             function getDateDiff(start, end, period) {
                 const startDate = new Date(start);
                 const endDate = new Date(end);
@@ -492,65 +459,21 @@
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const checkInInput = document.getElementById('propCheckInDate');
-                const checkOutInput = document.getElementById('propCheckOutDate');
-                const durationInput = document.getElementById('periodDuration');
-                const periodSelect = document.getElementById('propRentalPeriodSelect');
-
-                // When check-in or duration changes, update check-out
-                checkInInput.addEventListener('change', updateCheckoutDate);
-                durationInput.addEventListener('input', updateCheckoutDate);
-                periodSelect.addEventListener('change', function() {
-                    togglePeriodDuration(this.value);
-                    updateCheckoutDate();
-                });
-
-                // When check-out changes, update duration
-                checkOutInput.addEventListener('change', updatePeriodDuration);
-            });
-        </script>
-
-    </form>
-    <script>
-        function toggleFilters() {
-            const filters = document.getElementById('PL_form_filters');
-            filters.style.display = filters.style.display === 'none' ? 'block' : 'none';
-        }
-        
-        function togglePropertyFilters() {
-            const panel = document.getElementById('filterSidebar');
-            const btn = document.getElementById('collapseFilterBtn');
-            panel.style.marginLeft = (panel.style.marginLeft === '0px' || panel.style.marginLeft === '0') ? '-20%' : '0';
-            btn.style.left = (panel.style.marginLeft === '0px' || panel.style.marginLeft === '0') ? '20%' : '0';
-        }
-
-        function togglePeriodDuration(value) {
-            const durationField = document.getElementById('periodDuration');
-            durationField.style.display = value ? 'block' : 'none';
-            durationField.placeholder = value === 'Monthly' ? 'No. of months' : 'No. of days';
-            durationField.value = '';
-            updateCheckoutDate();
-        }
-        
-        function updateCheckoutDate() {
-            const checkInDate = new Date(document.getElementById('propCheckInDate').value);
-            const period = document.getElementById('propRentalPeriodSelect').value;
-            const duration = parseInt(document.getElementById('periodDuration').value) || 0;
-            
-            if (checkInDate && duration > 0) {
-                let checkOutDate = new Date(checkInDate);
-                
-                if (period === 'Monthly') {
-                    checkOutDate.setMonth(checkOutDate.getMonth() + duration);
-                } else if (period === 'Daily') {
-                    checkOutDate.setDate(checkOutDate.getDate() + duration);
-                }
-                
-                document.getElementById('propCheckOutDate').value = checkOutDate.toISOString().split('T')[0];
+            function togglePropertyFilters() {
+                const panel = document.getElementById('filterSidebar');
+                const btn = document.getElementById('collapseFilterBtn');
+                panel.style.marginLeft = (panel.style.marginLeft === '0px' || panel.style.marginLeft === '0') ? '-20%' : '0';
+                btn.style.left = (panel.style.marginLeft === '0px' || panel.style.marginLeft === '0') ? '20%' : '0';
             }
-        }
-    </script>
+
+            function togglePeriodDuration(value) {
+                const durationField = document.getElementById('periodDuration');
+                durationField.style.display = value ? 'block' : 'none';
+                durationField.placeholder = value === 'Monthly' ? 'No. of months' : 'No. of days';
+                durationField.value = '';
+                updateCheckoutDate();
+            }
+        </script>
     <script src="<?= ROOT ?>/assets/js/propertyListings/listings.js"></script>
     <script src="<?= ROOT ?>/assets/js/loader.js"></script>
 

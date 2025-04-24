@@ -9,7 +9,7 @@
 
             <div>
                 <h2><?= $property->name ?></h2>
-                <p><span>Maintained By: </span><?= $agent->fname . ' ' . $agent->lname ?></p>
+                <p><span>Maintained By: </span><span style="color: var(--green-color);"><?= $agent->fname . ' ' . $agent->lname ?></span></p>
             </div>
         </div>
         <div class="right-content">

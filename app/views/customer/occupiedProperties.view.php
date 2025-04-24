@@ -6,7 +6,7 @@
 </div>
 
 <div class="OC__property_container">
-    <?php if (!empty($orders)): ?>
+    <?php if (!empty($orders) && !is_bool($orders)): ?>
         <?php foreach ($orders as $order): ?>
             <?php
                 // Get the first image from property_images, or use default if not set
@@ -74,9 +74,13 @@
                             <span class="info-value"><?= esc($order->booking_status) ?></span>
                         </div>
                     </div>
-                    <div class="button-group">
-                        <?php if (strtolower($order->booking_status) === 'cancelled'): ?>
-                            <button class="primary-btn red-solid" disabled>Booking Cancelled</button>
+                    <div class="button-group" style="justify-content: right;">
+                        <?php if (strtolower($order->booking_status) === 'cancelled' || strtolower($order->booking_status) === 'completed'): ?>
+                            <!-- No buttons shown if cancelled -->
+                        <?php elseif (strtolower($order->booking_status) === 'cancel requested'): ?>
+                            <form method="POST" action="<?= ROOT ?>/dashboard/continueBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
+                                <button type="submit" class="primary-btn green-solid">Continue Booking</button>
+                            </form>
                         <?php else: ?>
                             <?php if (strtolower($order->payment_status) !== 'paid' && strtolower($order->booking_status) === 'confirmed'): ?>
                                 <form method="POST" action="https://sandbox.payhere.lk/pay/checkout" style="display:inline;">
@@ -133,5 +137,5 @@ function closeCancelModal() {
     document.getElementById('cancelModal').style.display = 'none';
 }
 </script>
-
+<script src="<?= ROOT ?>/assets/js/loader.js"></script>
 <?php require 'customerFooter.view.php' ?>
