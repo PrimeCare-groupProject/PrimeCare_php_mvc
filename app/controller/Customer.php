@@ -580,6 +580,7 @@ class Customer
         if (isset($_SESSION['user']) && !empty($_SESSION['user']->pid)) {
             $BookingOrders = new BookingOrders();
             $orders = $BookingOrders->getOrdersByOwner($_SESSION['user']->pid);
+            $orders = is_array($orders) ? $orders : [];
 
             $property = new PropertyConcat();
             foreach ($orders as $key => &$order) {
@@ -1945,17 +1946,65 @@ class Customer
             }
         }
         if ($booking) {
+            $currentStatus = strtolower($booking->booking_status);
+            if ($currentStatus === 'pending') {
+                // Directly cancel if status is pending
+                $BookingOrders->updateBookingStatusByOwnerAndDates(
+                    $booking->property_id,
+                    $booking->person_id,
+                    $booking->start_date,
+                    $booking->end_date,
+                    'Cancelled'
+                );
+                $_SESSION['flash']['msg'] = "Booking cancelled successfully.";
+                $_SESSION['flash']['type'] = "success";
+            } else {
+                // Otherwise, set to Cancel Requested
+                $BookingOrders->updateBookingStatusByOwnerAndDates(
+                    $booking->property_id,
+                    $booking->person_id,
+                    $booking->start_date,
+                    $booking->end_date,
+                    'Cancel Requested'
+                );
+                $_SESSION['flash']['msg'] = "Booking cancellation request sent successfully.";
+                $_SESSION['flash']['type'] = "success";
+            }
+        } else {
+            $_SESSION['flash']['msg'] = "Booking not found or not authorized.";
+            $_SESSION['flash']['type'] = "error";
+        }
+        redirect('dashboard/occupiedProperties');
+    }
+
+    public function continueBooking($bookingId)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('login');
+            return;
+        }
+        $BookingOrders = new BookingOrders();
+        // Get the booking to verify ownership
+        $orders = $BookingOrders->getOrdersByOwner($_SESSION['user']->pid);
+        $booking = null;
+        foreach ($orders as $order) {
+            if ($order->booking_id == $bookingId) {
+                $booking = $order;
+                break;
+            }
+        }
+        if ($booking) {
             $BookingOrders->updateBookingStatusByOwnerAndDates(
                 $booking->property_id,
                 $booking->person_id,
                 $booking->start_date,
                 $booking->end_date,
-                'Cancelled'
+                'Confirmed'
             );
-            $_SESSION['flash']['msg'] = "Booking cancelled successfully.";
+            $_SESSION['flash']['msg'] = "Booking cancelled was removed successfully.";
             $_SESSION['flash']['type'] = "success";
         } else {
-            $_SESSION['flash']['msg'] = "Booking not found or not authorized.";
+            $_SESSION['flash']['msg'] = "Booking cancelled was removed not done or not authorized.";
             $_SESSION['flash']['type'] = "error";
         }
         redirect('dashboard/occupiedProperties');

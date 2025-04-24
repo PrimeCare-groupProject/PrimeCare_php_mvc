@@ -76,10 +76,10 @@ class Login {
                     $_SESSION['user'] = $result;
 
                     // Set welcome message
-                    $_SESSION['flash'] = [
-                        'msg' => "Welcome to Primcare!",
-                        'type' => "welcome"
-                    ];
+                    // $_SESSION['flash'] = [
+                    //     'msg' => "Welcome to Primcare!",
+                    //     'type' => "welcome"
+                    // ];
 
                     // Redirect to home page
                     $nxtUrl = $_SESSION['redirect_url'] ?? 'home';

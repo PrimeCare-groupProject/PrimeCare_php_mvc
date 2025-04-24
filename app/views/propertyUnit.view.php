@@ -19,6 +19,11 @@
         if (isset($_SESSION['flash'])) {
             flash_message();
         }
+
+        $query_string = '';
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            $query_string = $_SERVER['QUERY_STRING'];
+        }
     ?>
     <div class="PL__navigation-bar">
         <div class="PL__top-navigations">
@@ -187,6 +192,7 @@
                                     <input type="hidden" name="p_id" value="<?= esc($property->property_id) ?>">
                                     <input type="hidden" name="rental_period" value="<?= esc($_GET['rental_period'] ?? $property->rental_period) ?>">
                                     <input type="hidden" name="period_duration" value="<?= esc($_GET['period_duration'] ?? '') ?>">
+                                    <input type="hidden" name="query_string" value="<?= esc($query_string) ?>">
                                     <div class="filter-row-instance" style="width: 100%; display: flex; gap: 15px;">
                                         <div class="form-group" style="display: flex; flex-direction: column; flex:1;">
                                             <label for="check_in" style="font-weight: bold;">Check-in Date:</label>
