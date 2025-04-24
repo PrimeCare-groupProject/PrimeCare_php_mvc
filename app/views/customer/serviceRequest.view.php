@@ -28,81 +28,6 @@
     </div>
 </div>
 
-<style>
-    .success-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        animation: fadeIn 0.3s ease-out;
-    }
-    
-    .success-modal-content {
-        background-color: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        animation: slideUp 0.4s ease-out;
-    }
-    
-    .success-icon {
-        margin-bottom: 20px;
-    }
-    
-    .success-modal-content h2 {
-        color: #4CAF50;
-        margin-bottom: 15px;
-        font-size: 24px;
-    }
-    
-    .success-modal-content p {
-        margin-bottom: 20px;
-        color: #555;
-        font-size: 16px;
-    }
-    
-    .countdown {
-        font-size: 14px;
-        color: #777;
-        margin-top: 5px;
-    }
-    
-    .modal-close-btn {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s;
-    }
-    
-    .modal-close-btn:hover {
-        background-color: #3e8e41;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    
-    @keyframes slideUp {
-        from { transform: translateY(50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-</style>
-
 <script>
     let timeLeft = 10;
     const countdownElement = document.getElementById('countdown');
@@ -127,23 +52,20 @@
     </div>
 <?php endif; ?>
 
-<div class="property-unit-container" style="margin-top: 20px;">
-    <div class="left-container-property-unit">
-        <div class="slider">
-            <div class="slides">
-                <div class="slide">
-                    <?php if ($property_image): ?>
-                        <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $property_image ?>" 
-                             alt="Property Image">
-                    <?php else: ?>
-                        <img src="<?= ROOT ?>/assets/images/listing_alt.jpg" alt="Property Image">
-                    <?php endif; ?>
-                </div>
-            </div>
+<!-- Split container with image on left and form on right -->
+<div class="split-container">
+    <!-- Left side: Property Image -->
+    <div class="image-side" style="background-image: url('<?= ROOT ?>/assets/images/uploads/property_images/<?= $property_image ? $property_image : 'listing_alt.jpg' ?>');">
+        <div class="service-type-badge">
+            <span><?= htmlspecialchars($_GET['type'] ?? 'Service Request') ?></span>
+        </div>
+        <div class="property-name-overlay">
+            <h3><?= htmlspecialchars($_GET['property_name'] ?? 'Property') ?></h3>
         </div>
     </div>
-
-    <div class="property-details-section">
+    
+    <!-- Right side: Service Request Form -->
+    <div class="form-side">
         <form method="POST" action="">
             <!-- Hidden fields -->
             <input type="hidden" name="service_type" id="service_type" value="<?= htmlspecialchars($_GET['type'] ?? '') ?>">
@@ -152,49 +74,41 @@
             <input type="hidden" name="status" value="Pending">
             <input type="hidden" name="cost_per_hour" value="<?= htmlspecialchars($_GET['cost_per_hour'] ?? '') ?>">
             <input type="hidden" name="requested_person_id" value="<?= $_SESSION['user']->pid ?? '' ?>">
+            <input type="hidden" name="property_name" value="<?= htmlspecialchars($_GET['property_name'] ?? '') ?>">
 
             <div class="form-header">
-                <h3>Request Details</h3>
-                <p>Please provide the following information for your service request</p>
+                <h3>Service Request Form</h3>
+                <p>Please provide the details for your service request</p>
             </div>
 
-            <label class="bold-text">Service Details</label>
+            <div class="service-info-container">
+                <label class="bold-text">Service Details</label>
 
-            <div class="input-group">
-                <span class="input-label">Service Type:</span>
-                <span class="input-field"><?= htmlspecialchars($_GET['type'] ?? 'Not Selected') ?></span>
+                <div class="input-group">
+                    <span class="input-label">Service Type:</span>
+                    <span class="input-field"><?= htmlspecialchars($_GET['type'] ?? 'Not Selected') ?></span>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-label">Request Date:</span>
+                    <span class="input-field"><?= date('Y-m-d') ?></span>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-label">Property Name:</span>
+                    <span class="input-field"><?= htmlspecialchars($_GET['property_name'] ?? 'Not Selected') ?></span>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-label">Cost Per Hour (LKR):</span>
+                    <span class="input-field"><?= htmlspecialchars($_GET['cost_per_hour'] ?? '') ?></span>
+                </div>
             </div>
 
-            <div class="input-group">
-                <span class="input-label">Request Date:</span>
-                <span class="input-field"><?= date('Y-m-d') ?></span>
+            <div class="description-container">
+                <label for="service_description" class="bold-text">Service Description:</label>
+                <textarea name="service_description" id="service_description" class="input-field textarea-padding" rows="5" placeholder="Please describe your service request in detail..." required></textarea>
             </div>
-
-            <div class="input-group">
-                <span class="input-label">Property Name:</span>
-                <span class="input-field"><?= htmlspecialchars($_GET['property_name'] ?? 'Not Selected') ?></span>
-                <input type="hidden" name="property_name" value="<?= htmlspecialchars($_GET['property_name'] ?? '') ?>">
-            </div>
-
-            <div class="input-group">
-                <span class="input-label">Cost Per Hour (LKR):</span>
-                <span class="input-field"><?= htmlspecialchars($_GET['cost_per_hour'] ?? '') ?></span>
-            </div>
-            
-            <!-- <div class="input-group">
-                <span class="input-label">Estimated Hours:</span>
-                <select name="estimated_hours" class="input-field" required>
-                    <option value="">Select estimated hours</option>
-                    <option value="1">1 hour</option>
-                    <option value="2">2 hours</option>
-                    <option value="3">3 hours</option>
-                    <option value="4">4 hours</option>
-                    <option value="5">5+ hours (to be determined)</option>
-                </select>
-            </div> -->
-
-            <span class="input-label">Service Description:</span>
-            <textarea name="service_description" class="input-field textarea-padding" rows="4" placeholder="Please describe your service request in detail..." required></textarea>
 
             <div class="flex-buttons-space-between">
                 <button type="submit" class="primary-btn">Submit Request</button>
@@ -205,57 +119,64 @@
 </div>
 
 <style>
-/* Form Styling */
-.property-unit-container {
+/* Main Container */
+.split-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background: white;
+    margin: 30px auto;
+    min-height: 680px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.left-container-property-unit {
-    flex: 1;
-    min-width: 300px;
-    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
-.slider {
-    width: 100%;
-    height: 100%;
+/* Left Side - Image */
+.image-side {
+    flex: 1;
     position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-width: 40%;
 }
 
-.slides {
-    width: 100%;
-    height: 100%;
+.service-type-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #ffcc00, #ffb700);
+    color: #333;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 2;
 }
 
-.slide {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.property-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 25px 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
 }
 
-.slide img {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 8px;
+.property-name-overlay h3 {
+    color: white;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-.property-details-section {
-    flex: 1.5;
-    min-width: 300px;
-    padding: 15px;
+/* Right Side - Form */
+.form-side {
+    flex: 1.2;
+    padding: 30px;
+    background: white;
+    overflow-y: auto;
 }
 
 .form-header {
@@ -273,6 +194,7 @@
 .form-header p {
     color: #666;
     font-size: 14px;
+    margin: 0;
 }
 
 .bold-text {
@@ -280,106 +202,234 @@
     font-size: 16px;
     color: #333;
     display: block;
-    margin: 15px 0 10px;
+    margin-bottom: 15px;
+}
+
+/* Service Info Section */
+.service-info-container {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
 }
 
 .input-group {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
     padding: 12px;
-    background: #f9f9f9;
+    background: white;
     border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.input-group:last-child {
+    margin-bottom: 0;
 }
 
 .input-label {
-    min-width: 150px;
     font-weight: 500;
     color: #555;
-    margin-bottom: 5px;
+    width: 140px;
 }
 
 .input-field {
     flex: 1;
-    padding: 10px;
-    border-radius: 4px;
+    padding: 10px 12px;
+    border-radius: 6px;
     border: 1px solid #ddd;
     background: white;
     color: #333;
     font-weight: 500;
+    min-width: 100px;
+}
+
+/* Description Section */
+.description-container {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
 }
 
 textarea.input-field {
     width: 100%;
-    margin-top: 8px;
     resize: vertical;
+    min-height: 150px;
+    margin-top: 10px;
+    font-size: 15px;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-select.input-field {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 16px;
-    padding-right: 30px;
+textarea.input-field:focus {
+    outline: none;
+    border-color: #ffcc00;
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
 }
 
 .textarea-padding {
-    padding: 12px;
+    padding: 15px;
 }
 
+/* Button Section */
 .flex-buttons-space-between {
     display: flex;
     justify-content: space-between;
-    margin-top: 25px;
+    gap: 20px;
 }
 
 .primary-btn {
-    padding: 12px 24px;
+    padding: 14px 28px;
     background: linear-gradient(135deg, #ffcc00, #ffb700);
     color: #333;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
+    font-size: 16px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
     flex: 1;
     max-width: 200px;
-    box-shadow: 0 3px 8px rgba(255, 204, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
 }
 
 .primary-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 204, 0, 0.4);
 }
 
 .secondary-btn {
-    padding: 12px 24px;
+    padding: 14px 28px;
     background: white;
     color: #333;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
+    font-size: 16px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     flex: 1;
     max-width: 200px;
 }
 
 .secondary-btn:hover {
     background: #f5f5f5;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 768px) {
+/* Success Modal Styling */
+.success-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.success-modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    animation: slideUp 0.4s ease-out;
+}
+
+.success-icon {
+    margin-bottom: 20px;
+}
+
+.success-modal-content h2 {
+    color: #4CAF50;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.success-modal-content p {
+    margin-bottom: 20px;
+    color: #555;
+    font-size: 16px;
+}
+
+.countdown {
+    font-size: 14px;
+    color: #777;
+    margin-top: 5px;
+}
+
+.modal-close-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.modal-close-btn:hover {
+    background-color: #3e8e41;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .split-container {
+        flex-direction: column;
+        margin: 20px 15px;
+    }
+    
+    .image-side {
+        min-height: 280px;
+    }
+    
+    .form-side {
+        padding: 20px;
+    }
+    
     .flex-buttons-space-between {
         flex-direction: column;
-        gap: 15px;
     }
     
     .primary-btn, .secondary-btn {
         max-width: 100%;
     }
+    
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .input-label {
+        margin-bottom: 8px;
+        width: 100%;
+    }
+    
+    .input-field {
+        width: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 </style>
 
