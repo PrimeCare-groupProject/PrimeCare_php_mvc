@@ -15,12 +15,78 @@ require_once 'managerHeader.view.php'; // KEEP THIS LINE
 
 // Database connection and data fetching would go here
 // This is a mockup showing the complete UI structure
+//require_once 'app/models/Property.php';  // Example, adjust path as needed
+//require_once 'app/models/User.php';      // Example, adjust path as needed
+//require_once 'app/models/BookingOrders.php';
+//require_once 'app/models/agentAssignment.php';
+//
+//class Property {
+//    public function getTotalCountWhere($conditions = []) {
+//        // Simulate database query
+//        return 150; // Example value
+//    }
+//     public function findAll()
+//    {
+//        return [
+//            (object)['property_id' => 'P123', 'property_status' => 'active', 'created_at' => date('Y-m-d H:i:s')],
+//            (object)['property_id' => 'P124', 'property_status' => 'pending', 'created_at' => date('Y-m-d H:i:s')],
+//        ];
+//    }
+//}
+//
+//class User {
+//    public function getTotalCountWhere($conditions = []) {
+//      //  var_dump($conditions);
+//        if(isset($conditions['user_lvl']) && $conditions['user_lvl'] == 3)
+//            return 50;
+//        else if(isset($conditions['user_lvl']) && $conditions['user_lvl'] == 2)
+//            return 30;
+//        return 0;
+//    }
+//}
+//
+//class BookingOrders
+//{
+//     public function getTotalCountWhere($conditions = []) {
+//        return 20;
+//    }
+//}
+//
+//class agentAssignment{
+//     public function findAll()
+//    {
+//        return [
+//            (object)['property_id' => 'P101', 'agent_id' => 'A001', 'created_at' => date('Y-m-d H:i:s'), 'property_status' => 'active'],
+//            (object)['property_id' => 'P102', 'agent_id' => 'A002', 'created_at' => date('Y-m-d H:i:s'), 'property_status' => 'pending'],
+//            (object)['property_id' => 'P103', 'agent_id' => 'A001', 'created_at' => date('Y-m-d H:i:s'), 'property_status' => 'inactive'],
+//            (object)['property_id' => 'P104', 'agent_id' => 'A003', 'created_at' => date('Y-m-d H:i:s'), 'property_status' => 'active'],
+//            (object)['property_id' => 'P105', 'agent_id' => 'A002', 'created_at' => date('Y-m-d H:i:s'), 'property_status' => 'pending'],
+//        ];
+//    }
+//}
+//
+//$propertyModel = new Property();
+//$userModel = new User();
+//$bookingOrders = new BookingOrders();
+//$agentAssignmentModel = new agentAssignment();
+//
+//$totalProperties = $propertyModel->getTotalCountWhere();
+//$registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]);
+//$serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]);
+//$tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']);
+//$recentAssignments = $agentAssignmentModel->findAll();
+//
+//
+//function view($template, $data = []) {
+//    extract($data);
+//    include $template . '.php';
+//}
 ?>
 
 <style>
 /* ============================================
-   DESIGN SYSTEM (1500 lines) - PMS Prefixed
-   ============================================ */
+ * DESIGN SYSTEM (1500 lines) - PMS Prefixed
+ * ============================================ */
 :root {
   /* Color Palette */
   --pms-primary-50: #f0f3ff;
@@ -97,8 +163,8 @@ require_once 'managerHeader.view.php'; // KEEP THIS LINE
 }
 
 /* ============================================
-   BASE STYLES (500 lines)
-   ============================================ */
+ * BASE STYLES (500 lines)
+ * ============================================ */
 * {
   margin: 0;
   padding: 0;
@@ -176,8 +242,8 @@ img {
 
 
 /* ============================================
-   LAYOUT COMPONENTS (2000 lines) - Adjusted & PMS Prefixed
-   ============================================ */
+ * LAYOUT COMPONENTS (2000 lines) - Adjusted & PMS Prefixed
+ * ============================================ */
 .pms-dashboard {
   display: grid;
   /* Removed sidebar column - main content takes full width */
@@ -189,7 +255,7 @@ img {
 
 .pms-main {
   padding: var(--pms-space-xl);
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .pms-section {
@@ -222,8 +288,8 @@ img {
 }
 
 /* ============================================
-   CARD COMPONENTS (800 lines) - PMS Prefixed
-   ============================================ */
+ * CARD COMPONENTS (800 lines) - PMS Prefixed
+ * ============================================ */
 .pms-card {
   background: white;
   border-radius: 12px;
@@ -262,8 +328,8 @@ img {
 }
 
 /* ============================================
-   DATA TABLE COMPONENTS (600 lines) - PMS Prefixed
-   ============================================ */
+ * DATA TABLE COMPONENTS (600 lines) - PMS Prefixed
+ * ============================================ */
 .pms-data-table {
   width: 100%;
   border-collapse: separate;
@@ -298,8 +364,8 @@ img {
 }
 
 /* ============================================
-   FORM COMPONENTS (600 lines) - PMS Prefixed
-   ============================================ */
+ * FORM COMPONENTS (600 lines) - PMS Prefixed
+ * ============================================ */
 .pms-form-group {
   margin-bottom: var(--pms-space-md);
 }
@@ -327,8 +393,8 @@ img {
 }
 
 /* ============================================
-   BUTTON COMPONENTS (400 lines) - PMS Prefixed
-   ============================================ */
+ * BUTTON COMPONENTS (400 lines) - PMS Prefixed
+ * ============================================ */
 .pms-btn {
   display: inline-flex;
   align-items: center;
@@ -378,8 +444,8 @@ img {
 }
 
 /* ============================================
-   DASHBOARD SPECIFIC STYLES (1000 lines) - PMS Prefixed
-   ============================================ */
+ * DASHBOARD SPECIFIC STYLES (1000 lines) - PMS Prefixed
+ * ============================================ */
 /* Overview Metrics */
 .pms-metrics-grid { /* This was 'metrics-grid' */
   display: grid;
@@ -647,8 +713,8 @@ img {
 
 
 /* ============================================
-   ANIMATIONS & EFFECTS (300 lines)
-   ============================================ */
+ * ANIMATIONS & EFFECTS (300 lines)
+ * ============================================ */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -669,8 +735,8 @@ img {
 }
 
 /* ============================================
-   RESPONSIVE ADJUSTMENTS (400 lines) - Adjusted
-   ============================================ */
+ * RESPONSIVE ADJUSTMENTS (400 lines) - Adjusted
+ * ============================================ */
 /* Removed media query for sidebar */
 
 @media (max-width: 992px) {
@@ -694,7 +760,7 @@ img {
     }
      .pms-stat-card:last-child {
         margin-bottom: 0;
-     }
+    }
 }
 
 @media (max-width: 576px) {
@@ -732,41 +798,59 @@ img {
     }
      .pms-time-filters .pms-btn {
         margin-left: 0; /* Remove left margin */
-     }
+    }
+
+     .pms-data-table th,
+      .pms-data-table td {
+        text-align: left; /* Align text to the left */
+        padding: 10px; /* Add padding for better spacing */
+      }
+
+       .pms-data-table th {
+        text-transform: uppercase; /* Make headers uppercase */
+        font-weight: bold; /* Bold headers */
+      }
+
+       .pms-data-table td {
+        vertical-align: middle; /* Vertically align content in the middle */
+      }
+
+      table, th, td {
+      border: 1px solid #e5e7eb;
+}
 }
 </style>
 
 
 <div class="user_view-menu-bar">
-    <div class="gap"></div>
-    <h2>dashboard</h2>
+  <div class="gap"></div>
+  <h2>dashboard</h2>
 </div>
 <div class="pms-dashboard">
   <main class="pms-main">
-  <!-- Metrics Overview -->
   <section class="pms-section">
       <div class="pms-metrics-grid">
         <div class="pms-metric-card properties">
           <div class="pms-metric-label"><i class="fas fa-building"></i> Total Properties</div>
-            <div class="pms-metric-value"><?= htmlspecialchars($totalProperties) ?></div>
+            <div class="pms-metric-value"><?= htmlspecialchars($totalProperties ?? 0) ?></div>
           <div class="pms-metric-change positive"><i class="fas fa-arrow-up"></i> 12% from last month</div>
         </div>
 
         <div class="pms-metric-card agents">
           <div class="pms-metric-label"><i class="fas fa-user-tie"></i> Registered Agents</div>
-          <div class="pms-metric-value"><?= htmlspecialchars($registeredAgents) ?></div>
+          <div class="pms-metric-value"><?= htmlspecialchars($registeredAgents ?? 0) ?></div>
           <div class="pms-metric-change positive"><i class="fas fa-arrow-up"></i> 5% from last month</div>
         </div>
 
         <div class="pms-metric-card tenants">
           <div class="pms-metric-label"><i class="fas fa-users"></i> Active Tenants</div>
-          <div class="pms-metric-value"><?= htmlspecialchars($tenents) ?></div>
+          <div class="pms-metric-value"><?= htmlspecialchars($tenents ?? 0) ?></div>
           <div class="pms-metric-change positive"><i class="fas fa-arrow-up"></i> 8% from last month</div>
         </div>
 
         <div class="pms-metric-card providers">
           <div class="pms-metric-label"><i class="fas fa-tools"></i> Service Providers</div>
-            <div class="pms-metric-value"><?= htmlspecialchars($serviceProviders) ?></div>
+            <div class="pms-metric-value"><?= htmlspecialchars($serviceProviders ?? 0) ?></div>
           <div class="pms-metric-change negative"><i class="fas fa-arrow-down"></i> 2% from last month</div>
         </div>
       </div>
@@ -778,17 +862,17 @@ img {
       </div>
 
       <div class="pms-actions-grid">
-        <a href="#" class="pms-action-card">
+        <a href="<?= ROOT ?>/dashboard/managementhome/agentmanagement" class="pms-action-card">
           <i class="fas fa-user-plus"></i>
           <span>Register Employee</span>
         </a>
 
-        <a href="#" class="pms-action-card">
+        <a href="<?=ROOT?>/dashboard/managementhome/propertymanagement" class="pms-action-card">
           <i class="fas fa-home"></i>
           <span>Approve Property</span>
         </a>
 
-        <a href="#" class="pms-action-card">
+        <a href="<?=ROOT?>/dashboard/managementhome/financemanagement" class="pms-action-card">
           <i class="fas fa-file-invoice-dollar"></i>
           <span>Process Payments</span>
         </a>
@@ -820,112 +904,39 @@ img {
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <?php if (!empty($recentAssignments)): ?>
+            <?php for ($i = 0; $i < 5; $i++): ?>
+              <?php if (isset($recentAssignments[$i])): ?>
                 <tr>
-                  <td>#PR-1001</td>
-                  <td>Luxury Apartment</td>
-                  <td>New Listing</td>
-                  <td>2 hours ago</td>
-                  <td><span class="pms-approval-badge pending">Pending</span></td>
-                  <td>
-                    <button class="pms-btn pms-btn-sm pms-btn-primary">Review</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#PR-1002</td>
-                  <td>Beachfront Villa</td>
-                  <td>Update</td>
-                  <td>1 day ago</td>
-                  <td><span class="pms-approval-badge pending">Pending</span></td>
-                  <td>
-                    <button class="pms-btn pms-btn-sm pms-btn-primary">Review</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#PR-1003</td>
-                  <td>Downtown Office</td>
-                  <td>Removal</td>
-                  <td>3 days ago</td>
-                  <td><span class="pms-approval-badge pending">Pending</span></td>
-                  <td>
-                    <button class="pms-btn pms-btn-sm pms-btn-primary">Review</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pms-section">
-      <div class="pms-section-header">
-        <h2 class="pms-section-title">Recent Assignments</h2>
-        <a href="#" class="pms-view-all">View All <i class="fas fa-chevron-right"></i></a>
-      </div>
-
-      <div class="pms-card">
-        <div class="pms-card-body">
-          <div class="pms-table-responsive">
-            <table class="pms-data-table">
-              <thead>
-                <tr>
-                  <th>Property</th>
-                  <th>Agent</th>
-                  <th>Assigned</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Mountain View Cabin</td>
-                  <td>
+                  <td style="text-align: left;"><?= htmlspecialchars($recentAssignments[$i]->property_id) ?></td>
+                  <td style="text-align: left;">
                     <div class="pms-util-flex pms-util-align-center">
-                      <img src="https://randomuser.me/api/portraits/women/44.jpg" class="pms-employee-avatar pms-util-margin-right-sm">
-                      Sarah Johnson
+                      <?= htmlspecialchars($recentAssignments[$i]->agent_id) ?>
                     </div>
                   </td>
-                  <td>Today</td>
-                  <td><span class="pms-badge pms-badge-info">Active</span></td>
-                  <td>
+                  <td style="text-align: center;"><?= htmlspecialchars(date('F j, Y', strtotime($recentAssignments[$i]->created_at))) ?></td>
+                  <td style="text-align: center;">
+                    <span class="pms-badge <?= $recentAssignments[$i]->property_status === 'active' ? 'pms-badge-info' : ($recentAssignments[$i]->property_status === 'pending' ? 'pms-badge-warning' : 'pms-badge-success') ?>">
+                      <?= ucfirst($recentAssignments[$i]->property_status) ?>
+                    </span>
+                  </td>
+                  <td style="text-align: center;">
                     <button class="pms-btn pms-btn-sm pms-btn-primary">Manage</button>
                   </td>
                 </tr>
-                <tr>
-                  <td>Urban Loft</td>
-                  <td>
-                    <div class="pms-util-flex pms-util-align-center">
-                      <img src="https://randomuser.me/api/portraits/men/22.jpg" class="pms-employee-avatar pms-util-margin-right-sm">
-                      Michael Chen
-                    </div>
-                  </td>
-                  <td>Yesterday</td>
-                  <td><span class="pms-badge pms-badge-warning">Pending</span></td>
-                  <td>
-                    <button class="pms-btn pms-btn-sm pms-btn-primary">Manage</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Suburban House</td>
-                  <td>
-                    <div class="pms-util-flex pms-util-align-center">
-                      <img src="https://randomuser.me/api/portraits/women/68.jpg" class="pms-employee-avatar pms-util-margin-right-sm">
-                      Emily Wilson
-                    </div>
-                  </td>
-                  <td>3 days ago</td>
-                  <td><span class="pms-badge pms-badge-success">Completed</span></td>
-                  <td>
-                    <button class="pms-btn pms-btn-sm pms-btn-primary">View</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
+              <?php endif; ?>
+            <?php endfor; ?>
+          <?php else: ?>
+            <tr>
+              <td colspan="5" style="text-align: center;">No recent assignments found.</td>
+            </tr>
+          <?php endif; ?>
+        </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
   </main>
 </div>
 
@@ -939,37 +950,40 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize charts
   // Updated chart ID
   const financialCtx = document.getElementById('pmsFinancialChart').getContext('2d');
-  const financialChart = new Chart(financialCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [
-        {
-          label: 'Revenue',
-          data: [12000, 19000, 15000, 20000, 22000, 25000],
-          backgroundColor: 'rgba(84, 107, 255, 0.7)', // Using original color value
-          borderColor: 'rgba(84, 107, 255, 1)',     // Using original color value
-          borderWidth: 1
+  if (financialCtx) { //check if the element exists
+        const financialChart = new Chart(financialCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [
+            {
+              label: 'Revenue',
+              data: [12000, 19000, 15000, 20000, 22000, 25000],
+              backgroundColor: 'rgba(84, 107, 255, 0.7)', // Using original color value
+              borderColor: 'rgba(84, 107, 255, 1)',     // Using original color value
+              borderWidth: 1
+            },
+            {
+              label: 'Expenses',
+              data: [8000, 12000, 10000, 15000, 18000, 20000],
+              backgroundColor: 'rgba(255, 84, 131, 0.7)', // Using original color value
+              borderColor: 'rgba(255, 84, 131, 1)',     // Using original color value
+              borderWidth: 1
+            }
+          ]
         },
-        {
-          label: 'Expenses',
-          data: [8000, 12000, 10000, 15000, 18000, 20000],
-          backgroundColor: 'rgba(255, 84, 131, 0.7)', // Using original color value
-          borderColor: 'rgba(255, 84, 131, 1)',     // Using original color value
-          borderWidth: 1
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
         }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
+      });
+  }
+
 
   // Other interactive functionality would go here
   // Tooltips, modals, etc.
