@@ -72,6 +72,13 @@
                             <button class="btn" style="text-align: left;"><i class="fa-solid fa-clipboard-check"></i>Track External Repairs</button>
                         </a>
                     </li>
+                    <li>
+                        <a href="<?= ROOT ?>/dashboard/serviceRequests" class="<?= $page == 'serviceRequests' ? 'active' : '' ?>">
+                            <button class="btn" style="text-align: left;">
+                                <i class="fas fa-clipboard-list"></i>Occupied property service Requests
+                            </button>
+                        </a>
+                    </li>
                     <li><a href="<?= ROOT ?>/dashboard/updateRole" data-section="updateRole"><button class="btn"><i class="fa-solid fa-square-pen"></i>Update Role</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
                 </ul>

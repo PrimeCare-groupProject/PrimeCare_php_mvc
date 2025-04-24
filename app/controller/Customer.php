@@ -731,211 +731,190 @@ class Customer
         $this->view('customer/requestServiceChoice');
     }
 
-    public function requestServiceOccupied() {
-        // Initialize needed models
-        $bookingOrdersModel = new BookingOrders();
-        $propertyModel = new PropertyConcat();
-        $serviceLogModel = new ServiceLog();
-        $servicesModel = new Services();
-        
-        // Get current user ID
+    public function requestServiceOccupiedOld()
+    {
+        // Load active bookings and service types for the form
         $userId = $_SESSION['user']->pid;
-        
-        // Check if user has more than 4 done service requests
-        $doneRequests = $serviceLogModel->where([
-            'requested_person_id' => $userId,
-            'status' => 'Done'
-        ]);
-        
-        if ($doneRequests && count($doneRequests) >= 4) {
-            $_SESSION['flash']['msg'] = "You have reached the maximum limit of 4 completed service requests. Please pay for your completed requests before submitting new ones.";
-            $_SESSION['flash']['type'] = "error";
-            redirect('dashboard/maintenance');
-            return;
-        }
-        
-        // Get active/occupied properties for this user
+        $bookingOrdersModel = new BookingOrders();
+        $servicesModel = new Services();
+        $propertyModel = new PropertyConcat();
+        $serviceLogModel = new ServiceLog(); // Instantiate ServiceLog model
+
+        // Get all bookings for this customer
         $bookings = $bookingOrdersModel->getOrdersByOwner($userId);
+
+        // Filter for active bookings
         $activeBookings = [];
-        $propertyIds = [];
-        
         if ($bookings) {
             foreach ($bookings as $booking) {
-                $bookingStatus = strtolower($booking->booking_status ?? '');
-                
-                if ($bookingStatus === 'confirmed' || $bookingStatus === 'active') {
-                    $today = strtotime('now');
-                    $startDate = strtotime($booking->start_date ?? 'now');
-                    $endDate = strtotime($booking->end_date ?? 'now');
-                    
-                    if ($today >= $startDate && $today <= $endDate) {
-                        $propertyIds[] = $booking->property_id;
+                // Assuming 'end_date' exists and is comparable
+                if (isset($booking->end_date) && strtotime($booking->end_date) >= time()) {
+                    // Fetch property details including images for active bookings
+                    $propertyDetails = $propertyModel->first(['property_id' => $booking->property_id]);
+                    if ($propertyDetails) {
+                        $booking->property_name = $propertyDetails->name ?? 'N/A';
+                        $booking->property_address = $propertyDetails->address ?? 'No address';
+                        $booking->property_images = $propertyDetails->property_images ?? null; // Ensure images are fetched
+                    } else {
+                        $booking->property_name = 'N/A';
+                        $booking->property_address = 'No address';
+                        $booking->property_images = null;
                     }
-                }
-            }
-            
-            // Fetch all property details in a single query for better performance
-            $properties = [];
-            if (!empty($propertyIds)) {
-                $fetchedProperties = $propertyModel->getByPropertyIds($propertyIds);
-                if ($fetchedProperties) {
-                    foreach ($fetchedProperties as $property) {
-                        // Decode property_images if it's a JSON string
-                        if (!empty($property->property_images) && is_string($property->property_images)) {
-                            $decodedImages = json_decode($property->property_images);
-                            if (json_last_error() === JSON_ERROR_NONE && is_array($decodedImages)) {
-                                $property->property_images = $decodedImages;
-                            }
-                        }
-                        $properties[$property->property_id] = $property;
-                    }
-                }
-            }
-            
-            // Append property details to their respective bookings
-            foreach ($bookings as $booking) {
-                $bookingStatus = strtolower($booking->booking_status ?? '');
-                
-                if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
-                    in_array($booking->property_id, $propertyIds)) {
-                    
-                    $today = strtotime('now');
-                    $startDate = strtotime($booking->start_date ?? 'now');
-                    $endDate = strtotime($booking->end_date ?? 'now');
-                    
-                    if ($today >= $startDate && $today <= $endDate) {
-                        if (isset($properties[$booking->property_id])) {
-                            $property = $properties[$booking->property_id];
-                            
-                            $booking->property_name = $property->name;
-                            $booking->property_address = $property->address;
-                            
-                            // Handle property images
-                            if (!empty($property->property_images)) {
-                                $booking->property_images = $property->property_images;
-                            } else {
-                                // Fallback to default image if no images are available
-                                $booking->property_images = ['default-property.jpg'];
-                            }
-                            
-                            $activeBookings[] = $booking;
-                        }
-                    }
+                    $activeBookings[] = $booking;
                 }
             }
         }
-        
-        // Get available service types
-        $serviceTypes = $servicesModel->getAllServices();
-        
-        // Process form submission
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $errors = [];
-            
-            // Check again for done service requests (in case another request was processed while form was open)
-            $doneRequests = $serviceLogModel->where([
-                'requested_person_id' => $userId,
-                'status' => 'Done'
-            ]);
-            
-            if ($doneRequests && count($doneRequests) >= 4) {
-                $errors['limit_exceeded'] = "You have reached the maximum limit of 4 completed service requests. Please pay for your completed requests before submitting new ones.";
-            }
-            
-            // Validate required fields
-            if (empty($_POST['property_id'])) {
-                $errors['property_id'] = "Please select a property";
-            } else {
-                // Verify that the selected property is still active (rental period not ended)
-                $propertyId = $_POST['property_id'];
-                $propertyActive = false;
-                
-                foreach ($activeBookings as $booking) {
-                    if ($booking->property_id == $propertyId) {
-                        $propertyActive = true;
-                        break;
-                    }
-                }
-                
-                if (!$propertyActive) {
-                    $errors['property_id'] = "This property's rental period has ended or is not active. You cannot request services for it.";
+
+
+        // Get all available service types
+        $serviceTypes = $servicesModel->findAll();
+
+        $errors = [];
+        $old = []; // To repopulate form on error
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Retrieve and sanitize POST data
+            $property_id = filter_input(INPUT_POST, 'property_id', FILTER_SANITIZE_NUMBER_INT);
+            $service_type_id = filter_input(INPUT_POST, 'service_type', FILTER_SANITIZE_NUMBER_INT); // This is the service_id from the 'services' table
+            $service_description = trim(filter_input(INPUT_POST, 'service_description', FILTER_SANITIZE_SPECIAL_CHARS));
+            $service_date_input = filter_input(INPUT_POST, 'service_date', FILTER_SANITIZE_SPECIAL_CHARS);
+            $service_date = date('Y-m-d', strtotime($service_date_input));
+
+            $status = 'Pending'; // Initial status
+
+            // Get property name from active bookings
+            $property_name = 'N/A';
+            foreach ($activeBookings as $booking) {
+                if ($booking->property_id == $property_id) {
+                    $property_name = $booking->property_name;
+                    break;
                 }
             }
-            
-            if (empty($_POST['service_type'])) {
-                $errors['service_type'] = "Please select a service type";
+
+            // Find service details (name, cost) from service types based on the ID
+            $service_name = 'N/A'; // This corresponds to 'service_type' column in serviceLog
+            $cost_per_hour = null; // Initialize cost
+            foreach ($serviceTypes as $service) {
+                // Use the ID from the form post ($service_type_id) to find the matching service
+                if ($service->service_id == $service_type_id) {
+                    $service_name = $service->name; // Get the name for the 'service_type' column
+                    $cost_per_hour = $service->cost_per_hour; // Get the cost
+                    break;
+                }
             }
-            
-            if (empty($_POST['service_description'])) {
-                $errors['service_description'] = "Please provide a description of the issue";
-            } elseif (strlen($_POST['service_description']) < 10) {
-                $errors['service_description'] = "Description should be at least 10 characters";
+
+            // --- Validation ---
+            if (!$property_id) $errors['property_id'] = "Please select a property.";
+            // Use $service_name for validation check, as it's derived from a valid $service_type_id
+            if ($service_name === 'N/A') $errors['service_type'] = "Please select a valid service type.";
+            if (empty($service_description)) $errors['service_description'] = "Please provide a description.";
+            if (!$service_date_input || $service_date < date('Y-m-d')) $errors['service_date'] = "Please select a valid future date.";
+            // Validate cost_per_hour based on model requirements (must be numeric and > 0)
+            if ($cost_per_hour === null || !is_numeric($cost_per_hour) || $cost_per_hour <= 0) {
+                 $errors['service_type'] = "Selected service type is invalid or missing cost information.";
             }
-            
-            // If validation passes, create the service request
+
+
             if (empty($errors)) {
-                // Get the property details for the selected property
-                $propertyId = $_POST['property_id'];
-                $property = $propertyModel->first(['property_id' => $propertyId]);
-                
-                // Get the service type details
-                $serviceTypeId = $_POST['service_type'];
-                $serviceType = $servicesModel->getServiceById($serviceTypeId);
-                
-                // Get the booking for the selected property
-                $booking = null;
-                foreach ($activeBookings as $activeBooking) {
-                    if ($activeBooking->property_id == $propertyId) {
-                        $booking = $activeBooking;
-                        break;
-                    }
-                }
-                
-                // Prepare data for service log
+                // Prepare data strictly according to ServiceLog::$allowedColumns
+                // Inside the POST handling block where $data is prepared:
                 $data = [
-                    'service_type' => $serviceType ? $serviceType->name : 'Maintenance',
-                    'date' => date('Y-m-d'),
-                    'property_id' => $propertyId,
-                    'property_name' => $property ? $property->name : '',
-                    'status' => 'Pending',
-                    'service_description' => $_POST['service_description'],
-                    'requested_person_id' => $userId,
-                    'tenant_id' => $userId
+                    'service_type'         => $service_name,
+                    'date'                 => $service_date,
+                    'property_id'          => $property_id,
+                    'property_name'        => $property_name,
+                    'cost_per_hour'        => $cost_per_hour,
+                    'total_hours'          => 1, // Default to 1 hour
+                    'total_cost'           => $cost_per_hour * 1, // Add this line
+                    'status'               => 'Pending',
+                    'service_description'  => $service_description,
+                    'requested_person_id'  => $_SESSION['user']->pid
                 ];
-                
-                // If there's a service type with cost per hour
-                if ($serviceType && isset($serviceType->cost_per_hour)) {
-                    $data['cost_per_hour'] = $serviceType->cost_per_hour;
-                }
-                
-                // Validate and insert the service request
-                if ($serviceLogModel->validate($data)) {
-                    $serviceLogModel->insert($data);
-                    
+
+                if ($serviceLogModel->insert($data)) {
+                    // Success
                     $_SESSION['flash']['msg'] = "Service request submitted successfully!";
                     $_SESSION['flash']['type'] = "success";
-                    redirect('dashboard');
-                    exit;
+                    // Clear old form data on success
+                    unset($_SESSION['form_data']);
                 } else {
-                    $errors = $serviceLogModel->errors;
+                    // Database insertion failed
+                    $errors['database'] = "Failed to submit service request. Please try again.";
+                    // Add model errors if available (these would come from the validate method called within insert)
+                    if (!empty($serviceLogModel->errors)) {
+                        // Use the model's errors directly
+                        $errorMessages = array_values($serviceLogModel->errors);
+                        $_SESSION['flash']['msg'] = implode('<br>', $errorMessages);
+                    } else {
+                         $_SESSION['flash']['msg'] = $errors['database']; // Fallback message
+                    }
+                    $_SESSION['flash']['type'] = "error";
+                    // Keep old form data on failure
+                    $_SESSION['form_data'] = $old;
                 }
+            } else {
+                // Controller-level validation failed
+                $_SESSION['flash']['msg'] = implode('<br>', array_values($errors)); // Use array_values to get just messages
+                $_SESSION['flash']['type'] = "error";
+                // Keep old form data on failure
+                $_SESSION['form_data'] = $old;
             }
-            
-            // If we get here, there were validation errors
-            $this->view('customer/requestServiceOccupied', [
-                'activeBookings' => $activeBookings,
-                'serviceTypes' => $serviceTypes,
-                'errors' => $errors,
-                'old' => $_POST
-            ]);
-            return;
+
+
+            redirect('customer/requestServiceOccupiedOld');
+            exit;
         }
-        
-        // Display the form
-        $this->view('customer/requestServiceOccupied', [
+
+        // Prepare data for the view
+        $viewData = [
+            'user' => $_SESSION['user'],
             'activeBookings' => $activeBookings,
             'serviceTypes' => $serviceTypes,
-            'errors' => []
+            // Retrieve errors/success message from flash session
+            // Ensure errors passed to view are just the messages
+            'errors' => ($_SESSION['flash']['type'] ?? '') === 'error' ? ($_SESSION['flash']['msg'] ? explode('<br>', $_SESSION['flash']['msg']) : []) : [],
+            'old' => $_SESSION['form_data'] ?? [], // Get old form data if it exists
+            'success_message' => ($_SESSION['flash']['type'] ?? '') === 'success' ? $_SESSION['flash']['msg'] : ''
+        ];
+
+        // Clear flash message and old form data from session after retrieving them
+        unset($_SESSION['flash']);
+        unset($_SESSION['form_data']);
+
+
+        $this->view('customer/requestServiceOccupied', $viewData);
+    }
+
+    public function externalRepairListing()
+    {
+        $servicesModel = new Services();
+        $services = $servicesModel->getAllServices();
+
+        if (!empty($services)) {
+            foreach ($services as $key => $service) {
+                if (empty($service->service_img)) continue;
+                $imagePath = ROOTPATH . 'public/assets/images/repairimages/' . $service->service_img;
+                if (!file_exists($imagePath)) {
+                    $found = false;
+                    $extensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    $baseName = pathinfo($service->service_img, PATHINFO_FILENAME);
+                    foreach ($extensions as $ext) {
+                        $testPath = ROOTPATH . 'public/assets/images/repairimages/' . $baseName . '.' . $ext;
+                        if (file_exists($testPath)) {
+                            $services[$key]->service_img = $baseName . '.' . $ext;
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $services[$key]->service_img = '';
+                    }
+                }
+            }
+        }
+
+        $this->view('customer/externalRepairListing', [
+            'services' => $services
         ]);
     }
     
@@ -2029,5 +2008,363 @@ class Customer
         redirect('dashboard/occupiedProperties');
     }
 
+    public function requestServiceOccupied() {
+        $user_id = $_SESSION['user']->pid ?? 0;
+        $bookingModel = new BookingOrders();
+        $propertyModel = new PropertyConcat();
+
+        $bookings = $bookingModel->getOrdersByOwner($user_id);
+        $propertyIds = [];
+
+        if ($bookings) {
+            $today = strtotime('now');
+            foreach ($bookings as $booking) {
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                $paymentStatus = strtolower($booking->payment_status ?? '');
+                $startDate = strtotime($booking->start_date ?? 'now');
+                $endDate = strtotime($booking->end_date ?? 'now');
+
+                if (
+                    ($bookingStatus === 'confirmed' || $bookingStatus === 'active') &&
+                    $paymentStatus === 'paid' &&
+                    $today >= $startDate && $today <= $endDate
+                ) {
+                    $propertyIds[$booking->property_id] = true;
+                }
+            }
+        }
+
+        $properties = [];
+        if ($propertyIds) {
+            foreach (array_keys($propertyIds) as $propertyId) {
+                $property = $propertyModel->first(['property_id' => $propertyId]);
+                if ($property) {
+                    $properties[] = $property;
+                }
+            }
+        }
+
+        $this->view('customer/requestServiceOccupied', [
+            'properties' => $properties
+        ]);
+    }
+
+
+    public function repairListingOcc($property_id = null)
+    {
+        if (!$property_id && isset($_GET['property_id'])) {
+            $property_id = $_GET['property_id'];
+        }
+        
+        // Validate that we have a property_id
+        if (!$property_id) {
+            $_SESSION['flash']['msg'] = "No property selected.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+        
+        // Get the property details to show in the header
+        $propertyModel = new PropertyConcat();
+        $property = $propertyModel->first(['property_id' => $property_id]);
+        
+        if (!$property) {
+            $_SESSION['flash']['msg'] = "Property not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+        
+        // Verify this property belongs to the current user through an active booking
+        $bookingModel = new BookingOrders();
+        $user_id = $_SESSION['user']->pid ?? 0;
+        $bookings = $bookingModel->getOrdersByOwner($user_id);
+        
+        $hasAccess = false;
+        if ($bookings) {
+            $today = strtotime('now');
+            foreach ($bookings as $booking) {
+                if ($booking->property_id == $property_id) {
+                    $bookingStatus = strtolower($booking->booking_status ?? '');
+                    $paymentStatus = strtolower($booking->payment_status ?? '');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
+                    
+                    if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                        $paymentStatus === 'paid' &&
+                        $today >= $startDate && $today <= $endDate) {
+                        $hasAccess = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (!$hasAccess) {
+            $_SESSION['flash']['msg'] = "You don't have access to request services for this property.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+        
+        // Get all available repair services
+        $service = new Services;
+        $services = $service->findAll();
+        
+        // Pass data to the view
+        $this->view('customer/repairListingOcc', [
+            'services' => $services,
+            'property' => $property
+        ]);
+    }
+
+
+    public function serviceRequest()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Check for outstanding balance before accepting new requests
+            $serviceLog = new ServiceLog();
+            $userCompletedServices = $serviceLog->where([
+                'requested_person_id' => $_SESSION['user']->pid,
+                'status' => 'Done'
+            ]);
+            
+            // Calculate total costs of completed services
+            $totalOutstandingCost = 0;
+            foreach ($userCompletedServices as $service) {
+                $totalOutstandingCost += ($service->total_cost ?? 0);
+            }
+            
+            // If total cost exceeds 20,000 LKR, show error and prevent submission
+            if ($totalOutstandingCost > 20000) {
+                $_SESSION['flash']['msg'] = "You have exceeded the maximum allowed outstanding balance (20,000 LKR). Please settle your previous service payments before requesting new services.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/requestServiceOccupied');
+                return;
+            }
+            
+            // Handle form submission if balance check passed
+            $data = [
+                'service_type' => $_POST['service_type'],
+                'date' => $_POST['date'],
+                'property_id' => $_POST['property_id'],
+                'property_name' => $_POST['property_name'],
+                'status' => $_POST['status'],
+                'service_description' => $_POST['service_description'],
+                'cost_per_hour' => $_POST['cost_per_hour'],
+                'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
+            ];
+    
+            // Add service request to database
+            $service = new ServiceLog();
+            if ($service->insert($data)) {
+                $_SESSION['flash']['msg'] = "Service request submitted successfully!";
+                $_SESSION['flash']['type'] = "success";
+                
+                // Get property owner ID to send notification
+                $propertyModel = new PropertyConcat();
+                $property = $propertyModel->first(['property_id' => $data['property_id']]);
+                $ownerId = $property ? $property->person_id : null;
+                
+                // Send notifications
+                if ($ownerId) {
+                    enqueueNotification(
+                        'New Service Request', 
+                        'A tenant has requested a ' . $data['service_type'] . ' service for your property.', 
+                        ROOT . '/dashboard/maintenance', 
+                        'Notification_green', 
+                        $ownerId
+                    );
+                }
+                
+                redirect('dashboard/requestServiceOccupied');
+            } else {
+                $_SESSION['flash']['msg'] = "Failed to submit service request";
+                $_SESSION['flash']['type'] = "error";
+            }
+            
+            return;
+        }
+    
+        // Get property information from URL parameters
+        $property_id = $_GET['property_id'] ?? null;
+        $property_name = urldecode($_GET['property_name'] ?? '');
+        $service_type = $_GET['type'] ?? '';
+        $cost_per_hour = $_GET['cost_per_hour'] ?? '';
+    
+        // Validate the property belongs to this user through an active booking
+        if ($property_id) {
+            $bookingModel = new BookingOrders();
+            $user_id = $_SESSION['user']->pid ?? 0;
+            $bookings = $bookingModel->getOrdersByOwner($user_id);
+            
+            $hasActiveBooking = false;
+            if ($bookings) {
+                $today = strtotime('now');
+                foreach ($bookings as $booking) {
+                    if ($booking->property_id == $property_id) {
+                        $bookingStatus = strtolower($booking->booking_status ?? '');
+                        $paymentStatus = strtolower($booking->payment_status ?? '');
+                        $startDate = strtotime($booking->start_date ?? 'now');
+                        $endDate = strtotime($booking->end_date ?? 'now');
+                        
+                        if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                            $paymentStatus === 'paid' &&
+                            $today >= $startDate && $today <= $endDate) {
+                            $hasActiveBooking = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (!$hasActiveBooking) {
+                $_SESSION['flash']['msg'] = "You don't have access to request services for this property.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/requestServiceOccupied');
+                return;
+            }
+        } else {
+            $_SESSION['flash']['msg'] = "No property selected.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+    
+        // Fetch property image if property_id is provided
+        $propertyImage = null;
+        if ($property_id) {
+            $imageModel = new PropertyImageModel();
+            $images = $imageModel->where(['property_id' => $property_id]);
+            if (!empty($images)) {
+                $propertyImage = $images[0]->image_url;
+            }
+        }
+    
+        $this->view('customer/serviceRequest', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'type' => $service_type,
+            'property_id' => $property_id,
+            'property_name' => $property_name,
+            'property_image' => $propertyImage,
+            'cost_per_hour' => $cost_per_hour,
+        ]);
+    
+        // Clear session messages after displaying
+        unset($_SESSION['errors']);
+        unset($_SESSION['status']);
+    }
+
+    public function serviceRequests()
+    {
+        // Get the current user's ID
+        $customerId = $_SESSION['user']->pid;
+        
+        // Instantiate the ServiceLog model
+        $serviceLog = new ServiceLog();
+        
+        // Get service logs requested by the current customer
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $customerId]);
+        
+        // If no service logs found, initialize as empty array
+        if (!$serviceLogs) {
+            $serviceLogs = [];
+        }
+
+        // Apply status filtering
+        if (!empty($_GET['status_filter'])) {
+            $status = $_GET['status_filter'];
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                if (strtolower($log->status) == strtolower($status)) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+
+        // Apply date range filtering
+        if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
+            $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
+            $dateTo = !empty($_GET['date_to']) ? strtotime($_GET['date_to'] . ' 23:59:59') : null;
+            
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                $logDate = strtotime($log->date);
+                
+                // Check if the log date is within the specified range
+                $includeLog = true;
+                if ($dateFrom && $logDate < $dateFrom) $includeLog = false;
+                if ($dateTo && $logDate > $dateTo) $includeLog = false;
+                
+                if ($includeLog) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+        
+        // Apply sorting
+        if (!empty($_GET['sort'])) {
+            $sort = $_GET['sort'];
+            
+            usort($serviceLogs, function($a, $b) use ($sort) {
+                switch ($sort) {
+                    case 'date_asc':
+                        return strtotime($a->date) - strtotime($b->date);
+                    case 'date_desc':
+                        return strtotime($b->date) - strtotime($a->date);
+                    case 'property_id':
+                        return $a->property_id - $b->property_id;
+                    case 'cost_asc':
+                        $costA = isset($a->total_cost) ? $a->total_cost : ($a->cost_per_hour * ($a->total_hours ?? 1));
+                        $costB = isset($b->total_cost) ? $b->total_cost : ($b->cost_per_hour * ($b->total_hours ?? 1));
+                        return $costA - $costB;
+                    case 'cost_desc':
+                        $costA = isset($a->total_cost) ? $a->total_cost : ($a->cost_per_hour * ($a->total_hours ?? 1));
+                        $costB = isset($b->total_cost) ? $b->total_cost : ($b->cost_per_hour * ($b->total_hours ?? 1));
+                        return $costB - $costA;
+                    default:
+                        return strtotime($b->date) - strtotime($a->date); // Default: newest first
+                }
+            });
+        }
+        
+        // Calculate total expenses and counts
+        $totalExpenses = 0;
+        $pendingCount = 0;
+        $completedCount = 0;
+        $doneCount = 0;
+        
+        foreach ($serviceLogs as $log) {
+            $totalExpenses += $log->total_cost ?? ($log->cost_per_hour * ($log->total_hours ?? 1));
+            
+            $status = strtolower($log->status ?? '');
+            if ($status === 'pending' || $status === 'ongoing') {
+                $pendingCount++;
+            } elseif ($status === 'done') {
+                $doneCount++;
+            } elseif ($status === 'paid') {
+                $completedCount++;
+            }
+        }
+        
+        $this->view('customer/serviceRequests', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLogs' => $serviceLogs,
+            'totalExpenses' => $totalExpenses,
+            'pendingCount' => $pendingCount,
+            'completedCount' => $completedCount,
+            'doneCount' => $doneCount
+        ]);
+        
+        // Clear session messages after displaying
+        unset($_SESSION['errors']);
+        unset($_SESSION['status']);
+    }
     
 }
