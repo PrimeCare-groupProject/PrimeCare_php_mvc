@@ -896,12 +896,11 @@ img {
             <table class="pms-data-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Property</th>
-                  <th>Type</th>
-                  <th>Submitted</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>Property ID</th>
+                  <th>Agent ID</th>
+                  <th>Created At</th>
+                  <th>Property Status</th>
+                  <th>PreInspection</th>
                 </tr>
               </thead>
               <?php if (!empty($recentAssignments)): ?>
