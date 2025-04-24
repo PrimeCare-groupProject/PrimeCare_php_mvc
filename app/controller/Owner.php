@@ -52,7 +52,8 @@ class Owner
         
         // Get properties owned by the current user
         $properties = $property->where(['person_id' => $ownerId]);
-        $propertyCount = count($properties ?? []);
+        //$propertyCount = count($properties ?? []);
+        $propertyCount = is_array($properties) ? count($properties) : 0;
         
         // Extract property IDs
         $propertyIds = [];
