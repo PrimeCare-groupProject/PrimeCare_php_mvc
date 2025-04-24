@@ -306,19 +306,14 @@ class BookingOrders
      * @param array $filters Optional additional filters (e.g., ['payment_status' => 'Pending'])
      * @return array|null Array of pending bookings or false if none found
      */
-    public function getBookingsByPropertyId($property_id, $status = 'Pending', array $filters = [])
+    public function getBookingsByPropertyId($property_id, $booking_status = 'Pending', array $filters = [])
     {
-        $data = ['property_id' => $property_id, 'booking_status' => $status];
+        $data = ['property_id' => $property_id, 'booking_status' => $booking_status];
         if (!$this->validate($data)) {
-            return null;
-        }
-        // Validate the status parameter
-        if (!in_array($status, ['Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested'])) {
-            $this->errors['status'] = "Invalid booking status";
-            return null;
+            return false;
         }
 
-        $query = "SELECT * FROM $this->table WHERE property_id = :property_id AND booking_status = :status";
+        $query = "SELECT * FROM $this->table WHERE property_id = :property_id AND booking_status = :booking_status";
 
         // Add additional filters if provided
         foreach ($filters as $key => $value) {

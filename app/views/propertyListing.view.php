@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <form method="POST">
+    <!-- <form disabled> -->
         <?php
             if (isset($_SESSION['flash'])) {
                 flash_message();
@@ -42,7 +42,7 @@
 
             <form action="<?= ROOT ?>/propertyListing/showListing" method="GET">
             <!-- Replace the nested form with a div -->
-            <div class="PL_filter-section">
+            <div class="PL_filter-section" style="width: 80vw;">
                 <div class="PL__filter">
                     <div class="PL_form_main-filters">
                         <div class="flex-bar" style="justify-content: end;">
@@ -266,7 +266,7 @@
             </div>
         </div>
 
-    </form>
+    <!-- </form> -->
 
     <script>
             // Location data and filter logic

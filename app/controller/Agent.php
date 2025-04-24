@@ -2094,6 +2094,12 @@ class Agent
                 $booking->end_date,
                 'Confirmed'
             );
+            
+            // Update agent_id to current session user
+            $BookingOrders->update($bookingId, [
+                'agent_id' => $_SESSION['user']->pid
+            ]);
+            
             $_SESSION['flash']['msg'] = "Booking confirmed.";
             $_SESSION['flash']['type'] = "success";
         }
@@ -2111,6 +2117,12 @@ class Agent
                 $booking->end_date,
                 'Cancelled'
             );
+            // Update agent_id to current session user only if user a agent
+            if ($_SESSION['user']->user_lvl == 3) {
+                $BookingOrders->update($bookingId, [
+                    'agent_id' => $_SESSION['user']->pid
+                ]);
+            }
             $_SESSION['flash']['msg'] = "Booking cancelled.";
             $_SESSION['flash']['type'] = "success";
         }
