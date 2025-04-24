@@ -2094,6 +2094,12 @@ class Agent
                 $booking->end_date,
                 'Confirmed'
             );
+            
+            // Update agent_id to current session user
+            $BookingOrders->update($bookingId, [
+                'agent_id' => $_SESSION['user']->pid
+            ]);
+            
             $_SESSION['flash']['msg'] = "Booking confirmed.";
             $_SESSION['flash']['type'] = "success";
         }
@@ -2103,6 +2109,12 @@ class Agent
     public function cancelBooking($bookingId) {
         $BookingOrders = new BookingOrders();
         $booking = $BookingOrders->findById($bookingId);
+        if (!$booking) {
+            $_SESSION['flash']['msg'] = "Booking not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/bookings/bookingremoval');
+            return;
+        }
         if ($booking && in_array(strtolower($booking->booking_status), ['pending', 'confirmed', 'cancel requested'])) {
             $BookingOrders->updateBookingStatusByOwnerAndDates(
                 $booking->property_id,
@@ -2111,10 +2123,16 @@ class Agent
                 $booking->end_date,
                 'Cancelled'
             );
+            // Update agent_id to current session user only if user a agent
+            if ($_SESSION['user']->user_lvl == 3) {
+                $BookingOrders->update($bookingId, [
+                    'agent_id' => $_SESSION['user']->pid,
+                ],'booking_id');
+            }
             $_SESSION['flash']['msg'] = "Booking cancelled.";
             $_SESSION['flash']['type'] = "success";
         }
-        redirect('dashboard/bookings');
+        redirect('dashboard/bookings/bookingremoval');
     }
 
     public function continueBooking($bookingId) {
