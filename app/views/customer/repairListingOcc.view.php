@@ -1,12 +1,306 @@
 <?php require 'customerHeader.view.php' ?>
 
+<style>
+    .listing-the-property {
+        margin-bottom: 80px; 
+        padding-bottom: 40px; 
+    }
+    
+    .pagination {
+        margin-top: 30px;
+        margin-bottom: 60px; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        position: relative; 
+        z-index: 10; 
+    }
+    
+    .property-card-service-item {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 320px;
+        background-color: var(--white-color);
+        border-radius: 24px;
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        max-width: 100%;
+        margin: 5px;
+        cursor: pointer;
+    }
+/*     
+    .property-card-service-item:hover {
+    } */
+    
+    body {
+        padding-bottom: 70px;
+        min-height: 100vh;
+        position: relative; 
+    }
+    
+    .bottom-spacer {
+        height: 50px;
+        width: 100%;
+        clear: both;
+    }
+    
+    footer {
+        position: relative;
+        margin-top: 60px;
+    }
+    
+    /* Selected Property Banner */
+    .selected-property-banner {
+        background: white;
+        color: #333;
+        padding: 15px 20px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        /* box-shadow: 0 4px 15px rgba(255, 204, 0, 0.2); */
+        margin-left: 7px;
+        margin-right: 7px;
+    }
+    
+    .property-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .property-label {
+        font-weight: 600;
+    }
+    
+    .property-value {
+        font-weight: 700;
+        background-color: rgba(255, 204, 0, 0.15);
+        padding: 4px 12px;
+        border-radius: 20px;
+        color: #ffb700;
+    }
+    
+    .property-address {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+    
+    .service-cost {
+        font-weight: 600;
+        color: #333;
+        background-color: rgba(255, 204, 0, 0.15);
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin-top: 5px;
+    }
+    
+    /* Button styling */
+    .select-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #ffcc00, #ffb700);
+        color: #333;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        width: auto;
+        max-width: 160px;
+        box-shadow: 0 3px 8px rgba(255, 204, 0, 0.2);
+        gap: 8px;
+        /* margin: 5px auto 0; */
+        margin-bottom: 15px;
+    }
+    
+    .select-button .icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.25);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+    
+    .select-button .icon svg {
+        width: 10px;
+        height: 10px;
+        stroke: #333;
+    }
+    
+    .select-button:hover {
+        box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .select-button:hover .icon {
+        transform: translateX(3px);
+        background: rgba(255, 255, 255, 0.4);
+    }
+    
+    .select-button:hover .icon svg {
+        animation: bounceRight 0.8s infinite;
+    }
+    
+    .button-text {
+        z-index: 1;
+        position: relative;
+        letter-spacing: 0.5px;
+        color: #333;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .select-button:hover .button-text {
+        transform: translateX(3px);
+    }
+    
+    @keyframes bounceRight {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(3px); }
+    }
+    
+    /* Hide glow */
+    .button-glow {
+        display: none;
+    }
+
+    /* Service Card Styling - Matching External Repair Listing */
+    .property-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 320px; 
+    }
+
+    .property-card-service-item {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--white-color);
+        border-radius: 24px;
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        max-width: 100%;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    /* .property-card-service-item:hover {
+    } */
+
+    .property-image {
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .property-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .property-details {
+        padding: 15px;
+    }
+
+    .property-details h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .property-description {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    .service-cost {
+        font-weight: 600;
+        color: #333;
+        background-color: rgba(255, 204, 0, 0.15);
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin-top: 5px;
+    }
+
+    .property-actions {
+        margin-top: auto;
+        padding: 10px 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .select-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #ffcc00, #ffb700);
+        color: #333;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        width: auto;
+        max-width: 160px;
+        box-shadow: 0 3px 8px rgba(255, 204, 0, 0.2);
+        gap: 8px;
+        margin: 5px auto 0;
+    }
+
+    .select-button .icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.25);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .select-button .icon svg {
+        width: 10px;
+        height: 10px;
+        stroke: #333;
+    }
+
+    .property-listing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 10px 10;
+    }
+</style>
+
 <div class="user_view-menu-bar">
     <a href="<?= ROOT ?>/dashboard/requestServiceOccupied"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
     <h2>Select Service for Request</h2>
     <div class="flex-bar">
         <div class="search-container">
             <input type="text" id="service-search" class="search-input" placeholder="Search services...">
-            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
+            <button id="search-btn" class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
     </div>
 </div>
@@ -30,35 +324,38 @@
     <div class="property-listing-grid">
         <?php if(!empty($services)): ?>
             <?php foreach($services as $service): ?>
-                <div class="property-card service-item" 
+                <div class="property-card-service-item" 
                      data-name="<?= htmlspecialchars(strtolower($service->name)) ?>" 
-                     data-description="<?= htmlspecialchars(strtolower($service->description)) ?>">
+                     data-description="<?= htmlspecialchars(strtolower($service->description)) ?>"
+                     onclick="window.location.href='<?= ROOT ?>/dashboard/serviceRequest?type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>&property_id=<?= $property->property_id ?>&property_name=<?= urlencode($property->name) ?>'">
                     <div class="property-image">
                         <?php 
-                        $imgPath = ROOT . "/assets/images/repairimages/" . ($service->service_img ?? '');
-                        $placeholderPath = ROOT . "/assets/images/service_placeholder.jpg";
+                        $imgPath = ROOT . "/" . ($service->service_img ?? '');
+                        $placeholderPath = ROOT . "/assets/images/uploads/service_images/service_placeholder.jpg";
                         ?>
                         <img src="<?= !empty($service->service_img) ? $imgPath : $placeholderPath ?>" 
                              alt="<?= htmlspecialchars($service->name) ?>" 
                              onerror="this.src='<?= $placeholderPath ?>'">
-                        <div class="image-overlay"></div>
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
                             <div>
-                                <h3 class="service-title"><?= htmlspecialchars($service->name) ?></h3>
+                                <h3><?= htmlspecialchars($service->name) ?></h3>
                             </div>
                         </div>
-                        <div class="property-description-container">
-                            <p class="property-description"><?= htmlspecialchars($service->description) ?></p>
-                        </div>
-                        <div class="service-cost-container">
-                            <p class="service-cost">$<?= number_format($service->cost_per_hour, 2) ?> per hour</p>
-                        </div>
+                        <p class="property-description">
+                            <?= htmlspecialchars($service->description) ?>
+                        </p>
+                        <p class="service-cost">$<?= number_format($service->cost_per_hour, 2) ?> per hour</p>
+                        
                         <div class="property-actions">
-                            <a href="<?= ROOT ?>/dashboard/serviceRequest?type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>&property_id=<?= $property->property_id ?>&property_name=<?= urlencode($property->name) ?>" class="select-button">
+                            <a href="<?= ROOT ?>/dashboard/serviceRequest?type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>&property_id=<?= $property->property_id ?>&property_name=<?= urlencode($property->name) ?>" class="select-button" onclick="event.stopPropagation();">
+                                <span class="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 18l6-6-6-6"></path>
+                                    </svg>
+                                </span>
                                 <span class="button-text">Select</span>
-                                <div class="button-glow"></div>
                             </a>
                         </div>
                     </div>
@@ -79,384 +376,139 @@
     </div>
 </div>
 
-<style>
-/* Selected Property Banner */
-.selected-property-banner {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, #ffcc00 80%);
-    color: #333;
-    padding: 15px 20px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.2);
-}
-
-.property-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.property-label {
-    font-weight: 600;
-}
-
-.property-value {
-    font-weight: 700;
-    background: rgba(255, 255, 255, 0.3);
-    padding: 4px 12px;
-    border-radius: 20px;
-}
-
-.property-address {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-}
-
-/* Property Listing Grid */
-.property-listing-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    padding: 20px 0;
-}
-
-/* Card Styling */
-.property-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
-                0 10px 10px -5px rgba(0, 0, 0, 0.04),
-                0 0 0 1px rgba(255, 204, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.property-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-                0 10px 10px -5px rgba(0, 0, 0, 0.04),
-                0 0 0 1px rgba(255, 204, 0, 0.2),
-                0 0 15px 2px rgba(255, 204, 0, 0.15);
-}
-
-/* Image Styling */
-.property-image {
-    position: relative;
-    height: 180px;
-    overflow: hidden;
-}
-
-.property-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.property-card:hover .property-image img {
-    transform: scale(1.05);
-}
-
-.image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(255,204,0,0.2) 100%);
-    z-index: 1;
-    opacity: 0.2;
-    transition: opacity 0.3s ease;
-}
-
-.property-card:hover .image-overlay {
-    opacity: 0.3;
-}
-
-/* Content Styling */
-.property-details {
-    padding: 20px;
-}
-
-.service-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.property-description-container {
-    height: 60px;
-    overflow: hidden;
-    margin-bottom: 15px;
-}
-
-.property-description {
-    color: #64748b;
-    line-height: 1.6;
-    font-size: 14px;
-}
-
-.service-cost-container {
-    margin-bottom: 15px;
-}
-
-.service-cost {
-    font-weight: 700;
-    color: #333;
-    background-color: rgba(255, 204, 0, 0.2);
-    display: inline-block;
-    padding: 5px 15px;
-    border-radius: 20px;
-}
-
-/* Button Styling */
-.property-actions {
-    display: flex;
-    justify-content: center;
-}
-
-.select-button {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #ffcc00, #ffb700);
-    color: #222;
-    border-radius: 50px;
-    border: 1px solid rgba(255, 204, 0, 0.3);
-    font-weight: 600;
-    font-size: 15px;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    width: 100%;
-    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3),
-                inset 0 0 5px rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.5px;
-}
-
-.select-button:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
-    border-radius: 50px 50px 0 0;
-}
-
-.select-button:hover {
-    box-shadow: 0 6px 20px rgba(255, 204, 0, 0.5),
-                inset 0 0 10px rgba(255, 255, 255, 0.8),
-                0 0 15px rgba(255, 204, 0, 0.3);
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, #ffcc00, #ffb700, #ffa500);
-}
-
-.button-text {
-    z-index: 1;
-    position: relative;
-    letter-spacing: 0.5px;
-    background: linear-gradient(to right, #444, #111);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 700;
-}
-
-.button-glow {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.select-button:hover .button-glow {
-    animation: glowing 1.5s infinite;
-    opacity: 0.7;
-}
-
-/* Pagination */
-.pagination {
-    display: none;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    margin-top: 30px;
-}
-
-.prev-page, .next-page {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.prev-page:hover, .next-page:hover {
-    background: #f9f9f9;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.prev-page:disabled, .next-page:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.current-page {
-    font-weight: bold;
-    font-size: 16px;
-}
-
-/* No services message */
-.no-services-message {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 50px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    color: #666;
-}
-
-/* Search input */
-.search-input {
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    width: 200px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: #ffcc00;
-    box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
-    width: 220px;
-}
-
-/* Animations */
-@keyframes glowing {
-    0% {
-        transform: translate(-50%, -50%) scale(0.8);
-        opacity: 0.7;
-    }
-    50% {
-        transform: translate(-50%, -50%) scale(1.2);
-        opacity: 0.3;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(0.8);
-        opacity: 0.7;
-    }
-}
-</style>
-
 <script>
-    // Service search functionality
-    document.getElementById('service-search').addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const services = document.querySelectorAll('.service-item');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get search elements
+        const searchInput = document.getElementById('service-search');
+        const searchBtn = document.getElementById('search-btn');
         
-        services.forEach(service => {
-            const name = service.dataset.name;
-            const description = service.dataset.description;
+        // Function to perform search
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const serviceItems = document.querySelectorAll('.property-card-service-item');
             
-            if (name.includes(searchTerm) || description.includes(searchTerm)) {
-                service.style.display = 'block';
-            } else {
-                service.style.display = 'none';
+            let resultsFound = false;
+            
+            serviceItems.forEach(item => {
+                // Search in name and description
+                const name = item.dataset.name;
+                const description = item.dataset.description;
+                
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                    resultsFound = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            const noResultsElement = document.querySelector('.no-results-message');
+            if (!resultsFound && searchTerm !== '') {
+                if (!noResultsElement) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'no-results-message';
+                    noResults.innerHTML = '<p>No services found matching your search.</p>';
+                    document.querySelector('.property-listing-grid').appendChild(noResults);
+                }
+            } else if (noResultsElement) {
+                noResultsElement.remove();
+            }
+            
+            // Reset pagination after search
+            resetPagination();
+        }
+        
+        // Reset pagination to first page
+        function resetPagination() {
+            currentPage = 1;
+            document.querySelector('.current-page').textContent = currentPage;
+            document.querySelector('.prev-page').disabled = true;
+            
+            // Count visible items
+            const visibleItems = document.querySelectorAll('.property-card-service-item[style*="display: flex"]').length;
+            const totalVisiblePages = Math.ceil(visibleItems / listingsPerPage);
+            
+            document.querySelector('.next-page').disabled = (totalVisiblePages <= 1);
+            
+            // Show/hide pagination based on results
+            document.querySelector('.pagination').style.display = (totalVisiblePages > 1) ? 'flex' : 'none';
+            
+            showPage(currentPage);
+        }
+        
+        // Handle search button click
+        if (searchBtn) {
+            searchBtn.addEventListener('click', performSearch);
+        }
+        
+        // Handle Enter key in search input
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+        
+        // Pagination functionality
+        const listingsPerPage = 9;
+        const listings = document.querySelectorAll('.property-card-service-item');
+        const totalPages = Math.ceil(listings.length / listingsPerPage);
+        let currentPage = 1;
+        
+        document.querySelector('.pagination').style.display = (totalPages > 1) ? 'flex' : 'none';
+        
+        function showPage(page) {
+            let visibleCount = 0;
+            let visibleOnThisPage = 0;
+            
+            listings.forEach((listing, index) => {
+                // Only consider listings that aren't filtered out by search
+                if (window.getComputedStyle(listing).display !== 'none') {
+                    visibleCount++;
+                    if (visibleCount > (page-1) * listingsPerPage && visibleCount <= page * listingsPerPage) {
+                        listing.style.display = 'flex';
+                        visibleOnThisPage++;
+                    } else {
+                        listing.style.display = 'none';
+                    }
+                }
+            });
+            
+            document.querySelector('.current-page').textContent = page;
+            document.querySelector('.prev-page').disabled = page === 1;
+            
+            const totalVisiblePages = Math.ceil(visibleCount / listingsPerPage);
+            document.querySelector('.next-page').disabled = page >= totalVisiblePages;
+        }
+        
+        document.querySelector('.next-page').addEventListener('click', () => {
+            if (!document.querySelector('.next-page').disabled) {
+                currentPage++;
+                showPage(currentPage);
+                document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
             }
         });
         
-        // Reset pagination after search
-        currentPage = 1;
+        document.querySelector('.prev-page').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+                document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
+            }
+        });
+        
+        // Add animation effects to buttons
+        document.querySelectorAll('.select-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click when button is clicked
+            });
+        });
+        
+        // Initialize pagination
         showPage(currentPage);
     });
-
-    // Pagination functionality
-    const listingsPerPage = 9;
-    const listings = document.querySelectorAll('.property-listing-grid .property-card');
-    const totalPages = Math.ceil(listings.length / listingsPerPage);
-    let currentPage = 1;
-    
-    // Only initialize pagination if we have more than one page
-    if (totalPages > 1) {
-        document.querySelector('.pagination').style.display = 'flex';
-    }
-
-    function showPage(page) {
-        // Hide all listings
-        listings.forEach((listing, index) => {
-            if (index >= (page-1) * listingsPerPage && index < page * listingsPerPage) {
-                listing.style.display = 'block';
-            } else {
-                listing.style.display = 'none';
-            }
-        });
-
-        // Update pagination display
-        document.querySelector('.current-page').textContent = page;
-        
-        // Enable/disable pagination buttons
-        document.querySelector('.prev-page').disabled = page === 1;
-        document.querySelector('.next-page').disabled = page === totalPages;
-    }
-
-    document.querySelector('.next-page').addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            showPage(currentPage);
-            // Scroll to top of the listing
-            document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
-        }
-    });
-
-    document.querySelector('.prev-page').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            showPage(currentPage);
-            // Scroll to top of the listing
-            document.querySelector('.listing-the-property').scrollIntoView({behavior: 'smooth'});
-        }
-    });
-
-    // Add glow effect to buttons
-    document.querySelectorAll('.select-button').forEach(button => {
-        // Create glowing effect on mousemove
-        button.addEventListener('mousemove', function(e) {
-            const rect = button.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const glow = button.querySelector('.button-glow');
-            glow.style.left = `${x}px`;
-            glow.style.top = `${y}px`;
-        });
-    });
-
-    // Initial page load
-    showPage(currentPage);
 </script>
 
 <?php require 'customerFooter.view.php' ?>
