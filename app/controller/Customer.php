@@ -2069,5 +2069,123 @@ class Customer
             'property' => $property
         ]);
     }
+
+
+    public function serviceRequest()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Handle form submission
+            $data = [
+                'service_type' => $_POST['service_type'],
+                'date' => $_POST['date'],
+                'property_id' => $_POST['property_id'],
+                'property_name' => $_POST['property_name'],
+                'status' => $_POST['status'],
+                'service_description' => $_POST['service_description'],
+                'cost_per_hour' => $_POST['cost_per_hour'],
+                'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
+            ];
+
+            // Add service request to database
+            $service = new ServiceLog();
+            if ($service->insert($data)) {
+                $_SESSION['flash']['msg'] = "Service request submitted successfully!";
+                $_SESSION['flash']['type'] = "success";
+                
+                // Get property owner ID to send notification
+                $propertyModel = new PropertyConcat();
+                $property = $propertyModel->first(['property_id' => $data['property_id']]);
+                $ownerId = $property ? $property->person_id : null;
+                
+                // Send notifications
+                if ($ownerId) {
+                    enqueueNotification(
+                        'New Service Request', 
+                        'A tenant has requested a ' . $data['service_type'] . ' service for your property.', 
+                        ROOT . '/dashboard/maintenance', 
+                        'Notification_green', 
+                        $ownerId
+                    );
+                }
+                
+                redirect('dashboard/requestServiceOccupied');
+            } else {
+                $_SESSION['flash']['msg'] = "Failed to submit service request";
+                $_SESSION['flash']['type'] = "error";
+            }
+            
+            return;
+        }
+
+        // Get property information from URL parameters
+        $property_id = $_GET['property_id'] ?? null;
+        $property_name = urldecode($_GET['property_name'] ?? '');
+        $service_type = $_GET['type'] ?? '';
+        $cost_per_hour = $_GET['cost_per_hour'] ?? '';
+
+        // Validate the property belongs to this user through an active booking
+        if ($property_id) {
+            $bookingModel = new BookingOrders();
+            $user_id = $_SESSION['user']->pid ?? 0;
+            $bookings = $bookingModel->getOrdersByOwner($user_id);
+            
+            $hasActiveBooking = false;
+            if ($bookings) {
+                $today = strtotime('now');
+                foreach ($bookings as $booking) {
+                    if ($booking->property_id == $property_id) {
+                        $bookingStatus = strtolower($booking->booking_status ?? '');
+                        $paymentStatus = strtolower($booking->payment_status ?? '');
+                        $startDate = strtotime($booking->start_date ?? 'now');
+                        $endDate = strtotime($booking->end_date ?? 'now');
+                        
+                        if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                            $paymentStatus === 'paid' &&
+                            $today >= $startDate && $today <= $endDate) {
+                            $hasActiveBooking = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (!$hasActiveBooking) {
+                $_SESSION['flash']['msg'] = "You don't have access to request services for this property.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/requestServiceOccupied');
+                return;
+            }
+        } else {
+            $_SESSION['flash']['msg'] = "No property selected.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+
+        // Fetch property image if property_id is provided
+        $propertyImage = null;
+        if ($property_id) {
+            $imageModel = new PropertyImageModel();
+            $images = $imageModel->where(['property_id' => $property_id]);
+            if (!empty($images)) {
+                $propertyImage = $images[0]->image_url;
+            }
+        }
+
+        $this->view('customer/serviceRequest', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'type' => $service_type,
+            'property_id' => $property_id,
+            'property_name' => $property_name,
+            'property_image' => $propertyImage,
+            'cost_per_hour' => $cost_per_hour,
+        ]);
+
+        // Clear session messages after displaying
+        unset($_SESSION['errors']);
+        unset($_SESSION['status']);
+    }
     
 }
