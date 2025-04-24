@@ -349,3 +349,33 @@ CREATE TABLE deleteRequests(
     FOREIGN KEY (owner_id) REFERENCES person(pid),
     FOREIGN KEY (agent_id) REFERENCES person(pid)
 );
+
+
+DELIMITER %%
+
+CREATE OR REPLACE TRIGGER newNotification
+AFTER INSERT ON propertyTable
+FOR EACH ROW
+BEGIN
+    INSERT INTO notifications (user_id, title, message , color , link)
+    VALUES (
+        NEW.person_id,
+        'Property Registered Successfully!',
+        CONCAT('Your property "', NEW.name, '" has been successfully registered.'),
+        'Notification_green',
+        CONCAT('http://localhost/php_mvc_backend/public/dashboard/propertylisting/propertyunitowner/', NEW.property_id)
+    );
+
+    IF NEW.agent_id IS NOT NULL THEN
+        INSERT INTO notifications (user_id, title, message , color , link)
+        VALUES (
+            NEW.agent_id,
+            'New Property Added!',
+            CONCAT('A New property "', NEW.name, '" has been registered.'),
+            'Notification_green',
+            'http://localhost/php_mvc_backend/public/dashboard/managementhome/propertymanagement/assignagents'
+        );
+    END IF;
+END%%
+
+DELIMITER ;
