@@ -1760,7 +1760,7 @@ class Owner
 
                 'status' => 'pending',
                 'person_id' => $_SESSION['user']->pid,
-                'agent_id' => 110,
+                'agent_id' => MANAGER_ID,
                 'duration' => $_POST['duration'] ?? 1
             ];
 
