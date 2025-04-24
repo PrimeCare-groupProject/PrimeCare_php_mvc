@@ -19,9 +19,8 @@ class Manager
          $agentAssignmentModel = new agentAssignment();
  
          // Fetch recent agent assignments
-        $recentAssignments = $agentAssignmentModel->where([], [], 'ORDER BY created_at DESC LIMIT 5');
-
-         // Fetch the required data
+        $recentAssignments = $agentAssignmentModel->findAll();
+        // Fetch the required data
          $totalProperties = $propertyModel->getTotalCountWhere();
          $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
          $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
