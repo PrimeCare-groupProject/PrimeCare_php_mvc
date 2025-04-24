@@ -5,17 +5,6 @@
     <h2>Select Property for Request</h2>
     <div class="gap"></div>
     <div class="PL__filter_container">
-        <!-- <div class="search-container">
-            <div class="futuristic-search">
-                <input type="text" id="propertySearch" class="search-input" placeholder="Search properties...">
-                <div class="search-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                </div>
-            </div>
-        </div> -->
     </div>
 </div>
 
@@ -24,7 +13,8 @@
     <div class="property-listing-grid">
         <?php if (is_array($properties) && !empty($properties)): ?>
             <?php foreach ($properties as $property): ?>
-                <div class="property-card futuristic-card">
+                <!-- Make entire card clickable -->
+                <div class="property-card futuristic-card" onclick="redirectToRepairListingOcc(<?= $property->property_id ?>)">
                     <?php
                     $images = !empty($property->property_images) ? explode(',', $property->property_images) : [];
                     $firstImage = !empty($images) ? $images[0] : 'default.png';
@@ -49,7 +39,13 @@
                             </p>
                         </div>
                         <div class="property-actions">
-                            <a href="<?= ROOT ?>/dashboard/createServiceRequest/<?= $property->property_id ?>" class="select-button">
+                            <!-- Enhanced select button with animated icon -->
+                            <a href="<?= ROOT ?>/dashboard/repairListingOcc/<?= $property->property_id ?>" class="select-button" onclick="event.stopPropagation();">
+                                <span class="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 18l6-6-6-6"></path>
+                                    </svg>
+                                </span>
                                 <span class="button-text">Select</span>
                                 <div class="button-glow"></div>
                             </a>
@@ -95,6 +91,7 @@
     position: relative;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.18);
+    cursor: pointer;
 }
 
 .futuristic-card:hover {
@@ -150,13 +147,12 @@
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, #ffcc00 80%);
     color: #333;
     padding: 6px 18px 6px 12px;
-    border-radius: 0px 16px 0px 16px ;
+    border-radius: 0px 16px 0px 16px;
     font-size: 12px;
     font-weight: 600;
     z-index: 2;
     transition: all 0.3s ease;
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-
 }
 
 /* Content Styling */
@@ -206,7 +202,7 @@
     font-size: 14px;
 }
 
-/* Button Styling */
+/* Enhanced Button Styling */
 .property-actions {
     display: flex;
     justify-content: center;
@@ -218,10 +214,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 24px;
-    background: #ffcc00;
-    color: white;
-    border-radius: 30px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #ffcc00, #ffb700);
+    color: #333;
+    border-radius: 50px;
     border: none;
     font-weight: 600;
     font-size: 15px;
@@ -230,13 +226,42 @@
     transition: all 0.3s ease;
     text-decoration: none;
     width: 100%;
+    max-width: 200px;
     box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3);
+    gap: 10px;
+}
+
+.select-button .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.25);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.select-button .icon svg {
+    width: 12px;
+    height: 12px;
+    stroke: #333;
+    transition: all 0.3s ease;
 }
 
 .select-button:hover {
-    box-shadow: 0 6px 15px rgba(255, 204, 0, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
     transform: translateY(-2px);
-    background: #ffd633;
+    background: linear-gradient(135deg, #ffcc00, #ffb700);
+}
+
+.select-button:hover .icon {
+    transform: translateX(3px);
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.select-button:hover .icon svg {
+    animation: bounceRight 0.8s infinite;
 }
 
 .button-text {
@@ -244,54 +269,17 @@
     position: relative;
     letter-spacing: 0.5px;
     color: #333;
-}
-
-.button-glow {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.select-button:hover .button-glow {
-    animation: glowing 1.5s infinite;
-    opacity: 0.7;
-}
-
-/* Search Box Styling */
-.futuristic-search {
-    position: relative;
-    width: 100%;
-}
-
-.search-input {
-    width: 250px;
-    padding: 12px 20px;
-    padding-right: 40px;
-    border-radius: 30px;
-    border: 1px solid rgba(255, 204, 0, 0.2);
-    background-color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
     transition: all 0.3s ease;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(255, 204, 0, 0.1);
 }
 
-.search-input:focus {
-    outline: none;
-    border-color: #ffcc00;
-    box-shadow: 0 2px 12px rgba(255, 204, 0, 0.2);
-    width: 280px;
+.select-button:hover .button-text {
+    transform: translateX(3px);
 }
 
-.search-icon {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ffcc00;
+/* Remove the glow effect */
+.button-glow {
+    display: none;
 }
 
 /* Empty State Styling */
@@ -342,28 +330,20 @@
         opacity: 0.7;
     }
 }
+
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(3px); }
+}
 </style>
 
 <script>
-    // Enhanced search functionality
-    document.getElementById('propertySearch').addEventListener('input', function() {
-        let searchValue = this.value.toLowerCase();
-        let properties = document.querySelectorAll('.property-card');
-        
-        properties.forEach(property => {
-            let name = property.querySelector('.property-title').innerText.toLowerCase();
-            let address = property.querySelector('.property-meta .property-description').innerText.toLowerCase();
-            let description = property.querySelector('.property-description-container .property-description').innerText.toLowerCase();
-            
-            if (name.includes(searchValue) || address.includes(searchValue) || description.includes(searchValue)) {
-                property.style.display = 'block';
-            } else {
-                property.style.display = 'none';
-            }
-        });
-    });
+    // Function to handle property selection and redirect
+    function redirectToRepairListingOcc(propertyId) {
+        window.location.href = '<?= ROOT ?>/dashboard/repairListingOcc/' + propertyId;
+    }
     
-    // Add glow effect to buttons
+    // Add glow effect to regular select buttons
     document.querySelectorAll('.select-button').forEach(button => {
         // Create glowing effect on mousemove
         button.addEventListener('mousemove', function(e) {
