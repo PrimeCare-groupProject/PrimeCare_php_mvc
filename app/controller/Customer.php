@@ -1999,5 +1999,75 @@ class Customer
             'properties' => $properties
         ]);
     }
+
+    // Show repair listings for an occupied property
+
+    public function repairListingOcc($property_id = null)
+    {
+        if (!$property_id && isset($_GET['property_id'])) {
+            $property_id = $_GET['property_id'];
+        }
+        
+        // Validate that we have a property_id
+        if (!$property_id) {
+            $_SESSION['flash']['msg'] = "No property selected.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+        
+        // Get the property details to show in the header
+        $propertyModel = new PropertyConcat();
+        $property = $propertyModel->first(['property_id' => $property_id]);
+        
+        if (!$property) {
+            $_SESSION['flash']['msg'] = "Property not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+        
+        // Verify this property belongs to the current user through an active booking
+        $bookingModel = new BookingOrders();
+        $user_id = $_SESSION['user']->pid ?? 0;
+        $bookings = $bookingModel->getOrdersByOwner($user_id);
+        
+        $hasAccess = false;
+        if ($bookings) {
+            $today = strtotime('now');
+            foreach ($bookings as $booking) {
+                if ($booking->property_id == $property_id) {
+                    $bookingStatus = strtolower($booking->booking_status ?? '');
+                    $paymentStatus = strtolower($booking->payment_status ?? '');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
+                    
+                    if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                        $paymentStatus === 'paid' &&
+                        $today >= $startDate && $today <= $endDate) {
+                        $hasAccess = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (!$hasAccess) {
+            $_SESSION['flash']['msg'] = "You don't have access to request services for this property.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/requestServiceOccupied');
+            return;
+        }
+        
+        // Get all available repair services
+        $service = new Services;
+        $services = $service->findAll();
+        
+        // Pass data to the view
+        $this->view('customer/repairListingOcc', [
+            'services' => $services,
+            'property' => $property
+        ]);
+    }
     
 }
