@@ -6,7 +6,7 @@ class Manager
 {
     use controller;
     public function index()
-    {   
+    {
         // Load the required models
         $propertyModel = new Property();
         $userModel = new User();
@@ -46,8 +46,6 @@ class Manager
             'registeredAgents' => $registeredAgents,
             'serviceProviders' => $serviceProviders
         ]);*/
-
-        
     }
 
     public function generateUsername($fname, $length = 10)
@@ -729,10 +727,96 @@ class Manager
             case 'confirmAssign':
                 $this->confirmAssign($c, $d);
                 break;
+            case 'propertyDetails':
+                $this->propertyDetails($c, $d);
+                break;
+            case 'deleteView':
+                $this->deleteView($c, $d);
+                break;
+            case 'propertyDeleteConfirmation':
+                $this->propertyDeleteConfirmation($c, $d);
+                break;
             default:
                 $this->view('manager/propertymanagement');
                 break;
         }
+    }
+
+    public function propertyDeleteConfirmation($propertyID)
+    {
+        $propertyModel = new Property;
+        $property = $propertyModel->first(['property_id' => $propertyID]);
+        if (!$property) {
+            $_SESSION['flash'] = [
+                'msg' => "Property not found.",
+                'type' => "error"
+            ];
+            redirect('dashboard/managementhome/propertymanagement/propertyDetails');
+        } else {
+            if ($property->status == 'Occupied') {
+                $_SESSION['flash'] = [
+                    'msg' => "Property is currently occupied. Cannot delete.",
+                    'type' => "error"
+                ];
+                redirect('dashboard/managementhome/propertymanagement/propertyDetails');
+            } elseif ($property->status == 'Active') {
+                if ($property->purpose == 'Rent') {
+                    $isDeleted = $propertyModel->update($propertyID, ['status' => 'Inactive'], 'property_id');
+                    if ($isDeleted) {
+                        $_SESSION['flash'] = [
+                            'msg' => "Property marked as inactive successfully.",
+                            'type' => "success"
+                        ];
+                        enqueueNotification('Property marked as inactive', 'Property has been marked as inactive.', '', 'Notification_grey');
+                        enqueueNotification('Property Deleted!', 'Your ' . $property->name . ' Property has been marked as inactive.', '', 'Notification_red', $property->person_id);
+                        redirect('dashboard/managementhome/propertymanagement/propertyDetails');
+                    } else {
+                        $_SESSION['flash'] = [
+                            'msg' => "Failed to mark property as inactive. Please try again.",
+                            'type' => "error"
+                        ];
+                        redirect('dashboard/managementhome/propertymanagement/propertyDetails');
+                    }
+                } elseif ($property->end_date < date('Y-m-d')) {
+                    $isDeleted = $propertyModel->update($propertyID, ['status' => 'Inactive'], 'property_id');
+                    if ($isDeleted) {
+                        $_SESSION['flash'] = [
+                            'msg' => "Property deleted successfully.",
+                            'type' => "success"
+                        ];
+                        enqueueNotification('Property Deleted!', 'Your ' . $property->name . ' Property has been deleted.', '', 'Notification_red', $property->person_id);
+                        enqueueNotification('Property marked as inactive', 'Property has been marked as inactive.', '', 'Notification_grey');
+                        redirect('dashboard/managementhome/propertymanagement/propertyDetails');
+                    } else {
+                        $_SESSION['flash'] = [
+                            'msg' => "Failed to delete property. Please try again.",
+                            'type' => "error"
+                        ];
+                        redirect('dashboard/managementhome/propertymanagement/propertyDetails');
+                    }
+                } else {
+                    $_SESSION['flash'] = [
+                        'msg' => "Property is currently safeguard under the system. Cannot delete.",
+                        'type' => "error"
+                    ];
+                    redirect('dashboard/managementhome/propertymanagement/propertyDetails');
+                }
+            }
+        }
+    }
+
+    public function deleteView($propertyID)
+    {
+        $property = new PropertyConcat;
+        $property = $property->first(['property_id' => $propertyID]);
+        $this->view('manager/propertyDeleteConfirmation', ['property' => $property]);
+    }
+
+    public function propertyDetails()
+    {
+        $propertyModel = new PropertyConcat;
+        $property = $propertyModel->findAll();
+        $this->view('manager/propertyListing', ['property' => $property]);
     }
 
     public function propertyView($propertyID)
@@ -760,7 +844,7 @@ class Manager
                 'msg' => "Property assigned to agent successfully!",
                 'type' => "success"
             ];
-            enqueueNotification('Property assigned', 'Property has been assigned to you!', ROOT . '/dashboard/property/propertyView/' . $propertyID , 'Notification_green', $agentID);
+            enqueueNotification('Property assigned', 'Property has been assigned to you!', ROOT . '/dashboard/property/propertyView/' . $propertyID, 'Notification_green', $agentID);
         } else {
             $_SESSION['flash'] = [
                 'msg' => "Failed to assign property to agent. Please try again.",
