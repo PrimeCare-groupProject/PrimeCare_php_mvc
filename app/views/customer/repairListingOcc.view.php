@@ -346,16 +346,16 @@
                         <p class="property-description">
                             <?= htmlspecialchars($service->description) ?>
                         </p>
-                        <p class="service-cost">$<?= number_format($service->cost_per_hour, 2) ?> per hour</p>
+                        <p class="service-cost">LKR <?= number_format($service->cost_per_hour, 2) ?> per hour</p>
                         
                         <div class="property-actions">
-                            <a href="<?= ROOT ?>/dashboard/serviceRequest?type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>&property_id=<?= $property->property_id ?>&property_name=<?= urlencode($property->name) ?>" class="select-button" onclick="event.stopPropagation();">
+                            <a href="<?= ROOT ?>/dashboard/serviceRequest?type=<?= urlencode($service->name) ?>&cost_per_hour=<?= $service->cost_per_hour ?>&property_id=<?= $property->property_id ?>&property_name=<?= urlencode($property->name) ?>" class="select-button" onclick="event.stopPropagation();">                                
+                                <span class="button-text">Select</span>
                                 <span class="icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M9 18l6-6-6-6"></path>
                                     </svg>
                                 </span>
-                                <span class="button-text">Select</span>
                             </a>
                         </div>
                     </div>
