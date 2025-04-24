@@ -1,6 +1,7 @@
 <?php require 'customerHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
+    <a href="<?= ROOT ?>/dashboard/requestService"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
     <div class="gap"></div>
     <h2>Select Property for Request</h2>
     <div class="gap"></div>
@@ -41,12 +42,12 @@
                         <div class="property-actions">
                             <!-- Enhanced select button with animated icon -->
                             <a href="<?= ROOT ?>/dashboard/repairListingOcc/<?= $property->property_id ?>" class="select-button" onclick="event.stopPropagation();">
+                                <span class="button-text">Select</span>
                                 <span class="icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M9 18l6-6-6-6"></path>
                                     </svg>
                                 </span>
-                                <span class="button-text">Select</span>
                                 <div class="button-glow"></div>
                             </a>
                         </div>
