@@ -114,6 +114,22 @@ class propertyListing{
             $PropertyConcat = new PropertyConcat;
             $BookingOrders = new BookingOrders;
 
+            // Validate booking data before proceeding
+            if (!empty($bookingData) && !$BookingOrders->validate($bookingData)) {
+                $_SESSION['flash']['msg'] = "Invalid booking/filter data: " . implode(', ', $BookingOrders->errors);
+                $_SESSION['flash']['type'] = "error";
+
+                $property = new PropertyConcat;
+                $properties = $property->where(['status' => 'Active']);
+
+                $this->view('propertyListing', [
+                    'properties' => ['properties' => $properties],
+                    'bookingData' => $bookingData,
+                    'query_string' => '',
+                ]);
+                return;
+            }
+            
             // 1. Get filtered properties
             $filteredProperties = $PropertyConcat->whereWithSearchTerm($propertyData, [], $searchTerm, $sort_direction , 100, 0, $sort_column);
 
@@ -208,11 +224,15 @@ class propertyListing{
                 $months = ceil($days / 30);
                 $days_remaining = $days % 30;
             }
-
+            
             $isAvailable = $BookingOrders->isPropertyAvailable($propertyID, $new_check_in, $new_check_out);
 
             if (!$isAvailable) {
-                $_SESSION['flash']['msg'] = "Property is not available for the selected dates.";
+                if (!empty($BookingOrders->errors)) {
+                    $_SESSION['flash']['msg'] = "Booking error: " . implode(', ', $BookingOrders->errors);
+                } else {
+                    $_SESSION['flash']['msg'] = "Property is not available for the selected dates.";
+                }
                 $_SESSION['flash']['type'] = "error";
                 // Return to original page with original query string
                 $query_string = $_POST['query_string'] ?? '';
@@ -283,6 +303,7 @@ class propertyListing{
             'total_price' => $total_price,
         ];
 
+        // setting status optionally
         $currentBookingStatus = null;
         if (isset($_SESSION['user'])) {
             $BookingOrders = new BookingOrders();
@@ -292,6 +313,7 @@ class propertyListing{
                 $bookingSummary['check_in'],
                 $bookingSummary['check_out']
             );
+
             if ($currentBooking) {
                 $currentBookingStatus = $currentBooking['booking_status'];
             }
@@ -306,13 +328,26 @@ class propertyListing{
 
     public function bookProperty(){
         if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
-            $relativeUrl = substr($_SERVER['REQUEST_URI'], strpos($_SERVER['REQUEST_URI'], '/public') + 7);
-            $_SESSION['redirect_url'] = $relativeUrl;
-
+            // Convert query string to array if not empty
+            if (!empty($query_string)) {
+                parse_str($query_string, $query_array);
+                unset($query_array['url']);
+                $query_string = http_build_query($query_array);
+            }
             $_SESSION['flash']['msg'] = "Login to continue.";
             $_SESSION['flash']['type'] = "welcome";
 
+            // Check session user type and set to 0 if not 0
+            if (isset($_SESSION['customerView'])) {
+                $_SESSION['customerView'] = !$_SESSION['customerView'];
+            } else {
+                $_SESSION['customerView'] = true;
+            }
+            
+            $_SESSION['redirect_url'] = "propertyListing/showListingDetail/{$_POST['p_id']}" . ($query_string ? "?{$query_string}" : '');
+
             redirect('login');
+            return;
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['p_id'])) {
@@ -386,7 +421,12 @@ class propertyListing{
                 redirect('dashboard/occupiedProperties');
                 return;
             } else {
-                $_SESSION['flash']['msg'] = "Your booking was declined. Try again!";
+                $error_message = "Your booking was declined. Try again!";
+                // Check if there are any specific errors from the model
+                if (!empty($BookingOrders->errors)) {
+                    $error_message .= " Reason: " . implode(', ', $BookingOrders->errors);
+                }
+                $_SESSION['flash']['msg'] = $error_message;
                 $_SESSION['flash']['type'] = "error";
                 // Reload current page with POST params as GET
                 $params = [

@@ -17,7 +17,8 @@ class BookingOrders
         'booking_status'
     ];
 
-    public function __get($property) {
+    public function __get($property)
+    {
         if (property_exists($this, $property)) {
             return $this->$property;
         }
@@ -28,41 +29,58 @@ class BookingOrders
 
     public function validate($data)
     {
-        // Check if required fields are present
-        if (empty($data['property_id'])) {
-            $this->errors['property_id'] = "Property is required";
+        $this->errors = []; // Reset errors
+
+        if (isset($data['property_id']) && (empty($data['property_id']) || !is_numeric($data['property_id']))) {
+            $this->errors['property_id'] = "Valid property ID is required";
         }
 
-        if (empty($data['person_id'])) {
-            $this->errors['person_id'] = "Person is required";
+        if (isset($data['person_id']) && (empty($data['person_id']) || !is_numeric($data['person_id']))) {
+            $this->errors['person_id'] = "Valid person ID is required";
         }
 
-        if (empty($data['start_date'])) {
-            $this->errors['start_date'] = "Start date is required";
-        } else if (!strtotime($data['start_date'])) {
-            $this->errors['start_date'] = "Start date is not a valid date";
+        if (isset($data['start_date'])) {
+            if (empty($data['start_date'])) {
+                $this->errors['start_date'] = "Start date is required";
+            } else if (!strtotime($data['start_date'])) {
+                $this->errors['start_date'] = "Start date is not a valid date";
+            }
         }
 
-        if (empty($data['duration']) || !is_numeric($data['duration']) || $data['duration'] <= 0) {
-            $this->errors['duration'] = "Duration must be a positive number";
+        if (isset($data['duration'])) {
+            if (empty($data['duration']) || !is_numeric($data['duration']) || $data['duration'] <= 0) {
+                $this->errors['duration'] = "Duration must be a positive number";
+            }
         }
 
-        if (empty($data['rental_period'])) {
-            $this->errors['rental_period'] = "Rental period is required";
-        } else if (!in_array($data['rental_period'], ['Daily', 'Monthly', 'Annually'])) {
-            $this->errors['rental_period'] = "Rental period must be Daily, Monthly, or Annually";
+        if (isset($data['rental_period'])) {
+            if (empty($data['rental_period'])) {
+                $this->errors['rental_period'] = "Rental period is required";
+            } else if (!in_array($data['rental_period'], ['Daily', 'Monthly', 'Annually'])) {
+                $this->errors['rental_period'] = "Rental period must be Daily, Monthly, or Annually";
+            }
         }
 
-        if (empty($data['rental_price']) || !is_numeric($data['rental_price']) || $data['rental_price'] <= 0) {
-            $this->errors['rental_price'] = "Rental price must be a positive number";
+        if (isset($data['rental_price'])) {
+            if (empty($data['rental_price']) || !is_numeric($data['rental_price']) || $data['rental_price'] <= 0) {
+                $this->errors['rental_price'] = "Rental price must be a positive number";
+            }
         }
 
-        if (!empty($data['payment_status']) && !in_array($data['payment_status'], ['Pending', 'Paid', 'Cancelled'])) {
-            $this->errors['payment_status'] = "Payment status must be Pending, Paid, or Cancelled";
+        if (isset($data['payment_status'])) {
+            if (!in_array($data['payment_status'], ['Pending', 'Paid', 'Cancelled'])) {
+                $this->errors['payment_status'] = "Payment status must be Pending, Paid, or Cancelled";
+            }
         }
 
-        if (!empty($data['booking_status']) && !in_array($data['booking_status'], ['Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested'])) {
-            $this->errors['booking_status'] = "Booking status must be Confirmed, Cancelled, Completed, Pending, or Cancel Requested";
+        if (isset($data['booking_status'])) {
+            if (!in_array($data['booking_status'], ['Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested'])) {
+                $this->errors['booking_status'] = "Booking status must be Confirmed, Cancelled, Completed, Pending, or Cancel Requested";
+            }
+        }
+
+        if (isset($data['booking_id']) && (empty($data['booking_id']) || !is_numeric($data['booking_id']))) {
+            $this->errors['booking_id'] = "Valid booking ID is required";
         }
 
         return empty($this->errors);
@@ -82,17 +100,17 @@ class BookingOrders
             // echo "Property ID, check-in, and check-out dates are required.";
             return false;
         }
-        
+
         // Validate date formats
         if (!strtotime($check_in) || !strtotime($check_out)) {
             // echo "Invalid date format. Please use YYYY-MM-DD.";
             return false;
         }
-        
+
         // Convert to DateTime objects for comparison
         $start_date = date('Y-m-d', strtotime($check_in));
         $end_date = date('Y-m-d', strtotime($check_out));
-        
+
         // Get all bookings for this property that aren't cancelled
         $query = "SELECT * FROM $this->table 
             WHERE property_id = :property_id 
@@ -101,33 +119,30 @@ class BookingOrders
                 start_date < :end_date AND
                 end_date > :start_date
             )";
-                
+
         $data = [
             'property_id' => $property_id,
             'start_date' => $start_date,
             'end_date' => $end_date
         ];
-        
+
         $bookings = $this->instance->query($query, $data);
-        
+
         // If no conflicting bookings found, the property is available
         // Check if $bookings is valid
         if (is_bool($bookings) || $bookings === false || $bookings === null) {
             // echo "retured false as No bookings found.";
             return true; // If query failed, assume property is not available
         }
-        
+
         return count($bookings) === 0;
     }
 
     public function createBooking($data)
     {
-        // Validate data before insert
         if (!$this->validate($data)) {
-            return false; // $this->errors will contain validation errors
+            return false;
         }
-
-        // Insert booking (returns inserted ID or false)
         return $this->insert($data);
     }
 
@@ -138,25 +153,27 @@ class BookingOrders
      * @param int $owner_id
      * @param string $check_in  (YYYY-MM-DD)
      * @param string $check_out (YYYY-MM-DD)
-     * @return array|null  ['booking_status' => ..., 'check_in' => ..., 'check_out' => ...] or null if not found
+     * @return array|bool  ['booking_status' => ..., 'check_in' => ..., 'check_out' => ...] or null if not found
      */
     public function getPropertyStatusByOwnerAndDates($property_id, $owner_id, $check_in, $check_out)
     {
-        // Validate inputs
-        if (!$property_id || !$owner_id || !$check_in || !$check_out) {
-            return null; // Missing required parameters
+        // Use validation for only the provided fields
+        $data = [
+            'property_id' => $property_id,
+            'person_id' => $owner_id,
+            'start_date' => $check_in,
+            'end_date' => $check_out
+        ];
+        if (!$this->validate($data)) {
+            return false;
         }
-        
-        // Validate date formats
-        if (!strtotime($check_in) || !strtotime($check_out)) {
-            return null; // Invalid date format
-        }
-        
-        // Ensure check_out is after check_in
+
+        // Validate date logic
         if (strtotime($check_out) <= strtotime($check_in)) {
-            return null; // Invalid date range
+            $this->errors['date'] = "Check-out must be after check-in";
+            return false;
         }
-        
+
         $query = "SELECT booking_status, start_date AS check_in, end_date AS check_out
                   FROM $this->table
                   WHERE property_id = :property_id
@@ -165,13 +182,13 @@ class BookingOrders
                     AND end_date = :check_out
                   ORDER BY booking_id DESC
                   LIMIT 1";
-        $data = [
+        $queryData = [
             'property_id' => $property_id,
             'owner_id' => $owner_id,
             'check_in' => $check_in,
             'check_out' => $check_out
         ];
-        $result = $this->instance->query($query, $data);
+        $result = $this->instance->query($query, $queryData);
 
         if (is_array($result) && !empty($result)) {
             return [
@@ -196,62 +213,46 @@ class BookingOrders
 
     public function updateBookingStatusByOwnerAndDates($property_id, $owner_id, $check_in, $check_out, $new_status)
     {
-        // Validate inputs
-        if (!$property_id || !is_numeric($property_id)) {
-            $this->errors['property_id'] = "Valid property ID is required";
+        // Use validation for only the provided fields
+        $data = [
+            'property_id' => $property_id,
+            'person_id' => $owner_id,
+            'start_date' => $check_in,
+            'end_date' => $check_out,
+            'booking_status' => $new_status
+        ];
+        if (!$this->validate($data)) {
             return false;
         }
-        
-        if (!$owner_id || !is_numeric($owner_id)) {
-            $this->errors['owner_id'] = "Valid owner ID is required";
+
+        // Validate date logic
+        if (strtotime($check_out) <= strtotime($check_in)) {
+            $this->errors['date'] = "Check-out must be after check-in";
             return false;
         }
-        
-        if (!$check_in) {
-            $this->errors['check_in'] = "Check-in date is required";
-            return false;
-        } else if (!strtotime($check_in)) {
-            $this->errors['check_in'] = "Check-in date is not a valid date";
-            return false;
-        }
-        
-        if (!$check_out) {
-            $this->errors['check_out'] = "Check-out date is required";
-            return false;
-        } else if (!strtotime($check_out)) {
-            $this->errors['check_out'] = "Check-out date is not a valid date";
-            return false;
-        }
-        
-        // Validate the status is one of the allowed values
-        $allowed_statuses = ['Confirmed', 'Cancelled', 'Completed', 'Pending', 'Cancel Requested'];
-        if (!in_array($new_status, $allowed_statuses)) {
-            $this->errors['booking_status'] = "Booking status must be Confirmed, Cancelled, Completed, Pending, or Cancel Requested";
-            return false;
-        }
-        
+
         $query = "UPDATE $this->table
                   SET booking_status = :new_status";
-        
+
         // If cancelling, update the end_date to current date
         if ($new_status == 'Cancelled') {
             $query .= ", end_date = CURRENT_DATE()";
         }
-        
+
         $query .= " WHERE property_id = :property_id
                     AND person_id = :owner_id
                     AND start_date = :check_in
                     AND end_date = :check_out
                     LIMIT 1";
-        
-        $data = [
+
+        $queryData = [
             'new_status'  => $new_status,
             'property_id' => $property_id,
             'owner_id'    => $owner_id,
             'check_in'    => $check_in,
             'check_out'   => $check_out
         ];
-        $result = $this->instance->query($query, $data);
+        $result = $this->instance->query($query, $queryData);
         return $result !== false;
     }
 
@@ -259,24 +260,25 @@ class BookingOrders
      * Get all booking orders for a given owner (person).
      *
      * @param int $owner_id
-     * @return array|null  Array of booking orders or null if none found
+     * @return array|bool  Array of booking orders or null if none found
      */
     public function getOrdersByOwner($owner_id)
     {
-        if (!$owner_id || !is_numeric($owner_id)) {
-            $this->errors['owner_id'] = "Valid owner ID is required";
-            return null;
+        $data = ['person_id' => $owner_id];
+        if (!$this->validate($data)) {
+            return false;
         }
-
         $query = "SELECT * FROM $this->table WHERE person_id = :owner_id ORDER BY booking_id DESC";
-        $data = ['owner_id' => $owner_id];
-        $result = $this->instance->query($query, $data);
-
+        $result = $this->instance->query($query, ['owner_id' => $owner_id]);
         return (is_array($result) && !empty($result)) ? $result : null;
     }
 
     public function findById($booking_id)
     {
+        // Validate booking_id
+        if (!$this->validate(['booking_id' => $booking_id])) {
+            return null;
+        }
         $query = "SELECT * FROM $this->table WHERE booking_id = :booking_id LIMIT 1";
         $data = ['booking_id' => $booking_id];
         $result = $this->instance->query($query, $data);
@@ -285,6 +287,10 @@ class BookingOrders
 
     public function updatePaymentStatus($booking_id, $status = 'Paid')
     {
+        // Validate booking_id and payment_status
+        if (!$this->validate(['booking_id' => $booking_id, 'payment_status' => $status])) {
+            return false;
+        }
         $query = "UPDATE $this->table SET payment_status = :status WHERE booking_id = :booking_id LIMIT 1";
         $data = [
             'status' => $status,
@@ -300,10 +306,10 @@ class BookingOrders
      * @param array $filters Optional additional filters (e.g., ['payment_status' => 'Pending'])
      * @return array|null Array of pending bookings or false if none found
      */
-    public function getBookingsByPropertyId($property_id, $status = 'Pending' , array $filters = [])
+    public function getBookingsByPropertyId($property_id, $status = 'Pending', array $filters = [])
     {
-        if (!$property_id || !is_numeric($property_id)) {
-            $this->errors['property_id'] = "Valid property ID is required";
+        $data = ['property_id' => $property_id, 'booking_status' => $status];
+        if (!$this->validate($data)) {
             return null;
         }
         // Validate the status parameter
@@ -313,8 +319,7 @@ class BookingOrders
         }
 
         $query = "SELECT * FROM $this->table WHERE property_id = :property_id AND booking_status = :status";
-        $data = ['property_id' => $property_id, 'status' => $status];
-        
+
         // Add additional filters if provided
         foreach ($filters as $key => $value) {
             if (in_array($key, $this->allowedColumns)) {
@@ -322,7 +327,7 @@ class BookingOrders
                 $data[$key] = $value;
             }
         }
-        
+
         $query .= " ORDER BY booking_id DESC";
         $result = $this->instance->query($query, $data);
 
