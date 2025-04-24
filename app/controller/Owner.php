@@ -2075,6 +2075,9 @@ class Owner
         $serviceLog = new ServiceLog();
         $serviceDetails = $serviceLog->first(['service_id' => $serviceId]);
 
+        $propertyModel = new Property;
+        $propertyDetails = $propertyModel->where(['property_id' => $serviceDetails->property_id])[0] ?? null;
+
         if (!$serviceDetails) {
             $_SESSION['flash']['msg'] = "Service not found";
             $_SESSION['flash']['type'] = "error";
@@ -2087,7 +2090,8 @@ class Owner
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
             'status' => $_SESSION['status'] ?? '',
-            'serviceLog' => $serviceDetails
+            'serviceLog' => $serviceDetails ,
+            'property' => $propertyDetails,
         ]);
     }
 
@@ -2285,4 +2289,10 @@ class Owner
 
         redirect('dashboard/propertyListing');
     }
+
+    public function servicePayment($status){
+        // status = 'success' or 'failed'
+        //as get request order_id , amount , service_id
+    }
+
 }
