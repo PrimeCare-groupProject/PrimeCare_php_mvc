@@ -2207,5 +2207,115 @@ class Customer
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
     }
+
+    public function serviceRequests()
+    {
+        // Get the current user's ID
+        $customerId = $_SESSION['user']->pid;
+        
+        // Instantiate the ServiceLog model
+        $serviceLog = new ServiceLog();
+        
+        // Get service logs requested by the current customer
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $customerId]);
+        
+        // If no service logs found, initialize as empty array
+        if (!$serviceLogs) {
+            $serviceLogs = [];
+        }
+
+        // Apply status filtering
+        if (!empty($_GET['status_filter'])) {
+            $status = $_GET['status_filter'];
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                if (strtolower($log->status) == strtolower($status)) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+
+        // Apply date range filtering
+        if (!empty($_GET['date_from']) || !empty($_GET['date_to'])) {
+            $dateFrom = !empty($_GET['date_from']) ? strtotime($_GET['date_from']) : null;
+            $dateTo = !empty($_GET['date_to']) ? strtotime($_GET['date_to'] . ' 23:59:59') : null;
+            
+            $filteredLogs = [];
+            foreach ($serviceLogs as $log) {
+                $logDate = strtotime($log->date);
+                
+                // Check if the log date is within the specified range
+                $includeLog = true;
+                if ($dateFrom && $logDate < $dateFrom) $includeLog = false;
+                if ($dateTo && $logDate > $dateTo) $includeLog = false;
+                
+                if ($includeLog) {
+                    $filteredLogs[] = $log;
+                }
+            }
+            $serviceLogs = $filteredLogs;
+        }
+        
+        // Apply sorting
+        if (!empty($_GET['sort'])) {
+            $sort = $_GET['sort'];
+            
+            usort($serviceLogs, function($a, $b) use ($sort) {
+                switch ($sort) {
+                    case 'date_asc':
+                        return strtotime($a->date) - strtotime($b->date);
+                    case 'date_desc':
+                        return strtotime($b->date) - strtotime($a->date);
+                    case 'property_id':
+                        return $a->property_id - $b->property_id;
+                    case 'cost_asc':
+                        $costA = isset($a->total_cost) ? $a->total_cost : ($a->cost_per_hour * ($a->total_hours ?? 1));
+                        $costB = isset($b->total_cost) ? $b->total_cost : ($b->cost_per_hour * ($b->total_hours ?? 1));
+                        return $costA - $costB;
+                    case 'cost_desc':
+                        $costA = isset($a->total_cost) ? $a->total_cost : ($a->cost_per_hour * ($a->total_hours ?? 1));
+                        $costB = isset($b->total_cost) ? $b->total_cost : ($b->cost_per_hour * ($b->total_hours ?? 1));
+                        return $costB - $costA;
+                    default:
+                        return strtotime($b->date) - strtotime($a->date); // Default: newest first
+                }
+            });
+        }
+        
+        // Calculate total expenses and counts
+        $totalExpenses = 0;
+        $pendingCount = 0;
+        $completedCount = 0;
+        $doneCount = 0;
+        
+        foreach ($serviceLogs as $log) {
+            $totalExpenses += $log->total_cost ?? ($log->cost_per_hour * ($log->total_hours ?? 1));
+            
+            $status = strtolower($log->status ?? '');
+            if ($status === 'pending' || $status === 'ongoing') {
+                $pendingCount++;
+            } elseif ($status === 'done') {
+                $doneCount++;
+            } elseif ($status === 'paid') {
+                $completedCount++;
+            }
+        }
+        
+        $this->view('customer/serviceRequests', [
+            'user' => $_SESSION['user'],
+            'errors' => $_SESSION['errors'] ?? [],
+            'status' => $_SESSION['status'] ?? '',
+            'serviceLogs' => $serviceLogs,
+            'totalExpenses' => $totalExpenses,
+            'pendingCount' => $pendingCount,
+            'completedCount' => $completedCount,
+            'doneCount' => $doneCount
+        ]);
+        
+        // Clear session messages after displaying
+        unset($_SESSION['errors']);
+        unset($_SESSION['status']);
+    }
     
 }
