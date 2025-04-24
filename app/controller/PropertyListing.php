@@ -47,8 +47,12 @@ class propertyListing{
                 $days = $interval->days;
                 
                 // Calculate months and remaining days
-                $months = ceil($days / 30);
+                $months = floor($days / 30); // Get whole months
                 $days_remaining = $days % 30;
+                // If remaining days + 2 >= 30, round up to next month
+                if ($days_remaining + 2 > $months) {
+                    $months += 1;
+                }
                 
 
                 // If days are greater than 1 month (30 days), unset rental_period to show all properties
@@ -221,8 +225,12 @@ class propertyListing{
                 $check_out_date = new DateTime($new_check_out);
                 $interval = $check_in_date->diff($check_out_date);
                 $days = $interval->days;
-                $months = ceil($days / 30);
+                $months = floor($days / 30); // Get whole months
                 $days_remaining = $days % 30;
+                // If remaining days + 2 >= 30, round up to next month
+                if ($days_remaining + 2 > $months) {
+                    $months += 1;
+                }
             }
             
             $isAvailable = $BookingOrders->isPropertyAvailable($propertyID, $new_check_in, $new_check_out);
@@ -281,8 +289,12 @@ class propertyListing{
             $days = $interval->days;
 
             // Calculate months and remaining days
-            $months = ceil($days / 30);
+            $months = floor($days / 30); // Get whole months
             $days_remaining = $days % 30;
+            // If remaining days + 2 >= 30, round up to next month
+            if ($days_remaining + 2 > $months) {
+                $months += 1;
+            }
         }
        
         // Calculate booking summary
@@ -373,7 +385,16 @@ class propertyListing{
             $check_in_date = new DateTime($check_in);
             $check_out_date = new DateTime($check_out);
             $days = $check_in_date->diff($check_out_date)->days;
-            $duration = (strtolower($rental_period) == 'monthly') ? ceil($days / 30) : $days;
+            // Calculate months and remaining days
+            $months = floor($days / 30); // Get whole months
+            $days_remaining = $days % 30;
+            // If remaining days + 2 >= 30, round up to next month
+            if ($days_remaining + 2 > 30) {
+                $months += 1;
+            }
+            
+            // Set duration based on rental period
+            $duration = (strtolower($rental_period) == 'monthly') ? $months : $days;
 
             $BookingOrders = new BookingOrders();
 

@@ -2029,33 +2029,83 @@ class Agent
         $this->view('agent/bookingaccept', ['bookings' => $bookings, 'images' => $images]);
     }
 
-    public function bookinghistory($c, $d)
+    // ...existing code...
+public function bookinghistory($c = '', $d = '')
     {
         switch ($c) {
             case 'showhistory':
                 $this->showhistory($d);
                 break;
             default:
-                $book = new BookingModel;
-                /*echo "<pre>";
-        print_r($book);
-        echo "</pre>";*/
-                $property = new Property;
-                $person = new User;
-                $bookings = $book->selecthreetables(
-                    $property->table,
-                    'property_id',
-                    'property_id',
-                    $person->table,
-                    'customer_id',
-                    'pid',
-                    'accept_status',
-                    '\'accepted\'',
-                    'OR',
-                    'accept_status',
-                    '\'rejected\''
-                );
-                $this->view('agent/bookinghistory', ['bookings' => $bookings]);
+                $BookingOrders = new BookingOrders();
+                $PropertyConcat = new PropertyConcat();
+                $User = new User();
+                
+                // Get all properties managed by this agent
+                $properties = $PropertyConcat->where(['agent_id' => $_SESSION['user']->pid]);
+                $properties = is_array($properties) ? $properties : [];
+                $propertyIds = array_map(function ($property) {
+                    return $property->property_id;
+                }, $properties);
+                
+                $allBookings = [];
+                if (!empty($propertyIds)) {
+                    // Get all bookings for these properties with status accepted or rejected
+                    foreach ($propertyIds as $propertyId) {
+                        $bookings = $BookingOrders->where(['property_id' => $propertyId]);
+                        
+                        if (!empty($bookings)) {
+                            foreach ($bookings as $booking) {
+                                // Only include accepted or rejected bookings
+                                if (in_array(strtolower($booking->booking_status), ['confirmed', 'cancelled', 'completed', 'rejected'])) {
+                                    // Get property details
+                                    $propertyData = $PropertyConcat->where(['property_id' => $booking->property_id]);
+                                    $propertyName = !empty($propertyData) ? $propertyData[0]->name : '-';
+
+                                    // Get customer details
+                                    $customer = $User->where(['pid' => $booking->person_id]);
+                                    $customerName = !empty($customer) ? ($customer[0]->fname . ' ' . $customer[0]->lname) : '-';
+
+                                    // Format rental period to include units
+                                    $rentalPeriod = strtolower($booking->rental_period ?? '');
+                                    $duration = $booking->duration ?? '';
+                                    
+                                    // Combine period type with duration to show units properly
+                                    $formattedRentalPeriod = '';
+                                    if (!empty($duration) && !empty($rentalPeriod)) {
+                                        if ($rentalPeriod == 'monthly' || $rentalPeriod == 'monlthy') {
+                                            $formattedRentalPeriod = $duration . ' months';
+                                        } elseif ($rentalPeriod == 'yearly' || $rentalPeriod == 'annually') {
+                                            $formattedRentalPeriod = $duration . ' years';
+                                        } elseif ($rentalPeriod == 'weekly') {
+                                            $formattedRentalPeriod = $duration . ' weeks';
+                                        } elseif ($rentalPeriod == 'daily') {
+                                            $formattedRentalPeriod = $duration . ' days';
+                                        } else {
+                                            $formattedRentalPeriod = $duration . ' ' . $rentalPeriod;
+                                        }
+                                    } else {
+                                        $formattedRentalPeriod = $rentalPeriod;
+                                    }
+
+                                    // Add to array for view
+                                    $allBookings[] = (object)[
+                                        'booking_id' => $booking->booking_id,
+                                        'name' => $propertyName,
+                                        'fname' => !empty($customer) ? $customer[0]->fname : '',
+                                        'lname' => !empty($customer) ? $customer[0]->lname : '',
+                                        'renting_period' => $formattedRentalPeriod,
+                                        'payment_status' => $booking->payment_status,
+                                        'accept_status' => ucfirst($booking->booking_status),
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $this->view('agent/bookinghistory', ['bookings' => $allBookings]);
+                break;
         }
     }
 
