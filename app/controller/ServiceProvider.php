@@ -1194,7 +1194,7 @@ public function serviceOverview() {
 
     // Calculate time left for pending services
     foreach ($services as &$service) {
-        $service->earnings = $service->cost_per_hour * $service->total_hours;
+        $service->earnings = $service->total_cost;
 
         if ($service->status === 'Ongoing') {
             // Calculate hours left (assuming 48-hour SLA from service date)
@@ -1204,7 +1204,7 @@ public function serviceOverview() {
             $hours_passed = ($time_diff->days * 24) + $time_diff->h;
             $days_left = floor($hours_passed / 24);
             $hours_left = $hours_passed % 24;
-            $service->time_left = $hours_left > 0 ? $days_left . 'd ' . $hours_left . 'hr' : ($days_left > 0 ? $days_left . 'd' : 'Overdue');
+            $service->time_left = $hours_left > 0 ? $days_left . 'd ' : ($days_left > 0 ? $days_left . 'd' : 'Overdue');
         } else {
             $service->time_left = '-';
         }
