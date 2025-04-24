@@ -22,27 +22,39 @@ class Customer
         $userId = $_SESSION['user']->pid;
         
         // Initialize models
-        $bookingModel = new BookingModel();
+        $bookingOrdersModel = new BookingOrders();
         $serviceRequestModel = new ServiceLog();
         $externalServiceModel = new ExternalService();
         $propertyModel = new PropertyConcat();
         
-        // Get active bookings for this customer
-        $bookings = $bookingModel->where(['tenant_id' => $userId]);
+        // Get all bookings for this customer
+        $bookings = $bookingOrdersModel->getOrdersByOwner($userId);
         
-        // Filter for active bookings
+        // Filter for active bookings and get current property
         $activeBookings = [];
-        $currentProperty = null;
         $currentBooking = null;
+        $currentProperty = null;
+        
         if ($bookings) {
             foreach ($bookings as $booking) {
-                if (strtolower($booking->status ?? '') === 'active' || 
-                    strtolower($booking->accept_status ?? '') === 'accepted') {
-                    $activeBookings[] = $booking;
+                // Convert status to lowercase for case-insensitive comparison
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                $paymentStatus = strtolower($booking->payment_status ?? '');
+                
+                // Consider a booking active if it's confirmed/active and not cancelled
+                if ($bookingStatus === 'confirmed' || $bookingStatus === 'active') {
+                    // Check that the booking period includes the current date
+                    $today = strtotime('now');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
                     
-                    // Get the most recent active booking for current property display
-                    if (!$currentBooking || strtotime($booking->start_date) > strtotime($currentBooking->start_date)) {
-                        $currentBooking = $booking;
+                    if ($today >= $startDate && $today <= $endDate) {
+                        $activeBookings[] = $booking;
+                        
+                        // Set the most recent active booking for current property display
+                        if (!$currentBooking || strtotime($booking->start_date) > strtotime($currentBooking->start_date)) {
+                            $currentBooking = $booking;
+                        }
                     }
                 }
             }
@@ -50,49 +62,56 @@ class Customer
         
         // Get current property details if there's an active booking
         if ($currentBooking) {
+            
             $currentProperty = $propertyModel->first(['property_id' => $currentBooking->property_id]);
+            
+            // If property_images exists but needs decoding
+            if ($currentProperty && !empty($currentProperty->property_images) && is_string($currentProperty->property_images)) {
+                // Try to decode JSON property_images
+                $decodedImages = json_decode($currentProperty->property_images);
+                if (is_array($decodedImages)) {
+                    $currentProperty->property_images = $decodedImages;
+                }
+            }
         }
         
-        // IMPORTANT FIX: Check if ServiceLog model has requested_person_id field, if not try other fields
+        // Get service requests
         try {
             $serviceRequests = $serviceRequestModel->where(['requested_person_id' => $userId]);
         } catch (Exception $e) {
             try {
                 $serviceRequests = $serviceRequestModel->where(['customer_id' => $userId]);
             } catch (Exception $e) {
-                // Final fallback: empty array if no suitable field exists
                 $serviceRequests = [];
             }
         }
         
+        // Calculate regular service costs
         $totalRegularServiceCost = 0;
         if ($serviceRequests) {
             foreach ($serviceRequests as $service) {
-                // Try both field names
                 $totalRegularServiceCost += ($service->total_cost ?? $service->cost ?? 0);
             }
         }
         
-        // Get external service requests and calculate expenses
+        // Get external service requests
         $externalRequests = $externalServiceModel->where(['requested_person_id' => $userId]);
         $totalExternalServiceCost = 0;
         if ($externalRequests) {
             foreach ($externalRequests as $service) {
-                // Calculate cost for each external service
                 $hoursCost = ($service->total_hours ?? 0) * ($service->cost_per_hour ?? 0);
                 $additionalCost = $service->additional_charges ?? 0;
                 $totalExternalServiceCost += ($hoursCost + $additionalCost);
             }
         }
         
-        // Total expenses (both regular and external)
+        // Total expenses
         $totalExpenses = $totalRegularServiceCost + $totalExternalServiceCost;
         
+        // Process service requests arrays
         $allServiceRequestsRegular = [];
         $allServiceRequestsExternal = [];
-        // $allServiceRequests = [];
         
-        // Add regular service requests with corrected field names
         if ($serviceRequests) {
             foreach ($serviceRequests as $service) {
                 $allServiceRequestsRegular[] = (object)[
@@ -107,7 +126,6 @@ class Customer
             }
         }
         
-        // Add external service requests
         if ($externalRequests) {
             foreach ($externalRequests as $service) {
                 $allServiceRequestsExternal[] = (object)[
@@ -116,15 +134,15 @@ class Customer
                     'date' => $service->date ?? $service->created_at ?? date('Y-m-d'),
                     'service_type' => $service->service_type ?? 'External Service',
                     'service_description' => $service->property_description ?? '',
-                    'property_address' => $service->property_address ?? '', // Add this line
+                    'property_address' => $service->property_address ?? '',
                     'status' => $service->status ?? 'Pending',
                     'cost' => (($service->total_hours ?? 0) * ($service->cost_per_hour ?? 0)) + ($service->additional_charges ?? 0),
-                    'service_images' => $service->service_images ?? null // Add this line
+                    'service_images' => $service->service_images ?? null
                 ];
             }
         }
         
-        // Sort by date, newest first (with better error handling)
+        // Sort service requests
         if (!empty($allServiceRequestsRegular)) {
             usort($allServiceRequestsRegular, function($a, $b) {
                 $dateA = isset($a->date) && $a->date ? strtotime($a->date) : strtotime('now');
@@ -132,7 +150,7 @@ class Customer
                 return $dateB - $dateA;
             });
         }
-
+    
         if (!empty($allServiceRequestsExternal)) {
             usort($allServiceRequestsExternal, function($a, $b) {
                 $dateA = isset($a->date) && $a->date ? strtotime($a->date) : strtotime('now');
@@ -141,20 +159,38 @@ class Customer
             });
         }
         
-        // Get rental history
+        // Get rental history with enhanced details using BookingOrders
         $rentalHistory = [];
         if ($bookings) {
             foreach ($bookings as $booking) {
-                // Get property details for each booking
+                // Get property details for each booking using PropertyConcat for images
                 $property = $propertyModel->first(['property_id' => $booking->property_id]);
+                
+                // Calculate rental status based on dates and booking status
+                $rentalStatus = $booking->booking_status ?? 'Unknown';
+                $today = strtotime('now');
+                $startDate = strtotime($booking->start_date ?? 'now');
+                $endDate = strtotime($booking->end_date ?? 'now');
+                
+                // Override with more descriptive status
+                if (strtolower($rentalStatus) === 'confirmed' && $today >= $startDate && $today <= $endDate) {
+                    $rentalStatus = 'Active';
+                } else if (strtolower($rentalStatus) === 'confirmed' && $today > $endDate) {
+                    $rentalStatus = 'Completed';
+                } else if (strtolower($rentalStatus) === 'confirmed' && $today < $startDate) {
+                    $rentalStatus = 'Upcoming';
+                }
                 
                 $rentalHistory[] = (object)[
                     'property_id' => $booking->property_id,
+                    'booking_id' => $booking->booking_id,
                     'property_name' => $property ? ($property->name ?? "Property #" . $booking->property_id) : "Property #" . $booking->property_id,
+                    'property_images' => $property ? $property->property_images : null,
                     'start_date' => $booking->start_date ?? '',
                     'end_date' => $booking->end_date ?? '',
-                    'price' => $booking->price ?? 0,
-                    'status' => $booking->status ?? $booking->accept_status ?? 'Unknown'
+                    'price' => $booking->total_amount ?? $booking->rental_price ?? 0,
+                    'payment_status' => $booking->payment_status ?? 'Unknown',
+                    'status' => $rentalStatus
                 ];
             }
         }
@@ -163,13 +199,11 @@ class Customer
         $monthlyExpenses = [];
         $sixMonthsAgo = strtotime('-6 months');
         
-        // Initialize monthly data array with zeros
         for ($i = 5; $i >= 0; $i--) {
             $month = date('M', strtotime("-$i months"));
             $monthlyExpenses[$month] = 0;
         }
         
-        // Fill in regular service expenses with corrected field access
         if ($serviceRequests) {
             foreach ($serviceRequests as $service) {
                 if (isset($service->date)) {
@@ -177,7 +211,6 @@ class Customer
                     if ($serviceTime >= $sixMonthsAgo) {
                         $month = date('M', $serviceTime);
                         if (isset($monthlyExpenses[$month])) {
-                            // Try both field names
                             $monthlyExpenses[$month] += ($service->total_cost ?? $service->cost ?? 0);
                         }
                     }
@@ -185,7 +218,6 @@ class Customer
             }
         }
         
-        // Fill in external service expenses
         if ($externalRequests) {
             foreach ($externalRequests as $service) {
                 if (isset($service->date)) {
@@ -201,7 +233,6 @@ class Customer
             }
         }
         
-        // Convert to array format for chart
         $monthlyExpensesArray = array_values($monthlyExpenses);
         
         // Pass all data to the view
@@ -549,6 +580,7 @@ class Customer
         if (isset($_SESSION['user']) && !empty($_SESSION['user']->pid)) {
             $BookingOrders = new BookingOrders();
             $orders = $BookingOrders->getOrdersByOwner($_SESSION['user']->pid);
+            $orders = is_array($orders) ? $orders : [];
 
             $property = new PropertyConcat();
             foreach ($orders as $key => &$order) {
@@ -700,42 +732,213 @@ class Customer
     }
 
     public function requestServiceOccupied() {
-        // ...in progress...
-    }
-
-    public function externalRepairListing()
-    {
+        // Initialize needed models
+        $bookingOrdersModel = new BookingOrders();
+        $propertyModel = new PropertyConcat();
+        $serviceLogModel = new ServiceLog();
         $servicesModel = new Services();
-        $services = $servicesModel->getAllServices();
-
-        if (!empty($services)) {
-            foreach ($services as $key => $service) {
-                if (empty($service->service_img)) continue;
-                $imagePath = ROOTPATH . 'public/assets/images/repairimages/' . $service->service_img;
-                if (!file_exists($imagePath)) {
-                    $found = false;
-                    $extensions = ['jpg', 'jpeg', 'png', 'gif'];
-                    $baseName = pathinfo($service->service_img, PATHINFO_FILENAME);
-                    foreach ($extensions as $ext) {
-                        $testPath = ROOTPATH . 'public/assets/images/repairimages/' . $baseName . '.' . $ext;
-                        if (file_exists($testPath)) {
-                            $services[$key]->service_img = $baseName . '.' . $ext;
-                            $found = true;
-                            break;
-                        }
+        
+        // Get current user ID
+        $userId = $_SESSION['user']->pid;
+        
+        // Check if user has more than 4 done service requests
+        $doneRequests = $serviceLogModel->where([
+            'requested_person_id' => $userId,
+            'status' => 'Done'
+        ]);
+        
+        if ($doneRequests && count($doneRequests) >= 4) {
+            $_SESSION['flash']['msg'] = "You have reached the maximum limit of 4 completed service requests. Please pay for your completed requests before submitting new ones.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/maintenance');
+            return;
+        }
+        
+        // Get active/occupied properties for this user
+        $bookings = $bookingOrdersModel->getOrdersByOwner($userId);
+        $activeBookings = [];
+        $propertyIds = [];
+        
+        if ($bookings) {
+            foreach ($bookings as $booking) {
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                
+                if ($bookingStatus === 'confirmed' || $bookingStatus === 'active') {
+                    $today = strtotime('now');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
+                    
+                    if ($today >= $startDate && $today <= $endDate) {
+                        $propertyIds[] = $booking->property_id;
                     }
-                    if (!$found) {
-                        $services[$key]->service_img = '';
+                }
+            }
+            
+            // Fetch all property details in a single query for better performance
+            $properties = [];
+            if (!empty($propertyIds)) {
+                $fetchedProperties = $propertyModel->getByPropertyIds($propertyIds);
+                if ($fetchedProperties) {
+                    foreach ($fetchedProperties as $property) {
+                        // Decode property_images if it's a JSON string
+                        if (!empty($property->property_images) && is_string($property->property_images)) {
+                            $decodedImages = json_decode($property->property_images);
+                            if (json_last_error() === JSON_ERROR_NONE && is_array($decodedImages)) {
+                                $property->property_images = $decodedImages;
+                            }
+                        }
+                        $properties[$property->property_id] = $property;
+                    }
+                }
+            }
+            
+            // Append property details to their respective bookings
+            foreach ($bookings as $booking) {
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                
+                if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                    in_array($booking->property_id, $propertyIds)) {
+                    
+                    $today = strtotime('now');
+                    $startDate = strtotime($booking->start_date ?? 'now');
+                    $endDate = strtotime($booking->end_date ?? 'now');
+                    
+                    if ($today >= $startDate && $today <= $endDate) {
+                        if (isset($properties[$booking->property_id])) {
+                            $property = $properties[$booking->property_id];
+                            
+                            $booking->property_name = $property->name;
+                            $booking->property_address = $property->address;
+                            
+                            // Handle property images
+                            if (!empty($property->property_images)) {
+                                $booking->property_images = $property->property_images;
+                            } else {
+                                // Fallback to default image if no images are available
+                                $booking->property_images = ['default-property.jpg'];
+                            }
+                            
+                            $activeBookings[] = $booking;
+                        }
                     }
                 }
             }
         }
-
-        $this->view('customer/externalRepairListing', [
-            'services' => $services
+        
+        // Get available service types
+        $serviceTypes = $servicesModel->getAllServices();
+        
+        // Process form submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = [];
+            
+            // Check again for done service requests (in case another request was processed while form was open)
+            $doneRequests = $serviceLogModel->where([
+                'requested_person_id' => $userId,
+                'status' => 'Done'
+            ]);
+            
+            if ($doneRequests && count($doneRequests) >= 4) {
+                $errors['limit_exceeded'] = "You have reached the maximum limit of 4 completed service requests. Please pay for your completed requests before submitting new ones.";
+            }
+            
+            // Validate required fields
+            if (empty($_POST['property_id'])) {
+                $errors['property_id'] = "Please select a property";
+            } else {
+                // Verify that the selected property is still active (rental period not ended)
+                $propertyId = $_POST['property_id'];
+                $propertyActive = false;
+                
+                foreach ($activeBookings as $booking) {
+                    if ($booking->property_id == $propertyId) {
+                        $propertyActive = true;
+                        break;
+                    }
+                }
+                
+                if (!$propertyActive) {
+                    $errors['property_id'] = "This property's rental period has ended or is not active. You cannot request services for it.";
+                }
+            }
+            
+            if (empty($_POST['service_type'])) {
+                $errors['service_type'] = "Please select a service type";
+            }
+            
+            if (empty($_POST['service_description'])) {
+                $errors['service_description'] = "Please provide a description of the issue";
+            } elseif (strlen($_POST['service_description']) < 10) {
+                $errors['service_description'] = "Description should be at least 10 characters";
+            }
+            
+            // If validation passes, create the service request
+            if (empty($errors)) {
+                // Get the property details for the selected property
+                $propertyId = $_POST['property_id'];
+                $property = $propertyModel->first(['property_id' => $propertyId]);
+                
+                // Get the service type details
+                $serviceTypeId = $_POST['service_type'];
+                $serviceType = $servicesModel->getServiceById($serviceTypeId);
+                
+                // Get the booking for the selected property
+                $booking = null;
+                foreach ($activeBookings as $activeBooking) {
+                    if ($activeBooking->property_id == $propertyId) {
+                        $booking = $activeBooking;
+                        break;
+                    }
+                }
+                
+                // Prepare data for service log
+                $data = [
+                    'service_type' => $serviceType ? $serviceType->name : 'Maintenance',
+                    'date' => date('Y-m-d'),
+                    'property_id' => $propertyId,
+                    'property_name' => $property ? $property->name : '',
+                    'status' => 'Pending',
+                    'service_description' => $_POST['service_description'],
+                    'requested_person_id' => $userId,
+                    'tenant_id' => $userId
+                ];
+                
+                // If there's a service type with cost per hour
+                if ($serviceType && isset($serviceType->cost_per_hour)) {
+                    $data['cost_per_hour'] = $serviceType->cost_per_hour;
+                }
+                
+                // Validate and insert the service request
+                if ($serviceLogModel->validate($data)) {
+                    $serviceLogModel->insert($data);
+                    
+                    $_SESSION['flash']['msg'] = "Service request submitted successfully!";
+                    $_SESSION['flash']['type'] = "success";
+                    redirect('dashboard');
+                    exit;
+                } else {
+                    $errors = $serviceLogModel->errors;
+                }
+            }
+            
+            // If we get here, there were validation errors
+            $this->view('customer/requestServiceOccupied', [
+                'activeBookings' => $activeBookings,
+                'serviceTypes' => $serviceTypes,
+                'errors' => $errors,
+                'old' => $_POST
+            ]);
+            return;
+        }
+        
+        // Display the form
+        $this->view('customer/requestServiceOccupied', [
+            'activeBookings' => $activeBookings,
+            'serviceTypes' => $serviceTypes,
+            'errors' => []
         ]);
     }
-
+    
     public function requestServiceExternal()
     {
         $servicesModel = new Services();
@@ -1743,17 +1946,65 @@ class Customer
             }
         }
         if ($booking) {
+            $currentStatus = strtolower($booking->booking_status);
+            if ($currentStatus === 'pending') {
+                // Directly cancel if status is pending
+                $BookingOrders->updateBookingStatusByOwnerAndDates(
+                    $booking->property_id,
+                    $booking->person_id,
+                    $booking->start_date,
+                    $booking->end_date,
+                    'Cancelled'
+                );
+                $_SESSION['flash']['msg'] = "Booking cancelled successfully.";
+                $_SESSION['flash']['type'] = "success";
+            } else {
+                // Otherwise, set to Cancel Requested
+                $BookingOrders->updateBookingStatusByOwnerAndDates(
+                    $booking->property_id,
+                    $booking->person_id,
+                    $booking->start_date,
+                    $booking->end_date,
+                    'Cancel Requested'
+                );
+                $_SESSION['flash']['msg'] = "Booking cancellation request sent successfully.";
+                $_SESSION['flash']['type'] = "success";
+            }
+        } else {
+            $_SESSION['flash']['msg'] = "Booking not found or not authorized.";
+            $_SESSION['flash']['type'] = "error";
+        }
+        redirect('dashboard/occupiedProperties');
+    }
+
+    public function continueBooking($bookingId)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('login');
+            return;
+        }
+        $BookingOrders = new BookingOrders();
+        // Get the booking to verify ownership
+        $orders = $BookingOrders->getOrdersByOwner($_SESSION['user']->pid);
+        $booking = null;
+        foreach ($orders as $order) {
+            if ($order->booking_id == $bookingId) {
+                $booking = $order;
+                break;
+            }
+        }
+        if ($booking) {
             $BookingOrders->updateBookingStatusByOwnerAndDates(
                 $booking->property_id,
                 $booking->person_id,
                 $booking->start_date,
                 $booking->end_date,
-                'Cancelled'
+                'Confirmed'
             );
-            $_SESSION['flash']['msg'] = "Booking cancelled successfully.";
+            $_SESSION['flash']['msg'] = "Booking cancelled was removed successfully.";
             $_SESSION['flash']['type'] = "success";
         } else {
-            $_SESSION['flash']['msg'] = "Booking not found or not authorized.";
+            $_SESSION['flash']['msg'] = "Booking cancelled was removed not done or not authorized.";
             $_SESSION['flash']['type'] = "error";
         }
         redirect('dashboard/occupiedProperties');

@@ -32,6 +32,17 @@
 </div> -->
 
 <div class="MM__cards_container">
+    <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyDetails">
+        <div class="MM__cards">
+            <div class="MM__text">
+                <h2>Property</h2>
+            </div>
+            <div class="management-icon">
+                <img src="<?= ROOT ?>/assets/images/reportForm.jpg" alt="Employee Management" class="MM__img">
+            </div>
+        </div>
+    </a>
+
     <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement/assignagents">
         <div class="MM__cards">
             <div class="MM__text">

@@ -113,6 +113,18 @@
     border: 1px solid var(--primary-color);
 }
 
+.grey{
+    background-color: rgba(var(--dark-grey-color-rgb), 0.20);
+    color: var(--dark-grey-color);
+    border: 1px solid var(--dark-grey-color);
+}
+
+.grey:hover{
+    background-color: rgba(var(--dark-grey-color-rgb), 0.40);
+    color: var(--white-color);
+    border: 1px solid var(--dark-grey-color);
+}
+
 
 /* Dropdown Menu Styling */
 select {

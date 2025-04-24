@@ -4,7 +4,7 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement/assignagents"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="javascript:history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
             <h2><?= $property->name ?></h2>
         </div>
         <div>
@@ -12,10 +12,14 @@
                 <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Financial Report</span>
             </div>
+            <?php 
+                if($property->status != "Inactive"){
+            ?>
             <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/delete_black.png" alt="edit" class="small-icons align-to-right color_caution" onclick="window.location.href='<?= ROOT ?>/dashboard/propertylisting/deleteView/<?= $property->property_id ?>'">
+                <img src="<?= ROOT ?>/assets/images/delete_black.png" alt="edit" class="small-icons align-to-right color_caution" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/deleteView/<?= $property->property_id ?>'">
                 <span class="tooltip-text">Remove</span>
             </div>
+            <?php } ?>
             <div class="tooltip-container">
             <img src="<?= ROOT ?>/assets/images/docs.png" alt="Print" class="small-icons align-to-right color_financial" onclick="window.open('<?= ROOT ?>/assets/documents/uploads/property_documents/<?= $property->property_deed_images ?>', '_blank')">
                 <span class="tooltip-text">Deed Document</span>
