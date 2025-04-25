@@ -206,7 +206,11 @@
                             }
                             ?>
                             <a href="<?= $detail_url ?>">
-                                <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image">
+                                <?php 
+                                    $property_images = explode(',', $property->property_images);
+                                    $first_image = !empty($property_images[0]) ? $property_images[0] : "";
+                                ?>
+                                <img src="<?= get_img($first_image, 'property') ?>" alt="property" class="property-card-image">
                             </a>
                             <div class="content-section-of-card">
                                 <div class="address">
@@ -389,6 +393,11 @@
                     }
                 });
             });
+            function scrollDivToTop() {
+                const div = document.getElementById("filterSidebar");
+                div.scrollTo({ top: 0, behavior: "smooth" }); // Smooth scroll
+                // For instant scroll (no animation), use: div.scrollTop = 0;
+            }
 
             function resetPropertyFilters() {
                 document.getElementById('searchTerm').value = '';
@@ -411,6 +420,7 @@
                 document.getElementById('propMinPriceInput').value = '';
                 document.getElementById('propMaxPriceInput').value = '';
                 document.getElementById('propSortBySelect').selectedIndex = 0;
+                scrollDivToTop();
             }
 
             // return date diff depending on the period type
