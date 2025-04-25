@@ -393,6 +393,11 @@
                     }
                 });
             });
+            function scrollDivToTop() {
+                const div = document.getElementById("filterSidebar");
+                div.scrollTo({ top: 0, behavior: "smooth" }); // Smooth scroll
+                // For instant scroll (no animation), use: div.scrollTop = 0;
+            }
 
             function resetPropertyFilters() {
                 document.getElementById('searchTerm').value = '';
@@ -415,6 +420,7 @@
                 document.getElementById('propMinPriceInput').value = '';
                 document.getElementById('propMaxPriceInput').value = '';
                 document.getElementById('propSortBySelect').selectedIndex = 0;
+                scrollDivToTop();
             }
 
             // return date diff depending on the period type
