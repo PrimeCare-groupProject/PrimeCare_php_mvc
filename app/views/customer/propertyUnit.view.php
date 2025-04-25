@@ -37,41 +37,57 @@
         </div>
 
         <div class="custom-reviews-container">
-    <label class="custom-title">Reviews</label>
-    <?php 
-        $hasReview = false;
-        if (!empty($reviews)): 
-            foreach ($reviews as $review):
-                if ($review->property_id == $property->property_id): 
-                    $hasReview = true;
-    ?>
-        <div class="custom-review-card">
-            <div class="custom-review-author">
-                <label><?= $review->customer_name ?></label>
-            </div>
-            <div class="custom-review-rating">
+            <label class="custom-title">Reviews</label>
+            <?php
+            $hasReview = false;
+            if (!empty($reviews)):
+                foreach ($reviews as $review):
+                    if ($review->property_id == $property->property_id):
+                        $hasReview = true;
+                        $this_User = getUserDetails($review->person_id);
+            ?>
+                        <div class="custom-review-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="custom-review-author">
+                                    <label style="color: var(--black-color);"><?= $this_User->fname . ' ' . $this_User->lname ?></label>
+                                </div>
+                                <div class="custom-review-rating">
+                                    <span class="stars">
+                                        <?php
+                                        $rating = $review->rating; // Example: 3.5
+                                        $fullStars = floor($rating);
+                                        $halfStar = ($rating - $fullStars) >= 0.5 ? 1 : 0;
+                                        $emptyStars = 5 - $fullStars - $halfStar;
+    
+                                        for ($i = 0; $i < $fullStars; $i++) {
+                                            echo '<i class="fas fa-star"></i>'; // Full star
+                                        }
+                                        if ($halfStar) {
+                                            echo '<i class="fas fa-star-half-alt"></i>'; // Half star
+                                        }
+                                        for ($i = 0; $i < $emptyStars; $i++) {
+                                            echo '<i class="far fa-star"></i>'; // Empty star
+                                        }
+    
+                                        ?>
+                                    </span>
+                                    (<?= $review->rating ?>/5)
+                                </div>
+                            </div>
+                            <div class="custom-review-text">
+                                <span><?= $review->message ?></span>
+                            </div>
+                        </div>
                 <?php
-                    $stars = intval($review->rating);
-                    for ($i = 1; $i <= 5; $i++) {
-                        echo $i <= $stars ? '★' : '☆';
-                    }
-                ?>
-                (<?= $review->rating ?>/5)
-            </div>
-            <div class="custom-review-text">
-                <span><?= $review->description ?></span>
-            </div>
-        </div>
-    <?php 
-                endif;
-            endforeach;
-        endif;
+                    endif;
+                endforeach;
+            endif;
 
-        if (!$hasReview): 
-    ?>
-        <p class="custom-no-reviews">No Reviews found.</p>
-    <?php endif; ?>
-</div>
+            if (!$hasReview):
+                ?>
+                <p class="custom-no-reviews">No Reviews found.</p>
+            <?php endif; ?>
+        </div>
 
     </div>
 
@@ -150,35 +166,36 @@
         </div>
 
         <div class="custom-review-form-wrapper">
-        <h3 class="custom-review-form-title">Leave a Review</h3>
+            <h3 class="custom-review-form-title">Leave a Review</h3>
 
-        <form method="POST" action="<?= ROOT ?>/Review/review" enctype="multipart/form-data">
-            <input type="hidden" name="property_id" value="<?= $property->property_id ?>">
+            <form method="POST" action="<?= ROOT ?>/Review/review" enctype="multipart/form-data">
+                <input type="hidden" name="property_id" value="<?= $property->property_id ?>">
 
-            <div class="custom-review-form-group">
+                <!-- <div class="custom-review-form-group">
                 <label for="reviewer_name" class="custom-review-label">Your Name</label>
                 <input type="text" id="reviewer_name" name="reviewer_name" class="custom-review-input" required>
-            </div>
+            </div> -->
 
-            <div class="custom-review-form-group">
-                <label for="rating" class="custom-review-label">Rating</label>
-                <select id="rating" name="rating" class="custom-review-select" required>
+                <div class="custom-review-form-group">
+                    <label for="rating" class="custom-review-label">Rating</label>
+                    <!-- <select id="rating" name="rating" class="custom-review-select" required>
                     <option value="5">🌟🌟🌟🌟🌟 - Excellent</option>
                     <option value="4">🌟🌟🌟🌟 - Good</option>
                     <option value="3">🌟🌟🌟 - Average</option>
                     <option value="2">🌟🌟 - Fair</option>
                     <option value="1">🌟 - Poor</option>
-                </select>
-            </div>
+                </select> -->
+                    <input type="number" id="rating" name="rating" min="0" max="5" step="0.5" class="custom-review-input" required placeholder="Rate the property from 1 to 5">
+                </div>
 
-            <div class="custom-review-form-group">
-                <label for="review" class="custom-review-label">Your Review</label>
-                <textarea id="review" name="review" rows="4" class="custom-review-textarea" required></textarea>
-            </div>
+                <div class="custom-review-form-group">
+                    <label for="review" class="custom-review-label">Your Review</label>
+                    <textarea id="review" name="review" rows="4" class="custom-review-textarea" required></textarea>
+                </div>
 
-            <button type="submit" class="custom-review-submit-btn">Submit Review</button>
-        </form>
-    </div>
+                <button type="submit" class="custom-review-submit-btn">Submit Review</button>
+            </form>
+        </div>
     </div>
 
 </div>

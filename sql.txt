@@ -427,3 +427,33 @@ BEGIN
 END%%
 
 DELIMITER ;
+
+
+
+CREATE TABLE reviewsProperty (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    person_id INT NOT NULL,
+    rating DECIMAL(2,1) DEFAULT 0,
+    message TEXT,
+    property_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (person_id) REFERENCES person(pid) ON DELETE CASCADE,
+    FOREIGN KEY (property_id) REFERENCES propertyTable(property_id) ON DELETE CASCADE
+);
+
+DELIMITER $$
+
+CREATE TRIGGER trg_reviews_rating_before_insert
+BEFORE INSERT ON reviewsProperty
+FOR EACH ROW
+BEGIN
+    IF NEW.rating > 5 THEN
+        SET NEW.rating = 5;
+    ELSEIF NEW.rating < 0 THEN
+        SET NEW.rating = 0;
+    END IF;
+END$$
+
+DELIMITER ;
+
+

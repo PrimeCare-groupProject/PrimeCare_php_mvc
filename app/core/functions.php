@@ -581,3 +581,40 @@ function findAdvancePrice(float $price): float
     $advance = ($price) * (ADVANCE_PERCENTAGE / 100);
     return round($advance, 2);
 }
+
+
+function getImageByUserID($user_id, $type = 'user')
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        return get_img($user->image_url, $type);
+    }
+    return get_img('', $type); // Return default image if user not found
+}
+
+function getUserDetails($user_id)
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        return $user;
+    }
+    return null; // Return null if user not found
+}
+
+function getPropertyRatings($property_id)
+{
+    $reviewsModel = new ReviewsProperty();
+    $ratings = $reviewsModel->where(['property_id' => $property_id]);
+
+    if ($ratings) {
+        $totalRating = 0;
+        $totalReviews = count($ratings);
+        foreach ($ratings as $review) {
+            $totalRating += $review->rating;
+        }
+        return $totalReviews > 0 ? round($totalRating / $totalReviews, 2) : 0; // Return average rating rounded to 2 decimal places
+    }
+    return 0; // Return 0 if no ratings found
+}
