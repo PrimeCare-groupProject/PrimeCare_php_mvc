@@ -142,15 +142,15 @@
                     <?php foreach ($services as $service): ?>
                         <div class="service-slide">
                             <div class="PL_property-card-home" style="height: 350px;">
-                                <a href="<?= ROOT ?>/"><img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="property" class="property-card-image"></a>
-                                <div class="content-section-of-card">
-                                    <div class="address-home">
+                                <a href="<?= ROOT ?>/"><img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="property" class="property-card-image" style="height:230px;"></a>
+                                <div class="content-section-of-card" style="height: 130px;">
+                                    <div class="address-home truncate">
                                         <?= $service->name ?>
                                     </div>
                                     <!-- <div class="price" style="color: var(--green-color);">
                                         <?= $service->cost_per_hour ?>
                                     </div> -->
-                                    <div class="name" style="justify-items: flex-end;">
+                                    <div class="name multiline-truncate" style="justify-items: flex-end;">
                                         <?= $service->description ?>
                                     </div>
                                 </div>

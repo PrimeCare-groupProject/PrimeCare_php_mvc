@@ -437,8 +437,18 @@ body.popup-active .blur-container {
 }
 
 .booking-img {
-    padding-top: 15px;
-    display: flex;
+    width: 100%; /* Make the image take the full width of its container */
+    height: auto; /* Maintain the aspect ratio */
+    border-radius: 10px; /* Add rounded corners */
+    object-fit: cover; /* Ensure the image covers the container without distortion */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+.owner-addProp-form-left1 {
+    width: 100%; /* Ensure the container takes the full width of its parent */
+    max-width: 500px; /* Optional: Limit the maximum width */
+    padding: 20px; /* Add padding around the content */
+    box-sizing: border-box; /* Include padding in the width calculation */
 }
 
 .book-img {

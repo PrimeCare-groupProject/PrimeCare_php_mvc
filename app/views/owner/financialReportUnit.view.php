@@ -119,7 +119,6 @@
                 <h3>Active Tenants</h3>
             </div>
             <div class="Ttenant-card">
-
                 <div class="tenants-list">
                     <div class="tenant-header-row">
                         <div class="tenant-header-cell">Avatar</div>
@@ -131,63 +130,72 @@
                         <?php 
                         $acceptedBookings = false;
                         foreach($bookings as $booking): 
-                            if(isset($booking->accept_status) && $booking->accept_status === 'accepted'): 
+                            // Check if booking has a valid status - now using booking_status from booking_orders
+                            $bookingStatus = strtolower($booking->booking_status ?? '');
+                            $paymentStatus = strtolower($booking->payment_status ?? '');
+                            
+                            // Only display confirmed/active paid bookings
+                            if(($bookingStatus === 'confirmed' || $bookingStatus === 'active' || $bookingStatus === 'completed') && 
+                            $paymentStatus === 'paid'): 
                                 $acceptedBookings = true;
+                                
+                                // Get tenant information using person_id from booking_orders
+                                $tenantId = $booking->person_id ?? null;
+                                $tenant = null;
+                                $tenantName = 'Unknown Tenant';
+                                
+                                // Check if we have tenant details for this person_id
+                                if ($tenantId && isset($tenantDetails[$tenantId])) {
+                                    $tenant = $tenantDetails[$tenantId];
+                                    $tenantName = trim(($tenant->fname ?? '') . ' ' . ($tenant->lname ?? ''));
+                                    if (empty($tenantName)) {
+                                        $tenantName = 'Tenant #' . $tenantId;
+                                    }
+                                }
+                                
+                                // Get tenant profile image
+                                $defaultUserImage = ROOT . '/assets/images/serPro1.png';
+                                $tenantImage = $defaultUserImage;
+                                
+                                if ($tenant && !empty($tenant->image_url)) {
+                                    $imagePath = ROOTPATH . 'public/assets/images/uploads/profile_pictures/' . $tenant->image_url;
+                                    if (file_exists($imagePath)) {
+                                        $tenantImage = ROOT . '/assets/images/uploads/profile_pictures/' . $tenant->image_url;
+                                    }
+                                }
                         ?>
                             <div class="tenant">
-                                <?php 
-                                // Get tenant user data using customer_id from booking table
-                                $tenantUser = null;
-                                if(isset($booking->customer_id) && !empty($booking->customer_id)) {
-                                    $tenantModel = new User();
-                                    $tenantUser = $tenantModel->where(['pid' => $booking->customer_id])[0] ?? null;
-                                }
-                                ?>
                                 <div class="tenant-avatar">
-                                    <?php if ($tenantUser && isset($tenantUser->image_url) && !empty($tenantUser->image_url)): ?>
-                                        <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $tenantUser->image_url ?>" alt="Tenant Photo" />
-                                    <?php else: ?>
-                                        <div class="avatar-placeholder">
-                                            <?php 
-                                            $initials = '';
-                                            if ($tenantUser) {
-                                                $initials = substr($tenantUser->fname ?? '', 0, 1) . substr($tenantUser->lname ?? '', 0, 1);
-                                            } else {
-                                                $initials = 'T';
-                                            }
-                                            echo htmlspecialchars($initials); 
-                                            ?>
-                                        </div>
-                                    <?php endif; ?>
+                                    <img src="<?= $tenantImage ?>" alt="<?= htmlspecialchars($tenantName) ?>">
                                 </div>
                                 <div class="tenant-info-cell">
                                     <div class="tenant-main">
-                                        <?php if ($tenantUser): ?>
-                                            <h4><?= $tenantUser->fname ?? '' ?> <?= $tenantUser->lname ?? '' ?></h4>
-                                        <?php else: ?>
-                                            <h4>Tenant #<?= $booking->customer_id ?? 'N/A' ?></h4>
-                                        <?php endif; ?>
-                                        <div class="tenant-badge">Active</div>
+                                        <h4><?= htmlspecialchars($tenantName) ?></h4>
+                                        <div class="tenant-badge"><?= ucfirst($bookingStatus) ?></div>
                                     </div>
                                     <div class="tenant-details">
                                         <div class="detail-item">
                                             <span class="detail-icon">📅</span>
-                                            <span>Since: <?= date('M Y', strtotime($booking->start_date)) ?></span>
+                                            <span>Since: <?= date('M Y', strtotime($booking->start_date ?? date('Y-m-d'))) ?></span>
                                         </div>
-                                        <?php if($tenantUser && !empty($tenantUser->contact)): ?>
+                                        <?php if($tenant && !empty($tenant->contact)): ?>
                                         <div class="detail-item">
                                             <span class="detail-icon">📞</span>
-                                            <span><?= $tenantUser->contact ?></span>
+                                            <span><?= htmlspecialchars($tenant->contact) ?></span>
                                         </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="tenant-rent-cell">
-                                    Rs. <?= number_format($booking->price, 2) ?>
+                                    Rs. <?= number_format(
+                                        isset($booking->total_amount) ? $booking->total_amount : 
+                                        (isset($booking->rental_price) && isset($booking->duration) ? 
+                                        $booking->rental_price * $booking->duration : 0),
+                                        2) ?>
                                 </div>
                                 <div class="tenant-duration-cell">
                                     <div class="tenant-duration-badge">
-                                        <?= $booking->renting_period ?? '1' ?> months
+                                        <?= $booking->duration ?? '1' ?> <?= ($booking->duration == 1) ? 'month' : 'months' ?>
                                     </div>
                                 </div>
                             </div>
@@ -244,17 +252,46 @@
                             // Process bookings (income)
                             if(is_array($bookings)) {
                                 foreach($bookings as $booking) {
-                                    $paymentDate = isset($booking->payment_date) ? $booking->payment_date : $booking->booked_date;
+                                    // Use payment_date if available, otherwise use start_date
+                                    $paymentDate = isset($booking->payment_date) ? $booking->payment_date : 
+                                                (isset($booking->start_date) ? $booking->start_date : date('Y-m-d'));
+                                                
+                                    // Calculate booking amount from booking_orders fields
+                                    if(is_array($bookings)) {
+                                        foreach($bookings as $booking) {
+                                            // Calculate booking amount from booking_orders fields
+                                            $bookingAmount = isset($booking->total_amount) ? $booking->total_amount : 
+                                                            (isset($booking->rental_price) && isset($booking->duration) ? 
+                                                            $booking->rental_price * $booking->duration : 0);
+                                                            
+                                            $startDate = isset($booking->start_date) ? $booking->start_date : date('Y-m-d');
+                                            
+                                            $recentTransactions[] = [
+                                                'date' => isset($booking->payment_date) ? $booking->payment_date : $startDate,
+                                                'description' => 'Rent payment for ' . date('M Y', strtotime($startDate)),
+                                                'category' => 'Income',
+                                                'amount' => $bookingAmount
+                                            ];
+                                        }
+                                    }            
+                                    // Get tenant name if available
+                                    $tenantName = 'Property Booking';
+                                    if (isset($booking->person_id) && isset($tenantDetails[$booking->person_id])) {
+                                        $tenant = $tenantDetails[$booking->person_id];
+                                        $tenantName = trim(($tenant->fname ?? '') . ' ' . ($tenant->lname ?? ''));
+                                        if (empty($tenantName)) {
+                                            $tenantName = 'Tenant #' . $booking->person_id;
+                                        }
+                                    }
+                                    
                                     $allTransactions[] = [
                                         'date' => $paymentDate,
                                         'timestamp' => strtotime($paymentDate),
                                         'id' => 'B-' . $booking->booking_id,
-                                        'description' => 'Rent payment - ' . 
-                                            (isset($booking->tenant_name) ? $booking->tenant_name : 'Property Booking') . 
-                                            ' (' . date('M Y', strtotime($booking->start_date)) . ')',
+                                        'description' => 'Rent payment - ' . $tenantName . ' (' . date('M Y', strtotime($booking->start_date)) . ')',
                                         'category' => 'Income',
-                                        'amount' => $booking->price,
-                                        'status' => $booking->accept_status ?? 'Completed'
+                                        'amount' => $bookingAmount,
+                                        'status' => $booking->booking_status ?? 'Completed'
                                     ];
                                 }
                             }
@@ -356,7 +393,7 @@
         <div class="detailed-analytics">
             <div class="analytics-card">
                 <div class="card-header">
-                    <h3>Income Sources</h3>
+                    <h3>Income by Tenant</h3>
                     <div class="filter-controls">
                         <select id="incomeFilter">
                             <option value="all">All Time</option>
@@ -371,14 +408,62 @@
                         <canvas id="incomeSourcesChart"></canvas>
                     </div>
                     <div class="analytics-details">
-                        <div class="detail-row">
-                            <span class="label">Rent Income:</span>
-                            <span class="value">Rs. <?= number_format($totalIncome * 0.9, 2) ?></span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Other Income:</span>
-                            <span class="value">Rs. <?= number_format($totalIncome * 0.1, 2) ?></span>
-                        </div>
+                        <?php
+                        // Process tenant-wise income
+                        $tenantIncomes = [];
+                        $tenantColors = [
+                            '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#795548', 
+                            '#009688', '#673AB7', '#FFC107', '#FF5722', '#607D8B'
+                        ];
+                        
+                        if(is_array($bookings) && !empty($bookings)) {
+                            foreach($bookings as $booking) {
+                                // Calculate booking amount
+                                $bookingAmount = isset($booking->total_amount) ? $booking->total_amount : 
+                                                (isset($booking->rental_price) && isset($booking->duration) ? 
+                                                $booking->rental_price * $booking->duration : 0);
+                                
+                                // Get tenant name
+                                $tenantId = $booking->person_id ?? null;
+                                $tenantName = 'Unknown Tenant';
+                                
+                                if ($tenantId && isset($tenantDetails[$tenantId])) {
+                                    $tenant = $tenantDetails[$tenantId];
+                                    $tenantName = trim(($tenant->fname ?? '') . ' ' . ($tenant->lname ?? ''));
+                                    if (empty($tenantName)) {
+                                        $tenantName = 'Tenant #' . $tenantId;
+                                    }
+                                }
+                                
+                                // Add to tenant income tracking
+                                if(!isset($tenantIncomes[$tenantName])) {
+                                    $tenantIncomes[$tenantName] = 0;
+                                }
+                                $tenantIncomes[$tenantName] += $bookingAmount;
+                            }
+                        }
+                        
+                        // If no tenant incomes, add a placeholder
+                        if(empty($tenantIncomes)) {
+                            $tenantIncomes['No Income Data'] = 100;
+                        }
+                        
+                        // Display tenant incomes in the details section
+                        $colorIndex = 0;
+                        foreach($tenantIncomes as $tenant => $amount) {
+                            $textColor = $tenantColors[$colorIndex % count($tenantColors)];
+                            ?>
+                            <div class="detail-row">
+                                <span class="label">
+                                    <span class="color-dot" style="background-color: <?= $textColor ?>"></span>
+                                    <?= htmlspecialchars($tenant) ?>:
+                                </span>
+                                <span class="value">Rs. <?= number_format($amount, 2) ?></span>
+                            </div>
+                            <?php
+                            $colorIndex++;
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
@@ -591,47 +676,74 @@
             }
         });
 
-        // Initialize Income Sources Pie Chart
         const incomeCtx = document.getElementById('incomeSourcesChart').getContext('2d');
-        new Chart(incomeCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Rent', 'Other Income'],
-                datasets: [{
-                    data: [90, 10],
-                    backgroundColor: ['#4CAF50', '#FFC107'],
-                    hoverBackgroundColor: ['#388E3C', '#FFB300'],
-                    borderWidth: 1
-                }]
+    
+    // Get tenant data from PHP
+    const tenantIncomes = <?= json_encode($tenantIncomes) ?>;
+    const tenantNames = Object.keys(tenantIncomes);
+    const incomeValues = Object.values(tenantIncomes);
+    
+    // Get colors for the chart
+    const tenantColors = [
+        '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#795548', 
+        '#009688', '#673AB7', '#FFC107', '#FF5722', '#607D8B'
+    ];
+    
+    const tenantChartColors = tenantNames.map((_, index) => 
+        tenantColors[index % tenantColors.length]
+    );
+    
+    const tenantHoverColors = tenantChartColors.map(color => {
+        // Create slightly darker hover colors
+        const r = parseInt(color.slice(1, 3), 16) * 0.9;
+        const g = parseInt(color.slice(3, 5), 16) * 0.9;
+        const b = parseInt(color.slice(5, 7), 16) * 0.9;
+        return `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+    });
+    
+    new Chart(incomeCtx, {
+        type: 'pie',
+        data: {
+            labels: tenantNames,
+            datasets: [{
+                data: incomeValues,
+                backgroundColor: tenantChartColors,
+                hoverBackgroundColor: tenantHoverColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: 5
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: 5
-                },
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 15
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    align: 'start',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15,
+                        font: {
+                            size: 11
                         }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw;
-                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return label + ': ' + percentage + '%';
-                            }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return label + ': Rs. ' + value.toFixed(2) + ' (' + percentage + '%)';
                         }
                     }
                 }
             }
-        });
+        }
+    });
 
         // Initialize Expense Breakdown Pie Chart
         const expenseCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
@@ -665,6 +777,7 @@
                 plugins: {
                     legend: {
                         position: 'bottom',
+                        align: 'start',
                         labels: {
                             boxWidth: 12,
                             padding: 15
@@ -718,6 +831,15 @@
 
 <style>
 /* LAYOUT STRUCTURE */
+
+.color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
 .container {
     display: grid;
     grid-template-columns: 280px 1fr;

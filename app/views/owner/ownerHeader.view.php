@@ -63,6 +63,7 @@
                     <li><a href="<?= ROOT ?>/dashboard/tenants"><button class="btn"><i class="fa-solid fa-users"></i>Tenants</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/showReviews"><button class="btn"><i class="fa-solid fa-square-poll-vertical"></i>Reviews</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 </ul>
                 <form method="post" id="logout">
                     <button id="logout-btn" class="secondary-btn" style="display: none;">Logout</button>
