@@ -121,3 +121,5 @@
         });
     });
 </script>
+<script src="<?= ROOT ?>/assets/js/loader.js"></script>
+
