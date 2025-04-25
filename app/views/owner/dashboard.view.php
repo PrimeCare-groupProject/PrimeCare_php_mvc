@@ -281,9 +281,13 @@
     }
 
     .transactions-section{
-        margin-left: 15px;
-        margin-right: 15px;
-        margin-bottom: 20px;
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        margin: 0 15px 30px;
+        overflow: hidden; 
+        box-sizing: border-box;
     }
     
     .card-header {
