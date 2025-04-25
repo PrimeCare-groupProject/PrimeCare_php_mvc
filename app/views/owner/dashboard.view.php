@@ -1068,14 +1068,6 @@
                     ];
                 }
             }
-            
-            $recentTransactions[] = [
-                'date' => date('Y-m-d'),
-                'description' => 'Monthly Rental Income',
-                'category' => 'Income',
-                'amount' => 25000,
-                'status' => 'Paid'
-            ];
         }
         ?>
         
@@ -1105,9 +1097,8 @@
                     <td style="font-weight: 600; <?= isset($transaction['amount']) && $transaction['amount'] >= 0 ? 'color: var(--success);' : 'color: var(--warning);' ?>">
                         <?php
                         $amount = abs($transaction['amount'] ?? 0);
-                        $amountWithTenPercent = $amount * 1.10;
                         ?>
-                        LKR <?= number_format($amountWithTenPercent, 2) ?>
+                        LKR <?= number_format($amount, 2) ?>
                     </td>
                     <td>
                         <?php
