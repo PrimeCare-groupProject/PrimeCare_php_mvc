@@ -66,7 +66,6 @@ class Owner
         }
         
         // Get all booking orders for this owner directly 
-        // This replaces the old method of looping through properties
         $ownerBookings = $bookingOrders->getOrdersByOwner($ownerId);
         
         // Initialize monthly data structure
@@ -494,28 +493,43 @@ class Owner
     
         // Initialize models
         $property = new PropertyConcat;
-        $booking = new BookingModel();
+        $bookingOrders = new BookingOrders();
         $serviceLog = new ServiceLog();
     
         // Get all properties owned by current user
         $properties = $property->where(['person_id' => $ownerId]);
         
-        // Ensure properties is always an array, even if the query returns false
+        // Ensure properties is always an array
         if (!is_array($properties)) {
             $properties = [];
         }
         
+        // Extract property IDs owned by this owner
         $propertyIds = [];
-    
-        if (!empty($properties)) {
-            foreach ($properties as $prop) {
-                $propertyIds[] = $prop->property_id;
+        foreach ($properties as $prop) {
+            $propertyIds[] = $prop->property_id;
+        }
+        
+        // Get all booking orders for these properties (not by owner's person_id)
+        $bookings = [];
+        if (!empty($propertyIds)) {
+            foreach ($propertyIds as $propId) {
+                // Get bookings for this property
+                $propertyBookings = $bookingOrders->where(['property_id' => $propId]);
+                if (is_array($propertyBookings) && !empty($propertyBookings)) {
+                    $bookings = array_merge($bookings, $propertyBookings);
+                }
             }
         }
-    
+        
+        // Get service logs for the owner
+        $serviceLogs = $serviceLog->where(['requested_person_id' => $ownerId]);
+        
+        if (!is_array($serviceLogs)) {
+            $serviceLogs = [];
+        }
+        
         // Initialize data
-        $bookings = [];
-        $serviceLogs = [];
         $totalIncome = 0;
         $totalExpenses = 0;
         $activeBookings = 0;
@@ -539,96 +553,80 @@ class Owner
                 'occupancy_rate' => 0
             ];
         }
-    
-        // Get data only for properties owned by the current user
-        if (!empty($propertyIds)) {
-            // Get all bookings for owner's properties
-            foreach ($propertyIds as $propId) {
-                $propertyBookings = $booking->where(['property_id' => $propId]);
-                
-                // Ensure propertyBookings is always an array
-                if (!is_array($propertyBookings) && $propertyBookings !== null) {
-                    $propertyBookings = [];
+        
+        // Calculate total income from booking orders
+        if (!empty($bookings)) {
+            foreach ($bookings as $booking) {
+                // Calculate booking amount based on total_amount field or rental_price * duration
+                if (isset($booking->total_amount)) {
+                    $bookingAmount = $booking->total_amount;
+                } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                    $bookingAmount = $booking->rental_price * $booking->duration;
+                } else {
+                    $bookingAmount = 0;
                 }
                 
-                if (!empty($propertyBookings)) {
-                    foreach ($propertyBookings as $b) {
-                        $bookings[] = $b;
-    
-                        // Calculate income
-                        $totalIncome += $b->price;
-    
-                        // Track active bookings - UPDATED LOGIC
-                        if (isset($b->status) && strtolower($b->status) === 'active') {
-                            $activeBookings++;
-                        } else if (isset($b->accept_status) && strtolower($b->accept_status) === 'accepted') {
-                            // Also count bookings with 'accepted' status if they don't have an explicit 'active' status
-                            $activeBookings++;
-                        }
-    
-                        // Add to monthly data
-                        if (isset($b->start_date)) {
-                            $bookingMonth = date('M', strtotime($b->start_date));
-                            if (isset($monthlyData[$bookingMonth])) {
-                                $monthlyData[$bookingMonth]['income'] += $b->price;
-                            }
-                        }
-                    }
-                }         
-                // Get service logs for properties by requested person ID
-                $userServiceLogs = $serviceLog->where([
-                    'requested_person_id' => $ownerId,
-                    'property_id' => $propId
-                ]);
+                $totalIncome += $bookingAmount;
                 
-                // Ensure userServiceLogs is always an array
-                if (!is_array($userServiceLogs) && $userServiceLogs !== null) {
-                    $userServiceLogs = [];
-                }
-                
-                if(!empty($userServiceLogs)) {
-                    foreach($userServiceLogs as $log) {
-                        $serviceLogs[] = $log;
-    
-                        // Calculate expenses
-                        $cost = $log->total_cost;
-                        $totalExpenses += $cost;
-    
-                        // Add to monthly data
-                        if (isset($log->date)) {
-                            $logMonth = date('M', strtotime($log->date));
-                            if (isset($monthlyData[$logMonth])) {
-                                $monthlyData[$logMonth]['expense'] += $cost;
-                            }
-                        }
+                // Add to monthly data if start_date is set
+                if (isset($booking->start_date)) {
+                    $bookingMonth = date('M', strtotime($booking->start_date));
+                    if (isset($monthlyData[$bookingMonth])) {
+                        $monthlyData[$bookingMonth]['income'] += $bookingAmount;
                     }
                 }
+                
+                // Count active bookings based on booking_status and payment_status
+                $bookingStatus = strtolower($booking->booking_status ?? '');
+                $paymentStatus = strtolower($booking->payment_status ?? '');
+                
+                if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                    $paymentStatus === 'paid') {
+                    $activeBookings++;
+                }
+            }
+        }
+        
+        // Calculate property units for occupancy rate
+        if ($properties) {
+            foreach ($properties as $prop) {
+                $totalUnits += ($prop->units ?? 1);
+            }
+        }
     
-                // Track total units for occupancy calculation
-                $prop = $property->where(['property_id' => $propId])[0] ?? null;
-                if ($prop && isset($prop->units)) {
-                    $totalUnits += $prop->units;
+        // Calculate total expenses from service logs
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $cost = $log->total_cost ?? 0;
+                $totalExpenses += $cost;
+    
+                // Add to monthly data
+                if (isset($log->date)) {
+                    $logMonth = date('M', strtotime($log->date));
+                    if (isset($monthlyData[$logMonth])) {
+                        $monthlyData[$logMonth]['expense'] += $cost;
+                    }
                 }
             }
         }
     
-        // UFetch tenant details using customer_id from the booking table
+        // Fetch tenant details using person_id from the booking_orders table
         $tenantDetails = [];
         if (!empty($bookings)) {
-            // Collect all unique customer_ids from bookings
-            $customerIds = [];
+            // Collect all unique person_ids from bookings
+            $personIds = [];
             foreach ($bookings as $booking) {
-                if (isset($booking->customer_id) && !in_array($booking->customer_id, $customerIds)) {
-                    $customerIds[] = $booking->customer_id;
+                if (isset($booking->person_id) && !in_array($booking->person_id, $personIds)) {
+                    $personIds[] = $booking->person_id;
                 }
             }
     
             // Get tenant details using findByMultiplePids method
-            if (!empty($customerIds)) {
-                $tenants = $userModel->findByMultiplePids($customerIds);
+            if (!empty($personIds)) {
+                $tenants = $userModel->findByMultiplePids($personIds);
                 
                 // Ensure tenants is always an array
-                if (!is_array($tenants) && $tenants !== null) {
+                if (!is_array($tenants)) {
                     $tenants = [];
                 }
     
@@ -643,11 +641,60 @@ class Owner
     
         // Calculate profit and occupancy rate
         $profit = $totalIncome - $totalExpenses;
-        $occupancyRate = ($totalUnits > 0) ? (($activeBookings / $totalUnits) * 100) : 0;
+        $occupancyRate = ($totalUnits > 0) ? min(100, (($activeBookings / $totalUnits) * 100)) : 0;
     
+        // Update monthly profit and occupancy rate
         foreach ($monthlyData as $month => &$data) {
             $data['profit'] = $data['income'] - $data['expense'];
             $data['occupancy_rate'] = $occupancyRate;
+        }
+        
+        // Calculate expense types for pie charts
+        $expenseTypes = [];
+        if ($serviceLogs) {
+            foreach ($serviceLogs as $log) {
+                $type = $log->service_type ?? 'Other';
+                if (!isset($expenseTypes[$type])) {
+                    $expenseTypes[$type] = 0;
+                }
+                $expenseTypes[$type] += ($log->total_cost ?? 0);
+            }
+        }
+        
+        // Calculate income for last 6 months, 3 months, and current month for chart filters
+        $sixMonthsAgo = strtotime('-6 months');
+        $threeMonthsAgo = strtotime('-3 months');
+        $currentMonthStart = strtotime(date('Y-m-01'));
+        
+        $last6MonthsIncome = 0;
+        $last3MonthsIncome = 0;
+        $currentMonthIncome = 0;
+        
+        if (!empty($bookings)) {
+            foreach ($bookings as $booking) {
+                // Calculate booking amount
+                if (isset($booking->total_amount)) {
+                    $amount = $booking->total_amount;
+                } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                    $amount = $booking->rental_price * $booking->duration;
+                } else {
+                    $amount = 0;
+                }
+                
+                $bookingDate = strtotime($booking->start_date ?? 'now');
+                
+                if ($bookingDate >= $sixMonthsAgo) {
+                    $last6MonthsIncome += $amount;
+                }
+                
+                if ($bookingDate >= $threeMonthsAgo) {
+                    $last3MonthsIncome += $amount;
+                }
+                
+                if ($bookingDate >= $currentMonthStart) {
+                    $currentMonthIncome += $amount;
+                }
+            }
         }
     
         // Prepare data for the view
@@ -664,7 +711,11 @@ class Owner
             'occupancyRate' => $occupancyRate,
             'monthlyData' => $monthlyData,
             'activeBookings' => $activeBookings,
-            'totalUnits' => $totalUnits
+            'totalUnits' => $totalUnits,
+            'expenseTypes' => $expenseTypes,
+            'last6MonthsIncome' => $last6MonthsIncome,
+            'last3MonthsIncome' => $last3MonthsIncome,
+            'currentMonthIncome' => $currentMonthIncome
         ];
     
         $this->view('owner/financeReport', $viewData);
