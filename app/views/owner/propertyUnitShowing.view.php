@@ -13,35 +13,38 @@
             </div>
         </div>
         <div class="right-content">
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/engineering.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>')">
-                <span class="tooltip-text">Get Service</span>
-            </div>
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/house-owner.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>')">
-                <span class="tooltip-text">Tenants</span>
-            </div>
-            <!-- Add Track Maintenance button here -->
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/maintenance.png" alt="Track" class="small-icons align-to-right color_info" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/trackOrder/<?= $property->property_id ?>')">
-                <span class="tooltip-text">Track Maintenance</span>
-            </div>
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/rating.png" alt="Print" class="small-icons align-to-right color_purple" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/review/<?= $property->property_id ?>')">
-                <span class="tooltip-text">Reviews</span>
-            </div>
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>')">
-                <span class="tooltip-text">Financial Report</span>
-            </div>
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/alert.png" alt="Problem" class="small-icons align-to-right color_alert" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>')">
-                <span class="tooltip-text">Report a Problem</span>
-            </div>
-            <div class="tooltip-container">
-                <img src="<?= ROOT ?>/assets/images/support.png" alt="contact" class="small-icons align-to-right color_contact" onclick="toggleContactPopup(event)">
-                <span class="tooltip-text">Contact the Agent</span>
-            </div>
+            <?php if ($property->status != "Pending"): ?>
+                <div class="tooltip-container">
+                    <img src="<?= ROOT ?>/assets/images/engineering.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/repairlisting?property_name=<?= urlencode($property->name) ?>&property_id=<?= urlencode($property->property_id) ?>')">
+                    <span class="tooltip-text">Get Service</span>
+                </div>
+                <?php if ($property->purpose == "Rent"): ?>
+                    <div class="tooltip-container">
+                        <img src="<?= ROOT ?>/assets/images/house-owner.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>')">
+                        <span class="tooltip-text">Tenants</span>
+                    </div>
+                    <div class="tooltip-container">
+                        <img src="<?= ROOT ?>/assets/images/rating.png" alt="Print" class="small-icons align-to-right color_purple" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/review/<?= $property->property_id ?>')">
+                        <span class="tooltip-text">Reviews</span>
+                    </div>
+                <?php endif; ?>
+                <div class="tooltip-container">
+                    <img src="<?= ROOT ?>/assets/images/maintenance.png" alt="Track" class="small-icons align-to-right color_info" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/trackOrder/<?= $property->property_id ?>')">
+                    <span class="tooltip-text">Track Maintenance</span>
+                </div>
+                <div class="tooltip-container">
+                    <img src="<?= ROOT ?>/assets/images/financial.png" alt="Print" class="small-icons align-to-right color_financial" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/financialreportunit/<?= $property->property_id ?>')">
+                    <span class="tooltip-text">Financial Report</span>
+                </div>
+                <div class="tooltip-container">
+                    <img src="<?= ROOT ?>/assets/images/alert.png" alt="Problem" class="small-icons align-to-right color_alert" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/reportproblem/<?= $property->property_id ?>')">
+                    <span class="tooltip-text">Report a Problem</span>
+                </div>
+                <div class="tooltip-container">
+                    <img src="<?= ROOT ?>/assets/images/support.png" alt="contact" class="small-icons align-to-right color_contact" onclick="toggleContactPopup(event)">
+                    <span class="tooltip-text">Contact the Agent</span>
+                </div>
+            <?php endif; ?>
             <div class="tooltip-container">
                 <img src="<?= ROOT ?>/assets/images/edit_icon.png" alt="edit" class="small-icons align-to-right color_edit" onclick="showLoaderAndRedirect('<?= ROOT ?>/dashboard/propertylisting/updateproperty/<?= $property->property_id ?>')">
                 <span class="tooltip-text">Edit Details</span>
@@ -74,6 +77,7 @@
                 const popup = document.getElementById('contactPopup');
                 popup.classList.toggle('PopupMessage__hidden');
             }
+
             function showLoaderAndRedirect(url) {
                 document.querySelector('.loader-container').style.display = '';
                 window.location.href = url;
@@ -167,7 +171,7 @@
                     </div>
                 </div>
             <?php
-            } elseif($property->rental_price > 0 && $property->advance_paid == 'Paid') {
+            } elseif ($property->rental_price > 0 && $property->advance_paid == 'Paid') {
             ?>
                 <div class='PL__contacts-section'>
                     <div class='PL__contact'>
@@ -180,7 +184,7 @@
                     </div>
                 </div>
         <?php
-            } 
+            }
         }
 
         ?>

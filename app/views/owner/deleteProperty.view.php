@@ -32,8 +32,8 @@
         </ul>
 
         <div class="PD__confirm-buttons">
-            <button class="primary-btn red-solid" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyDeleteConfirmation/<?= $property->property_id ?>'">Remove Property</button>
-            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyView/<?= $property->property_id ?>'">Cancel</button>
+            <button class="primary-btn red-solid" onclick="window.location.href='<?= ROOT ?>/dashboard/propertyListing/deleteRequest/<?= $property->property_id ?>'">Remove Property</button>
+            <button class="secondary-btn" onclick="window.location.href='<?= ROOT ?>/dashboard/propertyListing/propertyunitowner/<?= $property->property_id ?>'">Cancel</button>
         </div>
     </div>
 </div>
