@@ -2527,4 +2527,30 @@ class Agent
         $this->view('agent/externalServiceRequests', $data);
     }
 
+    public function serviceRequests()
+    {
+        // Get pending counts for different service types
+        $serviceLog = new ServiceLog();
+        $externalService = new ExternalService();
+        
+        // Count pending maintenance tasks
+        $pendingTasks = $serviceLog->where(['status' => 'Pending']);
+        $pendingTasksCount = is_array($pendingTasks) ? count($pendingTasks) : 0;
+        
+        // Count assigned tasks that need to be managed
+        $completedTasks = $serviceLog->where(['status' =>'Done']);
+        $tasksCount = is_array($completedTasks) ? count($completedTasks) : 0;
+        
+        // Count pending external service requests
+        $externalRequests = $externalService->where(['status' => 'pending']);
+        $externalRequestsCount = is_array($externalRequests) ? count($externalRequests) : 0;
+        
+        $this->view('agent/serviceRequests', [
+            'user' => $_SESSION['user'],
+            'pendingTasksCount' => $pendingTasksCount,
+            'tasksCount' => $tasksCount,
+            'externalRequestsCount' => $externalRequestsCount
+        ]);
+    }
+
 }

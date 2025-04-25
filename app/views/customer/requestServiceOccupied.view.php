@@ -65,7 +65,7 @@
                 </div>
                 <h3>No occupied properties found</h3>
                 <p>You currently don't have any occupied properties. You need to book a property before you can request services for it.</p>
-                <a href="<?= ROOT ?>/dashboard/search" class="primary-btn">Browse Properties</a>
+                <a href="<?= ROOT ?>/propertylisting/showlisting" class="primary-btn">Browse Properties</a>
             </div>
         <?php endif; ?>
     </div>
