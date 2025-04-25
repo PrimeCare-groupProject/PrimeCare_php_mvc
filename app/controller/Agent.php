@@ -2458,4 +2458,30 @@ public function bookinghistory($c = '', $d = '')
         $this->view('agent/externalServiceRequests', $data);
     }
 
+    public function serviceRequests()
+    {
+        // Get pending counts for different service types
+        $serviceLog = new ServiceLog();
+        $externalService = new ExternalService();
+        
+        // Count pending maintenance tasks
+        $pendingTasks = $serviceLog->where(['status' => 'Pending']);
+        $pendingTasksCount = is_array($pendingTasks) ? count($pendingTasks) : 0;
+        
+        // Count assigned tasks that need to be managed
+        $assignedTasks = $serviceLog->where(['service_provider_id' => $_SESSION['user']->pid]);
+        $tasksCount = is_array($assignedTasks) ? count($assignedTasks) : 0;
+        
+        // Count pending external service requests
+        $externalRequests = $externalService->where(['status' => 'pending']);
+        $externalRequestsCount = is_array($externalRequests) ? count($externalRequests) : 0;
+        
+        $this->view('agent/serviceRequests', [
+            'user' => $_SESSION['user'],
+            'pendingTasksCount' => $pendingTasksCount,
+            'tasksCount' => $tasksCount,
+            'externalRequestsCount' => $externalRequestsCount
+        ]);
+    }
+
 }
