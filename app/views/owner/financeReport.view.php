@@ -37,7 +37,18 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
             <div class="sidebar-left">
                 <div class="owner-profile-card">
                     <div class="profile-image-container">
-                        <img src="<?= isset($user->image_url) ? ROOT . '/assets/images/uploads/profile_pictures/' . $user->image_url : ROOT . '/assets/images/serPro1.png' ?>" alt="Profile Image">
+                        <?php
+                        $defaultUserImage = ROOT . '/assets/images/user.png';
+                        $ownerImageUrl = null;
+                        
+                        if (isset($user->image_url) && !empty($user->image_url)) {
+                            $imagePath = ROOTPATH . 'public/assets/images/uploads/profile_pictures/' . $user->image_url;
+                            if (file_exists($imagePath)) {
+                                $ownerImageUrl = ROOT . '/assets/images/uploads/profile_pictures/' . $user->image_url;
+                            }
+                        }
+                        ?>
+                        <img src="<?= $ownerImageUrl ?: $defaultUserImage ?>" alt="Profile Image">
                     </div>
                     <div class="profile-details">
                         <h2 class="profile-name"><?= $user->fname ?? 'User' ?> <?= $user->lname ?? '' ?></h2>
