@@ -44,7 +44,7 @@ class Owner
         // Models initialization
         $serviceLog = new ServiceLog();
         $property = new PropertyConcat();
-        $bookingOrders = new BookingOrders(); // Use BookingOrders instead of BookingModel
+        $bookingOrders = new BookingOrders();
         
         $ownerId = $_SESSION['user']->pid;
         $currentYear = date('Y');
@@ -65,8 +65,25 @@ class Owner
             }
         }
         
-        // Get all booking orders for this owner directly 
-        $ownerBookings = $bookingOrders->getOrdersByOwner($ownerId);
+        // Extract property IDs owned by this owner
+        $propertyIds = [];
+        if (is_array($properties) && !empty($properties)) {
+            foreach ($properties as $prop) {
+                $propertyIds[] = $prop->property_id;
+            }
+        }
+        
+        // Get all booking orders for these properties (not by owner's person_id)
+        $ownerBookings = [];
+        if (!empty($propertyIds)) {
+            foreach ($propertyIds as $propId) {
+                // Get bookings for this property
+                $propertyBookings = $bookingOrders->where(['property_id' => $propId]);
+                if (is_array($propertyBookings) && !empty($propertyBookings)) {
+                    $ownerBookings = array_merge($ownerBookings, $propertyBookings);
+                }
+            }
+        }
         
         // Initialize monthly data structure
         $monthlyData = [];
@@ -89,38 +106,40 @@ class Owner
         
         if (is_array($ownerBookings) && !empty($ownerBookings)) {
             foreach ($ownerBookings as $booking) {
-                // Calculate booking amount based on total_amount field or rental_price * duration
-                if (isset($booking->total_amount)) {
-                    $bookingAmount = $booking->total_amount;
-                } else if (isset($booking->rental_price) && isset($booking->duration)) {
-                    $bookingAmount = $booking->rental_price * $booking->duration;
-                } else {
-                    $bookingAmount = 0;
-                }
-                
-                $totalIncome += $bookingAmount;
-                
-                // Add to monthly data if start_date is set
-                if (isset($booking->start_date)) {
-                    $bookingMonth = date('M', strtotime($booking->start_date));
-                    if (isset($monthlyData[$bookingMonth])) {
-                        $monthlyData[$bookingMonth]['income'] += $bookingAmount;
-                    }
-                }
-                
                 // Count active bookings based on booking_status and payment_status
                 $bookingStatus = strtolower($booking->booking_status ?? '');
                 $paymentStatus = strtolower($booking->payment_status ?? '');
                 
-                if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                // Only calculate income for active bookings
+                if (($bookingStatus === 'confirmed' || $bookingStatus === 'completed') && 
                     $paymentStatus === 'paid') {
+                    
+                    // Calculate booking amount based on total_amount field or rental_price * duration
+                    if (isset($booking->total_amount)) {
+                        $bookingAmount = $booking->total_amount;
+                    } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                        $bookingAmount = $booking->rental_price * $booking->duration;
+                    } else {
+                        $bookingAmount = 0;
+                    }
+                    
+                    $totalIncome += $bookingAmount;
+                    
+                    // Add to monthly data if start_date is set
+                    if (isset($booking->start_date)) {
+                        $bookingMonth = date('M', strtotime($booking->start_date));
+                        if (isset($monthlyData[$bookingMonth])) {
+                            $monthlyData[$bookingMonth]['income'] += $bookingAmount;
+                        }
+                    }
+                    
                     $activeBookings++;
                 }
             }
         }
         
         // Calculate property units for occupancy rate
-        if ($properties) {
+        if (is_array($properties) && !empty($properties)) {
             foreach ($properties as $prop) {
                 $totalUnits += ($prop->units ?? 1);
             }
@@ -554,34 +573,36 @@ class Owner
             ];
         }
         
-        // Calculate total income from booking orders
+        // Calculate total income from booking orders - ONLY ACTIVE BOOKINGS
         if (!empty($bookings)) {
             foreach ($bookings as $booking) {
-                // Calculate booking amount based on total_amount field or rental_price * duration
-                if (isset($booking->total_amount)) {
-                    $bookingAmount = $booking->total_amount;
-                } else if (isset($booking->rental_price) && isset($booking->duration)) {
-                    $bookingAmount = $booking->rental_price * $booking->duration;
-                } else {
-                    $bookingAmount = 0;
-                }
-                
-                $totalIncome += $bookingAmount;
-                
-                // Add to monthly data if start_date is set
-                if (isset($booking->start_date)) {
-                    $bookingMonth = date('M', strtotime($booking->start_date));
-                    if (isset($monthlyData[$bookingMonth])) {
-                        $monthlyData[$bookingMonth]['income'] += $bookingAmount;
-                    }
-                }
-                
                 // Count active bookings based on booking_status and payment_status
                 $bookingStatus = strtolower($booking->booking_status ?? '');
                 $paymentStatus = strtolower($booking->payment_status ?? '');
                 
-                if (($bookingStatus === 'confirmed' || $bookingStatus === 'active') && 
+                // Only calculate income for active bookings
+                if (($bookingStatus === 'confirmed' || $bookingStatus === 'completed') && 
                     $paymentStatus === 'paid') {
+                    
+                    // Calculate booking amount based on total_amount field or rental_price * duration
+                    if (isset($booking->total_amount)) {
+                        $bookingAmount = $booking->total_amount;
+                    } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                        $bookingAmount = $booking->rental_price * $booking->duration;
+                    } else {
+                        $bookingAmount = 0;
+                    }
+                    
+                    $totalIncome += $bookingAmount;
+                    
+                    // Add to monthly data if start_date is set
+                    if (isset($booking->start_date)) {
+                        $bookingMonth = date('M', strtotime($booking->start_date));
+                        if (isset($monthlyData[$bookingMonth])) {
+                            $monthlyData[$bookingMonth]['income'] += $bookingAmount;
+                        }
+                    }
+                    
                     $activeBookings++;
                 }
             }
@@ -2090,13 +2111,6 @@ class Owner
             }
         }
     }
-
-
-
-
-
-
-
 
     public function deleteRequest($propertyId)
     {
