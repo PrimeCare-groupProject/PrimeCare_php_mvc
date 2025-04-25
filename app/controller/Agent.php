@@ -2469,8 +2469,8 @@ public function bookinghistory($c = '', $d = '')
         $pendingTasksCount = is_array($pendingTasks) ? count($pendingTasks) : 0;
         
         // Count assigned tasks that need to be managed
-        $assignedTasks = $serviceLog->where(['service_provider_id' => $_SESSION['user']->pid]);
-        $tasksCount = is_array($assignedTasks) ? count($assignedTasks) : 0;
+        $completedTasks = $serviceLog->where(['status' =>'Done']);
+        $tasksCount = is_array($completedTasks) ? count($completedTasks) : 0;
         
         // Count pending external service requests
         $externalRequests = $externalService->where(['status' => 'pending']);
