@@ -541,6 +541,8 @@
     margin-bottom: 25px;
     border: 1px solid #eaedf5;
     transition: all 0.3s ease;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .transactions-card:hover {
@@ -576,7 +578,7 @@
 .transactions-table {
     width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    /* -webkit-overflow-scrolling: touch; */
     border-radius: 8px;
 }
 
@@ -655,12 +657,12 @@
 }
 
 .category-badge.income {
-    background-color: rgba(76, 175, 80, 0.1);
+    background-color: rgba(0, 255, 8, 0.382);
     color: var(--success-color);
 }
 
 .category-badge.expense {
-    background-color: rgba(244, 67, 54, 0.1);
+    background-color: rgba(248, 63, 49, 0.463);
     color: var(--danger-color);
 }
 
