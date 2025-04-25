@@ -1226,6 +1226,25 @@ class Agent
         }
     }
 
+
+    public function inventory($b = '', $c = '', $d = '')
+    {
+        switch ($b) {
+            case 'newinventory':
+                $this->newinventory();
+                break;
+            case 'editinventory':
+                $this->editinventory($c);
+                break;
+            default:
+            $invent = new InventoryModel;
+            $inventories = $invent->findAll();
+            $this->view('agent/inventory',['inventories' => $inventories]); 
+                break;
+        }
+    }
+
+
     public function newinventory()
     {
         $this->view('agent/newinventory');
