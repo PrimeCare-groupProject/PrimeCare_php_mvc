@@ -1306,6 +1306,10 @@ document.addEventListener('DOMContentLoaded', function() {
     background: linear-gradient(to bottom, #FF4081, #E91E63);
 }
 
+.tenant-item[data-status="Completed"]:before {
+    background: linear-gradient(to bottom, #A8FFCE, #50C878, #4CAF50);
+}
+
 .tenant-item[data-status="Active"] .tenant-info span:last-child,
 .tenant-item[data-status="Confirmed"] .tenant-info span:last-child {
     background: rgba(76, 175, 80, 0.12);
