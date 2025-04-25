@@ -457,3 +457,112 @@ END$$
 DELIMITER ;
 
 
+
+
+
+CREATE TABLE IF NOT EXISTS ledger (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transaction_type ENUM('rent_income', 'share_income', 'service_payment', 'salary_payment') NOT NULL,
+    reference_id INT,
+    reference_type ENUM('property', 'person', 'service', 'employee'),
+    amount DECIMAL(10,2) NOT NULL,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER $$
+
+CREATE TRIGGER after_rental_payment_insert
+AFTER INSERT ON rental_payments
+FOR EACH ROW
+BEGIN
+  INSERT INTO ledger (
+    transaction_type, reference_id, reference_type, amount, description
+  )
+  VALUES (
+    'rent_income',
+    NEW.property_id,
+    'property',
+    NEW.amount,
+    CONCAT('Rent payment from person ID ', NEW.person_id, ' for property ID ', NEW.property_id)
+  );
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_share_payment_insert
+AFTER INSERT ON share_payments
+FOR EACH ROW
+BEGIN
+  INSERT INTO ledger (
+    transaction_type, reference_id, reference_type, amount, description
+  )
+  VALUES (
+    'share_income',
+    NEW.property_id,
+    'property',
+    NEW.amount,
+    CONCAT('Share payment (', NEW.payment_type, ') from person ID ', NEW.person_id, ' for property ID ', NEW.property_id)
+  );
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_service_payment_insert
+AFTER INSERT ON service_payments
+FOR EACH ROW
+BEGIN
+  INSERT INTO ledger (
+    transaction_type, reference_id, reference_type, amount, description
+  )
+  VALUES (
+    'service_payment',
+    NEW.service_id,
+    'service',
+    NEW.amount,
+    CONCAT('Service payment to provider ID ', NEW.service_provider_id, ', invoice ', NEW.invoice_number)
+  );
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_salary_payment_insert
+AFTER INSERT ON salary_payments
+FOR EACH ROW
+BEGIN
+  INSERT INTO ledger (
+    transaction_type, reference_id, reference_type, amount, description
+  )
+  VALUES (
+    'salary_payment',
+    NEW.employee_id,
+    'employee',
+    NEW.salary_amount,
+    CONCAT('Salary payment for ', NEW.paid_month, ' to employee ID ', NEW.employee_id)
+  );
+END$$
+
+DELIMITER ;
