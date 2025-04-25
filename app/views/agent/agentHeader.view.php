@@ -59,9 +59,11 @@
                     <li><a href="<?= ROOT ?>/dashboard/preInspection"><button class="btn"><i class="fa-solid fa-file-contract"></i>Pre Inspections</button></a></li>
 
                     <li><a href="<?= ROOT ?>/dashboard/property"><button class="btn"><i class="fa-solid fa-house"></i>Property</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><i class="fa-solid fa-list-check"></i>Tasks</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/serviceRequests"><button class="btn" style="text-align: left;"><i class="fa-solid fa-tools"></i>Service Requests</button></a></li>
+
+                    <!-- <li><a href="<?= ROOT ?>/dashboard/tasks"><button class="btn"><i class="fa-solid fa-list-check"></i>Tasks</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><i class="fa-solid fa-inbox"></i>Requested Tasks</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/externalServiceRequests"><button class="btn" style="text-align: left;"><i class="fa-solid fa-handshake-angle"></i>External service requests</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/externalServiceRequests"><button class="btn" style="text-align: left;"><i class="fa-solid fa-handshake-angle"></i>External service requests</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><i class="fa-solid fa-book"></i>Bookings</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><i class="fa-solid fa-warehouse"></i>Inventory</button></a></li>
