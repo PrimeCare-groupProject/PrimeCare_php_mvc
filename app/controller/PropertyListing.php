@@ -42,21 +42,10 @@ class propertyListing
             $days_remaining = 0;
 
             if (!empty($_POST['check_in']) && !empty($_POST['check_out'])) {
-                $check_in_date = new DateTime($_POST['check_in']);
-                $check_out_date = new DateTime($_POST['check_out']);
-
-                // Calculate total days between dates
-                $interval = $check_in_date->diff($check_out_date);
-                $days = $interval->days;
-
-                // Calculate months and remaining days
-                $months = floor($days / 30); // Get whole months
-                $days_remaining = $days % 30;
-                // If remaining days + 2 >= 30, round up to next month
-                if ($days_remaining + 2 > $months) {
-                    $months += 1;
-                }
-
+                $result = $this->calculateMonthsAccurate($_POST['check_in'], $_POST['check_out']);
+                $months = $result['months'];
+                $days = $result['days'];
+                $days_remaining = $result['days_remaining'];
 
                 // If days are greater than 1 month (30 days), unset rental_period to show all properties
                 if ($days > 30) {
@@ -66,7 +55,7 @@ class propertyListing
                 } else {
                     // Keep the given rental period if days are less than or equal to 30
                     // If rental_period is not set, default to 'Daily'
-                    $_POST['rental_period'] = $_POST['rental_period'] ?? 'Daily';
+                    $_POST['rental_period'] = $_POST['rental_period'] ?? 'Monthly';
                 }
             }
 
@@ -78,8 +67,8 @@ class propertyListing
                 'days' => $days,
                 'days_remaining' => $days_remaining,
             ];
-
-
+            
+            
             $query_string = !empty($bookingData) ? http_build_query($bookingData) : '';
 
             // Add booking data to GET parameters for URLs/redirects
@@ -225,16 +214,10 @@ class propertyListing
             $days = 0;
             $days_remaining = 0;
             if (!empty($new_check_in) && !empty($new_check_out)) {
-                $check_in_date = new DateTime($new_check_in);
-                $check_out_date = new DateTime($new_check_out);
-                $interval = $check_in_date->diff($check_out_date);
-                $days = $interval->days;
-                $months = floor($days / 30); // Get whole months
-                $days_remaining = $days % 30;
-                // If remaining days + 2 >= 30, round up to next month
-                if ($days_remaining + 2 > $months) {
-                    $months += 1;
-                }
+                $result = $this->calculateMonthsAccurate($new_check_in, $new_check_out);
+                $months = $result['months'];
+                $days = $result['days'];
+                $days_remaining = $result['days_remaining'];
             }
 
             $isAvailable = $BookingOrders->isPropertyAvailable($propertyID, $new_check_in, $new_check_out);
@@ -285,20 +268,10 @@ class propertyListing
         $days_remaining = 0;
 
         if (!empty($check_in) && !empty($check_out)) {
-            $check_in_date = new DateTime($check_in);
-            $check_out_date = new DateTime($check_out);
-
-            // Calculate total days between dates
-            $interval = $check_in_date->diff($check_out_date);
-            $days = $interval->days;
-
-            // Calculate months and remaining days
-            $months = floor($days / 30); // Get whole months
-            $days_remaining = $days % 30;
-            // If remaining days + 2 >= 30, round up to next month
-            if ($days_remaining + 2 > $months) {
-                $months += 1;
-            }
+            $result = $this->calculateMonthsAccurate($check_in, $check_out);
+            $months = $result['months'];
+            $days = $result['days'];
+            $days_remaining = $result['days_remaining'];
         }
 
         // Calculate booking summary
@@ -377,7 +350,7 @@ class propertyListing
             $agent_id = null; // Set if you have agent logic
             $check_in = $_POST['check_in'] ?? null;
             $check_out = $_POST['check_out'] ?? null;
-            $rental_period = $_POST['rental_period'] ?? 'Daily';
+            $rental_period = $_POST['rental_period'] ?? 'Monthly';
             $period_duration = $_POST['period_duration'] ?? null;
 
             // Get property details for price
@@ -391,17 +364,16 @@ class propertyListing
             }
 
             // Calculate duration
-            $check_in_date = new DateTime($check_in);
-            $check_out_date = new DateTime($check_out);
-            $days = $check_in_date->diff($check_out_date)->days;
-            // Calculate months and remaining days
-            $months = floor($days / 30); // Get whole months
-            $days_remaining = $days % 30;
-            // If remaining days + 2 >= 30, round up to next month
-            if ($days_remaining + 2 > 30) {
-                $months += 1;
+            $months = 0;
+            $days = 0;
+            $days_remaining = 0;
+            if (!empty($check_in) && !empty($check_out)) {
+                $result = $this->calculateMonthsAccurate($check_in, $check_out);
+                $months = $result['months'];
+                $days = $result['days'];
+                $days_remaining = $result['days_remaining'];
             }
-
+            
             // Set duration based on rental period
             $duration = (strtolower($rental_period) == 'monthly') ? $months : $days;
 
@@ -477,5 +449,24 @@ class propertyListing
         } else {
             redirect('propertyListing/showListing');
         }
+    }
+
+    // helper function to calculate months accurately
+    private function calculateMonthsAccurate($start, $end) {
+        $start = new DateTime($start);
+        $end = new DateTime($end);
+        $interval = $start->diff($end);
+
+        // Total months between dates
+        $months = ($interval->y * 12) + $interval->m;
+        // If there are leftover days, round up
+        if ($interval->d > 0) {
+            $months += 1;
+        }
+        return [
+            'months' => $months,
+            'days' => $interval->days,
+            'days_remaining' => $interval->d,
+        ];
     }
 }

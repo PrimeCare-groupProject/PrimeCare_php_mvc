@@ -1265,7 +1265,7 @@ class Manager
                     $randomMessages->update($pid, ['status' => 0], 'pid');
                     $_SESSION['flash']['msg'] = "Message marked as complete.";
                     $_SESSION['flash']['type'] = "success";
-                    redirect('manager/contacts');
+                    redirect('dashboard/contacts');
                 }
             }
         }

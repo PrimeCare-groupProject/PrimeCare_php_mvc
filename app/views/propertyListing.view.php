@@ -40,7 +40,7 @@
                 </ul>
             </div>
 
-            <form action="<?= ROOT ?>/propertyListing/showListing" method="GET">
+            <form action="<?= ROOT ?>/propertyListing/showListing" method="POST">
             <!-- Replace the nested form with a div -->
             <div class="PL_filter-section" style="width: 80vw;">
                 <div class="PL__filter">
@@ -82,7 +82,7 @@
                                 <select id="propRentalPeriodSelect" name="rental_period" onchange="togglePeriodDuration(this.value)" style="flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
                                     <option value="" selected<?= old_select('rental_period', '') ?>>Any Period</option>
                                     <option value="Monthly"<?= old_select('rental_period', 'Monthly') ?> selected>Monthly</option>
-                                    <option value="Daily"<?= old_select('rental_period', 'Daily') ?> >Daily</option>
+                                    <option value="Daily"<?= old_select('rental_period', 'Daily') ?>  >Daily</option>
                                 </select>
                                 <input type="number" id="periodDuration" name="period_duration" placeholder="No. of .." min="1" oninput="updateCheckoutDate()" style="width:100%; flex:1; padding:8px; margin:5px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:4px; " value="<?= old_value('period_duration') ?>">
                             </div>

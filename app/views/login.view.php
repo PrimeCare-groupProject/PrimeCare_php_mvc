@@ -19,7 +19,7 @@
     ?>
     <div class="login-container">
         <div class="login-form">
-            <a href="/php_mvc_backend/public/login">
+            <a href="/php_mvc_backend/public/home">
                 <img class="login-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
             </a>
             <div class="login-form__welcome-text">

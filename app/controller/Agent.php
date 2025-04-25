@@ -2099,8 +2099,7 @@ class Agent
         $this->view('agent/bookingaccept', ['bookings' => $bookings, 'images' => $images]);
     }
 
-    // ...existing code...
-public function bookinghistory($c = '', $d = '')
+    public function bookinghistory($c = '', $d = '')
     {
         switch ($c) {
             case 'showhistory':
