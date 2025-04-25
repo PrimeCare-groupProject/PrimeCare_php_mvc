@@ -1168,6 +1168,31 @@ class Manager
         }
     }
 
+    public function generateAgentReport()
+    {
+        // Include the library
+        require_once __DIR__ . '/../library/HtmlToPdf.php';
+
+        // Define HTML and CSS
+        $html = "
+        <h1>Agent Report</h1>
+        <p>This is a sample report for agents.</p>
+        <b>Generated on: " . date('Y-m-d H:i:s') . "</b>
+        ";
+        $css = "
+        h1 { color: blue; font-size: 24px; }
+        p { font-size: 14px; }
+        b { font-weight: bold; }
+        ";
+
+        // Generate PDF
+        $pdfGenerator = new HtmlToPdf($html, $css, 'output/agent_report.pdf');
+        $pdfGenerator->generatePdf();
+
+        // Redirect or display success message
+        echo "Agent report generated successfully!";
+    }
+
     public function contacts()
     {
         $randomMessages = new RandomMessage;

@@ -1,24 +1,75 @@
 <?php
 defined('ROOTPATH') or exit('Access denied');
 
-
 class Agent
 {
     use controller;
 
     public function index()
     {
-        $services = new ServiceLog();
-        $allServices = $services->findAll();
-        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
-        $this->view('agent/dashboard', ['services' => $limitedServices]);
+        $this->dashboard();
     }
 
+    /*public function dashboard()
+    {
+        $serviceLog = new ServiceLog();
+        $allServices = $serviceLog->findAll();
+        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
+
+        $services = new Services();
+        $tasks = $services->selecttwotables(
+            $serviceLog->table,
+            'service_id',
+            'services_id',
+            []
+        );
+
+        $this->view('agent/dashboard', [
+            'services' => $limitedServices,
+            'tasks' => $tasks,
+        ]);
+    }*/
+
     public function dashboard()
-    {   
-        $services = new ServiceLog;
-        $service = $services->findAll();
-        $this->view('agent/dashboard',['service' => $service] );
+    {
+        // Fetch total properties managed by the agent
+        $propertyModel = new Property();
+        $totalProperties = $propertyModel->getTotalCountWhere(['agent_id' => $_SESSION['user']->pid]);
+
+        // Fetch total service providers
+        $userModel = new User();
+        $totalServiceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]);
+
+        // Fetch total repair requests
+       /* $repairModel = new ProblemReport();
+        $totalRepairRequests = $repairModel->getTotalCountWhere(['agent_id' => $_SESSION['user']->pid]);*/
+
+        // Fetch total bookings
+        $bookingModel = new BookingOrders();
+        $totalBookings = $bookingModel->getTotalCountWhere(['person_id' => $_SESSION['user']->pid]);
+
+        $serviceLog = new ServiceLog();
+        $allServices = $serviceLog->findAll();
+        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
+        $newservices = $serviceLog->getTotalCountWhere(['status' => 'pending']);
+
+        $services = new Services();
+        $tasks = $services->selecttwotables(
+            $serviceLog->table,
+            'service_id',
+            'services_id',
+            []
+        );
+
+        // Pass data to the view
+        $this->view('agent/dashboard', [
+            'totalProperties' => $totalProperties,
+            'totalServiceProviders' => $totalServiceProviders,
+            'totalBookings' => $totalBookings,
+            'services' => $limitedServices,
+            'tasks' => $tasks,
+            'totalRepairRequests' => $newservices,
+        ]);
     }
 
     public function profile()

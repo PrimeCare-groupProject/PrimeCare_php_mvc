@@ -1,0 +1,11 @@
+{
+  "name": "yourname/html-to-pdf",
+  "description": "A custom library to convert HTML and CSS to PDF.",
+  "type": "library",
+  "autoload": {
+      "psr-4": {
+          "HtmlToPdf\\": "src/"
+      }
+  },
+  "require": {}
+}
