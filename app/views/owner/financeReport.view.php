@@ -63,122 +63,76 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                             <div class="stat-label">Tenants</div>
                             <div class="stat-value"><?= $activeBookings ?></div>
                         </div>
-                        <div class="stat-item">
+                        <!-- <div class="stat-item">
                             <div class="stat-label">Units</div>
                             <div class="stat-value"><?= $totalUnits ?></div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
             
             <!-- Right sidebar with tenants list -->
             <div class="sidebar-right">
-                <div class="savings-card">
-                    <div class="card-header">
+                <!-- <div class="savings-card"> -->
+                    <!-- <div class="card-header">
                         <span>Tenants</span>
-                    </div>
+                    </div> -->
                     <!-- Tenants list content here -->
                     <div class="tenants-list">
-    <?php if (!empty($bookings)): ?>
-        <?php 
-            // Track displayed tenants to avoid duplicates
-            $displayedTenantIds = []; 
-            foreach($bookings as $booking): 
-                // Use customer_id for tenant identification
-                $customerId = $booking->customer_id ?? null;
-                
-                // Skip if no customer ID or already displayed
-                if(!$customerId || in_array($customerId, $displayedTenantIds)) {
-                    continue;
-                }
-                $displayedTenantIds[] = $customerId;
-                
-                // Get tenant details from the tenantDetails array
-                $tenant = isset($tenantDetails[$customerId]) ? $tenantDetails[$customerId] : null;
-                
-                // Properly format tenant name with fallback options
-                if ($tenant) {
-                    if (!empty($tenant->name)) {
-                        $tenantName = $tenant->name;
-                    } elseif (!empty($tenant->fname)) {
-                        $tenantName = $tenant->fname . ' ' . ($tenant->lname ?? '');
-                    } else {
-                        $tenantName = 'Tenant #' . $customerId;
-                    }
-                } else {
-                    $tenantName = 'Tenant #' . $customerId;
-                }
-                
-                // Get tenant profile image if available
-                $defaultImage = ROOT . '/assets/images/serPro1.png';
-                $tenantImage = $defaultImage;
-                
-                if ($tenant && !empty($tenant->image_url)) {
-                    $imagePath = ROOT . '/assets/images/uploads/profile_pictures/' . $tenant->image_url;
-                    if(file_exists($_SERVER['DOCUMENT_ROOT'] . str_replace(ROOT, '', $imagePath))) {
-                        $tenantImage = $imagePath;
-                    }
-                }
-                
-                // Determine status and class for styling
-                $status = $booking->accept_status ?? 'pending';
-                $statusClass = '';
-                
-                switch(strtolower($status)) {
-                    case 'accepted':
-                        $statusClass = 'status-accepted';
-                        break;
-                    case 'pending':
-                        $statusClass = 'status-pending';
-                        break;
-                    case 'rejected':
-                        $statusClass = 'status-rejected';
-                        break;
-                    default:
-                        $statusClass = 'status-other';
+                        <h2>Current Tenants</h2>
+                        <div class="tenants-list-content">
+                        <?php if (empty($bookings)): ?>
+                            <div class="empty-tenants">
+                                <p>No active tenants found</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($bookings as $booking):
+                                // Get tenant information using person_id from booking_orders
+                                $tenantId = $booking->person_id ?? null;
+                                $tenant = null;
+                                $tenantName = 'Unknown Tenant';
+                                
+                                // Check if we have tenant details for this person_id
+                                if ($tenantId && isset($tenantDetails[$tenantId])) {
+                                    $tenant = $tenantDetails[$tenantId];
+                                    $tenantName = trim(($tenant->fname ?? '') . ' ' . ($tenant->lname ?? ''));
+                                    if (empty($tenantName)) {
+                                        $tenantName = 'Tenant #' . $tenantId;
+                                    }
                                 }
-                        ?>
-                        <div class="tenant <?= $statusClass ?>">
-                            <div class="tenant-avatar">
-                                <img src="<?= $tenantImage ?>" alt="<?= htmlspecialchars($tenantName) ?>">
-                            </div>
-                            <div class="tenant-info">
-                                <div class="tenant-main">
+                                
+                                // Get tenant profile image
+                                $defaultUserImage = ROOT . '/assets/images/user.png';
+                                $tenantImage = $defaultUserImage;
+                                
+                                if ($tenant && !empty($tenant->image_url)) {
+                                    $imagePath = ROOTPATH . 'public/assets/images/uploads/profile_pictures/' . $tenant->image_url;
+                                    if (file_exists($imagePath)) {
+                                        $tenantImage = ROOT . '/assets/images/uploads/profile_pictures/' . $tenant->image_url;
+                                    }
+                                }
+                            ?>
+                            <div class="tenant-item" data-status="<?= $booking->booking_status ?? 'Active' ?>">
+                                <div class="tenant-avatar">
+                                    <img src="<?= $tenantImage ?>" alt="<?= htmlspecialchars($tenantName) ?>">
+                                </div>
+                                <div class="tenant-info">
                                     <h4><?= htmlspecialchars($tenantName) ?></h4>
-                                    <!-- Status badge displayed separately -->
-                                    <span class="tenant-status <?= $statusClass ?>"><?= ucfirst($status) ?></span>
-                                </div>
-                                <div class="tenant-details">
-                                    <div class="detail-item">
-                                        <span>Since: <?= date('M Y', strtotime($booking->start_date ?? $booking->booked_date ?? date('Y-m-d'))) ?></span>
-                                    </div>
-                                    <?php if(isset($booking->renting_period)): ?>
-                                    <div class="detail-item">
-                                        <span>Duration: <?= $booking->renting_period ?> months</span>
-                                    </div>
-                                    <?php endif; ?>
-                                    <div class="detail-item">
-                                        <span>Rent: Rs. <?= number_format($booking->price ?? 0, 2) ?></span>
-                                    </div>
-                                    <?php if($tenant && isset($tenant->contact) && !empty($tenant->contact)): ?>
-                                    <div class="detail-item">
-                                        <span>Contact: <?= htmlspecialchars($tenant->contact) ?></span>
-                                    </div>
-                                    <?php endif; ?>
+                                    <span><i class="fas fa-home fa-sm"></i> Property ID: <?= $booking->property_id ?? 'N/A' ?></span>
+                                    <span><i class="fas fa-calendar fa-sm"></i> Since: <?= date('M Y', strtotime($booking->start_date ?? date('Y-m-d'))) ?></span>
+                                    <span><i class="fas fa-wallet fa-sm"></i> Rent: Rs. <?= number_format(
+                                        isset($booking->total_amount) ? $booking->total_amount : 
+                                        (isset($booking->rental_price) && isset($booking->duration) ? 
+                                        $booking->rental_price * $booking->duration : 0), 
+                                        2) ?>
+                                    </span>
+                                    <span><?= $booking->booking_status ?? 'Active' ?></span>
                                 </div>
                             </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                         </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="tenant">
-                            <div class="tenant-info">
-                                <div class="tenant-main">
-                                    <h4>No active tenants</h4>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                    </div>
 
                 </div>
             </div>
@@ -220,98 +174,105 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
         </div>
     </div>
     
-    <!-- Rest of your content -->
-    <!-- Statistics, Property Income, etc. -->
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Add Property Income Section at the top -->
         <div class="property-income-card">
-    <h2>Property Income</h2>
-    <div class="property-income-table">
-        <table>
-            <thead>
-                <tr>
-                    <th>Period</th>
-                    <th>Property</th>
-                    <th>Income</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $propertyIncomes = [];
-                // Calculate income for each property
-                if (!empty($properties)) {
-                    foreach ($properties as $property) {
-                        $income = 0;
-                        $activeBkgs = 0;
-                        if (!empty($bookings)) {
-                            foreach ($bookings as $booking) {
-                                if ($booking->property_id == $property->property_id) {
-                                    $income += $booking->price;
-                                    if(isset($booking->status) && strtolower($booking->status) === 'active' || 
-                                       isset($booking->accept_status) && strtolower($booking->accept_status) === 'accepted') {
-                                        $activeBkgs++;
+            <h2>Property Income</h2>
+            <div class="property-income-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Property</th>
+                            <th>Income</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $propertyIncomes = [];
+                        // Calculate income for each property
+                        if (!empty($properties)) {
+                            foreach ($properties as $property) {
+                                $income = 0;
+                                $activeBkgs = 0;
+                                if (!empty($bookings)) {
+                                    foreach ($bookings as $booking) {
+                                        if ($booking->property_id == $property->property_id) {
+                                            // Calculate booking amount from booking_orders correctly
+                                            if (isset($booking->total_amount)) {
+                                                $income += $booking->total_amount;
+                                            } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                                                $income += $booking->rental_price * $booking->duration;
+                                            } else {
+                                                $income += 0;
+                                            }
+                                            
+                                            // Update status check for active bookings from booking_orders
+                                            $bookingStatus = strtolower($booking->booking_status ?? '');
+                                            $paymentStatus = strtolower($booking->payment_status ?? '');
+                                            
+                                            if (($bookingStatus === 'confirmed' || $bookingStatus === 'completed') && 
+                                                $paymentStatus === 'paid') {
+                                                $activeBkgs++;
+                                            }
+                                        }
                                     }
                                 }
+                                $propertyIncomes[] = [
+                                    'name' => $property->name ?? ('Property #' . $property->property_id),
+                                    'income' => $income,
+                                    'active_bookings' => $activeBkgs,
+                                    'units' => $property->units ?? 0
+                                ];
                             }
                         }
-                        $propertyIncomes[] = [
-                            'name' => $property->name ?? ('Property #' . $property->property_id),
-                            'income' => $income,
-                            'active_bookings' => $activeBkgs,
-                            'units' => $property->units ?? 0
-                        ];
-                    }
-                }
 
-                if (!empty($propertyIncomes)):
-                    foreach ($propertyIncomes as $propertyIncome):
-                ?>
-                <tr>
-                    <td><?= date('F Y') ?></td>
-                    <td title="<?= htmlspecialchars($propertyIncome['name']) ?>">
-                        <?= strlen($propertyIncome['name']) > 20 
-                            ? htmlspecialchars(substr($propertyIncome['name'], 0, 20) . '...') 
-                            : htmlspecialchars($propertyIncome['name']) ?>
-                        <small>(<?= $propertyIncome['active_bookings'] ?>/<?= $propertyIncome['units'] ?> units)</small>
-                    </td>
-                    <td>Rs. <?= number_format($propertyIncome['income'], 2) ?></td>
-                </tr>
-                <?php endforeach; else: ?>
-                <tr>
-                    <td colspan="3">No property data</td>
-                </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-        <div class="stats-cards">
-    <div class="stat-card earnings">
-        <div class="stat-value">Rs. <?= number_format($totalIncome, 2) ?></div>
-        <div class="stat-label">Total Income</div>
-        <div class="stat-change <?= $totalIncome > $totalExpenses ? 'positive' : 'negative' ?>">
-            <?= number_format(($totalIncome > 0 ? ($profit/$totalIncome)*100 : 0), 1) ?>% profit margin
+                        if (!empty($propertyIncomes)):
+                            foreach ($propertyIncomes as $propertyIncome):
+                        ?>
+                        <tr>
+                            <td><?= date('F Y') ?></td>
+                            <td title="<?= htmlspecialchars($propertyIncome['name']) ?>">
+                                <?= strlen($propertyIncome['name']) > 20 
+                                    ? htmlspecialchars(substr($propertyIncome['name'], 0, 20) . '...') 
+                                    : htmlspecialchars($propertyIncome['name']) ?>
+                            </td>
+                            <td>Rs. <?= number_format($propertyIncome['income'], 2) ?></td>
+                        </tr>
+                        <?php endforeach; else: ?>
+                        <tr>
+                            <td colspan="3">No property data</td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
-    <div class="stat-card spendings">
-        <div class="stat-value">Rs. <?= number_format($totalExpenses, 2) ?></div>
-        <div class="stat-label">Total Expenses</div>
-        <div class="stat-change">
-            <?= $activeBookings ?> active bookings
-        </div>
-    </div>
+        <!-- <div class="stats-cards">
+            <div class="stat-card earnings">
+                <div class="stat-value">Rs. <?= number_format($totalIncome, 2) ?></div>
+                <div class="stat-label">Total Income</div>
+                <div class="stat-change <?= $totalIncome > $totalExpenses ? 'positive' : 'negative' ?>">
+                    <?= number_format(($totalIncome > 0 ? ($profit/$totalIncome)*100 : 0), 1) ?>% profit margin
+                </div>
+            </div>
 
-    <div class="stat-card profit">
-        <div class="stat-value">Rs. <?= number_format($profit, 2) ?></div>
-        <div class="stat-label">Net Profit</div>
-        <div class="stat-change <?= $occupancyRate > 50 ? 'positive' : 'negative' ?>">
-            <?= number_format($occupancyRate, 1) ?>% occupancy
-        </div>
-    </div>
-</div>
+            <div class="stat-card spendings">
+                <div class="stat-value">Rs. <?= number_format($totalExpenses, 2) ?></div>
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-change">
+                    <?= $activeBookings ?> active bookings
+                </div>
+            </div>
+
+            <div class="stat-card profit">
+                <div class="stat-value">Rs. <?= number_format($profit, 2) ?></div>
+                <div class="stat-label">Net Profit</div>
+                <div class="stat-change <?= $occupancyRate > 50 ? 'positive' : 'negative' ?>">
+                    <?= number_format($occupancyRate, 1) ?>% occupancy
+                </div>
+            </div>
+        </div> -->
 
         <div class="statistics-card">
             <div class="card-header">
@@ -420,9 +381,8 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
         <!-- Recent Transactions -->
         <div class="transactions-card">
             <div class="card-header">
-                <h3>Recent Transactions</h3>
-                <a href="#" class="view-all">View All</a>
-            </div>
+                    <h3>Recent Transactions</h3>
+                </div>
             <div class="transactions-table">
                 <table>
                     <thead>
@@ -438,50 +398,67 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                         $recentTransactions = [];
                         
                         // Add service logs as expenses
-                        foreach($serviceLogs as $log) {
-                            $recentTransactions[] = [
-                                'date' => $log->date,
-                                'description' => $log->service_description ?? $log->service_type,
-                                'category' => 'Expense',
-                                'amount' => -($log->total_cost)
-                            ];
+                        if (is_array($serviceLogs) && !empty($serviceLogs)) {
+                            foreach($serviceLogs as $log) {
+                                // Calculate total cost properly using cost_per_hour * total_hours if total_cost is missing
+                                $totalCost = isset($log->total_cost) ? $log->total_cost : 
+                                            (isset($log->cost_per_hour) && isset($log->total_hours) ? 
+                                            $log->cost_per_hour * $log->total_hours : 0);
+                                            
+                                $recentTransactions[] = [
+                                    'date' => $log->date ?? date('Y-m-d'),
+                                    'description' => $log->service_description ?? $log->service_type ?? 'Service Request',
+                                    'category' => 'Expense',
+                                    'amount' => -$totalCost
+                                ];
+                            }
                         }
                         
-                        // Add bookings as income
-                        foreach($bookings as $booking) {
-                            $recentTransactions[] = [
-                                'date' => $booking->booked_date,
-                                'description' => 'Rent payment for ' . date('M Y', strtotime($booking->start_date)),
-                                'category' => 'Income',
-                                'amount' => $booking->price
-                            ];
+                        // Add bookings as income from booking_orders
+                        if (is_array($bookings) && !empty($bookings)) {
+                            foreach($bookings as $booking) {
+                                // Calculate booking amount from booking_orders
+                                if (isset($booking->total_amount)) {
+                                    $bookingAmount = $booking->total_amount;
+                                } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                                    $bookingAmount = $booking->rental_price * $booking->duration;
+                                } else {
+                                    $bookingAmount = 0;
+                                }
+                                
+                                $recentTransactions[] = [
+                                    'date' => $booking->start_date ?? date('Y-m-d'),
+                                    'description' => 'Rent payment for ' . date('M Y', strtotime($booking->start_date ?? date('Y-m-d'))),
+                                    'category' => 'Income',
+                                    'amount' => $bookingAmount
+                                ];
+                            }
                         }
                         
                         // Sort by date (newest first)
                         usort($recentTransactions, function($a, $b) {
-                            return strtotime($b['date']) - strtotime($a['date']);
+                            return strtotime($b['date'] ?? date('Y-m-d')) - strtotime($a['date'] ?? date('Y-m-d'));
                         });
                         
                         // Show only the 5 most recent transactions
                         $recentTransactions = array_slice($recentTransactions, 0, 5);
                         
-                        foreach($recentTransactions as $transaction):
-                        ?>
-                        <tr>
-                            <td><?= date('Y-m-d', strtotime($transaction['date'])) ?></td>
-                            <td><?= htmlspecialchars($transaction['description']) ?></td>
-                            <td><span class="category-badge <?= strtolower($transaction['category']) ?>"><?= $transaction['category'] ?></span></td>
-                            <td class="<?= $transaction['amount'] >= 0 ? 'positive' : 'negative' ?>">
-                                Rs. <?= number_format(abs($transaction['amount']), 2) ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                        
-                        <?php if(empty($recentTransactions)): ?>
-                        <tr>
-                            <td colspan="4">No transaction data available</td>
-                        </tr>
-                        <?php endif; ?>
+                        if (empty($recentTransactions)): ?>
+                            <tr>
+                                <td colspan="4" class="text-center">No recent transactions found</td>
+                            </tr>
+                        <?php else:
+                            foreach($recentTransactions as $transaction): ?>
+                            <tr>
+                                <td><?= date('M d, Y', strtotime($transaction['date'] ?? date('Y-m-d'))) ?></td>
+                                <td><?= htmlspecialchars($transaction['description']) ?></td>
+                                <td><span class="category-badge <?= strtolower($transaction['category']) ?>"><?= $transaction['category'] ?></span></td>
+                                <td class="<?= $transaction['amount'] >= 0 ? 'positive' : 'negative' ?>">
+                                    LKR <?= number_format(abs($transaction['amount']), 2) ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; 
+                        endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -573,16 +550,128 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
             }
         });
 
-        // Initialize Income Sources Pie Chart
+        
+        // Income Sources Pie Chart showing Property-wise Income
         const incomeCtx = document.getElementById('incomeSourcesChart').getContext('2d');
-        new Chart(incomeCtx, {
+        
+        // Process property-wise income data
+        <?php
+        // Calculate property-wise income for different time periods
+        $propertyWiseIncome = [];
+        $propertyWiseIncomeLast6 = [];
+        $propertyWiseIncomeLast3 = [];
+        $propertyWiseIncomeCurrentMonth = [];
+        
+        // Current date references for filtering
+        $sixMonthsAgo = strtotime('-6 months');
+        $threeMonthsAgo = strtotime('-3 months');
+        $currentMonthStart = strtotime(date('Y-m-01'));
+        
+        if (!empty($properties) && !empty($bookings)) {
+            foreach ($properties as $property) {
+                $propertyName = $property->name ?? ('Property #' . $property->property_id);
+                $propertyWiseIncome[$propertyName] = 0;
+                $propertyWiseIncomeLast6[$propertyName] = 0;
+                $propertyWiseIncomeLast3[$propertyName] = 0;
+                $propertyWiseIncomeCurrentMonth[$propertyName] = 0;
+                
+                foreach ($bookings as $booking) {
+                    if ($booking->property_id == $property->property_id) {
+                        // Calculate booking amount
+                        if (isset($booking->total_amount)) {
+                            $amount = $booking->total_amount;
+                        } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                            $amount = $booking->rental_price * $booking->duration;
+                        } else {
+                            $amount = 0;
+                        }
+                        
+                        // Only count active bookings
+                        $bookingStatus = strtolower($booking->booking_status ?? '');
+                        $paymentStatus = strtolower($booking->payment_status ?? '');
+                        if (($bookingStatus === 'confirmed' || $bookingStatus === 'completed') && 
+                            $paymentStatus === 'paid') {
+                            
+                            // Add to all-time income
+                            $propertyWiseIncome[$propertyName] += $amount;
+                            
+                            // Check and add to period-specific income
+                            if (isset($booking->start_date)) {
+                                $bookingDate = strtotime($booking->start_date);
+                                
+                                if ($bookingDate >= $sixMonthsAgo) {
+                                    $propertyWiseIncomeLast6[$propertyName] += $amount;
+                                }
+                                
+                                if ($bookingDate >= $threeMonthsAgo) {
+                                    $propertyWiseIncomeLast3[$propertyName] += $amount;
+                                }
+                                
+                                if ($bookingDate >= $currentMonthStart) {
+                                    $propertyWiseIncomeCurrentMonth[$propertyName] += $amount;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        ?>
+        
+        // Store property-wise income data for different periods
+        const incomeSourcesData = {
+            'all': <?= json_encode($propertyWiseIncome) ?>,
+            '6': <?= json_encode($propertyWiseIncomeLast6) ?>,
+            '3': <?= json_encode($propertyWiseIncomeLast3) ?>,
+            '1': <?= json_encode($propertyWiseIncomeCurrentMonth) ?>
+        };
+        
+        // Color palette for property segments
+        const propertyColors = [
+            '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#795548', 
+            '#009688', '#673AB7', '#FFC107', '#FF5722', '#607D8B'
+        ];
+        
+        const propertyHoverColors = [
+            '#388E3C', '#1976D2', '#7B1FA2', '#F57C00', '#5D4037', 
+            '#00796B', '#512DA8', '#FFB300', '#E64A19', '#455A64'
+        ];
+        
+        // Format data for the chart
+        function formatPropertyIncomeData(data) {
+            // If no data, show a message
+            if (Object.keys(data).length === 0) {
+                return {
+                    labels: ['No Property Data'],
+                    values: [100],
+                    colors: ['#e0e0e0'],
+                    hoverColors: ['#d0d0d0']
+                };
+            }
+            
+            // Get property names and their income values
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+            
+            // Get colors for each property (cycling through the array if needed)
+            const colors = labels.map((_, index) => propertyColors[index % propertyColors.length]);
+            const hoverColors = labels.map((_, index) => propertyHoverColors[index % propertyHoverColors.length]);
+            
+            return { labels, values, colors, hoverColors };
+        }
+        
+        // Get initial data
+        const defaultPropertyData = formatPropertyIncomeData(incomeSourcesData.all);
+        
+        // Initialize income chart with property-wise data
+        const incomePieChart = new Chart(incomeCtx, {
             type: 'pie',
             data: {
-                labels: ['Rent', 'Other Income'],
+                labels: defaultPropertyData.labels,
                 datasets: [{
-                    data: [90, 10],
-                    backgroundColor: ['#4CAF50', '#FFC107'],
-                    hoverBackgroundColor: ['#388E3C', '#FFB300'],
+                    data: defaultPropertyData.values,
+                    backgroundColor: defaultPropertyData.colors,
+                    hoverBackgroundColor: defaultPropertyData.hoverColors,
                     borderWidth: 1
                 }]
             },
@@ -591,9 +680,13 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 12
+                        position: 'bottom',
+                        align: 'start',
+                        labels: { 
+                            boxWidth: 12,
+                            font: {
+                                size: 11
+                            }
                         }
                     },
                     tooltip: {
@@ -603,14 +696,58 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                                 const value = context.raw;
                                 const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                                 const percentage = Math.round((value / total) * 100);
-                                return label + ': ' + percentage + '%';
+                                return label + ': Rs. ' + value.toFixed(2) + ' (' + percentage + '%)';
                             }
                         }
                     }
                 }
             }
         });
-
+        
+        // Update the analytics details section to show property-wise breakdown
+        function updatePropertyIncomeDetails(data) {
+            const detailsContainer = document.querySelector('.analytics-card:nth-child(1) .analytics-details');
+            detailsContainer.innerHTML = '';
+            
+            if (Object.keys(data).length > 0) {
+                Object.entries(data).forEach(([property, amount]) => {
+                    detailsContainer.innerHTML += `
+                        <div class="detail-row">
+                            <span class="label">${property}:</span>
+                            <span class="value">Rs. ${parseFloat(amount).toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                detailsContainer.innerHTML = `
+                    <div class="detail-row">
+                        <span class="label">No income data available</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize with default data
+        updatePropertyIncomeDetails(incomeSourcesData.all);
+        
+        // Event handler for income filter
+        document.querySelector('#incomeFilter').addEventListener('change', function(e) {
+            const period = e.target.value;
+            const selectedData = incomeSourcesData[period];
+            const formattedData = formatPropertyIncomeData(selectedData);
+            
+            // Update chart data
+            incomePieChart.data.labels = formattedData.labels;
+            incomePieChart.data.datasets[0].data = formattedData.values;
+            incomePieChart.data.datasets[0].backgroundColor = formattedData.colors;
+            incomePieChart.data.datasets[0].hoverBackgroundColor = formattedData.hoverColors;
+            
+            // Update details section
+            updatePropertyIncomeDetails(selectedData);
+            
+            incomePieChart.update();
+        });
+        
         // Initialize Expense Breakdown Pie Chart
         const expenseCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
         
@@ -639,7 +776,8 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'right',
+                        position: 'bottom',
+                        align: 'start',
                         labels: {
                             boxWidth: 12
                         }
@@ -690,216 +828,128 @@ $profitMargin = ($totalIncome > 0) ? ($profit/$totalIncome)*100 : 0;
     });
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Create the statistics chart
-    const ctx = document.getElementById('statisticsChart').getContext('2d');
     
-    // Extract data from PHP
-    const months = <?= json_encode(array_keys($monthlyData)) ?>;
-    const incomeData = months.map(month => <?= json_encode(array_column($monthlyData, 'income')) ?>[months.indexOf(month)] || 0);
-    const expenseData = months.map(month => <?= json_encode(array_column($monthlyData, 'expense')) ?>[months.indexOf(month)] || 0);
-    const profitData = months.map(month => <?= json_encode(array_column($monthlyData, 'profit')) ?>[months.indexOf(month)] || 0);
-    const occupancyData = months.map(month => <?= json_encode(array_column($monthlyData, 'occupancy_rate')) ?>[months.indexOf(month)] || 0);
-    
-    const statisticsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: months,
-            datasets: [
-                {
-                    label: 'Income',
-                    data: incomeData,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Expenses',
-                    data: expenseData,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Profit',
-                    data: profitData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    hidden: true
-                },
-                {
-                    label: 'Occupancy Rate (%)',
-                    data: occupancyData,
-                    type: 'line',
-                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                    borderColor: 'rgba(255, 206, 86, 1)',
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    fill: false,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Amount (Rs.)'
-                    }
-                },
-                y1: {
-                    beginAtZero: true,
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: 'Occupancy Rate (%)'
-                    },
-                    max: 100,
-                    grid: {
-                        drawOnChartArea: false
-                    }
-                }
-            }
-        }
-    });
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // --- Existing chart initialization code ---
-    
-    // Income Sources Pie Chart with Filter Functionality
+    // Income Sources Pie Chart showing Property-wise Income
     const incomeCtx = document.getElementById('incomeSourcesChart').getContext('2d');
     
-    // Data for different time periods (to be populated from server)
-    const incomeSourcesData = {
-        'all': { rent: <?= $totalIncome * 0.9 ?>, other: <?= $totalIncome * 0.1 ?> },
-        '6': { rent: <?= $last6MonthsIncome * 0.9 ?? $totalIncome * 0.9 ?>, other: <?= $last6MonthsIncome * 0.1 ?? $totalIncome * 0.1 ?> },
-        '3': { rent: <?= $last3MonthsIncome * 0.9 ?? $totalIncome * 0.7 ?>, other: <?= $last3MonthsIncome * 0.1 ?? $totalIncome * 0.3 ?> },
-        '1': { rent: <?= $currentMonthIncome * 0.9 ?? $totalIncome * 0.85 ?>, other: <?= $currentMonthIncome * 0.1 ?? $totalIncome * 0.15 ?> }
-    };
+    // Process property-wise income data
+    <?php
+    // Calculate property-wise income for different time periods
+    $propertyWiseIncome = [];
+    $propertyWiseIncomeLast6 = [];
+    $propertyWiseIncomeLast3 = [];
+    $propertyWiseIncomeCurrentMonth = [];
     
-    // Initialize income chart with default data
-    const incomePieChart = new Chart(incomeCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Rent', 'Other Income'],
-            datasets: [{
-                data: [incomeSourcesData.all.rent, incomeSourcesData.all.other],
-                backgroundColor: ['#4CAF50', '#FFC107'],
-                hoverBackgroundColor: ['#388E3C', '#FFB300'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: { boxWidth: 12 }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const label = context.label || '';
-                            const value = context.raw;
-                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            const percentage = Math.round((value / total) * 100);
-                            return label + ': ' + percentage + '%';
+    // Current date references for filtering
+    $sixMonthsAgo = strtotime('-6 months');
+    $threeMonthsAgo = strtotime('-3 months');
+    $currentMonthStart = strtotime(date('Y-m-01'));
+    
+    if (!empty($properties) && !empty($bookings)) {
+        foreach ($properties as $property) {
+            $propertyName = $property->name ?? ('Property #' . $property->property_id);
+            $propertyWiseIncome[$propertyName] = 0;
+            $propertyWiseIncomeLast6[$propertyName] = 0;
+            $propertyWiseIncomeLast3[$propertyName] = 0;
+            $propertyWiseIncomeCurrentMonth[$propertyName] = 0;
+            
+            foreach ($bookings as $booking) {
+                if ($booking->property_id == $property->property_id) {
+                    // Calculate booking amount
+                    if (isset($booking->total_amount)) {
+                        $amount = $booking->total_amount;
+                    } else if (isset($booking->rental_price) && isset($booking->duration)) {
+                        $amount = $booking->rental_price * $booking->duration;
+                    } else {
+                        $amount = 0;
+                    }
+                    
+                    // Only count active bookings
+                    $bookingStatus = strtolower($booking->booking_status ?? '');
+                    $paymentStatus = strtolower($booking->payment_status ?? '');
+                    if (($bookingStatus === 'confirmed' || $bookingStatus === 'completed') && 
+                        $paymentStatus === 'paid') {
+                        
+                        // Add to all-time income
+                        $propertyWiseIncome[$propertyName] += $amount;
+                        
+                        // Check and add to period-specific income
+                        if (isset($booking->start_date)) {
+                            $bookingDate = strtotime($booking->start_date);
+                            
+                            if ($bookingDate >= $sixMonthsAgo) {
+                                $propertyWiseIncomeLast6[$propertyName] += $amount;
+                            }
+                            
+                            if ($bookingDate >= $threeMonthsAgo) {
+                                $propertyWiseIncomeLast3[$propertyName] += $amount;
+                            }
+                            
+                            if ($bookingDate >= $currentMonthStart) {
+                                $propertyWiseIncomeCurrentMonth[$propertyName] += $amount;
+                            }
                         }
                     }
                 }
             }
         }
-    });
-    
-    // Expense Breakdown Pie Chart with Filter Functionality
-    const expenseCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
-    
-    // Process expense data for different time periods
-    <?php 
-    // Prepare expense data for different periods
-    $allExpenseTypes = [];
-    $last6MonthsExpenseTypes = [];
-    $last3MonthsExpenseTypes = [];
-    $currentMonthExpenseTypes = [];
-    
-    foreach($serviceLogs as $log) {
-        $type = $log->service_type;
-        $cost = $log->cost_per_hour * $log->total_hours;
-        $logDate = strtotime($log->date);
-        $sixMonthsAgo = strtotime('-6 months');
-        $threeMonthsAgo = strtotime('-3 months');
-        $currentMonthStart = strtotime(date('Y-m-01'));
-        
-        // All time expenses
-        if(!isset($allExpenseTypes[$type])) $allExpenseTypes[$type] = 0;
-        $allExpenseTypes[$type] += $cost;
-        
-        // Last 6 months expenses
-        if($logDate >= $sixMonthsAgo) {
-            if(!isset($last6MonthsExpenseTypes[$type])) $last6MonthsExpenseTypes[$type] = 0;
-            $last6MonthsExpenseTypes[$type] += $cost;
-        }
-        
-        // Last 3 months expenses
-        if($logDate >= $threeMonthsAgo) {
-            if(!isset($last3MonthsExpenseTypes[$type])) $last3MonthsExpenseTypes[$type] = 0;
-            $last3MonthsExpenseTypes[$type] += $cost;
-        }
-        
-        // Current month expenses
-        if($logDate >= $currentMonthStart) {
-            if(!isset($currentMonthExpenseTypes[$type])) $currentMonthExpenseTypes[$type] = 0;
-            $currentMonthExpenseTypes[$type] += $cost;
-        }
     }
     ?>
     
-    // Store expense data for different periods
-    const expenseData = {
-        'all': <?= json_encode($allExpenseTypes) ?>,
-        '6': <?= json_encode($last6MonthsExpenseTypes) ?>,
-        '3': <?= json_encode($last3MonthsExpenseTypes) ?>,
-        '1': <?= json_encode($currentMonthExpenseTypes) ?>
+    // Store property-wise income data for different periods
+    const incomeSourcesData = {
+        'all': <?= json_encode($propertyWiseIncome) ?>,
+        '6': <?= json_encode($propertyWiseIncomeLast6) ?>,
+        '3': <?= json_encode($propertyWiseIncomeLast3) ?>,
+        '1': <?= json_encode($propertyWiseIncomeCurrentMonth) ?>
     };
     
-    // Format expense data for the chart
-    function formatExpenseData(data) {
-        // Use default data if nothing available
+    // Color palette for property segments
+    const propertyColors = [
+        '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#795548', 
+        '#009688', '#673AB7', '#FFC107', '#FF5722', '#607D8B'
+    ];
+    
+    const propertyHoverColors = [
+        '#388E3C', '#1976D2', '#7B1FA2', '#F57C00', '#5D4037', 
+        '#00796B', '#512DA8', '#FFB300', '#E64A19', '#455A64'
+    ];
+    
+    // Format data for the chart
+    function formatPropertyIncomeData(data) {
+        // If no data, show a message
         if (Object.keys(data).length === 0) {
             return {
-                labels: ['Maintenance', 'Repairs', 'Utilities', 'Other'],
-                values: [40, 30, 20, 10],
-                colors: ['#FF5722', '#9C27B0', '#2196F3', '#607D8B'],
-                hoverColors: ['#E64A19', '#7B1FA2', '#1976D2', '#455A64']
+                labels: ['No Property Data'],
+                values: [100],
+                colors: ['#e0e0e0'],
+                hoverColors: ['#d0d0d0']
             };
         }
         
-        // Format the real data
-        return {
-            labels: Object.keys(data).map(type => type.charAt(0).toUpperCase() + type.slice(1)),
-            values: Object.values(data),
-            colors: ['#FF5722', '#9C27B0', '#2196F3', '#607D8B', '#FF9800', '#795548', '#009688', '#673AB7'],
-            hoverColors: ['#E64A19', '#7B1FA2', '#1976D2', '#455A64', '#F57C00', '#5D4037', '#00796B', '#512DA8']
-        };
+        // Get property names and their income values
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+        
+        // Get colors for each property (cycling through the array if needed)
+        const colors = labels.map((_, index) => propertyColors[index % propertyColors.length]);
+        const hoverColors = labels.map((_, index) => propertyHoverColors[index % propertyHoverColors.length]);
+        
+        return { labels, values, colors, hoverColors };
     }
     
-    // Initialize with default 'all time' data
-    const defaultExpenseData = formatExpenseData(expenseData.all);
+    // Get initial data
+    const defaultPropertyData = formatPropertyIncomeData(incomeSourcesData.all);
     
-    const expensePieChart = new Chart(expenseCtx, {
+    // Initialize income chart with property-wise data
+    const incomePieChart = new Chart(incomeCtx, {
         type: 'pie',
         data: {
-            labels: defaultExpenseData.labels,
+            labels: defaultPropertyData.labels,
             datasets: [{
-                data: defaultExpenseData.values,
-                backgroundColor: defaultExpenseData.colors.slice(0, defaultExpenseData.labels.length),
-                hoverBackgroundColor: defaultExpenseData.hoverColors.slice(0, defaultExpenseData.labels.length),
+                data: defaultPropertyData.values,
+                backgroundColor: defaultPropertyData.colors,
+                hoverBackgroundColor: defaultPropertyData.hoverColors,
                 borderWidth: 1
             }]
         },
@@ -908,8 +958,14 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'right',
-                    labels: { boxWidth: 12 }
+                    position: 'bottom',
+                    align: 'start',
+                    labels: { 
+                        boxWidth: 12,
+                        font: {
+                            size: 11
+                        }
+                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -926,168 +982,367 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Event handlers for the filter selects
-    document.querySelector('#incomeFilter').addEventListener('change', function(e) {
-        const period = e.target.value;
-        const selectedData = incomeSourcesData[period];
-        
-        // Update the chart data
-        incomePieChart.data.datasets[0].data = [selectedData.rent, selectedData.other];
-        
-        // Update the detail rows below the chart
-        document.querySelector('.analytics-details .detail-row:nth-child(1) .value').textContent = 
-            'Rs. ' + selectedData.rent.toFixed(2);
-        document.querySelector('.analytics-details .detail-row:nth-child(2) .value').textContent = 
-            'Rs. ' + selectedData.other.toFixed(2);
-        
-        incomePieChart.update();
-    });
-    
-    document.querySelector('#expenseFilter').addEventListener('change', function(e) {
-        const period = e.target.value;
-        const formattedData = formatExpenseData(expenseData[period]);
-        
-        // Update the chart data
-        expensePieChart.data.labels = formattedData.labels;
-        expensePieChart.data.datasets[0].data = formattedData.values;
-        expensePieChart.data.datasets[0].backgroundColor = formattedData.colors.slice(0, formattedData.labels.length);
-        expensePieChart.data.datasets[0].hoverBackgroundColor = formattedData.hoverColors.slice(0, formattedData.labels.length);
-        
-        // Update the expense details section
-        const detailsContainer = document.querySelector('.analytics-card:nth-child(2) .analytics-details');
+    // Update the analytics details section to show property-wise breakdown
+    function updatePropertyIncomeDetails(data) {
+        const detailsContainer = document.querySelector('.analytics-card:nth-child(1) .analytics-details');
         detailsContainer.innerHTML = '';
         
-        if(formattedData.labels.length > 0) {
-            formattedData.labels.forEach((label, index) => {
+        if (Object.keys(data).length > 0) {
+            Object.entries(data).forEach(([property, amount]) => {
                 detailsContainer.innerHTML += `
                     <div class="detail-row">
-                        <span class="label">${label}:</span>
-                        <span class="value">Rs. ${formattedData.values[index].toFixed(2)}</span>
+                        <span class="label">${property}:</span>
+                        <span class="value">Rs. ${parseFloat(amount).toFixed(2)}</span>
                     </div>
                 `;
             });
         } else {
             detailsContainer.innerHTML = `
                 <div class="detail-row">
-                    <span class="label">No expense data available</span>
+                    <span class="label">No income data available</span>
                 </div>
             `;
         }
+    }
+    
+    // Initialize with default data
+    updatePropertyIncomeDetails(incomeSourcesData.all);
+    
+    // Event handler for income filter
+    document.querySelector('#incomeFilter').addEventListener('change', function(e) {
+        const period = e.target.value;
+        const selectedData = incomeSourcesData[period];
+        const formattedData = formatPropertyIncomeData(selectedData);
         
-        expensePieChart.update();
+        // Update chart data
+        incomePieChart.data.labels = formattedData.labels;
+        incomePieChart.data.datasets[0].data = formattedData.values;
+        incomePieChart.data.datasets[0].backgroundColor = formattedData.colors;
+        incomePieChart.data.datasets[0].hoverBackgroundColor = formattedData.hoverColors;
+        
+        // Update details section
+        updatePropertyIncomeDetails(selectedData);
+        
+        incomePieChart.update();
     });
-});
+    
+    // Initialize Expense Breakdown Pie Chart
+    const expenseCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
+    
+    // Process expense data from PHP
+    const expenseTypes = <?= json_encode($expenseTypes ?? []) ?>;
+    const expenseLabels = Object.keys(expenseTypes).map(type => type.charAt(0).toUpperCase() + type.slice(1));
+    const expenseValues = Object.values(expenseTypes);
+    
+    // Use default data if no real data available
+    const chartLabels = expenseLabels.length ? expenseLabels : ['Maintenance', 'Repairs', 'Utilities', 'Other'];
+    const chartData = expenseValues.length ? expenseValues : [40, 30, 20, 10];
+    
+    new Chart(expenseCtx, {
+        type: 'pie',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                data: chartData,
+                backgroundColor: ['#FF5722', '#9C27B0', '#2196F3', '#607D8B'],
+                hoverBackgroundColor: ['#E64A19', '#7B1FA2', '#1976D2', '#455A64'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return label + ': ' + percentage + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+        // Period selector change handler
+        document.querySelector('#chartPeriod').addEventListener('change', function(e) {
+            const period = e.target.value;
+            const profitDataset = statisticsChart.data.datasets[2];
+            
+            if (period === 'yearly') {
+                // Show profit, hide expenses
+                profitDataset.hidden = false;
+                statisticsChart.data.datasets[1].hidden = true;
+            } else {
+                // Show expenses, hide profit
+                profitDataset.hidden = true;
+                statisticsChart.data.datasets[1].hidden = false;
+            }
+            
+            statisticsChart.update();
+        });
+
+        // Filter handlers for analytics charts
+        document.querySelector('#incomeFilter').addEventListener('change', function(e) {
+            console.log('Income filter changed to:', e.target.value);
+            // In a real application, this would filter the data based on the selected time period
+        });
+
+        document.querySelector('#expenseFilter').addEventListener('change', function(e) {
+            console.log('Expense filter changed to:', e.target.value);
+            // In a real application, this would filter the data based on the selected time period
+        });
+    });
 </script>
 <link rel="stylesheet" href="<?= ROOT ?>/assets/css/finance-report.css">
 
 <style>
-    /* Status Badge Styles */
-    .tenant-avatar {
-        position: relative;
-    }
-    
-    .status-badge {
-        position: absolute;
-        bottom: -5px;
-        right: -5px;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 10px;
-        color: white;
-        font-weight: 500;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    
-    /* Status Colors */
-    .status-badge.status-accepted {
-        background-color: #4CAF50;
-    }
-    
-    .status-badge.status-pending {
-        background-color: #FFC107;
-        color: #333;
-    }
-    
-    .status-badge.status-rejected {
-        background-color: #F44336;
-    }
-    
-    .status-badge.status-other {
-        background-color: #9E9E9E;
-    }
-    
-    /* Status Borders */
-    .tenant.status-accepted {
-        border-left: 3px solid #4CAF50;
-    }
-    
-    .tenant.status-pending {
-        border-left: 3px solid #FFC107;
-    }
-    
-    .tenant.status-rejected {
-        border-left: 3px solid #F44336;
-    }
-    
-    .tenant.status-other {
-        border-left: 3px solid #9E9E9E;
-    }
+/* Critical Ui update */
 
-    /* Status Badge Styles */
-    .tenant-status {
-        display: inline-block;
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        margin-left: 10px;
-        color: white;
-    }
-    
-    .tenant-status.status-accepted {
-        background-color: #4CAF50;
-    }
-    
-    .tenant-status.status-pending {
-        background-color: #FFC107;
-        color: #333;
-    }
-    
-    .tenant-status.status-rejected {
-        background-color: #F44336;
-    }
-    
-    .tenant-status.status-other {
-        background-color: #9E9E9E;
-    }
-    
-    /* Tenant main section styles */
-    .tenant-main {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-    }
-    
-    .tenant-main h4 {
-        margin: 0;
-    }
-    
-    /* Border styles for tenant cards */
-    .tenant.status-accepted {
-        border-left: 3px solid #4CAF50;
-    }
-    
-    .tenant.status-pending {
-        border-left: 3px solid #FFC107;
-    }
-    
-    .tenant.status-rejected {
-        border-left: 3px solid #F44336;
-    }
-    
-    .tenant.status-other {
-        border-left: 3px solid #9E9E9E;
-    }
+.statistics-card{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.financial-summary-card{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.property-income-card{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.transactions-card{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.tenants-list {
+    background: white;
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    max-height: 400px; 
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.tenants-list h2 {
+    margin-bottom: 15px;
+    flex-shrink: 0; /* Prevent header from scrolling */
+}
+
+.tenants-list-content {
+    overflow-y: auto; 
+    padding-right: 5px; 
+    margin-right: -5px; 
+    flex-grow: 1;
+}
+
+/* Modern scrollbar styling */
+.tenants-list-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tenants-list-content::-webkit-scrollbar-track {
+    background: rgba(240, 242, 250, 0.5);
+    border-radius: 10px;
+}
+
+.detailed-analytics{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.tenants-list-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #4e6ef7, #7f53ea);
+    border-radius: 10px;
+}
+
+.tenants-list-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #3f5ce1, #6e44d5);
+}
+
+/* Firefox scrollbar styling */
+.tenants-list-content {
+    scrollbar-width: thin;
+    scrollbar-color: #FFD600 #f0f2fa; 
+}
+
+/* Tenant Card Styling */
+.tenant-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tenant-item:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #4e6ef7, #7f53ea);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.tenant-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(78, 89, 105, 0.12);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* Enhanced Tenant Avatar Styling */
+.tenant-avatar {
+    position: relative;
+    margin-right: 18px;
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tenant-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%; /* Make it perfectly circular */
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 3px solid #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Improve avatar container alignment */
+.tenant-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 64px; /* Match avatar height for alignment */
+}
+
+.tenant-info h4 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.2px;
+}
+
+.tenant-info span {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 5px;
+    gap: 6px;
+}
+
+.tenant-info span i {
+    color: #7f53ea;
+    font-size: 12px;
+    width: 14px;
+    text-align: center;
+}
+
+/* Status Indicator */
+.tenant-info span:last-child {
+    margin-top: 8px;
+    font-weight: 500;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    background: rgba(80, 200, 120, 0.12);
+    color: rgb(60, 180, 100);
+    align-self: flex-start;
+}
+
+/* Status Colors */
+.tenant-item[data-status="Active"]:before,
+.tenant-item[data-status="Confirmed"]:before {
+    background: linear-gradient(to bottom, #50C878, #4CAF50);
+}
+
+.tenant-item[data-status="Pending"]:before {
+    background: linear-gradient(to bottom, #FFC107, #FF9800);
+}
+
+.tenant-item[data-status="Cancelled"]:before {
+    background: linear-gradient(to bottom, #FF5252, #F44336);
+}
+
+.tenant-item[data-status="Cancel Requested"]:before {
+    background: linear-gradient(to bottom, #FF4081, #E91E63);
+}
+
+.tenant-item[data-status="Active"] .tenant-info span:last-child,
+.tenant-item[data-status="Confirmed"] .tenant-info span:last-child {
+    background: rgba(76, 175, 80, 0.12);
+    color: rgb(60, 150, 70);
+}
+
+.tenant-item[data-status="Pending"] .tenant-info span:last-child {
+    background: rgba(255, 193, 7, 0.12);
+    color: rgb(200, 150, 0);
+}
+
+.tenant-item[data-status="Cancelled"] .tenant-info span:last-child {
+    background: rgba(244, 67, 54, 0.12);
+    color: rgb(200, 60, 50);
+}
+
+.tenant-item[data-status="Cancel Requested"] .tenant-info span:last-child {
+    background: linear-gradient(90deg, #ffe4ec 60%, #ffd6e3 100%);
+    color: #e91e63;
+}
+
+/* Empty State */
+.empty-tenants {
+    padding: 35px 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border: 1px dashed #ddd;
+    margin-top: 10px;
+}
+
+.empty-tenants p {
+    margin: 0;
+    font-size: 14px;
+}
 </style>
 
 <?php require_once 'ownerFooter.view.php'; ?>
