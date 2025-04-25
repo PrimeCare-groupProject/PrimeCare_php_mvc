@@ -206,7 +206,11 @@
                             }
                             ?>
                             <a href="<?= $detail_url ?>">
-                                <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image">
+                                <?php 
+                                    $property_images = explode(',', $property->property_images);
+                                    $first_image = !empty($property_images[0]) ? $property_images[0] : "";
+                                ?>
+                                <img src="<?= get_img($first_image, 'property') ?>" alt="property" class="property-card-image">
                             </a>
                             <div class="content-section-of-card">
                                 <div class="address">

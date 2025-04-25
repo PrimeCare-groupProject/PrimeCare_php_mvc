@@ -289,8 +289,8 @@ body {
 }
 
 .property-card-image {
-    width: 350px;
-    max-height: 250px;
+    /* width: 350px; */
+    height: 250px;
     overflow: hidden;
     /* border-radius: 15px; */
     object-fit: contain;
