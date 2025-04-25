@@ -1799,10 +1799,18 @@ class Owner
 
     public function showReviews()
     {
+    // Initialize the ReviewsProperty model
+    $reviewsModel = new ReviewsProperty();
+
+    // Fetch all reviews (you can filter by property_id if needed)
+    $reviews = $reviewsModel->findAll();
+
+    // Pass the reviews to the view
         $this->view('owner/showReviews', [
             'user' => $_SESSION['user'],
             'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? ''
+            'status' => $_SESSION['status'] ?? '',
+            'reviews' => $reviews,
         ]);
     }
 
