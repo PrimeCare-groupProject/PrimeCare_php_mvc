@@ -56,7 +56,18 @@
         </div>
         <div class="stat-item">
             <div class="stat-value"><?= $tasksCount ?></div>
-            <div class="stat-label">Active Tasks</div>
+            <div class="stat-label">Completed Tasks</div>
+            <?php if (($pendingTasksCount + $externalRequestsCount) < $tasksCount): ?>
+            <div class="balloon-container">
+                <div class="balloon balloon-1"></div>
+                <div class="balloon balloon-2"></div>
+                <div class="balloon balloon-3"></div>
+                <div class="balloon balloon-4"></div>
+                <div class="balloon balloon-5"></div>
+                <div class="balloon balloon-6"></div>
+                <div class="celebration-message">Great job on completing tasks!</div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -305,6 +316,164 @@
         transform: rotate(360deg);
     }
 } */
+
+.stat-item {
+    position: relative; 
+}
+
+.balloon-container {
+    position: absolute;
+    bottom: 80px; /* Position above the stat value */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    animation: balloon-entry 1.5s ease-out forwards;
+    pointer-events: none;
+    width: 140px; 
+}
+
+@keyframes balloon-entry {
+    0% { 
+        bottom: 30px; 
+        transform: translateX(-50%) scale(0.3);
+        opacity: 0;
+    }
+    40% { 
+        bottom: 80px; 
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+    60% { 
+        bottom: 75px; 
+        transform: translateX(-50%) scale(1);
+    }
+    100% { 
+        bottom: 78px; 
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+/* Update balloon exit animation */
+@keyframes balloon-exit {
+    0% { 
+        bottom: 78px; 
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+    100% { 
+        bottom: 150px; 
+        opacity: 0;
+        transform: translateX(-50%) scale(0.5);
+    }
+}
+
+/* Update celebration message position */
+.celebration-message {
+    position: absolute;
+    white-space: nowrap;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    opacity: 0;
+    animation: message-appear 1s ease-out 1s forwards;
+}
+
+@keyframes message-appear {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Balloon Animation - Add these missing styles */
+.balloon {
+    position: absolute;
+    width: 30px;
+    height: 40px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform-origin: bottom center;
+    animation: balloon-float 4s ease-in-out infinite alternate;
+}
+
+.balloon::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 50px;
+    background: rgba(0,0,0,0.2);
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.balloon-1 {
+    background: linear-gradient(135deg, #ff5722, #ff9800);
+    left: -40px;
+    animation-delay: 0.2s;
+}
+
+.balloon-2 {
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    left: -10px;
+    top: -20px;
+    animation-delay: 0.5s;
+}
+
+.balloon-3 {
+    background: linear-gradient(135deg, #2196F3, #03A9F4);
+    left: 20px;
+    top: 10px;
+    animation-delay: 0.1s;
+}
+
+.balloon-4 {
+    background: linear-gradient(135deg, #9C27B0, #673AB7);
+    left: 50px;
+    top: -15px;
+    animation-delay: 0.7s;
+}
+
+.balloon-5 {
+    background: linear-gradient(135deg, #F44336, #E91E63);
+    left: 80px;
+    animation-delay: 0.3s;
+}
+
+.balloon-6 {
+    background: linear-gradient(135deg, #FFC107, #FFEB3B);
+    left: 110px;
+    top: 5px;
+    animation-delay: 0.6s;
+}
+
+@keyframes balloon-float {
+    0% { 
+        transform: translateY(0) rotate(-2deg); 
+    }
+    25% { 
+        transform: translateY(-8px) rotate(3deg); 
+    }
+    50% { 
+        transform: translateY(0) rotate(-1deg); 
+    }
+    75% { 
+        transform: translateY(-4px) rotate(2deg); 
+    }
+    100% { 
+        transform: translateY(0) rotate(0); 
+    }
+}
 </style>
 
 <script>
@@ -322,6 +491,42 @@
             link.addEventListener('click', displayLoader);
         }
     });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the balloon container if it exists
+    const balloonContainer = document.querySelector('.balloon-container');
+    
+    if (balloonContainer) {
+        // Add a click handler to hide the balloons when clicked
+        document.addEventListener('click', function() {
+            balloonContainer.style.animation = 'balloon-exit 1s ease-in forwards';
+        });
+        
+        // Auto-hide after 8 seconds
+        setTimeout(function() {
+            balloonContainer.style.animation = 'balloon-exit 1s ease-in forwards';
+        }, 8000);
+    }
+});
+
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+    @keyframes balloon-exit {
+        0% { 
+            bottom: 78px; 
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+        100% { 
+            bottom: 150px; 
+            opacity: 0;
+            transform: translateX(-50%) scale(0.5);
+        }
+    }
+    </style>
+`);
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>
