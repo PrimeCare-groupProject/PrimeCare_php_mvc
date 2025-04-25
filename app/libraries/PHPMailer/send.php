@@ -58,8 +58,8 @@ function sendMail($to, $subject, $body, $from = 'support.primecare@gmail.com', $
     } catch (Exception $e) {
         $status['error'] = true;
         $status['message'] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        echo    "Mailer Error: {$mail->ErrorInfo}";
-        die;
+        // echo    "Mailer Error: {$mail->ErrorInfo}";
+        // die;
     }
     return $status;
 }

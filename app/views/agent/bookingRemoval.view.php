@@ -112,7 +112,7 @@
             </div>
         <?php endforeach; ?>
     <?php else: ?>
-        <p class="booking-empty" style="text-align:center; padding: 15px">No Booking Request found.</p>
+        <p class="booking-empty" style="text-align:center; padding: 15px">No Booking Removal Request found.</p>
     <?php endif; ?>
 </div>
 

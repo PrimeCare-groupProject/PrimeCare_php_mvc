@@ -15,19 +15,19 @@ class Review
 
             $data = [
                 'property_id' => $propertyId,
-                'customer_name' => $name,
-                'description' => $review,
+                'person_id' => $_SESSION['user']->pid,
+                'message' => $review,
                 'rating' => $rating
             ];
 
-            $review = new ReviewModel;
+            $review = new ReviewsProperty;
             $review->insert($data);
 
             $property = new PropertyConcat;
             $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         //show($propertyUnit);
 
-            $reviews = $review->findAll();
+            $reviews = $review->where(['property_id' => $propertyId]);
             $this->view('customer/propertyUnit', ['property' => $propertyUnit, 'reviews' => $reviews]);
 
         }   

@@ -6,46 +6,35 @@ class Manager
 {
     use controller;
     public function index()
+    {   
+        $this->dashboard();
+    }
+
+    public function dashboard()
     {
-        // Load the required models
-        $propertyModel = new Property();
-        $userModel = new User();
-        $bookingOrders = new BookingOrders();
-
+         // Load the required models
+         $propertyModel = new Property();
+         $userModel = new User();
+         $bookingOrders = new BookingOrders();
+         $agentAssignmentModel = new agentAssignment();
+ 
+         // Fetch recent agent assignments
+        $recentAssignments = $agentAssignmentModel->findAll();
         // Fetch the required data
-        $totalProperties = $propertyModel->getTotalCountWhere();
-        $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
-        $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
-        $tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']); // Assuming user_lvl = 2 for service providers
-
+         $totalProperties = $propertyModel->getTotalCountWhere();
+         $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
+         $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
+         $tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']); // Assuming user_lvl = 2 for service providers
         // Pass the data to the view
         $this->view('manager/dashboard', [
             'totalProperties' => $totalProperties,
             'registeredAgents' => $registeredAgents,
             'serviceProviders' => $serviceProviders,
-            'tenents' => $tenents
+            'tenents' => $tenents,
+            'recentAssignments' => $recentAssignments
         ]);
-        show($serviceProviders);
-    }
 
-    public function dashboard()
-    {
-        // Load the required models
-        $propertyModel = new Property();
-        $userModel = new User();
-        $serviceProviderModel = new ServiceProvider();
 
-        // Fetch the required data
-        $totalProperties = $propertyModel->getTotalCountWhere();
-        $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
-        $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for tenants
-
-        // Pass the data to the view
-        /*$this->view('manager/dashboard', [
-            'totalProperties' => $totalProperties,
-            'registeredAgents' => $registeredAgents,
-            'serviceProviders' => $serviceProviders
-        ]);*/
     }
 
     public function generateUsername($fname, $length = 10)
@@ -1179,6 +1168,31 @@ class Manager
         }
     }
 
+    public function generateAgentReport()
+    {
+        // Include the library
+        require_once __DIR__ . '/../library/HtmlToPdf.php';
+
+        // Define HTML and CSS
+        $html = "
+        <h1>Agent Report</h1>
+        <p>This is a sample report for agents.</p>
+        <b>Generated on: " . date('Y-m-d H:i:s') . "</b>
+        ";
+        $css = "
+        h1 { color: blue; font-size: 24px; }
+        p { font-size: 14px; }
+        b { font-weight: bold; }
+        ";
+
+        // Generate PDF
+        $pdfGenerator = new HtmlToPdf($html, $css, 'output/agent_report.pdf');
+        $pdfGenerator->generatePdf();
+
+        // Redirect or display success message
+        echo "Agent report generated successfully!";
+    }
+
     public function contacts()
     {
         $randomMessages = new RandomMessage;
@@ -1251,7 +1265,7 @@ class Manager
                     $randomMessages->update($pid, ['status' => 0], 'pid');
                     $_SESSION['flash']['msg'] = "Message marked as complete.";
                     $_SESSION['flash']['type'] = "success";
-                    redirect('manager/contacts');
+                    redirect('dashboard/contacts');
                 }
             }
         }

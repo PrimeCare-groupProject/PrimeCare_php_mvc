@@ -1,24 +1,75 @@
 <?php
 defined('ROOTPATH') or exit('Access denied');
 
-
 class Agent
 {
     use controller;
 
     public function index()
     {
-        $services = new ServiceLog();
-        $allServices = $services->findAll();
-        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
-        $this->view('agent/dashboard', ['services' => $limitedServices]);
+        $this->dashboard();
     }
 
+    /*public function dashboard()
+    {
+        $serviceLog = new ServiceLog();
+        $allServices = $serviceLog->findAll();
+        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
+
+        $services = new Services();
+        $tasks = $services->selecttwotables(
+            $serviceLog->table,
+            'service_id',
+            'services_id',
+            []
+        );
+
+        $this->view('agent/dashboard', [
+            'services' => $limitedServices,
+            'tasks' => $tasks,
+        ]);
+    }*/
+
     public function dashboard()
-    {   
-        $services = new ServiceLog;
-        $service = $services->findAll();
-        $this->view('agent/dashboard',['service' => $service] );
+    {
+        // Fetch total properties managed by the agent
+        $propertyModel = new Property();
+        $totalProperties = $propertyModel->getTotalCountWhere(['agent_id' => $_SESSION['user']->pid]);
+
+        // Fetch total service providers
+        $userModel = new User();
+        $totalServiceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]);
+
+        // Fetch total repair requests
+       /* $repairModel = new ProblemReport();
+        $totalRepairRequests = $repairModel->getTotalCountWhere(['agent_id' => $_SESSION['user']->pid]);*/
+
+        // Fetch total bookings
+        $bookingModel = new BookingOrders();
+        $totalBookings = $bookingModel->getTotalCountWhere(['person_id' => $_SESSION['user']->pid]);
+
+        $serviceLog = new ServiceLog();
+        $allServices = $serviceLog->findAll();
+        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
+        $newservices = $serviceLog->getTotalCountWhere(['status' => 'pending']);
+
+        $services = new Services();
+        $tasks = $services->selecttwotables(
+            $serviceLog->table,
+            'service_id',
+            'services_id',
+            []
+        );
+
+        // Pass data to the view
+        $this->view('agent/dashboard', [
+            'totalProperties' => $totalProperties,
+            'totalServiceProviders' => $totalServiceProviders,
+            'totalBookings' => $totalBookings,
+            'services' => $limitedServices,
+            'tasks' => $tasks,
+            'totalRepairRequests' => $newservices,
+        ]);
     }
 
     public function profile()
@@ -753,7 +804,7 @@ class Agent
                             'msg' => "Pre-Inspection submitted successfully!",
                             'type' => "success"
                         ];
-                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID . $message_to_owner , ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
+                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID . $message_to_owner , ROOT . '/dashboard/propertylisting/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
                         enqueueNotification('Pre-Inspection submitted', 'Pre-Inspection has been submitted on Property ID : ' . $propertyID, ROOT . '/dashboard/property/propertyView/' . $propertyID, 'Notification_green');
                     } else {
                         $_SESSION['flash'] = [
@@ -887,7 +938,7 @@ class Agent
             'type' => "warning"
         ];
         $property->delete($property_id, 'property_id');
-        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on ' . $property_id . ' ' . $propertyName, ROOT . '/dashboard/propertyListing/propertyunitowner/' . $property_id, 'Notification_red', $ownerID);
+        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on ' . $property_id . ' ' . $propertyName, ROOT . '/dashboard/propertylisting/propertyunitowner/' . $property_id, 'Notification_red', $ownerID);
         enqueueNotification('Property request rejected', 'Property Removal request has been rejected on Property ID : ' . $property_id, '', 'Notification_grey');
         redirect('dashboard/property/removalRequests');
     }
@@ -1174,6 +1225,25 @@ class Agent
                 break;
         }
     }
+
+
+    public function inventory($b = '', $c = '', $d = '')
+    {
+        switch ($b) {
+            case 'newinventory':
+                $this->newinventory();
+                break;
+            case 'editinventory':
+                $this->editinventory($c);
+                break;
+            default:
+            $invent = new InventoryModel;
+            $inventories = $invent->findAll();
+            $this->view('agent/inventory',['inventories' => $inventories]); 
+                break;
+        }
+    }
+
 
     public function newinventory()
     {
@@ -2029,33 +2099,82 @@ class Agent
         $this->view('agent/bookingaccept', ['bookings' => $bookings, 'images' => $images]);
     }
 
-    public function bookinghistory($c, $d)
+    public function bookinghistory($c = '', $d = '')
     {
         switch ($c) {
             case 'showhistory':
                 $this->showhistory($d);
                 break;
             default:
-                $book = new BookingModel;
-                /*echo "<pre>";
-        print_r($book);
-        echo "</pre>";*/
-                $property = new Property;
-                $person = new User;
-                $bookings = $book->selecthreetables(
-                    $property->table,
-                    'property_id',
-                    'property_id',
-                    $person->table,
-                    'customer_id',
-                    'pid',
-                    'accept_status',
-                    '\'accepted\'',
-                    'OR',
-                    'accept_status',
-                    '\'rejected\''
-                );
-                $this->view('agent/bookinghistory', ['bookings' => $bookings]);
+                $BookingOrders = new BookingOrders();
+                $PropertyConcat = new PropertyConcat();
+                $User = new User();
+                
+                // Get all properties managed by this agent
+                $properties = $PropertyConcat->where(['agent_id' => $_SESSION['user']->pid]);
+                $properties = is_array($properties) ? $properties : [];
+                $propertyIds = array_map(function ($property) {
+                    return $property->property_id;
+                }, $properties);
+                
+                $allBookings = [];
+                if (!empty($propertyIds)) {
+                    // Get all bookings for these properties with status accepted or rejected
+                    foreach ($propertyIds as $propertyId) {
+                        $bookings = $BookingOrders->where(['property_id' => $propertyId]);
+                        
+                        if (!empty($bookings)) {
+                            foreach ($bookings as $booking) {
+                                // Only include accepted or rejected bookings
+                                if (in_array(strtolower($booking->booking_status), ['confirmed', 'cancelled', 'completed', 'rejected'])) {
+                                    // Get property details
+                                    $propertyData = $PropertyConcat->where(['property_id' => $booking->property_id]);
+                                    $propertyName = !empty($propertyData) ? $propertyData[0]->name : '-';
+
+                                    // Get customer details
+                                    $customer = $User->where(['pid' => $booking->person_id]);
+                                    $customerName = !empty($customer) ? ($customer[0]->fname . ' ' . $customer[0]->lname) : '-';
+
+                                    // Format rental period to include units
+                                    $rentalPeriod = strtolower($booking->rental_period ?? '');
+                                    $duration = $booking->duration ?? '';
+                                    
+                                    // Combine period type with duration to show units properly
+                                    $formattedRentalPeriod = '';
+                                    if (!empty($duration) && !empty($rentalPeriod)) {
+                                        if ($rentalPeriod == 'monthly' || $rentalPeriod == 'monlthy') {
+                                            $formattedRentalPeriod = $duration . ' months';
+                                        } elseif ($rentalPeriod == 'yearly' || $rentalPeriod == 'annually') {
+                                            $formattedRentalPeriod = $duration . ' years';
+                                        } elseif ($rentalPeriod == 'weekly') {
+                                            $formattedRentalPeriod = $duration . ' weeks';
+                                        } elseif ($rentalPeriod == 'daily') {
+                                            $formattedRentalPeriod = $duration . ' days';
+                                        } else {
+                                            $formattedRentalPeriod = $duration . ' ' . $rentalPeriod;
+                                        }
+                                    } else {
+                                        $formattedRentalPeriod = $rentalPeriod;
+                                    }
+
+                                    // Add to array for view
+                                    $allBookings[] = (object)[
+                                        'booking_id' => $booking->booking_id,
+                                        'name' => $propertyName,
+                                        'fname' => !empty($customer) ? $customer[0]->fname : '',
+                                        'lname' => !empty($customer) ? $customer[0]->lname : '',
+                                        'renting_period' => $formattedRentalPeriod,
+                                        'payment_status' => $booking->payment_status,
+                                        'accept_status' => ucfirst($booking->booking_status),
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $this->view('agent/bookinghistory', ['bookings' => $allBookings]);
+                break;
         }
     }
 
@@ -2094,6 +2213,12 @@ class Agent
                 $booking->end_date,
                 'Confirmed'
             );
+            
+            // Update agent_id to current session user
+            $BookingOrders->update($bookingId, [
+                'agent_id' => $_SESSION['user']->pid
+            ]);
+            
             $_SESSION['flash']['msg'] = "Booking confirmed.";
             $_SESSION['flash']['type'] = "success";
         }
@@ -2103,6 +2228,12 @@ class Agent
     public function cancelBooking($bookingId) {
         $BookingOrders = new BookingOrders();
         $booking = $BookingOrders->findById($bookingId);
+        if (!$booking) {
+            $_SESSION['flash']['msg'] = "Booking not found.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/bookings/bookingremoval');
+            return;
+        }
         if ($booking && in_array(strtolower($booking->booking_status), ['pending', 'confirmed', 'cancel requested'])) {
             $BookingOrders->updateBookingStatusByOwnerAndDates(
                 $booking->property_id,
@@ -2111,10 +2242,16 @@ class Agent
                 $booking->end_date,
                 'Cancelled'
             );
+            // Update agent_id to current session user only if user a agent
+            if ($_SESSION['user']->user_lvl == 3) {
+                $BookingOrders->update($bookingId, [
+                    'agent_id' => $_SESSION['user']->pid,
+                ],'booking_id');
+            }
             $_SESSION['flash']['msg'] = "Booking cancelled.";
             $_SESSION['flash']['type'] = "success";
         }
-        redirect('dashboard/bookings');
+        redirect('dashboard/bookings/bookingremoval');
     }
 
     public function continueBooking($bookingId) {

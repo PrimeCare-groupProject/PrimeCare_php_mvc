@@ -16,14 +16,14 @@
 
 <body>
     <?php
-        if (isset($_SESSION['flash'])) {
-            flash_message();
-        }
+    if (isset($_SESSION['flash'])) {
+        flash_message();
+    }
 
-        $query_string = '';
-        if (!empty($_SERVER['QUERY_STRING'])) {
-            $query_string = $_SERVER['QUERY_STRING'];
-        }
+    $query_string = '';
+    if (!empty($_SERVER['QUERY_STRING'])) {
+        $query_string = $_SERVER['QUERY_STRING'];
+    }
     ?>
     <div class="PL__navigation-bar">
         <div class="PL__top-navigations">
@@ -59,12 +59,12 @@
 
                         <div class="image-slider">
                             <div class="main-image">
-                                <img id="main-image" src="<?= get_img($images[0] , 'property') ?>" alt="Property Image">
+                                <img id="main-image" src="<?= get_img($images[0], 'property') ?>" alt="Property Image">
                             </div>
 
                             <div class="thumbnails">
                                 <?php foreach ($images as $index => $image): ?>
-                                    <img onclick="changeImage(this)" src="<?= get_img($image , 'property' ) ?>" alt="Thumbnail 1">
+                                    <img onclick="changeImage(this)" src="<?= get_img($image, 'property') ?>" alt="Thumbnail 1">
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -73,8 +73,27 @@
                             <div class="PL__contacts-section">
                                 <div class="PL__contact">
                                     <div class="rating-big">
-                                        <span class="rating-score-big">4.0</span>
-                                        <span class="stars-big">★★★★☆</span>
+                                        <?php $this_Ratings = getPropertyRatings($property->property_id) ?>
+                                        <span class="rating-score"><?= $this_Ratings ?></span>
+                                        <span class="stars">
+                                            <?php
+                                            $rating = $this_Ratings; // Example: 3.5
+                                            $fullStars = floor($rating);
+                                            $halfStar = ($rating - $fullStars) >= 0.5 ? 1 : 0;
+                                            $emptyStars = 5 - $fullStars - $halfStar;
+
+                                            for ($i = 0; $i < $fullStars; $i++) {
+                                                echo '<i class="fas fa-star"></i>'; // Full star
+                                            }
+                                            if ($halfStar) {
+                                                echo '<i class="fas fa-star-half-alt"></i>'; // Half star
+                                            }
+                                            for ($i = 0; $i < $emptyStars; $i++) {
+                                                echo '<i class="far fa-star"></i>'; // Empty star
+                                            }
+
+                                            ?>
+                                        </span>
                                     </div>
                                 </div>
 
@@ -175,10 +194,10 @@
                                             <td><?= $bookingSummary['days'] ?> days</td>
                                         </tr>
                                         <?php if ($property->rental_period == 'Monthly'): ?>
-                                        <tr>
-                                            <td style="font-weight: bold; padding: 8px 10px;">Rental Period:</td>
-                                            <td>Monthly (<?= $bookingSummary['months'] ?> months)</td>
-                                        </tr>
+                                            <tr>
+                                                <td style="font-weight: bold; padding: 8px 10px;">Rental Period:</td>
+                                                <td>Monthly (<?= $bookingSummary['months'] ?> months)</td>
+                                            </tr>
                                         <?php endif; ?>
                                         <tr style="border-top: 1px solid #ddd;">
                                             <td style="font-weight: bold; padding: 12px 10px;">Total Price:</td>
@@ -211,7 +230,7 @@
 
                             <div class="agreement">
                                 <input type="checkbox" id="agree" onchange="toggleBookButton()">
-                                <label for="agree">By Clicking, I Agree To 
+                                <label for="agree">By Clicking, I Agree To
                                     <a href="<?= ROOT ?>/termsAndConditions">
                                         Terms & Conditions.
                                     </a>
@@ -240,60 +259,59 @@
                                 <?php endif; ?>
                             </form>
 
-                            <h2>Reviews</h2>
-                            <div class="add-review-section">
-                                <textarea placeholder="Write a review..."></textarea>
-                                <div class="review-buttons">
-                                    <button class="post-btn">Post</button>
-                                    <button class="cancel-btn">Cancel</button>
-                                </div>
-                            </div>
 
-                            <div class="review101">
-                                <div class="reviews-section">
-                                    <div class="review">
-                                        <div class="review-header">
-                                            <div class="user-info">
-                                                <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/673051d1f4182__nimna@gmail.com.jpg" alt="User Image" class="user-img" />
-                                                <div>
-                                                    <h3 class="user-name">Alexander Rity</h3>
-                                                    <p class="review-date">4 months ago</p>
+                            <?php if ($reviews): ?>
+                                <h2>Reviews</h2>
+                                <div class="review101">
+                                    <div class="reviews-section">
+                                        <?php foreach ($reviews as $review): ?>
+                                            <?php
+                                            $userDetails = getUserDetails($review->person_id);
+                                            ?>
+                                            <div class="review">
+                                                <div class="review-header">
+                                                    <div class="user-info">
+                                                        <img src="<?= getImageByUserID($review->person_id) ?>" alt="User Image" class="user-img" />
+                                                        <div>
+                                                            <h3 class="user-name"><?= $userDetails->fname . ' ' . $userDetails->lname ?></h3>
+                                                            <p class="review-date"><?= covertTimeToReadableForm($review->created_at) ?></p>
+                                                        </div>
+                                                    </div>
+                                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+                                                    <div class="rating">
+                                                        <span class="rating-score"><?= $review->rating ?></span>
+                                                        <span class="stars">
+                                                            <?php
+                                                            $rating = $review->rating; // Example: 3.5
+                                                            $fullStars = floor($rating);
+                                                            $halfStar = ($rating - $fullStars) >= 0.5 ? 1 : 0;
+                                                            $emptyStars = 5 - $fullStars - $halfStar;
+
+                                                            for ($i = 0; $i < $fullStars; $i++) {
+                                                                echo '<i class="fas fa-star"></i>'; // Full star
+                                                            }
+                                                            if ($halfStar) {
+                                                                echo '<i class="fas fa-star-half-alt"></i>'; // Half star
+                                                            }
+                                                            for ($i = 0; $i < $emptyStars; $i++) {
+                                                                echo '<i class="far fa-star"></i>'; // Empty star
+                                                            }
+
+                                                            ?>
+                                                        </span>
+                                                    </div>
                                                 </div>
+                                                <p class="review-text">
+                                                    <?= $review->message ?>
+                                                </p>
                                             </div>
-                                            <div class="rating">
-                                                <span class="rating-score">5.0</span>
-                                                <span class="stars">★★★★★</span>
-                                            </div>
-                                        </div>
-                                        <p class="review-text">
-                                            Easy booking, great value! Cozy rooms at a reasonable price in Sheffield's vibrant center.
-                                            Surprisingly quiet with nearby Traveller’s accommodations. Highly recommended!
-                                        </p>
+                                        <?php endforeach; ?>
                                     </div>
 
-                                    <div class="review">
-                                        <div class="review-header">
-                                            <div class="user-info">
-                                                <img src="<?= ROOT ?>/assets/images/uploads/profile_pictures/673051d1f4182__nimna@gmail.com.jpg" alt="User Image" class="user-img" />
-                                                <div>
-                                                    <h3 class="user-name">Emma Creight</h3>
-                                                    <p class="review-date">4 months ago</p>
-                                                </div>
-                                            </div>
-                                            <div class="rating">
-                                                <span class="rating-score">4.0</span>
-                                                <span class="stars">★★★★☆</span>
-                                            </div>
-                                        </div>
-                                        <p class="review-text">
-                                            Effortless booking, unbeatable affordability! Small yet comfortable rooms in the heart of
-                                            Sheffield's nightlife hub. Surrounded by elegant housing, it's a peaceful gem. Thumbs up!
-                                        </p>
-                                    </div>
-                                    <a href="#" class="read-more">Read all reviews</a>
                                 </div>
+                            <?php endif; ?>
 
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -330,10 +348,12 @@
     function prevSlide() {
         showSlide(currentIndex - 1);
     }
+
     function changeImage(thumbnail) {
         const mainImage = document.getElementById('main-image');
         mainImage.src = thumbnail.src;
     }
+
     function toggleBookButton() {
         const agreeCheckbox = document.getElementById('agree');
         const bookButton = document.getElementById('book-btn');
@@ -348,11 +368,7 @@
 </script>
 
 <script>
-    
+
 </script>
 
 </html>
-
-
-
-

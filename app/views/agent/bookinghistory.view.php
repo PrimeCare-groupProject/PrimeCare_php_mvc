@@ -26,13 +26,13 @@
                 <th>Customer Name</th>
                 <th onclick="sortTable(3)">Renting Period</th>
                 <th>Payment Status</th>
-                <th>Accept Status</th>
+                <th>Booking Status</th>
             </tr>
         </thead>
         <tbody>
             <?php if (!empty($bookings)) : ?>
                 <?php foreach ($bookings as $booking) : ?>
-                    <tr onclick="window.location.href='<?= ROOT ?>/dashboard/bookings/history/showhistory/<?= $booking->booking_id ?>'">
+                    <tr >
                         <td><?= $booking->booking_id ?></td>
                         <td><?= $booking->name ?></td>
                         <td><?= $booking->fname ?> <?= $booking->lname ?></td>

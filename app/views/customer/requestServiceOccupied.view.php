@@ -1,873 +1,362 @@
 <?php require 'customerHeader.view.php' ?>
 
 <div class="user_view-menu-bar">
-    <a href="<?= ROOT ?>/dashboard"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
-    <h2>Request Repair Service</h2>
+    <a href="<?= ROOT ?>/dashboard/requestService"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+    <div class="gap"></div>
+    <h2>Select Property for Request</h2>
+    <div class="gap"></div>
+    <div class="PL__filter_container">
+    </div>
 </div>
 
-<div class="service-request-container">
-    <?php if (!empty($errors)): ?>
-        <div class="error-messages">
-            <ul>
-                <?php foreach ($errors as $error): ?>
-                    <li><i class="fas fa-exclamation-circle"></i> <?= $error ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
-
-    <?php if (empty($activeBookings)): ?>
-        <div class="empty-state">
-            <div class="empty-state-icon">
-                <i class="fas fa-home"></i>
-            </div>
-            <h3>No Active Rentals Found</h3>
-            <p>You don't have any active rental properties at the moment.</p>
-            <a href="<?= ROOT ?>/properties" class="primary-btn">
-                <i class="fas fa-search"></i>
-                Browse Properties
-            </a>
-        </div>
-    <?php else: ?>
-        <div class="form-card">
-            <div class="progress-tracker-container">
-                <div class="progress-tracker">
-                    <div class="step completed">
-                        <div class="step-circle">
-                            <span class="step-icon"><i class="fas fa-check"></i></span>
-                            <span class="step-pulse"></span>
-                        </div>
-                        <div class="step-label">Select Property</div>
+<div class="listing-the-property">
+    <!-- Property Listings -->
+    <div class="property-listing-grid">
+        <?php if (is_array($properties) && !empty($properties)): ?>
+            <?php foreach ($properties as $property): ?>
+                <!-- Make entire card clickable -->
+                <div class="property-card futuristic-card" onclick="redirectToRepairListingOcc(<?= $property->property_id ?>)">
+                    <?php
+                    $images = !empty($property->property_images) ? explode(',', $property->property_images) : [];
+                    $firstImage = !empty($images) ? $images[0] : 'default.png';
+                    ?>
+                    <div class="property-image">
+                        <div class="image-overlay"></div>
+                        <img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $firstImage ?>" alt="Property Image">
+                        <div class="property-badge">Occupied</div>
                     </div>
-                    
-                    <div class="progress-line">
-                        <span class="progress-line-inner active"></span>
-                    </div>
-                    
-                    <div class="step active">
-                        <div class="step-circle">
-                            <span class="step-number">2</span>
-                            <span class="step-pulse"></span>
-                        </div>
-                        <div class="step-label">Service Details</div>
-                    </div>
-                    
-                    <div class="progress-line">
-                        <span class="progress-line-inner"></span>
-                    </div>
-                    
-                    <div class="step">
-                        <div class="step-circle">
-                            <span class="step-number">3</span>
-                        </div>
-                        <div class="step-label">Confirmation</div>
-                    </div>
-                </div>
-            </div>
-
-            <form action="<?= ROOT ?>/customer/requestServiceOccupied" method="POST" class="service-request-form">
-                <!-- Rest of the form remains the same -->
-                <div class="form-section">
-                    <h3 class="section-title"><i class="fas fa-home" style="color:#f1c40f"></i> Property Selection</h3>
-                    <!-- Property selection part remains the same -->
-                    <div class="form-group">
-                        <label for="property_id" class="form-label">Choose your property</label>
-                        
-                        <div class="enhanced-select-wrapper">
-                            <div class="selected-property" id="selected-property-display">
-                                <div class="placeholder">
-                                    <i class="fas fa-home"></i>
-                                    <span>Select a property</span>
-                                </div>
+                    <div class="property-details">
+                        <div class="profile-details-items">
+                            <div>
+                                <h3 class="property-title"><?= $property->name ?? 'Unnamed Property' ?></h3>
                             </div>
-                            
-                            <div class="property-dropdown" id="property-dropdown">
-                                <?php if(count($activeBookings) > 0): ?>
-                                    <?php foreach($activeBookings as $booking): ?>
-                                        <div class="property-option" data-value="<?= $booking->property_id ?>">
-                                            <!-- <div class="property-image">
-                                                <?php
-                                                    // Default image path
-                                                    $defaultImagePath = ROOT . "/assets/images/properties/default-property.jpg";
-                                                    $imageUrl = $defaultImagePath;
-                                                    
-                                                    // Check if property_images is available and not empty
-                                                    if (isset($booking->property_images)) {
-                                                        // If property_images is a JSON string, decode it first
-                                                        if (is_string($booking->property_images)) {
-                                                            $booking->property_images = json_decode($booking->property_images);
-                                                        }
-                                                        
-                                                        // Now check if we have an array with at least one image
-                                                        if (is_array($booking->property_images) && !empty($booking->property_images)) {
-                                                            $firstImage = $booking->property_images[0];
-                                                            $imageUrl = ROOT . "/assets/images/uploads/property_images/" . $firstImage;
-                                                        }
-                                                    }
-
-                                                ?>
-                                                <img src="<?= $imageUrl ?>" alt="Property image" 
-                                                     onerror="this.onerror=null; this.src='<?= $defaultImagePath ?>';">
-                                            </div> -->
-                                            <div class="property-details">
-                                                <h4><?= htmlspecialchars($booking->property_name) ?></h4>
-                                                <p class="property-address"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($booking->property_address ?? 'No address') ?></p>
-                                                <p class="property-dates">
-                                                    <i class="far fa-calendar-alt"></i> 
-                                                    <?= date('M d, Y', strtotime($booking->start_date)) ?> - 
-                                                    <?= date('M d, Y', strtotime($booking->end_date)) ?>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="no-properties">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        No active properties found
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <!-- Hidden actual select field that will be submitted with the form -->
-                            <select name="property_id" id="property_id" required class="hidden-select">
-                                <option value="">-- Select a Property --</option>
-                                <?php foreach ($activeBookings as $booking): ?>
-                                    <option value="<?= $booking->property_id ?>" <?= (isset($old['property_id']) && $old['property_id'] == $booking->property_id) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($booking->property_name) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
                         </div>
-                        
-                        <?php if (isset($errors['property_id'])): ?>
-                            <div class="input-error"><?= $errors['property_id'] ?></div>
-                        <?php endif; ?>
+                        <div class="property-meta">
+                            <p class="property-description"><img src="<?= ROOT ?>/assets/images/location.png" class="property-info-img" /><?= $property->address ?? 'No address provided' ?></p>
+                        </div>
+                        <div class="property-description-container">
+                            <p class="property-description">
+                                <?= $property->description ?? 'No description available' ?>
+                            </p>
+                        </div>
+                        <div class="property-actions">
+                            <!-- Enhanced select button with animated icon -->
+                            <a href="<?= ROOT ?>/dashboard/repairListingOcc/<?= $property->property_id ?>" class="select-button" onclick="event.stopPropagation();">
+                                <span class="button-text">Select</span>
+                                <span class="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 18l6-6-6-6"></path>
+                                    </svg>
+                                </span>
+                                <div class="button-glow"></div>
+                            </a>
+                        </div>
                     </div>
                 </div>
-
-                <div class="form-section">
-                    <h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench" style="color:#f1c40f"></i> Service Information</h3>
-                    
-                    <div class="form-group">
-                        <label for="service_time">Time of service needed</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="datetime-local" 
-                                name="service_time" 
-                                id="service_time"
-                                value="<?= isset($old['service_time']) ? htmlspecialchars($old['service_time']) : '' ?>"
-                                required
-                                class="<?= isset($errors['service_time']) ? 'has-error' : '' ?>"
-                            >
-                            <i class="fas fa-calendar-alt input-icon"></i>
-                        </div>
-                        <?php if (isset($errors['service_time'])): ?>
-                            <div class="input-error"><?= $errors['service_time'] ?></div>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="service_type">Type of service needed</label>
-                        <div class="select-wrapper">
-                            <select name="service_type" id="service_type" required>
-                                <option value="">-- Select Service Type --</option>
-                                <?php if (!empty($serviceTypes)): ?>
-                                    <?php foreach ($serviceTypes as $service): ?>
-                                        <option value="<?= $service->service_id ?>" 
-                                            data-cost="<?= $service->cost_per_hour ?>"
-                                            <?= (isset($old['service_type']) && $old['service_type'] == $service->service_id) ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($service->name) ?> (LKR <?= number_format($service->cost_per_hour, 2) ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                            <i class="fas fa-chevron-down select-arrow"></i>
-                        </div>
-                        <?php if (isset($errors['service_type'])): ?>
-                            <div class="input-error"><?= $errors['service_type'] ?></div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="service_description">Description of the issue</label>
-                        <textarea 
-                            name="service_description" 
-                            id="service_description" 
-                            rows="5" 
-                            placeholder="Please describe the issue in detail. Include any relevant information that would help us understand the problem."
-                            required
-                        ><?= isset($old['service_description']) ? htmlspecialchars($old['service_description']) : '' ?></textarea>
-                        <?php if (isset($errors['service_description'])): ?>
-                            <div class="input-error"><?= $errors['service_description'] ?></div>
-                        <?php endif; ?>
-                    </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="no-properties-message">
+                <div class="message-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <path d="M15 3v18"></path>
+                        <path d="M9 9h6"></path>
+                    </svg>
                 </div>
-
-                <div class="form-actions">
-                    <a href="<?= ROOT ?>/dashboard" class="secondary-btn">
-                        <i class="fas fa-arrow-left"></i>
-                        Back to Dashboard
-                    </a>
-                    <button type="submit" class="primary-btn">
-                        <i class="fas fa-paper-plane"></i>
-                        Submit Request
-                    </button>
-                </div>
-            </form>
-        </div>
-    <?php endif; ?>
+                <h3>No occupied properties found</h3>
+                <p>You currently don't have any occupied properties. You need to book a property before you can request services for it.</p>
+                <a href="<?= ROOT ?>/dashboard/search" class="primary-btn">Browse Properties</a>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <style>
-:root {
-    --primary-color: #f1c40f;
-    --primary-dark: #f39c12;
-    --primary-light: #f7d774;
-    --secondary-color: #2c3e50;
-    --text-dark: #222;
-    --text-light: #444;
-    --text-muted: #888;
-    --border-color: #e0e0e0;
-    --background-light: #fafbfc;
-    --background-highlight: #f7f7e7;
-    --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-    --shadow-md: 0 2px 16px rgba(241,196,15,0.10);
-    --error-color: #b30000;
-    --error-bg: #ffeaea;
-    --border-radius: 8px;
-    
-    /* New progress tracker colors */
-    --progress-inactive: #e3e8ec;
-    --progress-active: #4cc9f0;
-    --progress-completed: #4cc9f0;
-    --progress-line-bg: #e3e8ec;
-    --progress-pulse: rgba(76, 201, 240, 0.3);
+/* Layout */
+.property-listing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    padding: 20px;
 }
 
-.navigate-icons {
-    width: 36px;
-    height: 36px;
-}
-
-.error-messages {
-    background: var(--error-bg);
-    color: var(--error-color);
-    border: 1px solid #ffb3b3;
-    border-radius: var(--border-radius);
-    padding: 12px 18px;
-    margin-bottom: 20px;
-}
-
-.error-messages ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.error-messages li {
-    margin: 5px 0;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 30px;
-    background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-md);
-}
-
-.empty-state-icon {
-    font-size: 3rem;
-    color: var(--primary-color);
-    margin-bottom: 20px;
-}
-
-.empty-state h3 {
-    font-size: 1.5rem;
-    margin: 0 0 10px;
-    color: var(--secondary-color);
-}
-
-.empty-state p {
-    color: var(--text-light);
-    margin-bottom: 20px;
-}
-
-.form-card {
-    background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-md);
-    overflow: visible;
-    padding: 28px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.service-request-container {
-    max-width: 90%;
-    margin: 30px auto 50px;
-    padding: 0 15px;
+/* Card Styling */
+.futuristic-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
     overflow: hidden;
-}
-
-/* New modern progress tracker styles */
-.progress-tracker-container {
-    padding: 20px 15px;
-    margin: 0 auto 40px;
-    max-width: 800px;
-}
-
-.progress-tracker {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04),
+                0 0 0 1px rgba(255, 204, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-    flex: 1;
-}
-
-.step-circle {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: var(--progress-inactive);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: all 0.4s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 14px;
-    border: 2px solid transparent;
-}
-
-.step-number, .step-icon {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-light);
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 2;
-}
-
-.step-pulse {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-color: transparent;
-    z-index: 1;
-}
-
-.step.active .step-circle {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    border-color: var(--primary-light);
-    box-shadow: 0 5px 15px rgba(241, 196, 15, 0.3);
-    transform: scale(1.1);
-}
-
-.step.active .step-number {
-    color: white;
-    font-weight: 700;
-}
-
-.step.active .step-pulse {
-    animation: pulse 2s infinite;
-}
-
-.step.completed .step-circle {
-    background: var(--progress-completed);
-    border-color: var(--progress-completed);
-    box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
-}
-
-.step.completed .step-icon {
-    color: white;
-}
-
-.progress-line {
-    flex-grow: 1;
-    position: relative;
-    height: 4px;
-    background: var(--progress-line-bg);
-    margin: 0 15px;
-    margin-bottom: 36px;
-    z-index: 1;
-}
-
-.progress-line-inner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0%;
-    background: var(--progress-line-bg);
-    transition: width 0.5s ease;
-}
-
-.progress-line-inner.active {
-    width: 100%;
-    background: linear-gradient(90deg, var(--progress-completed) 0%, var(--primary-color) 100%);
-}
-
-.step-label {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-light);
-    text-align: center;
-    margin-top: 5px;
-    transition: all 0.3s ease;
-}
-
-.step.active .step-label {
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-.step.completed .step-label {
-    color: var(--progress-completed);
-}
-
-/* Pulse animation for active step */
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 15px rgba(241, 196, 15, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(241, 196, 15, 0);
-    }
-}
-
-.section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: var(--secondary-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-section {
-    margin-bottom: 30px;
-    padding-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.form-section:last-of-type {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-dark);
-    font-weight: 500;
-}
-
-.select-wrapper {
-    position: relative;
-}
-
-.input-wrapper{
-    margin-right: 30px;
-    position: relative;
-
-}
-
-select, input[type="datetime-local"] {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    color: var(--text-dark);
-    background-color: var(--background-light);
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-select {
-    appearance: none;
-    padding-right: 40px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     cursor: pointer;
 }
 
-.select-arrow, .input-icon {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
+.futuristic-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04),
+                0 0 0 1px rgba(255, 204, 0, 0.2),
+                0 0 15px 2px rgba(255, 204, 0, 0.15);
 }
 
-select:focus, 
-input:focus,
-textarea:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(241,196,15,0.15);
-    outline: none;
+.futuristic-card:hover .image-overlay {
+    opacity: 0.3;
 }
 
-textarea {
-    width: 97%;
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    resize: vertical;
-    min-height: 120px;
-    font-size: 1rem;
-    background-color: var(--background-light);
-    transition: border-color 0.2s, box-shadow 0.2s;
+.futuristic-card:hover .property-badge {
+    background: yellow;
 }
 
-.input-error {
-    color: var(--error-color);
-    font-size: 0.9rem;
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-}
-
-.has-error {
-    border-color: var(--error-color);
-    background-color: var(--error-bg);
-}
-
-.form-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    gap: 15px;
-    padding-bottom: 10px;
-}
-
-.primary-btn, .secondary-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: var(--border-radius);
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.primary-btn {
-    background: linear-gradient(90deg, var(--primary-color) 60%, var(--primary-light) 100%);
-    color: var(--text-dark);
-    box-shadow: 0 2px 8px rgba(241,196,15,0.1);
-}
-
-.secondary-btn {
-    background-color: #f5f5f5;
-    color: var(--text-light);
-    border: 1px solid var(--border-color);
-}
-
-.primary-btn:hover {
-    background: linear-gradient(90deg, var(--primary-dark) 60%, var(--primary-color) 100%);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(241,196,15,0.2);
-}
-
-.secondary-btn:hover {
-    background-color: #ebebeb;
-    color: var(--text-dark);
-}
-
-@media (max-width: 768px) {
-    .form-card {
-        padding: 20px;
-    }
-
-    .service-request-container {
-        margin: 20px auto 40px;
-    }
-    
-    .form-section {
-        margin-bottom: 25px;
-        padding-bottom: 20px;
-    }
-
-    .progress-tracker-container {
-        padding: 15px 10px;
-        margin-bottom: 30px;
-    }
-    
-    .step-circle {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .step-label {
-        font-size: 0.85rem;
-    }
-
-    .form-actions {
-        flex-direction: column-reverse;
-    }
-
-    .primary-btn, .secondary-btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .step-label {
-        display: none;
-    }
-    
-    .step-circle {
-        margin-bottom: 0;
-    }
-    
-    .progress-line {
-        margin-bottom: 0;
-    }
-}
-
-/* Enhanced property selector styles */
-.form-label {
-    display: block;
-    margin-bottom: 10px;
-    color: var(--text-dark);
-    font-weight: 500;
-}
-
-.enhanced-select-wrapper {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-.selected-property {
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--background-light);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.2s ease;
-}
-
-.selected-property:hover {
-    border-color: var(--primary-color);
-}
-
-.selected-property .placeholder {
-    display: flex;
-    align-items: center;
-    color: var(--text-muted);
-    gap: 8px;
-}
-
-.selected-property .placeholder i {
-    color: var(--primary-color);
-    font-size: 1.1rem;
-}
-
-.selected-property.active {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(241,196,15,0.15);
-}
-
-.property-dropdown {
-    position: absolute;
-    top: calc(100% + 5px);
-    left: 0;
-    width: 100%;
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-    z-index: 100;
-    max-height: 320px;
-    overflow-y: auto;
-    display: none;
-}
-
-.property-option {
-    display: flex;
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.property-option:last-child {
-    border-bottom: none;
-}
-
-.property-option:hover {
-    background-color: rgba(241,196,15,0.05);
-}
-
-.property-option.selected {
-    background-color: rgba(241,196,15,0.1);
-}
-
+/* Image Styling */
 .property-image {
-    width: 90px;
-    height: 70px;
-    border-radius: 6px;
+    position: relative;
+    height: 200px;
     overflow: hidden;
-    flex-shrink: 0;
 }
 
 .property-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
 }
 
+.futuristic-card:hover .property-image img {
+    transform: scale(1.05);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(255,204,0,0.2) 100%);
+    z-index: 1;
+    opacity: 0.2;
+    transition: opacity 0.3s ease;
+}
+
+.property-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, #ffcc00 80%);
+    color: #333;
+    padding: 6px 18px 6px 12px;
+    border-radius: 0px 16px 0px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 2;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+/* Content Styling */
 .property-details {
-    margin-left: 15px;
-    flex-grow: 1;
+    padding: 20px;
 }
 
-.property-details h4 {
-    margin: 0 0 5px 0;
-    font-size: 1rem;
-    color: var(--text-dark);
+.property-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.profile-details-items {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.property-meta {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+.property-info-img {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.property-description-container {
+    height: 60px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.property-description {
+    color: #64748b;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+/* Enhanced Button Styling */
+.property-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.select-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #ffcc00, #ffb700);
+    color: #333;
+    border-radius: 50px;
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    width: 100%;
+    max-width: 200px;
+    box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3);
+    gap: 10px;
+}
+
+.select-button .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.25);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.select-button .icon svg {
+    width: 12px;
+    height: 12px;
+    stroke: #333;
+    transition: all 0.3s ease;
+}
+
+.select-button:hover {
+    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #ffcc00, #ffb700);
+}
+
+.select-button:hover .icon {
+    transform: translateX(3px);
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.select-button:hover .icon svg {
+    animation: bounceRight 0.8s infinite;
+}
+
+.button-text {
+    z-index: 1;
+    position: relative;
+    letter-spacing: 0.5px;
+    color: #333;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.select-button:hover .button-text {
+    transform: translateX(3px);
+}
+
+/* Remove the glow effect */
+.button-glow {
+    display: none;
+}
+
+/* Empty State Styling */
+.no-properties-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+}
+
+.message-icon {
+    color: #ffcc00;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.no-properties-message h3 {
+    margin-bottom: 15px;
+    color: #333;
     font-weight: 600;
 }
 
-.property-address {
-    margin: 0 0 4px 0;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 5px;
+.no-properties-message p {
+    margin-bottom: 25px;
+    color: #64748b;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.property-dates {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--primary-dark);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.no-properties {
-    padding: 20px;
-    text-align: center;
-    color: var(--text-muted);
-}
-
-.no-properties i {
-    display: block;
-    font-size: 2rem;
-    margin-bottom: 10px;
-    color: var(--primary-color);
-}
-
-.hidden-select {
-    position: absolute;
-    left: -9999px;
-    opacity: 0;
-}
-
-.selected-property-content {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-}
-
-.selected-property-content .property-image {
-    width: 60px;
-    height: 45px;
-}
-
-@media (max-width: 576px) {
-    .property-image {
-        width: 70px;
-        height: 60px;
+/* Animations */
+@keyframes glowing {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.7;
     }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.3;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.7;
+    }
+}
+
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(3px); }
 }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const selectedPropertyDisplay = document.getElementById('selected-property-display');
-    const propertyDropdown = document.getElementById('property-dropdown');
-    const propertyOptions = document.querySelectorAll('.property-option');
-    const hiddenSelect = document.getElementById('property_id');
-    
-    // Initially set selected property if there's a value in the hidden select
-    if (hiddenSelect.value) {
-        const selectedOption = document.querySelector(`.property-option[data-value="${hiddenSelect.value}"]`);
-        if (selectedOption) {
-            updateSelectedProperty(selectedOption);
-        }
+    // Function to handle property selection and redirect
+    function redirectToRepairListingOcc(propertyId) {
+        window.location.href = '<?= ROOT ?>/dashboard/repairListingOcc/' + propertyId;
     }
     
-    // Toggle dropdown
-    selectedPropertyDisplay.addEventListener('click', function() {
-        propertyDropdown.style.display = propertyDropdown.style.display === 'block' ? 'none' : 'block';
-        selectedPropertyDisplay.classList.toggle('active');
-    });
-    
-    // Handle property selection
-    propertyOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            updateSelectedProperty(this);
-            propertyDropdown.style.display = 'none';
-            selectedPropertyDisplay.classList.remove('active');
+    // Add glow effect to regular select buttons
+    document.querySelectorAll('.select-button').forEach(button => {
+        // Create glowing effect on mousemove
+        button.addEventListener('mousemove', function(e) {
+            const rect = button.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
             
-            // Update hidden select value
-            hiddenSelect.value = this.dataset.value;
-            
-            // Trigger change event on hidden select
-            const event = new Event('change', { bubbles: true });
-            hiddenSelect.dispatchEvent(event);
+            const glow = button.querySelector('.button-glow');
+            glow.style.left = `${x}px`;
+            glow.style.top = `${y}px`;
         });
     });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!selectedPropertyDisplay.contains(e.target) && !propertyDropdown.contains(e.target)) {
-            propertyDropdown.style.display = 'none';
-            selectedPropertyDisplay.classList.remove('active');
-        }
-    });
-    
-    // Function to update selected property display
-    function updateSelectedProperty(selectedOption) {
-        // Mark option as selected
-        propertyOptions.forEach(opt => opt.classList.remove('selected'));
-        selectedOption.classList.add('selected');
-        
-        // Clone the content for display
-        const propertyDetails = selectedOption.innerHTML;
-        
-        // Update display
-        selectedPropertyDisplay.innerHTML = `<div class="selected-property-content">${propertyDetails}</div>`;
-    }
-});
 </script>
 
 <?php require 'customerFooter.view.php' ?>
