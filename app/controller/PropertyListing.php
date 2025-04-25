@@ -1,21 +1,24 @@
 <?php
 defined('ROOTPATH') or exit('Access denied');
 
-class propertyListing{
+class propertyListing
+{
     use controller;
 
-    public function index(){
+    public function index()
+    {
         $this->showListing();
     }
 
-    public function showListing(){
+    public function showListing()
+    {
 
-        if(isset($_POST) && !empty($_POST)){
+        if (isset($_POST) && !empty($_POST)) {
             // show($_POST);
             // show($_GET);
             // die;
             $searchTerm = '';
-            if(!empty($_POST['searchTerm'])){
+            if (!empty($_POST['searchTerm'])) {
                 $searchTerm = $_POST['searchTerm'];
                 unset($_POST['searchTerm']);
             }
@@ -24,7 +27,7 @@ class propertyListing{
             $sort_by = $_POST['sort_by'] ?? '';
             $sort_direction = 'DESC'; // Default sort direction
             $sort_column = ''; // Default no specific column sorting
-            
+
             if ($sort_by === 'price-desc') {
                 $sort_direction = 'DESC';
                 $sort_column = 'rental_price';
@@ -41,11 +44,11 @@ class propertyListing{
             if (!empty($_POST['check_in']) && !empty($_POST['check_out'])) {
                 $check_in_date = new DateTime($_POST['check_in']);
                 $check_out_date = new DateTime($_POST['check_out']);
-                
+
                 // Calculate total days between dates
                 $interval = $check_in_date->diff($check_out_date);
                 $days = $interval->days;
-                
+
                 // Calculate months and remaining days
                 $months = floor($days / 30); // Get whole months
                 $days_remaining = $days % 30;
@@ -53,7 +56,7 @@ class propertyListing{
                 if ($days_remaining + 2 > $months) {
                     $months += 1;
                 }
-                
+
 
                 // If days are greater than 1 month (30 days), unset rental_period to show all properties
                 if ($days > 30) {
@@ -66,7 +69,7 @@ class propertyListing{
                     $_POST['rental_period'] = $_POST['rental_period'] ?? 'Daily';
                 }
             }
-            
+
             $bookingData = [
                 'check_in' => $_POST['check_in'] ?? '',
                 'check_out' => $_POST['check_out'] ?? '',
@@ -75,8 +78,8 @@ class propertyListing{
                 'days' => $days,
                 'days_remaining' => $days_remaining,
             ];
-            
-            
+
+
             $query_string = !empty($bookingData) ? http_build_query($bookingData) : '';
 
             // Add booking data to GET parameters for URLs/redirects
@@ -91,7 +94,7 @@ class propertyListing{
             $propertyData = [
                 'min_price' => $_POST['min_price'] ?? '',
                 'max_price' => $_POST['max_price'] ?? '',
-                'rental_period' => $_POST['rental_period'] ?? '' ,
+                'rental_period' => $_POST['rental_period'] ?? '',
                 'type' => $_POST['property_type'] ?? '',
                 'state_province' => $_POST['province'] ?? '',
                 'city' => $_POST['city'] ?? '',
@@ -105,10 +108,10 @@ class propertyListing{
                 'parking_slots' => $_POST['parking_slots'] ?? '',
             ];
 
-            $propertyData = array_filter($propertyData, function($value) {
+            $propertyData = array_filter($propertyData, function ($value) {
                 return $value !== '' && $value !== null;
             });
-            $bookingData = array_filter($bookingData, function($value) {
+            $bookingData = array_filter($bookingData, function ($value) {
                 return $value !== '' && $value !== null;
             });
             // show($propertyData);
@@ -133,9 +136,9 @@ class propertyListing{
                 ]);
                 return;
             }
-            
+
             // 1. Get filtered properties
-            $filteredProperties = $PropertyConcat->whereWithSearchTerm($propertyData, [], $searchTerm, $sort_direction , 100, 0, $sort_column);
+            $filteredProperties = $PropertyConcat->whereWithSearchTerm($propertyData, [], $searchTerm, $sort_direction, 100, 0, $sort_column);
 
             // 2. Filter by availability if check_in and check_out are provided
             $propertiesToShow = $filteredProperties;
@@ -156,8 +159,8 @@ class propertyListing{
             }
 
             $this->view('propertyListing', [
-                'properties' => $propertiesToShow, 
-                'bookingData' => $bookingData, 
+                'properties' => $propertiesToShow,
+                'bookingData' => $bookingData,
                 'query_string' => $query_string,
             ]);
             return;
@@ -165,10 +168,11 @@ class propertyListing{
 
         $property = new PropertyConcat;
         $properties = $property->where(['status' => 'Active']);
-        $this->view('propertyListing' , ['properties' => $properties]);
+        $this->view('propertyListing', ['properties' => $properties]);
     }
 
-    public function showListingDetail($propertyID){
+    public function showListingDetail($propertyID)
+    {
         // show($_GET);
         // show($_POST);
         // die;
@@ -183,25 +187,25 @@ class propertyListing{
         // Default dates from GET or fallback
         // Get rental period from GET or use property's default
         $rental_period = $_GET['rental_period'] ?? $propertyUnit->rental_period;
-        
+
         // Set default dates based on rental period if not provided in GET
         if (isset($_GET['check_in']) && isset($_GET['check_out'])) {
             $check_in = $_GET['check_in'];
             $check_out = $_GET['check_out'];
         } else {
             $check_in = date('Y-m-d'); // Today as default check-in
-            
+
             // Set check-out based on rental period
             switch (strtolower($rental_period)) {
-            case 'monthly':
-                $check_out = date('Y-m-d', strtotime('+1 month'));
-                break;
-            case 'weekly':
-                $check_out = date('Y-m-d', strtotime('+1 week'));
-                break;
-            default: // Daily or any other period
-                $check_out = date('Y-m-d', strtotime('+1 day'));
-                break;
+                case 'monthly':
+                    $check_out = date('Y-m-d', strtotime('+1 month'));
+                    break;
+                case 'weekly':
+                    $check_out = date('Y-m-d', strtotime('+1 week'));
+                    break;
+                default: // Daily or any other period
+                    $check_out = date('Y-m-d', strtotime('+1 day'));
+                    break;
             }
         }
         $period_duration = $_GET['period_duration'] ?? null;
@@ -232,7 +236,7 @@ class propertyListing{
                     $months += 1;
                 }
             }
-            
+
             $isAvailable = $BookingOrders->isPropertyAvailable($propertyID, $new_check_in, $new_check_out);
 
             if (!$isAvailable) {
@@ -263,7 +267,7 @@ class propertyListing{
                     'days' => $days,
                     'days_remaining' => $days_remaining,
                 ];
-                $bookingData = array_filter($bookingData, function($value) {
+                $bookingData = array_filter($bookingData, function ($value) {
                     return $value !== '' && $value !== null;
                 });
                 $query_string = http_build_query($bookingData);
@@ -296,7 +300,7 @@ class propertyListing{
                 $months += 1;
             }
         }
-       
+
         // Calculate booking summary
         $price_per_period = (float)$propertyUnit->rental_price;
         $booking_type = $propertyUnit->rental_period;
@@ -331,14 +335,19 @@ class propertyListing{
             }
         }
 
+        $reviewsModel = new ReviewsProperty;
+        $reviews = $reviewsModel->getReviews($propertyID);
+
         $this->view('propertyUnit', [
             'property' => $propertyUnit,
             'bookingSummary' => $bookingSummary,
-            'currentBookingStatus' => $currentBookingStatus
+            'currentBookingStatus' => $currentBookingStatus,
+            'reviews' => $reviews
         ]);
     }
 
-    public function bookProperty(){
+    public function bookProperty()
+    {
         if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
             // Convert query string to array if not empty
             if (!empty($query_string)) {
@@ -355,7 +364,7 @@ class propertyListing{
             } else {
                 $_SESSION['customerView'] = true;
             }
-            
+
             $_SESSION['redirect_url'] = "propertyListing/showListingDetail/{$_POST['p_id']}" . ($query_string ? "?{$query_string}" : '');
 
             redirect('login');
@@ -392,7 +401,7 @@ class propertyListing{
             if ($days_remaining + 2 > 30) {
                 $months += 1;
             }
-            
+
             // Set duration based on rental period
             $duration = (strtolower($rental_period) == 'monthly') ? $months : $days;
 

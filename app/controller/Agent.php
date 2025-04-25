@@ -804,7 +804,7 @@ class Agent
                             'msg' => "Pre-Inspection submitted successfully!",
                             'type' => "success"
                         ];
-                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID . $message_to_owner , ROOT . '/dashboard/propertyListing/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
+                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID . $message_to_owner , ROOT . '/dashboard/propertylisting/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
                         enqueueNotification('Pre-Inspection submitted', 'Pre-Inspection has been submitted on Property ID : ' . $propertyID, ROOT . '/dashboard/property/propertyView/' . $propertyID, 'Notification_green');
                     } else {
                         $_SESSION['flash'] = [
@@ -938,7 +938,7 @@ class Agent
             'type' => "warning"
         ];
         $property->delete($property_id, 'property_id');
-        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on ' . $property_id . ' ' . $propertyName, ROOT . '/dashboard/propertyListing/propertyunitowner/' . $property_id, 'Notification_red', $ownerID);
+        enqueueNotification('Property request rejected', 'Property Removal request has been rejected on ' . $property_id . ' ' . $propertyName, ROOT . '/dashboard/propertylisting/propertyunitowner/' . $property_id, 'Notification_red', $ownerID);
         enqueueNotification('Property request rejected', 'Property Removal request has been rejected on Property ID : ' . $property_id, '', 'Notification_grey');
         redirect('dashboard/property/removalRequests');
     }
