@@ -3,6 +3,26 @@
 <div class="user_view-menu-bar">
     <a href='<?= ROOT ?>/serviceprovider/repairListing'><img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons"></a>
     <h2>Service Details</h2>
+    
+    <?php 
+    // Check if the user has already applied for this service
+    $serviceApplication = new ServiceApplication();
+    $alreadyApplied = $serviceApplication->hasApplied($service->service_id, $_SESSION['user']->pid);
+    
+    if (!$alreadyApplied): 
+    ?>
+        <div class="action-btn-container">
+            <a href="<?= ROOT ?>/serviceprovider/applyForService/<?= $service->service_id ?>" class="apply-service-btn">
+                <i class="fas fa-clipboard-check"></i> Apply for this Service
+            </a>
+        </div>
+    <?php else: ?>
+        <div class="action-btn-container">
+            <a href="<?= ROOT ?>/serviceprovider/checkApplicationStatus/<?= $service->service_id ?>" class="check-status-btn">
+                <i class="fas fa-clipboard-list"></i> Check Application Status
+            </a>
+        </div>
+    <?php endif; ?>
 </div>
 
 <div class="service-overview-container">
