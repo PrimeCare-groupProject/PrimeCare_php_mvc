@@ -48,7 +48,13 @@ class Signup {
 
             // Validate the form data
             if (!$user->validate($_POST)) {
-                // show($user->errors);
+                
+                // Convert errors array to string and show the first error
+                $errorMsg = implode(", ", $user->errors);
+                $_SESSION['flash'] = [
+                    'msg' => !empty($errorMsg) ? reset($user->errors) : "Validation failed.",
+                    'type' => "error"
+                ];
                 // echo "if2";
                 $this->view('signup',['user' => $user]); // Re-render signup view with errors
                 return; // Exit if validation fails
