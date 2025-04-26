@@ -26,7 +26,7 @@
             <label class="input-label">Cost Per Hour</label>
             <input type="text" name="cost_per_hour" placeholder="Cost Per Hour" class="input-field" required>
 
-            <label class="input-label">Cost Per Hour</label>
+            <label class="input-label">Total Hours</label>
             <input type="text" name="total_hours" placeholder="Total Hours" class="input-field" required>
 
             <label class="input-label">Upload Service Image</label>
@@ -95,6 +95,63 @@
             reader.readAsDataURL(file);
         }
     }
+
+    // Function to validate numeric input
+    function validateNumericInput(event) {
+        const inputField = event.target;
+        const value = inputField.value;
+
+        // Check if the value is not numeric
+        if (isNaN(value) || value.includes(" ")) {
+            inputField.value = ""; // Clear the invalid input
+            alert("Please enter a valid numeric value."); // Show an alert message
+        }
+    }
+
+    // Attach the validation function to the relevant input fields
+    document.addEventListener("DOMContentLoaded", function () {
+        const propertyIdField = document.querySelector('input[name="property_id"]');
+        const costPerHourField = document.querySelector('input[name="cost_per_hour"]');
+        const totalHoursField = document.querySelector('input[name="total_hours"]');
+
+        // Add event listeners for real-time validation
+        propertyIdField.addEventListener("input", validateNumericInput);
+        costPerHourField.addEventListener("input", validateNumericInput);
+        totalHoursField.addEventListener("input", validateNumericInput);
+    });
+    // Function to validate numeric input
+    function validateNumericInput(event) {
+        const inputField = event.target;
+        const value = inputField.value;
+        const errorMessage = inputField.nextElementSibling; // Assume the error message is the next sibling element
+
+        // Check if the value is not numeric
+        if (isNaN(value) || value.includes(" ")) {
+            inputField.value = ""; // Clear the invalid input
+            errorMessage.textContent = "Please enter a valid numeric value."; // Show an error message
+            errorMessage.style.color = "red";
+        } else {
+            errorMessage.textContent = ""; // Clear the error message
+        }
+    }
+
+    // Attach the validation function to the relevant input fields
+    document.addEventListener("DOMContentLoaded", function () {
+        const propertyIdField = document.querySelector('input[name="property_id"]');
+        const costPerHourField = document.querySelector('input[name="cost_per_hour"]');
+        const totalHoursField = document.querySelector('input[name="total_hours"]');
+
+        // Add event listeners for real-time validation
+        propertyIdField.addEventListener("input", validateNumericInput);
+        costPerHourField.addEventListener("input", validateNumericInput);
+        totalHoursField.addEventListener("input", validateNumericInput);
+
+        // Add error message elements after each field
+        [propertyIdField, costPerHourField, totalHoursField].forEach(field => {
+            const errorMessage = document.createElement("span");
+            field.parentNode.insertBefore(errorMessage, field.nextSibling);
+        });
+    });
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>
