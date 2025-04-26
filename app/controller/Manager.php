@@ -611,6 +611,9 @@ class Manager
             case 'financeView':
                 $this->financeView($b, $c, $d);
                 break;
+            case 'monthlyReport':
+                $this->monthlyReport($c, $d);
+                break;
             default:
                 $this->view('manager/managementHome');
                 break;
@@ -790,6 +793,68 @@ class Manager
                 break;
         }
     }
+
+    public function monthlyReport()
+    {
+        $rentalPaymentModel = new RentalPayment();
+        $sharePaymentModel = new SharePayment();
+        $servicePaymentModel = new ServicePayment();
+        $salaryPaymentModel = new SalaryPayment();
+        $ledgerModel = new Ledger();
+
+        // Get current month and year
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+
+        // Helper function to filter by created_at date (assuming you have a created_at field)
+        $filterCurrentMonth = function ($records) use ($currentMonth, $currentYear) {
+            return array_filter($records, function ($record) use ($currentMonth, $currentYear) {
+                if (!isset($record->created_at)) return false;
+                $timestamp = strtotime($record->created_at);
+                return date('m', $timestamp) == $currentMonth && date('Y', $timestamp) == $currentYear;
+            });
+        };
+
+        // Fetch all necessary payment data and filter by current month
+        $rentalPayments = $filterCurrentMonth($rentalPaymentModel->findAll() ?: []);
+        $sharePayments = $filterCurrentMonth($sharePaymentModel->findAll() ?: []);
+        $servicePayments = $filterCurrentMonth($servicePaymentModel->findAll() ?: []);
+        $salaryPayments = $filterCurrentMonth($salaryPaymentModel->findAll() ?: []);
+        $ledger = $filterCurrentMonth($ledgerModel->findAll() ?: []);
+
+        // Pre-calculate totals
+        $totalRentalPayments = array_sum(array_column($rentalPayments, 'amount'));
+        $totalSharePayments = array_sum(array_column($sharePayments, 'amount'));
+        $totalServicePayments = array_sum(array_column($servicePayments, 'amount'));
+        $totalSalaryPayments = array_sum(array_column($salaryPayments, 'salary_amount'));
+
+        // Calculate total advance and full payments separately
+        $advancePayments = array_filter($sharePayments, function ($payment) {
+            return $payment->payment_type == 'advance';
+        });
+
+        $fullPayments = array_filter($sharePayments, function ($payment) {
+            return $payment->payment_type == 'full';
+        });
+
+        $totalAdvancePayments = array_sum(array_column($advancePayments, 'amount'));
+        $totalFullPayments = array_sum(array_column($fullPayments, 'amount'));
+
+        $this->view('manager/monthlyReport', [
+            'rentalPayments' => $rentalPayments,
+            'sharePayments' => $sharePayments,
+            'servicePayments' => $servicePayments,
+            'salaries' => $salaryPayments,
+            'ledger' => $ledger,
+            'totalRentalPayments' => $totalRentalPayments,
+            'totalSharePayments' => $totalSharePayments,
+            'totalServicePayments' => $totalServicePayments,
+            'totalSalaryPayments' => $totalSalaryPayments,
+            'totalAdvancePayments' => $totalAdvancePayments,
+            'totalFullPayments' => $totalFullPayments
+        ]);
+    }
+
 
     public function propertyDeleteConfirmation($propertyID)
     {

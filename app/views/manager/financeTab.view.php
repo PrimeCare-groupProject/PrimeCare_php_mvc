@@ -1,7 +1,11 @@
 <?php require_once 'managerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
+    <div class="gap"></div>
     <h2>Financial Overview</h2>
+    <div class="flex-bar">
+        <button onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/monthlyReport'" class="small-btn green">Summary</button>
+    </div>
 </div>
 
 <div>
