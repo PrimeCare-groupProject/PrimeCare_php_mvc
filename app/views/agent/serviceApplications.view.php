@@ -64,7 +64,7 @@
                 </div>
                 
                 <div class="card-footer">
-                    <a href="<?= ROOT ?>/agent/viewApplicationDetails/<?= $application->service_id ?>/<?= $application->service_provider_id ?>" class="view-btn">
+                    <a href="<?= ROOT ?>/dashboard/viewApplicationDetails/<?= $application->service_id ?>/<?= $application->service_provider_id ?>" class="view-btn">
                         <i class="fas fa-eye"></i> View Details
                     </a>
                     
