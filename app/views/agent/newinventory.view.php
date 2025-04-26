@@ -92,6 +92,65 @@
             reader.readAsDataURL(file);
         }
     }
+
+    // Function to validate numeric input
+    function validateNumericInput(event) {
+        const inputField = event.target;
+        const value = inputField.value;
+
+        // Check if the value is not numeric
+        if (isNaN(value) || value.includes(" ")) {
+            inputField.value = ""; // Clear the invalid input
+            alert("Please enter a valid numeric value."); // Show an alert message
+        }
+    }
+
+    // Attach the validation function to the relevant input fields
+    document.addEventListener("DOMContentLoaded", function () {
+        const quantityField = document.querySelector('input[name="quantity"]');
+        const unitPriceField = document.querySelector('input[name="unit_price"]');
+        const propertyIdField = document.querySelector('input[name="property_id"]');
+
+        // Add event listeners for real-time validation
+        quantityField.addEventListener("input", validateNumericInput);
+        unitPriceField.addEventListener("input", validateNumericInput);
+        propertyIdField.addEventListener("input", validateNumericInput);
+    });
+
+    // Function to validate numeric input
+    function validateNumericInput(event) {
+        const inputField = event.target;
+        const value = inputField.value;
+        const errorMessage = inputField.nextElementSibling; // Assume the error message is the next sibling element
+
+        // Check if the value is not numeric
+        if (isNaN(value) || value.includes(" ")) {
+            inputField.value = ""; // Clear the invalid input
+            errorMessage.textContent = "Please enter a valid numeric value."; // Show an error message
+            errorMessage.style.color = "red";
+        } else {
+            errorMessage.textContent = ""; // Clear the error message
+        }
+    }
+
+    // Attach the validation function to the relevant input fields
+    document.addEventListener("DOMContentLoaded", function () {
+        const quantityField = document.querySelector('input[name="quantity"]');
+        const unitPriceField = document.querySelector('input[name="unit_price"]');
+        const propertyIdField = document.querySelector('input[name="property_id"]');
+
+        // Add event listeners for real-time validation
+        quantityField.addEventListener("input", validateNumericInput);
+        unitPriceField.addEventListener("input", validateNumericInput);
+        propertyIdField.addEventListener("input", validateNumericInput);
+
+        // Add error message elements after each field
+        [quantityField, unitPriceField, propertyIdField].forEach(field => {
+            const errorMessage = document.createElement("span");
+            field.parentNode.insertBefore(errorMessage, field.nextSibling);
+        });
+    });
 </script>
+
 
 <?php require_once 'agentFooter.view.php'; ?>
