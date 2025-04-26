@@ -2560,4 +2560,43 @@ class Agent
         ]);
     }
 
+    // Service Management - Main page with navigation cards
+
+    public function serviceManagement() {
+        $this->view('agent/serviceManagement');
+    }
+
+    // Service Listing - Page to view and manage available services
+
+    public function serviceListing() {
+        $services = new Services();
+        $allServices = $services->findAll();
+        
+        $this->view('agent/serviceListing', [
+            'services' => $allServices
+        ]);
+    }
+
+    // Service Applications - Page to view and manage service provider applications
+
+    public function serviceApplications() {
+        $serviceApplication = new ServiceApplication();
+        $applications = $serviceApplication->findAll();
+        
+        // Group applications by service
+        $applicationsByService = [];
+        if (!empty($applications)) {
+            foreach ($applications as $application) {
+                if (!isset($applicationsByService[$application->service_id])) {
+                    $applicationsByService[$application->service_id] = [];
+                }
+                $applicationsByService[$application->service_id][] = $application;
+            }
+        }
+        
+        $this->view('agent/serviceApplications', [
+            'applicationsByService' => $applicationsByService
+        ]);
+    }
+
 }
