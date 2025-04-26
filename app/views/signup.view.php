@@ -19,7 +19,9 @@
     ?>
     <div class="signup-container">
         <div class="signup-form">
-            <img class="signup-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
+            <a href="/php_mvc_backend/public/home">
+                <img class="signup-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
+            </a>
             <div class="signup-form__welcome-text">
                 <h4>Welcome to our</h4>
                 <h2>Property Management Agency</h2>
@@ -79,16 +81,10 @@
                 <h5>Already have an account? <a class="signup-form__login-link" href="<?= ROOT ?>/login">Login</a></h5>
             </div>
 
-            <div class="errors" style="display: <?= !empty($user->errors) ? 'block' : 'none'; ?>">
-                <p><?= $user->errors['email'] ?? 
-                    $user->errors['contact'] ?? 
-                    $user->errors['password'] ?? 
-                    $user->errors['fname'] ??
-                    $user->errors['lname'] ??
-                    $user->errors['auth'] ??
-                    $user->errors['nic'] ?>
+            <!-- <div class="errors" style="display: <?= !empty($user->errors) ? 'block' : 'none'; ?>">
+                <p>
                 </p>
-            </div>
+            </div> -->
 
         </div>
     </div>
