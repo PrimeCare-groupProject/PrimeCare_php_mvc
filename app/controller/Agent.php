@@ -538,8 +538,8 @@ class Agent
                         // Convert ongoing_count to array if false (no services)
                         $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
                         
-                        // Add provider if they have less than 4 ongoing services
-                        if (count($ongoing_count) < 4) {
+                        // Add provider if they have less than or equal to 4 ongoing services
+                        if (count($ongoing_count) <= 4) {
                             $filtered_providers[] = $provider;
                         }
                     }
