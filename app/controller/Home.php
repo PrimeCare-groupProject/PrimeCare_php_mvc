@@ -33,7 +33,11 @@ class Home
 
     public function serviceListing()
     {
-        $this->view('serviceListing');
+        $service = new Services;
+        $services = $service->findAll();
+
+        $this->view('customer/repairListing' , ['services' => $services]);
+        //$this->view('serviceListing');
     }
 
     private function contactUs()
