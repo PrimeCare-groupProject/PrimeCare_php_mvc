@@ -134,7 +134,7 @@
 
     <section class="home-property-listing">
         <div class="search-box" style="align-self: flex-end; border-radius: 40px 0 0 40px;">
-            <a href="<?= ROOT ?>/Home/serviceListing">Pick a Service</a>
+            <a href="<?= isset($_SESSION['user']) ? ROOT . '/dashboard/repairListing' : ROOT . '/login?redirect=/dashboard/repairListing' ?>" class="primary-btn">Services</a>
             <p>Services</p>
         </div>
         <div class="service-listing-slider">
