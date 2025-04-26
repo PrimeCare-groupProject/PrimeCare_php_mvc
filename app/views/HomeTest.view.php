@@ -35,6 +35,7 @@
                     <li><a href="#team">Team</a></li>
                     <li><a href="#logs">Logs</a></li>
                     <li><a href="#contactus">Contact Us</a></li>
+                    <li><a href="http://localhost/php_mvc_backend/public/home/policies">Policy</a></li>
                     <li>
                         <?php
                         if (isset($_SESSION['user'])) {

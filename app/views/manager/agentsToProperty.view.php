@@ -5,70 +5,82 @@
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
     <h2>Assign Agents</h2>
-</div>
-
-<div class="AA__property-management-container">
-    <!-- Search and Filter Section -->
-    <div class="AA__filter-section">
-        <div class="AA__search-box">
-            <input type="text" placeholder="Search...">
-            <button class="AA__search-btn"><i class="fa fa-search"></i></button>
-        </div>
+    <div class="flex-bar">
+        <form class="search-container" method="GET">
+            <input
+                type="text"
+                class="search-input"
+                name="searchterm"
+                id="searchInput"
+                placeholder="Search contact message ...">
+            <button class="search-btn" type="submit">
+                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
+            </button>
+        </form>
     </div>
-
-    <!-- Properties Table -->
+</div>
+<div class="AA__property-management-container">
     <div class="AA__properties-table-container">
-        <table class="AA__properties-table">
-            <thead>
-                <tr>
-                    <th>Property ID</th>
-                    <th>Name</th>
-                    <th>Owner Name</th>
-                    <th class="AA__align_to_center">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="AA__properties-table-body">
-                <?php
-                foreach ($properties as $property):
-                ?>
-                    <tr class="AA__property-row" data-id="<?= $property->property_id ?>" data-name="<?= strtolower($property->name) ?>" data-owner="<?= strtolower($property->owner_name) ?>">
-                        <td><?= $property->property_id ?></td>
-                        <td><?= $property->name ?></td>
-                        <td><?= $property->owner_name ?></td>
-                        <td class="AA__action-buttons">
-                            <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyView/<?= $property->property_id ?>'">View</button>
-                            <button class="small-btn orange" onclick="toggleAssignPanel(event, '<?= $property->property_id ?>')">Assign</button>
-                        </td>
+        <?php if ($properties != null) { ?>
+            <table class="AA__properties-table">
+                <thead>
+                    <tr>
+                        <th>Property ID</th>
+                        <th>Name</th>
+                        <th>Owner Name</th>
+                        <th class="AA__align_to_center">Actions</th>
                     </tr>
-                    <tr class="AA__assignment-panel" id="panel-<?= $property->property_id ?>">
-                        <td colspan="5">
-                            <div class="AA__assignment-details">
-                                <div class="AA__agent-selection">
-                                    <select class="AA__agent-dropdown" id="agent-select-<?= $property->property_id ?>">
-                                        <?php foreach ($agents as $agent): ?>
-                                            <option value="<?= $agent->pid ?>"><?= $agent->fname . ' ' . $agent->lname ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
+                </thead>
+                <tbody id="AA__properties-table-body">
+                    <?php
+                    foreach ($properties as $property):
+                    ?>
+                        <tr class="AA__property-row" data-id="<?= $property->property_id ?>" data-name="<?= strtolower($property->name) ?>" data-owner="<?= strtolower($property->owner_name) ?>">
+                            <td><?= $property->property_id ?></td>
+                            <td><?= $property->name ?></td>
+                            <td><?= $property->owner_name ?></td>
+                            <td class="AA__action-buttons">
+                                <button class="small-btn green" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/propertymanagement/propertyView/<?= $property->property_id ?>'">View</button>
+                                <button class="small-btn orange" onclick="toggleAssignPanel(event, '<?= $property->property_id ?>')">Assign</button>
+                            </td>
+                        </tr>
+                        <tr class="AA__assignment-panel" id="panel-<?= $property->property_id ?>">
+                            <td colspan="5">
+                                <div class="AA__assignment-details">
+                                    <div class="AA__agent-selection">
+                                        <select class="AA__agent-dropdown" id="agent-select-<?= $property->property_id ?>">
+                                            <?php
+                                            if ($agents == null) {
+                                                echo "<option value=''>No agents available</option>";
+                                            } else {
+                                                foreach ($agents as $agent): ?>
+                                                    <option value="<?= $agent->pid ?>"><?= $agent->fname . ' ' . $agent->lname ?></option>
+                                            <?php endforeach;
+                                            } ?>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button class="secondary-btn blue-solid" onclick="confirmAssignment(<?= $property->property_id ?>)">Confirm Assignment</button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <button class="secondary-btn blue-solid" onclick="confirmAssignment(<?= $property->property_id ?>)">Confirm Assignment</button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
 
-                    <script>
-                        function confirmAssignment(propertyId) {
-                            const agentSelect = document.getElementById(`agent-select-${propertyId}`);
-                            const selectedAgentId = agentSelect.value;
-                            const url = `<?= ROOT ?>/dashboard/managementhome/propertymanagement/confirmAssign/${propertyId}/${selectedAgentId}`;
-                            window.location.href = url;
-                        }
-                    </script>
+                        <script>
+                            function confirmAssignment(propertyId) {
+                                const agentSelect = document.getElementById(`agent-select-${propertyId}`);
+                                const selectedAgentId = agentSelect.value;
+                                const url = `<?= ROOT ?>/dashboard/managementhome/propertymanagement/confirmAssign/${propertyId}/${selectedAgentId}`;
+                                window.location.href = url;
+                            }
+                        </script>
 
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php } else {
+            echo "<tr><td colspan='4' class='no-data'>No properties available</td></tr>";
+        } ?>
     </div>
 
     <script>
@@ -161,6 +173,28 @@
                 e.stopPropagation();
             };
         }
+    </script>
+
+    <script>
+        document.getElementById("searchInput").addEventListener("keyup", function() {
+            const input = this.value.toLowerCase();
+            const rows = document.querySelectorAll(".AA__property-row");
+
+            rows.forEach(row => {
+                const propertyName = row.getAttribute('data-name') || '';
+                const ownerName = row.getAttribute('data-owner') || '';
+
+                if (propertyName.includes(input) || ownerName.includes(input)) {
+                    row.style.display = "";
+                    const panel = document.getElementById('panel-' + row.getAttribute('data-id'));
+                    if (panel) panel.style.display = "";
+                } else {
+                    row.style.display = "none";
+                    const panel = document.getElementById('panel-' + row.getAttribute('data-id'));
+                    if (panel) panel.style.display = "none";
+                }
+            });
+        });
     </script>
 
     <?php require_once 'managerFooter.view.php'; ?>

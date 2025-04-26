@@ -11,7 +11,8 @@ class SalaryPayment{
         'salary_amount',
         'payment_date',
         'paid_month',
-        'created_at'
+        'created_at',
+        'person_id'
     ];
 
     public $errors = [];

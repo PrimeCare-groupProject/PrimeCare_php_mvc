@@ -6,25 +6,27 @@ class Manager
 {
     use controller;
     public function index()
-    {   
+    {
+        checkSalaryReminder(MANAGER_ID);
         $this->dashboard();
     }
 
     public function dashboard()
     {
-         // Load the required models
-         $propertyModel = new Property();
-         $userModel = new User();
-         $bookingOrders = new BookingOrders();
-         $agentAssignmentModel = new agentAssignment();
- 
-         // Fetch recent agent assignments
+        checkSalaryReminder(MANAGER_ID);
+        // Load the required models
+        $propertyModel = new Property();
+        $userModel = new User();
+        $bookingOrders = new BookingOrders();
+        $agentAssignmentModel = new agentAssignment();
+
+        // Fetch recent agent assignments
         $recentAssignments = $agentAssignmentModel->findAll();
         // Fetch the required data
-         $totalProperties = $propertyModel->getTotalCountWhere();
-         $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
-         $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
-         $tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']); // Assuming user_lvl = 2 for service providers
+        $totalProperties = $propertyModel->getTotalCountWhere();
+        $registeredAgents = $userModel->getTotalCountWhere(['user_lvl' => 3]); // Assuming user_lvl = 3 for agents
+        $serviceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]); // Assuming user_lvl = 2 for service providers
+        $tenents = $bookingOrders->getTotalCountWhere(['booking_status' => 'Confirmed']); // Assuming user_lvl = 2 for service providers
         // Pass the data to the view
         $this->view('manager/dashboard', [
             'totalProperties' => $totalProperties,
@@ -33,8 +35,6 @@ class Manager
             'tenents' => $tenents,
             'recentAssignments' => $recentAssignments
         ]);
-
-
     }
 
     public function generateUsername($fname, $length = 10)
@@ -588,7 +588,7 @@ class Manager
                 $this->agentManagement($b, $c, $d);
                 break;
             case 'financemanagement':
-                $this->financialManagement();
+                $this->financialManagement($c, $d);
                 break;
             case 'confirmUpdate':
                 $this->confirmUpdate($b, $c, $d);
@@ -596,11 +596,74 @@ class Manager
             case 'rejectUpdate':
                 $this->rejectUpdate($b, $c, $d);
                 break;
+            case 'employeeListing':
+                $this->employeeListing($b, $c, $d);
+                break;
+            case 'salaryView':
+                $this->salaryView($b, $c, $d);
+                break;
+            case 'payForOne':
+                $this->payForOne($b, $c, $d);
+                break;
+            case 'payAll':
+                $this->payAll($b, $c, $d);
+                break;
+            case 'financeView':
+                $this->financeView($b, $c, $d);
+                break;
+            case 'monthlyReport':
+                $this->monthlyReport($c, $d);
+                break;
             default:
                 $this->view('manager/managementHome');
                 break;
         }
     }
+
+    public function financeView()
+    {
+        $rentalPaymentModel = new RentalPayment();
+        $sharePaymentModel = new SharePayment();
+        $servicePaymentModel = new ServicePayment();
+        $salaryPaymentModel = new SalaryPayment();
+        $ledgerModel = new Ledger();
+
+        // Fetch all necessary payment data
+        $rentalPayments = $rentalPaymentModel->findAll() ?: [];
+        $sharePayments = $sharePaymentModel->findAll() ?: [];
+        $servicePayments = $servicePaymentModel->findAll() ?: [];
+        $salaryPayments = $salaryPaymentModel->findAll() ?: [];
+        $ledger = $ledgerModel->findAll() ?: [];
+
+        // Pre-calculate totals
+        $totalRentalPayments = array_sum(array_column($rentalPayments, 'amount'));
+        $totalSharePayments = array_sum(array_column($sharePayments, 'amount'));
+        $totalServicePayments = array_sum(array_column($servicePayments, 'amount'));
+        $totalSalaryPayments = array_sum(array_column($salaryPayments, 'salary_amount'));
+
+        // Calculate total advance and full payments separately
+        $advancePayments = $sharePaymentModel->where(['payment_type' => 'advance']);
+        $fullPayments = $sharePaymentModel->where(['payment_type' => 'full']);
+
+        $totalAdvancePayments = array_sum(array_column($advancePayments ?: [], 'amount'));
+        $totalFullPayments = array_sum(array_column($fullPayments ?: [], 'amount'));
+
+
+        $this->view('manager/financeTab', [
+            'rentalPayments' => $rentalPayments,
+            'sharePayments' => $sharePayments,
+            'servicePayments' => $servicePayments,
+            'salaries' => $salaryPayments,
+            'ledger' => $ledger,
+            'totalRentalPayments' => $totalRentalPayments,
+            'totalSharePayments' => $totalSharePayments,
+            'totalServicePayments' => $totalServicePayments,
+            'totalSalaryPayments' => $totalSalaryPayments,
+            'totalAdvancePayments' => $totalAdvancePayments,
+            'totalFullPayments' => $totalFullPayments
+        ]);
+    }
+
 
     public function confirmUpdate($propertyID)
     {
@@ -730,6 +793,68 @@ class Manager
                 break;
         }
     }
+
+    public function monthlyReport()
+    {
+        $rentalPaymentModel = new RentalPayment();
+        $sharePaymentModel = new SharePayment();
+        $servicePaymentModel = new ServicePayment();
+        $salaryPaymentModel = new SalaryPayment();
+        $ledgerModel = new Ledger();
+
+        // Get current month and year
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+
+        // Helper function to filter by created_at date (assuming you have a created_at field)
+        $filterCurrentMonth = function ($records) use ($currentMonth, $currentYear) {
+            return array_filter($records, function ($record) use ($currentMonth, $currentYear) {
+                if (!isset($record->created_at)) return false;
+                $timestamp = strtotime($record->created_at);
+                return date('m', $timestamp) == $currentMonth && date('Y', $timestamp) == $currentYear;
+            });
+        };
+
+        // Fetch all necessary payment data and filter by current month
+        $rentalPayments = $filterCurrentMonth($rentalPaymentModel->findAll() ?: []);
+        $sharePayments = $filterCurrentMonth($sharePaymentModel->findAll() ?: []);
+        $servicePayments = $filterCurrentMonth($servicePaymentModel->findAll() ?: []);
+        $salaryPayments = $filterCurrentMonth($salaryPaymentModel->findAll() ?: []);
+        $ledger = $filterCurrentMonth($ledgerModel->findAll() ?: []);
+
+        // Pre-calculate totals
+        $totalRentalPayments = array_sum(array_column($rentalPayments, 'amount'));
+        $totalSharePayments = array_sum(array_column($sharePayments, 'amount'));
+        $totalServicePayments = array_sum(array_column($servicePayments, 'amount'));
+        $totalSalaryPayments = array_sum(array_column($salaryPayments, 'salary_amount'));
+
+        // Calculate total advance and full payments separately
+        $advancePayments = array_filter($sharePayments, function ($payment) {
+            return $payment->payment_type == 'advance';
+        });
+
+        $fullPayments = array_filter($sharePayments, function ($payment) {
+            return $payment->payment_type == 'full';
+        });
+
+        $totalAdvancePayments = array_sum(array_column($advancePayments, 'amount'));
+        $totalFullPayments = array_sum(array_column($fullPayments, 'amount'));
+
+        $this->view('manager/monthlyReport', [
+            'rentalPayments' => $rentalPayments,
+            'sharePayments' => $sharePayments,
+            'servicePayments' => $servicePayments,
+            'salaries' => $salaryPayments,
+            'ledger' => $ledger,
+            'totalRentalPayments' => $totalRentalPayments,
+            'totalSharePayments' => $totalSharePayments,
+            'totalServicePayments' => $totalServicePayments,
+            'totalSalaryPayments' => $totalSalaryPayments,
+            'totalAdvancePayments' => $totalAdvancePayments,
+            'totalFullPayments' => $totalFullPayments
+        ]);
+    }
+
 
     public function propertyDeleteConfirmation($propertyID)
     {
@@ -952,15 +1077,182 @@ class Manager
         // $this->view('manager/requestApproval');
     }
 
-    private function financialManagement()
+    private function financialManagement($c = '', $d = '')
     {
         $this->view('manager/financemanagement');
     }
 
+    public function employeeListing()
+    {
+        $agentModel = new Agent;
+        $agents = $agentModel->where(['AccountStatus' => 1, 'assign_month' => date('Y-m')]);
+        $this->view('manager/salary/employeeListing', ['agents' => $agents]);
+    }
+
+    public function salaryView($agentID)
+    {
+        $agentModel = new Agent;
+        $agent = $agentModel->first(['pid' => $agentID]);
+        $this->view('manager/salary/salaryView', ['agent' => $agent]);
+    }
+
+    public function payForOne($agentID)
+    {
+        $agentModel = new Agent;
+        $agent = $agentModel->first(['pid' => $agentID, 'assign_month' => date('Y-m')]);
+        if (!$agent) {
+            $_SESSION['flash']['msg'] = "Agent not found to proceed with payment.";
+            $_SESSION['flash']['type'] = "warning";
+            redirect('dashboard/managementhome/employeeListing');
+            return;
+        }
+
+        $salaryModel = new SalaryPayment;
+        $isPaidAlready = $salaryModel->first(['employee_id' => $agentID, 'paid_month' => date('Y-m')]);
+        if ($isPaidAlready) {
+            $_SESSION['flash']['msg'] = "Agent ID " . $agentID . " has already been paid for this month!";
+            $_SESSION['flash']['type'] = "warning";
+            redirect('dashboard/managementhome/employeeListing');
+            return;
+        }
+
+        $salaryAmount = AGENT_BASIC_SALARY + ($agent->property_count * AGENT_INCREMENT);
+
+        $salaryDetails = [
+            'employee_id'   => $agent->pid,
+            'salary_amount' => $salaryAmount,
+            'payment_date'  => date('Y-m-d'),
+            'paid_month'    => date('Y-m'),
+            'person_id'     => MANAGER_ID
+        ];
+
+        $isPaidSuccessfully = $salaryModel->insert($salaryDetails);
+
+        if ($isPaidSuccessfully) {
+            $_SESSION['flash']['msg'] = "Salary paid successfully for Agent ID - " . $agentID;
+            $_SESSION['flash']['type'] = "success";
+
+            // $ledgerModel = new Ledger;
+            // $ledgerModel->insert([
+            //     'transaction_type'   => 'salary_payment',
+            //     'reference_id' => $agentID,
+            //     'reference_type'  => 'employee',
+            //     'amount' => $salaryAmount,
+            //     'description' => "Salary paid to Agent ID - " . $agentID
+            // ]);
+
+            enqueueNotification(
+                "Salary Payment Processed",
+                "You successfully paid salary to Agent ID {$agentID} for " . date('F Y'),
+                '',
+                'Notification_green',
+                MANAGER_ID
+            );
+            enqueueNotification(
+                "Salary Received",
+                "Your salary for " . date('F Y') . " has been credited. Amount: Rs {$salaryAmount}",
+                ROOT . 'agent/salary/history',
+                'Notification_green',
+                $agentID
+            );
+
+            redirect('dashboard/managementhome/employeeListing');
+            return;
+        } else {
+            $_SESSION['flash']['msg'] = "Failed to process salary payment for Agent ID - " . $agentID;
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/managementhome/employeeListing');
+            return;
+        }
+    }
+
+
+    public function payAll()
+    {
+        $agentModel = new Agent;
+        $salaryModel = new SalaryPayment;
+
+        // Get all agents for the current month who are ACTIVE
+        $agents = $agentModel->where(['AccountStatus' => 1, 'assign_month' => date('Y-m')]);
+
+        if (!$agents || !is_array($agents) || count($agents) == 0) {
+            $_SESSION['flash']['msg'] = "No agents found to pay for this month.";
+            $_SESSION['flash']['type'] = "warning";
+            redirect('dashboard/managementhome/employeeListing');
+            return;
+        }
+
+        $successCount = 0;
+        $failureCount = 0;
+
+        foreach ($agents as $agent) {
+            // Check if already paid
+            $isPaidAlready = $salaryModel->first(['employee_id' => $agent->pid, 'paid_month' => date('Y-m')]);
+            if ($isPaidAlready) {
+                continue; // skip if already paid
+            }
+
+            $salaryAmount = AGENT_BASIC_SALARY + ($agent->property_count * AGENT_INCREMENT);
+
+            $salaryDetails = [
+                'employee_id'   => $agent->pid,
+                'salary_amount' => $salaryAmount,
+                'payment_date'  => date('Y-m-d'),
+                'paid_month'    => date('Y-m'),
+                'person_id'     => MANAGER_ID
+            ];
+
+            $isPaidSuccessfully = $salaryModel->insert($salaryDetails);
+
+            if ($isPaidSuccessfully) {
+                $successCount++;
+
+                // $ledgerModel = new Ledger;
+                // $ledgerModel->insert([
+                //     'transaction_type'   => 'salary_payment',
+                //     'reference_id' => $agent->pid,
+                //     'reference_type'  => 'employee',
+                //     'amount' => $salaryAmount,
+                //     'description' => "Salary paid to Agent ID - " . $agent->pid
+                // ]);
+
+                // Notify the Agent
+                enqueueNotification(
+                    "Salary Received",
+                    "Your salary for " . date('F Y') . " has been credited. Amount: Rs {$salaryAmount}",
+                    ROOT . 'agent/salary/history',
+                    'Notification_green',
+                    $agent->pid
+                );
+            } else {
+                $failureCount++;
+            }
+        }
+
+        // Notify Manager about the summary
+        enqueueNotification(
+            "Salary Payment Summary",
+            "Salary payment completed: {$successCount} success, {$failureCount} failed for " . date('F Y') . ".",
+            ROOT . 'dashboard/managementhome/employeeListing',
+            $failureCount == 0 ? 'Notification_green' : 'Notification_red',
+            MANAGER_ID
+        );
+
+        // Flash Message
+        $_SESSION['flash']['msg'] = "Salary payment completed. Success: {$successCount}, Failed: {$failureCount}.";
+        $_SESSION['flash']['type'] = $failureCount == 0 ? "success" : "warning";
+
+        redirect('dashboard/managementhome/employeeListing');
+    }
+
+
+    public function salaryDetails($agentID) {}
+
+
     public function assignAgents()
     {
         $property = new Property;
-        $properties = $property->where(['status' => 'pending', 'agent_id' => 110]);
+        $properties = $property->where(['status' => 'pending', 'agent_id' => MANAGER_ID]);
 
         $agents = new User;
         $agents = $agents->where(['user_lvl' => 3, 'AccountStatus' => 1]);
