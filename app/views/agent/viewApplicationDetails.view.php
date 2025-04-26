@@ -1,7 +1,7 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/agent/serviceApplications'><img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons"></a>
+    <a href='<?= ROOT ?>/dashboard/serviceApplications'><img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons"></a>
     <h2>Application Details</h2>
     
     <div class="status-tag <?= strtolower($application->status) ?>">
@@ -9,12 +9,33 @@
     </div>
 </div>
 
-<!-- Flash Messages -->
+<!-- Flash Messages - Improved positioning and visibility -->
 <?php if (isset($_SESSION['flash']['msg'])): ?>
-<div class="alert alert-<?= $_SESSION['flash']['type'] ?>">
-    <?= $_SESSION['flash']['msg'] ?>
-    <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+<div id="flash-message" class="alert alert-<?= $_SESSION['flash']['type'] ?>">
+    <div class="alert-content">
+        <i class="fas fa-<?= $_SESSION['flash']['type'] === 'success' ? 'check-circle' : ($_SESSION['flash']['type'] === 'error' ? 'exclamation-circle' : 'info-circle') ?>"></i>
+        <span><?= $_SESSION['flash']['msg'] ?></span>
+    </div>
+    <span class="alert-close" onclick="closeFlashMessage()">&times;</span>
 </div>
+<script>
+    // Auto-hide flash message after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            closeFlashMessage();
+        }, 5000);
+    });
+    
+    function closeFlashMessage() {
+        const flashMessage = document.getElementById('flash-message');
+        if (flashMessage) {
+            flashMessage.classList.add('fade-out');
+            setTimeout(function() {
+                flashMessage.style.display = 'none';
+            }, 300);
+        }
+    }
+</script>
 <?php unset($_SESSION['flash']); endif; ?>
 
 <div class="application-details-container">
@@ -71,13 +92,18 @@
             $file_extension = strtolower(pathinfo($application->proof, PATHINFO_EXTENSION));
             if (in_array($file_extension, ['jpg', 'jpeg', 'png'])): 
             ?>
-                <img src="<?= ROOT ?>/<?= $application->proof ?>" alt="Proof Document" class="proof-image">
+                <div class="image-container">
+                    <img src="<?= ROOT ?>/<?= $application->proof ?>" alt="Proof Document" class="proof-image">
+                    <button class="view-document-btn" onclick="openDocumentViewer('<?= ROOT ?>/<?= $application->proof ?>', 'image')">
+                        <i class="fas fa-search-plus"></i> Examine Document
+                    </button>
+                </div>
             <?php elseif ($file_extension === 'pdf'): ?>
                 <div class="pdf-container">
                     <i class="fas fa-file-pdf pdf-icon"></i>
                     <p>PDF Document</p>
-                    <button class="view-pdf-btn" onclick="openPdfViewer('<?= ROOT ?>/<?= $application->proof ?>')">
-                        <i class="fas fa-search-plus"></i> View PDF
+                    <button class="view-document-btn" onclick="openDocumentViewer('<?= ROOT ?>/<?= $application->proof ?>', 'pdf')">
+                        <i class="fas fa-search-plus"></i> Examine Document
                     </button>
                 </div>
             <?php else: ?>
@@ -97,12 +123,13 @@
 <div class="action-container">
     <h3>Application Decision</h3>
     <div class="decision-buttons">
-        <button class="reject-btn" onclick="rejectApplication()">
+        <!-- Changed to direct links instead of confirmation popup -->
+        <a href="<?= ROOT ?>/dashboard/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Rejected" class="reject-btn">
             <i class="fas fa-times-circle"></i> Reject Application
-        </button>
-        <button class="approve-btn" onclick="approveApplication()">
+        </a>
+        <a href="<?= ROOT ?>/dashboard/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Approved" class="approve-btn">
             <i class="fas fa-check-circle"></i> Approve Application
-        </button>
+        </a>
     </div>
 </div>
 <?php endif; ?>
@@ -131,73 +158,127 @@
         <?php endif; ?>
         
         <div class="decision-actions">
-            <button class="change-decision-btn" onclick="confirmChangeDecision()">
+            <!-- Changed to direct link without confirmation -->
+            <a href="<?= ROOT ?>/dashboard/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Pending" class="change-decision-btn">
                 <i class="fas fa-sync"></i> Change Decision
-            </button>
+            </a>
         </div>
     </div>
 </div>
 <?php endif; ?>
 
-<!-- Confirmation Modal -->
-<div id="confirmationModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h3 id="modal-title">Confirm Action</h3>
-        <p id="modal-message"></p>
-        <div class="modal-actions">
-            <button id="cancel-btn" onclick="closeModal()">Cancel</button>
-            <button id="confirm-btn">Confirm</button>
-        </div>
-    </div>
-</div>
-
-<!-- PDF Viewer Modal -->
-<div id="pdfViewerModal" class="modal pdf-modal">
-    <div class="pdf-modal-content">
-        <div class="pdf-modal-header">
+<!-- Keep the document viewer modal section -->
+<div id="documentViewerModal" class="modal document-modal">
+    <div class="document-modal-content">
+        <div class="document-modal-header">
             <h3>Proof Document</h3>
-            <button class="pdf-close-btn" onclick="closePdfViewer()">&times;</button>
+            <div class="document-controls">
+                <button id="zoomInBtn" class="control-btn" title="Zoom In" onclick="zoomIn()">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button id="zoomOutBtn" class="control-btn" title="Zoom Out" onclick="zoomOut()">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button id="resetZoomBtn" class="control-btn" title="Reset View" onclick="resetZoom()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button id="fullscreenBtn" class="control-btn" title="Toggle Fullscreen" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="document-close-btn" onclick="closeDocumentViewer()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
-        <div class="pdf-modal-body">
-            <iframe id="pdfFrame" src="" width="100%" height="100%" frameborder="0"></iframe>
+        <div class="document-modal-body">
+            <!-- For PDFs -->
+            <div id="pdfContainer" class="document-container">
+                <iframe id="pdfFrame" src="" frameborder="0"></iframe>
+            </div>
+            
+            <!-- For Images -->
+            <div id="imageContainer" class="document-container">
+                <div id="imageWrapper">
+                    <img id="documentImage" src="" alt="Proof Document">
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    /* Alert styles */
-    .alert {
-        padding: 12px 20px;
-        margin: 20px;
-        border-radius: 8px;
+    /* Updated Alert styles for overlay positioning */
+.alert {
+    padding: 15px 20px;
+    margin: 0;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(100% - 40px);
+    max-width: 800px;
+    box-sizing: border-box;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    position: fixed; /* Changed from relative to fixed */
+    top: 20px; /* Position from top */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center adjustment */
+    z-index: 9999; /* Ensure it's above everything */
+    animation: slideDown 0.4s ease-out;
+}
+
+    .alert-content {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 10px;
+    }
+    
+    .alert-content i {
+        font-size: 20px;
     }
     
     .alert-success {
         background-color: #e8f5e9;
-        color: #388e3c;
-        border-left: 4px solid #4caf50;
+        color: #2e7d32;
+        border-left: 5px solid #4caf50;
     }
     
     .alert-error {
         background-color: #ffebee;
-        color: #d32f2f;
-        border-left: 4px solid #f44336;
+        color: #c62828;
+        border-left: 5px solid #f44336;
     }
     
     .alert-warning {
         background-color: #fff8e1;
         color: #f57c00;
-        border-left: 4px solid #ffc107;
+        border-left: 5px solid #ffc107;
     }
     
     .alert-close {
         cursor: pointer;
-        font-size: 20px;
+        font-size: 22px;
         font-weight: bold;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+    
+    .alert-close:hover {
+        opacity: 1;
+    }
+    
+    .fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+    
+    @keyframes slideDown {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
     }
     
     /* Status tag in menu bar */
@@ -334,7 +415,7 @@
         color: #666;
     }
     
-    .view-pdf-btn,
+    .view-document-btn,
     .download-btn {
         display: inline-flex;
         align-items: center;
@@ -347,12 +428,12 @@
         transition: background-color 0.3s;
     }
     
-    .view-pdf-btn:hover,
+    .view-document-btn:hover,
     .download-btn:hover {
         background-color: #e0e0e0;
     }
     
-    .view-pdf-btn i,
+    .view-document-btn i,
     .download-btn i {
         margin-right: 8px;
     }
@@ -391,6 +472,7 @@
         border: none;
         cursor: pointer;
         transition: all 0.3s;
+        text-decoration: none;
     }
     
     .approve-btn {
@@ -492,132 +574,116 @@
         margin-right: 8px;
     }
     
-    /* Modal styles */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .modal.active {
-        display: flex;
-    }
-    
-    .modal-content {
-        background-color: white;
-        border-radius: 10px;
-        padding: 25px;
-        width: 400px;
-        max-width: 90%;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        position: relative;
-    }
-    
-    .close-modal {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 24px;
-        color: #999;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    
-    .close-modal:hover {
-        color: #333;
-    }
-    
-    #modal-title {
-        margin-top: 0;
-        margin-bottom: 15px;
-    }
-    
-    #modal-message {
-        margin-bottom: 25px;
-    }
-    
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-    }
-    
-    #cancel-btn, #confirm-btn {
-        padding: 8px 20px;
-        border-radius: 5px;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-    }
-    
-    #cancel-btn {
-        background-color: #f5f5f5;
-        color: #333;
-    }
-    
-    #confirm-btn {
-        background-color: #4e6ef7;
-        color: white;
-    }
-    
-    #cancel-btn:hover {
-        background-color: #e0e0e0;
-    }
-    
-    #confirm-btn:hover {
-        background-color: #3a56cc;
-    }
-    
-    /* PDF Modal styles */
-.pdf-modal .pdf-modal-content {
-    width: 90%;
-    height: 90%;
-    max-width: 1200px;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
+    /* Modal styles update - replace the existing modal CSS */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
     overflow: hidden;
 }
 
-.pdf-modal-header {
-    display: flex;
+.modal.active {
+    display: flex !important; /* Changed from block to flex */
     align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    width: 450px;
+    max-width: 90%;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    position: relative;
+    animation: modalAppear 0.3s ease;
+}
+
+/* Document viewer modal specific styles */
+.document-modal.active {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.document-modal-content {
+    background-color: white;
+    width: 90%;
+    height: 90%;
+    max-width: 1200px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    animation: modalAppear 0.3s ease;
+}
+
+.document-modal-header {
+    display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 15px 20px;
-    background-color: #f8f8f8;
+    background-color: #f5f5f5;
     border-bottom: 1px solid #ddd;
 }
 
-.pdf-modal-header h3 {
+.document-modal-header h3 {
     margin: 0;
     font-size: 18px;
     color: #333;
 }
 
-.pdf-close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #666;
-    cursor: pointer;
-    transition: color 0.2s;
+.document-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
-.pdf-close-btn:hover {
+.control-btn, 
+.document-close-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.2s;
+}
+
+.control-btn:hover,
+.document-close-btn:hover {
+    background-color: #e0e0e0;
     color: #333;
 }
 
-.pdf-modal-body {
+.document-modal-body {
     flex: 1;
-    overflow: hidden;
-    background-color: #525659;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    position: relative;
+}
+
+/* Container for document types */
+.document-container {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#pdfContainer {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
 #pdfFrame {
@@ -626,123 +692,313 @@
     border: none;
 }
 
-/* Mobile optimization */
-@media (max-width: 768px) {
-    .pdf-modal .pdf-modal-content {
-        width: 95%;
-        height: 95%;
-    }
-    
-    .pdf-modal-header {
-        padding: 10px 15px;
-    }
+#imageContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+}
+
+#imageWrapper {
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+#documentImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+/* Zoom classes for PDF */
+.zoom-50 {
+    transform: scale(0.5);
+    transform-origin: top left;
+}
+
+.zoom-75 {
+    transform: scale(0.75);
+    transform-origin: top left;
+}
+
+.zoom-100 {
+    transform: scale(1);
+    transform-origin: top left;
+}
+
+.zoom-125 {
+    transform: scale(1.25);
+    transform-origin: top left;
+}
+
+.zoom-150 {
+    transform: scale(1.5);
+    transform-origin: top left;
+}
+
+.zoom-175 {
+    transform: scale(1.75);
+    transform-origin: top left;
+}
+
+.zoom-200 {
+    transform: scale(2);
+    transform-origin: top left;
+}
+
+.zoom-250 {
+    transform: scale(2.5);
+    transform-origin: top left;
+}
+
+.zoom-300 {
+    transform: scale(3);
+    transform-origin: top left;
+}
+
+@keyframes modalAppear {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button styles for confirmation modal */
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #888;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+#cancel-btn, 
+#confirm-btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#cancel-btn {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+#cancel-btn:hover {
+    background-color: #e0e0e0;
+}
+
+#confirm-btn {
+    background-color: #4e6ef7;
+    color: white;
+}
+
+#confirm-btn:hover {
+    filter: brightness(1.1);
+}
+
+#confirm-btn.confirm-approve {
+    background-color: #4caf50;
+}
+
+#confirm-btn.confirm-reject {
+    background-color: #f44336;
 }
 </style>
 
 <script>
-    // Approval confirmation
-    function approveApplication() {
-        const modal = document.getElementById('confirmationModal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const confirmBtn = document.getElementById('confirm-btn');
+    // Updated document viewer functions
+    let currentScale = 1;
+    let isFullscreen = false;
+    
+    function openDocumentViewer(docUrl, type) {
+        // Reset zoom
+        currentScale = 1;
         
-        modalTitle.textContent = 'Approve Application';
-        modalMessage.textContent = 'Are you sure you want to approve this service provider application?';
+        if (type === 'pdf') {
+            // For PDFs
+            const pdfFrame = document.getElementById('pdfFrame');
+            const pdfContainer = document.getElementById('pdfContainer');
+            
+            // Clear any zoom classes first
+            pdfFrame.className = 'zoom-100';
+            
+            // Show PDF container
+            pdfContainer.style.display = 'block';
+            document.getElementById('imageContainer').style.display = 'none';
+            
+            // Set source - adding #view=FitH at the end makes the PDF fit the width
+            pdfFrame.src = docUrl + '#view=FitH';
+            
+            // Enable scrolling in the container
+            pdfContainer.style.overflow = 'auto';
+        } else if (type === 'image') {
+            // For Images
+            document.getElementById('documentImage').src = docUrl;
+            document.getElementById('imageContainer').style.display = 'flex';
+            document.getElementById('pdfContainer').style.display = 'none';
+            
+            // Reset image transform
+            document.getElementById('documentImage').style.transform = 'scale(1)';
+        }
         
-        confirmBtn.style.backgroundColor = '#4caf50';
-        confirmBtn.onclick = function() {
-            window.location.href = '<?= ROOT ?>/agent/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Approved';
-        };
+        // Show the document modal
+        document.getElementById('documentViewerModal').classList.add('active');
         
-        modal.classList.add('active');
+        // Immediately go into fullscreen mode for better visibility
+        setTimeout(() => {
+            if (!isFullscreen) toggleFullscreen();
+        }, 200);
+        
+        // Prevent body scrolling when modal is open
+        document.body.style.overflow = 'hidden';
+        
+        // Add ESC key listener
+        document.addEventListener('keydown', handleEscKey);
     }
     
-    // Rejection confirmation
-    function rejectApplication() {
-        const modal = document.getElementById('confirmationModal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const confirmBtn = document.getElementById('confirm-btn');
+    function closeDocumentViewer() {
+        // Hide the document modal
+        document.getElementById('documentViewerModal').classList.remove('active');
         
-        modalTitle.textContent = 'Reject Application';
-        modalMessage.textContent = 'Are you sure you want to reject this service provider application?';
+        // Exit fullscreen if active
+        if (isFullscreen) {
+            toggleFullscreen();
+        }
         
-        confirmBtn.style.backgroundColor = '#f44336';
-        confirmBtn.onclick = function() {
-            window.location.href = '<?= ROOT ?>/agent/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Rejected';
-        };
+        // Re-enable body scrolling
+        document.body.style.overflow = '';
         
-        modal.classList.add('active');
+        // Clean up iframe src to stop PDF loading/rendering
+        setTimeout(() => {
+            document.getElementById('pdfFrame').src = '';
+        }, 300);
+        
+        // Remove ESC key listener
+        document.removeEventListener('keydown', handleEscKey);
     }
     
-    // Change decision confirmation
-    function confirmChangeDecision() {
-        const modal = document.getElementById('confirmationModal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const confirmBtn = document.getElementById('confirm-btn');
+    function handleEscKey(event) {
+        if (event.key === 'Escape') {
+            closeDocumentViewer();
+        }
+    }
+    
+    function zoomIn() {
+        if (currentScale < 3) {
+            currentScale += 0.25;
+            updateZoom();
+        }
+    }
+    
+    function zoomOut() {
+        if (currentScale > 0.5) {
+            currentScale -= 0.25;
+            updateZoom();
+        }
+    }
+    
+    function resetZoom() {
+        currentScale = 1;
+        updateZoom();
+    }
+    
+    function updateZoom() {
+        // Get currently visible container
+        const pdfVisible = document.getElementById('pdfContainer').style.display === 'block';
         
-        modalTitle.textContent = 'Change Decision';
-        modalMessage.textContent = 'Are you sure you want to change your decision for this application?';
+        if (pdfVisible) {
+            // For PDFs: Use classes to apply zoom
+            const pdfFrame = document.getElementById('pdfFrame');
+            
+            // Clear existing zoom classes
+            pdfFrame.className = '';
+            
+            // Map currentScale to the nearest zoom class
+            let zoomClass = 'zoom-100'; // default
+            
+            if (currentScale <= 0.5) zoomClass = 'zoom-50';
+            else if (currentScale <= 0.75) zoomClass = 'zoom-75';
+            else if (currentScale <= 1) zoomClass = 'zoom-100';
+            else if (currentScale <= 1.25) zoomClass = 'zoom-125';
+            else if (currentScale <= 1.5) zoomClass = 'zoom-150';
+            else if (currentScale <= 1.75) zoomClass = 'zoom-175';
+            else if (currentScale <= 2) zoomClass = 'zoom-200';
+            else if (currentScale <= 2.5) zoomClass = 'zoom-250';
+            else zoomClass = 'zoom-300';
+            
+            pdfFrame.classList.add(zoomClass);
+            
+        } else {
+            // For images: Use transform
+            const image = document.getElementById('documentImage');
+            if (image) {
+                image.style.transform = `scale(${currentScale})`;
+            }
+        }
         
-        confirmBtn.style.backgroundColor = '#FF9800';
-        confirmBtn.onclick = function() {
-            window.location.href = '<?= ROOT ?>/agent/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Pending';
-        };
+        // Update zoom percentage display if you have one
+        // document.getElementById('zoomPercentage').textContent = `${Math.round(currentScale * 100)}%`;
+    }
+    
+    function toggleFullscreen() {
+        const modal = document.getElementById('documentViewerModal');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
         
-        modal.classList.add('active');
+        if (!isFullscreen) {
+            // Enter fullscreen
+            if (modal.requestFullscreen) {
+                modal.requestFullscreen();
+            } else if (modal.webkitRequestFullscreen) {
+                modal.webkitRequestFullscreen();
+            } else if (modal.msRequestFullscreen) {
+                modal.msRequestFullscreen();
+            }
+            
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            isFullscreen = true;
+        } else {
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            isFullscreen = false;
+        }
     }
     
-    // Close modal
-    function closeModal() {
-        document.getElementById('confirmationModal').classList.remove('active');
-    }
-    
-    // PDF viewer functions
-function openPdfViewer(pdfUrl) {
-    // Set the iframe source to the PDF
-    document.getElementById('pdfFrame').src = pdfUrl;
-    
-    // Show the PDF modal
-    document.getElementById('pdfViewerModal').classList.add('active');
-    
-    // Prevent body scrolling when modal is open
-    document.body.style.overflow = 'hidden';
-    
-    // Add ESC key listener
-    document.addEventListener('keydown', handleEscKey);
-}
-
-function closePdfViewer() {
-    // Hide the PDF modal
-    document.getElementById('pdfViewerModal').classList.remove('active');
-    
-    // Re-enable body scrolling
-    document.body.style.overflow = '';
-    
-    // Clean up iframe src to stop PDF loading/rendering
-    setTimeout(() => {
-        document.getElementById('pdfFrame').src = '';
-    }, 300);
-    
-    // Remove ESC key listener
-    document.removeEventListener('keydown', handleEscKey);
-}
-
-function handleEscKey(event) {
-    if (event.key === 'Escape') {
-        closePdfViewer();
-    }
-}
-
-// Add click outside to close
-document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
-    // Only close if the click is directly on the modal background, not on its content
-    if (e.target === this) {
-        closePdfViewer();
-    }
-});
+    // Add click outside to close
+    document.getElementById('documentViewerModal').addEventListener('click', function(e) {
+        // Only close if the click is directly on the modal background, not on its content
+        if (e.target === this) {
+            closeDocumentViewer();
+        }
+    });
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>
