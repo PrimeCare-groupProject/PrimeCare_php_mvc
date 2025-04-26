@@ -618,3 +618,117 @@ function getPropertyRatings($property_id)
     }
     return 0; // Return 0 if no ratings found
 }
+
+function getPaidStatusOfAgent($agent_id, $month)
+{
+    $agentSalaryModel = new SalaryPayment;
+    $salary = $agentSalaryModel->first(['employee_id' => $agent_id, 'paid_month' => $month]);
+    if ($salary) {
+        return 1;
+    }
+    return 0; // Return 0 if no salary record found
+}
+
+function getRole($user_id)
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        switch ($user->user_lvl) {
+            case 1:
+                return 'Owner';
+            case 2:
+                return 'Service Provider';
+            case 3:
+                return 'Agent';
+            case 4:
+                return 'Manager';
+            default:
+                return 'Customer'; 
+        }
+    }
+    return 'Not Found';
+}
+
+function getMonthRange($month)
+{
+    $date = DateTime::createFromFormat('Y-m', $month);
+    if ($date) {
+        $start = $date->format('Y-m-01'); // First day of month
+        $end = $date->format('Y-m-t');    // Last day of month (t = days in month)
+        return "$start to $end";
+    }
+    return 'Invalid Date';
+}
+
+
+function checkSalaryReminder($manager_id)
+{
+    $today = date('Y-m-d');
+    $currentMonth = date('Y-m');
+    $day = date('d');
+
+    // Only on the 10th
+    if ($day != SALARY_REMINDER_DAY) {
+        return;
+    }
+
+    // Check if notification already exists for this month
+    $notificationModel = new NotificationModel(); // Assuming you have a Notification model
+    $existing = $notificationModel->first([
+        'user_id' => $manager_id,
+        'title' => 'Salary Payment Reminder ' . $currentMonth,
+    ]);
+
+    if ($existing) {
+        return; // Already sent for this month
+    }
+
+    // Otherwise, enqueue the reminder
+    enqueueNotification(
+        "Salary Payment Reminder " . $currentMonth,
+        "Please process salary payments for agents for " . date('F Y') . ".",
+        'dashboard/managementhome/employeeListing', // Link to salary area
+        'Notification_orange',
+        $manager_id
+    );
+}
+
+
+function getTransactionType($type)
+{
+    switch ($type) {
+        case 'rent_income':
+            return 'Rent Income';
+        case 'salary_payment':
+            return 'Salary Payment';
+        case 'service_fee':
+            return 'Service Fee';
+        default:
+            return 'Unknown';
+    }
+}
+
+function getReferenceType($type)
+{
+    switch ($type) {
+        case 'property':
+            return 'Property';
+        case 'service':
+            return 'Service';
+        case 'employee':
+            return 'Employee';
+        default:
+            return 'Other';
+    }
+}
+
+function getUserName($user_id)
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        return $user->fname . ' ' . $user->lname;
+    }
+    return 'Unknown User'; // Return default name if user not found
+}

@@ -9,7 +9,7 @@
         <a href="<?= ROOT ?>/dashboard/managementhome/employeemanagement">
             <div class="MM__cards">
                 <div class="MM__text">
-                    <h2>Profile Management</h2>
+                    <h2>Profile</h2>
                 </div>
                 <div class="management-icon">
                     <img src="<?= ROOT ?>/assets/images/employeeManagement.jpg" alt="Employee Management" class="MM__img">
@@ -20,7 +20,7 @@
         <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement">
             <div class="MM__cards">
                 <div class="MM__text">
-                    <h2>Property Management</h2>
+                    <h2>Property</h2>
                 </div>
                 <div class="management-icon">
                     <img src="<?= ROOT ?>/assets/images/addOwner.jpg" alt="Property Management" class="MM__img">
@@ -28,10 +28,10 @@
             </div>
         </a>
 
-        <a href="<?= ROOT ?>/dashboard/managementhome/financemanagement">
+        <a href="<?= ROOT ?>/dashboard/managementhome/employeeListing">
             <div class="MM__cards">
                 <div class="MM__text">
-                    <h2>Finance Management</h2>
+                    <h2>Finance</h2>
                 </div>
                 <div class="management-icon">
                     <img src="<?= ROOT ?>/assets/images/financialManagement.jpg" alt="Finance Management" class="MM__img">
@@ -42,7 +42,7 @@
         <a href="<?= ROOT ?>/dashboard/managementhome/agentmanagement">
             <div class="MM__cards">
                 <div class="MM__text">
-                    <h2>Agent Management</h2>
+                    <h2>Agent</h2>
                 </div>
                 <div class="management-icon">
                     <img src="<?= ROOT ?>/assets/images/agentManagement.jpg" alt="Agent Management" class="MM__img">

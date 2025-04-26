@@ -566,3 +566,33 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+
+
+CREATE OR REPLACE VIEW Agent AS
+SELECT 
+    p.*,
+    pd.card_id AS card_id,
+    pd.card_name AS card_name,
+    pd.account_no AS account_no,
+    pd.bank AS bank,
+    pd.branch AS branch,
+    DATE_FORMAT(ap.created_at, '%Y-%m') AS assign_month,
+    COUNT(CASE WHEN prop.status != 'Inactive' THEN ap.property_id END) AS property_count
+FROM person p 
+LEFT JOIN payment_details pd
+    ON p.pid = pd.pid
+LEFT JOIN agent_property ap 
+    ON p.pid = ap.agent_id
+LEFT JOIN propertyTable prop
+    ON ap.property_id = prop.property_id
+WHERE p.user_lvl = 3
+GROUP BY p.pid, assign_month;
+
+
+create table agent_salary(
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    agent_id NOT NULL,
+    month DATE NOT NULL,
+    FOREIGN KEY (agent_id) REFERENCES person(pid)
+)
