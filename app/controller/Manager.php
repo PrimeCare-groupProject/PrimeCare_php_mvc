@@ -1187,7 +1187,7 @@ class Manager
     public function assignAgents()
     {
         $property = new Property;
-        $properties = $property->where(['status' => 'pending', 'agent_id' => 110]);
+        $properties = $property->where(['status' => 'pending', 'agent_id' => MANAGER_ID]);
 
         $agents = new User;
         $agents = $agents->where(['user_lvl' => 3, 'AccountStatus' => 1]);
