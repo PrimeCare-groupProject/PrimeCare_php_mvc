@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/reports.css">
-    <title>Salary Sheet - <?= $agent->assign_month ?></title>
+    <title>Salary Sheet - <?= $salary->assign_month ?></title>
 </head>
 
 <body style="font-family: 'Outfit', sans-serif; margin: 0; padding: 0; background-color: #f7f9fc; color: #333; line-height: 1.6;">
@@ -44,6 +44,10 @@
                 <div style="margin-bottom: 15px; flex: 0 0 48%;">
                     <p style="margin: 0; font-size: 12px; color: #6c757d; text-transform: uppercase; font-weight: 600;">Employee Role</p>
                     <p style="margin: 5px 0 0; font-size: 16px; font-weight: 500;"><?= getRole($agent->pid) ?></p>
+                </div>
+                <div style="margin-bottom: 15px; flex: 0 0 48%;">
+                    <p style="margin: 0; font-size: 12px; color: #6c757d; text-transform: uppercase; font-weight: 600;">Position</p>
+                    <p style="margin: 5px 0 0; font-size: 16px; font-weight: 500;">Senior Designer</p>
                 </div>
                 <div style="margin-bottom: 15px; flex: 0 0 48%;">
                     <p style="margin: 0; font-size: 12px; color: #6c757d; text-transform: uppercase; font-weight: 600;">Pay Period</p>

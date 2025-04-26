@@ -1084,21 +1084,21 @@ class Manager
 
     public function employeeListing()
     {
-        $agentModel = new Agent;
+        $agentModel = new AgentModel;
         $agents = $agentModel->where(['AccountStatus' => 1, 'assign_month' => date('Y-m')]);
         $this->view('manager/salary/employeeListing', ['agents' => $agents]);
     }
 
     public function salaryView($agentID)
     {
-        $agentModel = new Agent;
+        $agentModel = new AgentModel;
         $agent = $agentModel->first(['pid' => $agentID]);
         $this->view('manager/salary/salaryView', ['agent' => $agent]);
     }
 
     public function payForOne($agentID)
     {
-        $agentModel = new Agent;
+        $agentModel = new AgentModel;
         $agent = $agentModel->first(['pid' => $agentID, 'assign_month' => date('Y-m')]);
         if (!$agent) {
             $_SESSION['flash']['msg'] = "Agent not found to proceed with payment.";
@@ -1169,7 +1169,7 @@ class Manager
 
     public function payAll()
     {
-        $agentModel = new Agent;
+        $agentModel = new AgentModel;
         $salaryModel = new SalaryPayment;
 
         // Get all agents for the current month who are ACTIVE
