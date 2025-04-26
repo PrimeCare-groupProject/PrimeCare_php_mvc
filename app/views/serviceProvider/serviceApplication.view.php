@@ -60,7 +60,7 @@
             <div class="form-actions">
                 <button type="submit" class="submit-btn" id="submitBtn">
                     <span class="btn-text">Submit Application</span>
-                    <div class="loading-spinner"></div>
+                    <!-- <div class="loading-spinner"></div> -->
                 </button>
             </div>
         </form>
@@ -364,7 +364,7 @@
         visibility: hidden;
     }
     
-    .loading-spinner {
+    /* .loading-spinner {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -376,11 +376,11 @@
         border-top-color: #fff;
         animation: spin 1s linear infinite;
         display: none;
-    }
+    } */
     
-    .submit-btn.loading .loading-spinner {
+    /* .submit-btn.loading .loading-spinner {
         display: block;
-    }
+    } */
     
     /* Animations */
     @keyframes fadeIn {
@@ -394,11 +394,11 @@
         }
     }
     
-    @keyframes spin {
+    /* @keyframes spin {
         to {
             transform: translate(-50%, -50%) rotate(360deg);
         }
-    }
+    } */
     
     /* Responsive design */
     @media (max-width: 768px) {
@@ -425,6 +425,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewIcon = document.querySelector('.preview-icon');
     const form = document.getElementById('applicationForm');
     const submitBtn = document.getElementById('submitBtn');
+    const uploadIcon = document.querySelector('.upload-icon');
+    
+    // Fix: Make entire drop area clickable to open file dialog
+    dropArea.addEventListener('click', function(e) {
+        // Don't trigger if clicking on the input itself to avoid double events
+        if (e.target !== fileInput) {
+            fileInput.click();
+        }
+    });
+    
+    // Specifically make the upload icon clickable
+    uploadIcon.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent double triggering
+        fileInput.click();
+    });
     
     // Handle drag and drop events
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -515,10 +530,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Remove file button
-    removeFileBtn.addEventListener('click', function() {
-        fileInput.value = '';
-        filePreview.classList.remove('active');
+    removeFileBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); 
+        e.preventDefault(); 
+        
+        // Add visual feedback before removing
+        const fileInfoEl = this.closest('.preview-header').querySelector('.file-info');
+        
+        // Animate the removal
+        fileInfoEl.style.opacity = '0.5';
         progressBar.style.width = '0%';
+        
+        // Create removal animation
+        filePreview.classList.add('removing');
+        
+        // Delay actual removal to show animation
+        setTimeout(() => {
+            // Clear file input
+            fileInput.value = '';
+            
+            // Reset the UI
+            filePreview.classList.remove('active', 'removing');
+            fileName.textContent = 'No file selected';
+            fileSize.textContent = '';
+            
+            // Reset any validation states/messages if they exist
+            const errorElement = document.querySelector('.file-error');
+            if (errorElement) {
+                errorElement.remove();
+            }
+            
+            // Return focus to the drop area
+            dropArea.focus();
+            
+            // Visual feedback that upload area is ready again
+            dropArea.classList.add('highlight');
+            setTimeout(() => {
+                dropArea.classList.remove('highlight');
+            }, 600);
+            
+        }, 300);
     });
     
     // Form submission
