@@ -33,8 +33,8 @@
                             <th style='max-width: 60px; text-align: center;'>Allovance</th>
                             <th style='max-width: 30%; text-align: center;'>Salary</th>
                             <th style='min-width: 60px; text-align: center;'>Month</th>
-                            <th class='last' style='width: 35px; text-align: center;'>Status</th>
-                            <th style="min-width: 100px; text-align: center;"><span class="small-btn grey" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/payAll'">Pay</span></th>
+                            <th style='width: 35px; text-align: center;'>Status</th>
+                            <th class='last' style="min-width: 100px; text-align: center;"><span class="small-btn grey" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/payAll'">Pay</span></th>
                         </tr>
                     </thead>
                 <?php endif ?>
@@ -45,15 +45,15 @@
                         foreach ($agents as $agent) { ?>
                         <?php $paidState = getPaidStatusOfAgent($agent->pid, $agent->assign_month); ?>
                             <tr onclick='showUserDetailBox(this)'>
-                                <td><img class='header-profile-picture' style='margin:0px' src='<?= get_img($agent->image_url) ?>'></td>
-                                <td class='first' style="text-align: center;"><input type='text' name='id' value='<?= $agent->pid ?>' disabled></td>
+                                <td class='first'><img class='header-profile-picture' style='margin:0px' src='<?= get_img($agent->image_url) ?>'></td>
+                                <td  style="text-align: center;"><input type='text' name='id' value='<?= $agent->pid ?>' disabled></td>
                                 <td style="text-align: center;"><input type='text' name='name' value='<?= $agent->fname . " " . $agent->lname ?>' disabled></td>
                                 <td style="text-align: center;"><input type='text' value='<?= $agent->property_count ?>' disabled></td>
                                 <td style="text-align: center;"><input type='text' name='nic' value='<?= $agent->property_count * AGENT_INCREMENT ?>' disabled></td>
                                 <td style="text-align: center;"><input type='salary' name='salary' value='<?= AGENT_BASIC_SALARY + $agent->property_count * AGENT_INCREMENT ?>' disabled></td>
                                 <td style="text-align: center;"><input type='text' name='month' value='<?= $agent->assign_month ?>' disabled></td>
-                                <td class='last' style="text-align: center;"><input type='text' value='<?= $paidState ? 'Paid' : 'Unpaid' ?>' class="small-btn <?= getPaidStatusOfAgent($agent->pid, $agent->assign_month) ? 'green' : 'orange' ?>" disabled></td>
-                                <td style="text-align: center;">
+                                <td style="text-align: center;"><input type='text' value='<?= $paidState ? 'Paid' : 'Unpaid' ?>' class="small-btn <?= getPaidStatusOfAgent($agent->pid, $agent->assign_month) ? 'green' : 'orange' ?>" disabled></td>
+                                <td class='last' style="text-align: center;">
                                     <?php if(!$paidState): ?>
                                     <span class="small-btn blue" onclick="window.location.href='<?= ROOT ?>/dashboard/managementhome/salaryView/<?= $agent->pid ?>'">Pay</span>
                                     <?php else: ?>

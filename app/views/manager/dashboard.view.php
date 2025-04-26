@@ -822,7 +822,7 @@ img {
 </style>
 
 
-<div class="user_view-menu-bar">
+<div class="user_view-menu-bar" style="margin:-5px 5px 0px 10px;">
   <div class="gap"></div>
   <h2>dashboard</h2>
 </div>
@@ -864,7 +864,7 @@ img {
       <div class="pms-actions-grid">
         <a href="<?= ROOT ?>/dashboard/managementhome/agentmanagement" class="pms-action-card">
           <i class="fas fa-user-plus"></i>
-          <span>Register Employee</span>
+          <span>Register Agents</span>
         </a>
 
         <a href="<?=ROOT?>/dashboard/managementhome/propertymanagement" class="pms-action-card">
