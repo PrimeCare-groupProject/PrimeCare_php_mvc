@@ -4,6 +4,9 @@ class ServiceApplication {
     use Model;
 
     protected $table = 'service_applications';
+    protected $order_column = "created_at"; 
+    protected $order_direction = "desc";    
+    
     protected $allowedColumns = [
         'service_id',
         'service_provider_id',
