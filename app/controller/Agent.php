@@ -429,76 +429,141 @@ class Agent
 
     public function requestedTasks()
     {
+        // Get pending services from service log
         $service = new ServiceLog();
         $services = $service->where(['status' => 'Pending']);
-
-        // Get available service providers (user_lvl = 2) with their image URLs
+    
+        // Get available service providers
         $user = new User();
         $service_providers = $user->where(['user_lvl' => 2]);
-
-        // Filter out service providers who already have 4 or more ongoing services
-        $filtered_providers = [];
-        foreach ($service_providers as $provider) {
-            $provider->image_url = $provider->image_url ?? 'Agent.png';
-
-            // Count ongoing services for this provider
-            $ongoing_count = $service->where([
-                'service_provider_id' => $provider->pid,
-                'status' => 'Ongoing'
-            ]);
-
-            // Convert ongoing_count to array if false (no services)
-            $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
-
-            // Add provider if they have less than 4 ongoing services
-            if (count($ongoing_count) < 4) {
-                $filtered_providers[] = $provider;
+        
+        // Get all services from services table for name matching
+        $services_model = new Services();
+        $all_services = $services_model->getAllServices();
+        
+        // Create mapping from service type name to service_id
+        $service_type_to_id = [];
+        if ($all_services) {
+            foreach ($all_services as $service_item) {
+                $service_type_to_id[strtolower($service_item->name)] = $service_item->service_id;
             }
         }
-
-        // Fetch property images for each service
-        if ($services) {
-            foreach ($services as $service) {
-                if (!empty($service->property_id)) {
-                    // Get property details
-                    $property = new Property();
-                    $propertyData = $property->first(['property_id' => $service->property_id]);
-                    
-                    if ($propertyData) {
-                        // Get property images from PropertyImageModel
-                        $propertyImage = new PropertyImageModel();
-                        $images = $propertyImage->where(['property_id' => $service->property_id]);
-                        
-                        // Assign the first image to the service object if available
-                        if ($images && is_array($images) && !empty($images) && !empty($images[0]->image_url)) {
-                            // Store the actual image URL from the property_image table
-                            $service->property_image = $images[0]->image_url;
-                        } else {
-                            // Set default image if no property images found
-                            $service->property_image = 'listing_alt.jpg';
-                        }
-                    } else {
-                        $service->property_image = 'listing_alt.jpg';
-                    }
-                } else {
-                    $service->property_image = 'listing_alt.jpg';
+        
+        // Get approved service provider applications
+        $serviceApplication = new ServiceApplication();
+        $approved_applications = $serviceApplication->where(['status' => 'Approved']);
+        
+        // Create mapping from service_id to array of approved provider IDs
+        $approved_providers_by_service = [];
+        if ($approved_applications) {
+            foreach ($approved_applications as $application) {
+                $service_id = $application->service_id;
+                $provider_id = $application->service_provider_id;
+                
+                if (!isset($approved_providers_by_service[$service_id])) {
+                    $approved_providers_by_service[$service_id] = [];
                 }
+                
+                $approved_providers_by_service[$service_id][] = $provider_id;
             }
         }
-
+        
+        // Process services and create filtered provider lists
         $data = [
             'services' => $services,
-            'service_providers' => $filtered_providers
+            'providers_by_service' => [],
+            'service_providers' => $service_providers // Keep for backward compatibility
         ];
-
+        
+        if ($services) {
+            foreach ($services as $service_item) {
+                // Process property images
+                if (!empty($service_item->property_id)) {
+                    $property = new Property();
+                    $propertyData = $property->first(['property_id' => $service_item->property_id]);
+                    
+                    if ($propertyData) {
+                        $propertyImage = new PropertyImageModel();
+                        $images = $propertyImage->where(['property_id' => $service_item->property_id]);
+                        
+                        if ($images && is_array($images) && !empty($images) && !empty($images[0]->image_url)) {
+                            $service_item->property_image = $images[0]->image_url;
+                        } else {
+                            $service_item->property_image = 'listing_alt.jpg';
+                        }
+                    } else {
+                        $service_item->property_image = 'listing_alt.jpg';
+                    }
+                } else {
+                    $service_item->property_image = 'listing_alt.jpg';
+                }
+                
+                // Match service_type from serviceLog with service names in services table
+                $matched_service_id = null;
+                if (!empty($service_item->service_type)) {
+                    // Try direct match first
+                    $service_type_lower = strtolower($service_item->service_type);
+                    if (isset($service_type_to_id[$service_type_lower])) {
+                        $matched_service_id = $service_type_to_id[$service_type_lower];
+                    } else {
+                        // Try partial match
+                        foreach ($service_type_to_id as $name => $id) {
+                            if (strpos($service_type_lower, $name) !== false || 
+                                strpos($name, $service_type_lower) !== false) {
+                                $matched_service_id = $id;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Get approved providers for this service type
+                $approved_provider_ids = [];
+                if ($matched_service_id && isset($approved_providers_by_service[$matched_service_id])) {
+                    $approved_provider_ids = $approved_providers_by_service[$matched_service_id];
+                }
+                
+                // Filter providers by approval status and task count
+                $filtered_providers = [];
+                foreach ($service_providers as $provider) {
+                    if (in_array($provider->pid, $approved_provider_ids)) {
+                        $provider->image_url = $provider->image_url ?? 'Agent.png';
+                        
+                        // Count ongoing services for this provider
+                        $ongoing_count = $service->where([
+                            'service_provider_id' => $provider->pid,
+                            'status' => 'Ongoing'
+                        ]);
+                        
+                        // Convert ongoing_count to array if false (no services)
+                        $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
+                        
+                        // Add provider if they have less than 4 ongoing services
+                        if (count($ongoing_count) < 4) {
+                            $filtered_providers[] = $provider;
+                        }
+                    }
+                }
+                
+                // Store filtered providers for this service
+                $data['providers_by_service'][$service_item->service_id] = $filtered_providers;
+            }
+        }
+    
         // Handle service provider assignment when accept button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['service_id'])) {
             $service_id = $_POST['service_id'];
-
+            
             // Get the selected service provider from the dropdown
-            $provider_id = $_POST['service_provider_select'];
-
-            if ($provider_id) {
+            $provider_id = $_POST['service_provider_select'] ?? null;
+    
+            if (empty($provider_id)) {
+                // New validation: Check if a provider is selected
+                $_SESSION['flash'] = [
+                    'msg' => "Please select a service provider before accepting the task",
+                    'type' => "error"
+                ];
+            } else {
                 // Create a new ServiceLog instance to ensure it's a model with where() method
                 $serviceModel = new ServiceLog();
                 
@@ -507,19 +572,22 @@ class Agent
                     'service_provider_id' => $provider_id,
                     'status' => 'Ongoing'
                 ]);
-
+    
                 // Convert to empty array if false
                 $ongoing_services = $ongoing_services === false ? [] : $ongoing_services;
-
+    
                 if (count($ongoing_services) >= 4) {
-                    $_SESSION['error'] = "This service provider has reached their maximum service limit";
+                    $_SESSION['flash'] = [
+                        'msg' => "This service provider has reached their maximum service limit",
+                        'type' => "error"
+                    ];
                 } else {
                     // Update service with assigned provider and change status to Ongoing
                     $result = $serviceModel->update($service_id, [
                         'service_provider_id' => $provider_id,
                         'status' => 'Ongoing'
                     ], 'service_id');
-
+    
                     if ($result) {
                         // Get service details to include in notification
                         $serviceDetails = $serviceModel->first(['service_id' => $service_id]);
@@ -530,9 +598,9 @@ class Agent
                             'user_id' => $provider_id,
                             'title' => "New Task Assignment",
                             'message' => "You have been assigned a new " . 
-                                         ($serviceDetails->service_type ?? "maintenance") . 
-                                         " task for property " . 
-                                         ($serviceDetails->property_name ?? "ID: " . $serviceDetails->property_id),
+                                        ($serviceDetails->service_type ?? "maintenance") . 
+                                        " task for property " . 
+                                        ($serviceDetails->property_name ?? "ID: " . $serviceDetails->property_id),
                             'link' => "/php_mvc_backend/public/dashboard/repairRequests",
                             'color' => 'Notification_green', 
                             'is_read' => 0,
@@ -541,7 +609,7 @@ class Agent
                         
                         // Insert notification for service provider
                         $notificationModel->insert($notificationData);
-
+    
                         // Create notification for property owner
                         if (!empty($serviceDetails->property_id)) {
                             // Get property owner ID from property table
@@ -566,30 +634,32 @@ class Agent
                             }
                         }
                         
-                        $_SESSION['success'] = "Service request accepted and assigned successfully";
-                        redirect('dashboard/requestedTasks');
-                        exit; // Add exit here to prevent further execution
+                        $_SESSION['flash'] = [
+                            'msg' => "Service request accepted and assigned successfully",
+                            'type' => "success"
+                        ];
                     } else {
-                        $_SESSION['error'] = "Failed to update service request";
+                        $_SESSION['flash'] = [
+                            'msg' => "Failed to update service request",
+                            'type' => "error"
+                        ];
                     }
                 }
-            } else {
-                $_SESSION['error'] = "Please select a service provider";
             }
-
+            
             redirect('dashboard/requestedTasks');
-            exit; // Add exit here to prevent further execution
+            exit; // Prevent further execution
         }
-
+    
         // Handle service request deletion when decline button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
             $service_id = $_POST['delete_service_id'];
-
+    
             // Update the service request status to "Rejected" instead of deleting
             $result = $service->update($service_id, [
                 'status' => 'Rejected'
             ], 'service_id');
-
+    
             if ($result) {
                 // Get service details to include in notification
                 $serviceDetails = $service->first(['service_id' => $service_id]);
@@ -617,17 +687,22 @@ class Agent
                         $notificationModel->insert($ownerNotificationData);
                     }
                 }
-                $_SESSION['success'] = "Service request declined successfully";
-                redirect('dashboard/requestedTasks');
-                exit; // Add exit here to prevent further execution
+                
+                $_SESSION['flash'] = [
+                    'msg' => "Service request declined successfully",
+                    'type' => "success"
+                ];
             } else {
-                $_SESSION['error'] = "Failed to decline service request";
+                $_SESSION['flash'] = [
+                    'msg' => "Failed to decline service request",
+                    'type' => "error"
+                ];
             }
-
+    
             redirect('dashboard/requestedTasks');
-            exit; // Add exit here to prevent further execution
+            exit; 
         }
-
+    
         $this->view('agent/requestedTasks', $data);
     }
 
