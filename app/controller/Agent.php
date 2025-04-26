@@ -2537,9 +2537,16 @@ class Agent
         $pendingTasks = $serviceLog->where(['status' => 'Pending']);
         $pendingTasksCount = is_array($pendingTasks) ? count($pendingTasks) : 0;
         
-        // Count assigned tasks that need to be managed
-        $completedTasks = $serviceLog->where(['status' =>'Done']);
-        $tasksCount = is_array($completedTasks) ? count($completedTasks) : 0;
+        // Count completed (Done) tasks
+        $completedTasks = $serviceLog->where(['status' => 'Done']);
+        $completedTasksCount = is_array($completedTasks) ? count($completedTasks) : 0;
+
+        // Count paid tasks
+        $paidTasks = $serviceLog->where(['status' => 'Paid']);
+        $paidTasksCount = is_array($paidTasks) ? count($paidTasks) : 0;
+
+        // Total of Done and Paid tasks
+        $tasksCount = $completedTasksCount + $paidTasksCount;
         
         // Count pending external service requests
         $externalRequests = $externalService->where(['status' => 'pending']);
