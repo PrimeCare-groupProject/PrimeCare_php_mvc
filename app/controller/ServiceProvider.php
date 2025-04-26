@@ -1675,11 +1675,22 @@ public function serviceOverview() {
             return;
         }
         
+        // Enhanced proof document validation
+        if (!isset($_FILES['proof_document']) || 
+            $_FILES['proof_document']['error'] === UPLOAD_ERR_NO_FILE || 
+            $_FILES['proof_document']['size'] == 0) {
+            
+            $_SESSION['flash']['msg'] = "Proof document is required. Please upload a valid file.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/applyForService/' . $service_id);
+            return;
+        }
+        
         // Handle file upload
         $uploadError = null;
         $filePath = null;
         
-        if (isset($_FILES['proof_document']) && $_FILES['proof_document']['error'] === 0) {
+        if ($_FILES['proof_document']['error'] === 0) {
             $uploadDir = 'uploads/service_applications/';
             
             // Create directory if it doesn't exist
@@ -1701,7 +1712,7 @@ public function serviceOverview() {
                 $uploadError = "Failed to upload file.";
             }
         } else {
-            $uploadError = "Proof document is required.";
+            $uploadError = "Error uploading file. Please try again.";
         }
         
         if ($uploadError) {
@@ -1733,7 +1744,7 @@ public function serviceOverview() {
     }
 
     // Check application status
-    
+
     public function checkApplicationStatus($service_id = null) {
         // Check if user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
