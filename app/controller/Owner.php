@@ -1041,64 +1041,105 @@ class Owner
 
     public function serviceRequest($type = '')
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Handle form submission here
-            $data = [
-                'service_type' => $_POST['service_type'],
-                'date' => $_POST['date'],
-                'property_id' => $_POST['property_id'],
-                'property_name' => $_POST['property_name'],
-                'status' => $_POST['status'],
-                'service_description' => $_POST['service_description'],
-                'cost_per_hour' => $_POST['cost_per_hour'],
-                'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
-            ];
-
-            // Add service request to database
-            $service = new ServiceLog();
-            if ($service->insert($data)) {
-                $_SESSION['status'] = "Service request submitted successfully";
-                $_SESSION['success_message'] = "Request sent successfully!";
-            } else {
-                $_SESSION['errors'][] = "Failed to submit service request";
+        try {
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                // Check if the user has completed tasks with total cost exceeding 20,000 LKR
+                $serviceLog = new ServiceLog();
+                $completedServices = $serviceLog->where([
+                    'requested_person_id' => $_SESSION['user']->pid,
+                    'status' => 'Done'
+                ]);
+                
+                // Calculate total cost of completed services
+                $totalCompletedCost = 0;
+                if (!empty($completedServices)) {
+                    foreach ($completedServices as $service) {
+                        $totalCompletedCost += ($service->total_cost ?? 0);
+                    }
+                }
+                
+                // If total cost exceeds 20,000 LKR, show error message and prevent submission
+                if ($totalCompletedCost > 20000) {
+                    $_SESSION['flash']['msg'] = "You have unpaid completed services totaling LKR " . number_format($totalCompletedCost, 2) . 
+                        ". Please make payments for your existing completed services before requesting new services.";
+                    $_SESSION['flash']['type'] = "error";
+                    
+                    // Redirect back to the form with the error message
+                    redirect('dashboard/maintenance');
+                    return;
+                }
+                
+                // Handle form submission here
+                $data = [
+                    'service_type' => $_POST['service_type'] ?? '',
+                    'date' => $_POST['date'] ?? '',
+                    'property_id' => $_POST['property_id'] ?? 0,
+                    'property_name' => $_POST['property_name'] ?? '',
+                    'status' => $_POST['status'] ?? 'Pending',
+                    'service_description' => $_POST['service_description'] ?? '',
+                    'cost_per_hour' => $_POST['cost_per_hour'] ?? 0,
+                    'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
+                ];
+        
+                // Add service request to database
+                $service = new ServiceLog();
+                if ($service->insert($data)) {
+                    $_SESSION['status'] = "Service request submitted successfully";
+                    $_SESSION['success_message'] = "Request sent successfully!";
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to submit service request. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+        
+                redirect('dashboard/serviceRequest');
+                return;
             }
-
-            redirect('dashboard/serviceRequest');
+        
+            // Get property information from URL parameters
+            $property_id = $_GET['property_id'] ?? null;
+            $property_name = $_GET['property_name'] ?? '';
+            $service_type = $_GET['type'] ?? $type;
+            $cost_per_hour = $_GET['cost_per_hour'] ?? '';
+        
+            // Fetch property image if property_id is provided
+            $propertyImage = null;
+            if ($property_id) {
+                $imageModel = new PropertyImageModel();
+                $images = $imageModel->where(['property_id' => $property_id]);
+                if (!empty($images)) {
+                    $propertyImage = $images[0]->image_url;
+                }
+            }
+        
+            $this->view('owner/serviceRequest', [
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? '',
+                'success_message' => $_SESSION['success_message'] ?? '',
+                'type' => $service_type,
+                'property_id' => $property_id,
+                'property_name' => $property_name,
+                'property_image' => $propertyImage,
+                'cost_per_hour' => $cost_per_hour,
+            ]);
+        
+            // Clear session messages after displaying
+            unset($_SESSION['success_message']);
+            unset($_SESSION['errors']);
+            unset($_SESSION['status']);
+            
+        } catch (Exception $e) {
+            // Log the error (optional)
+            error_log("Service request error: " . $e->getMessage());
+            
+            // Set flash message
+            $_SESSION['flash']['msg'] = "An error occurred while processing your request. Please try again or contact support.";
+            $_SESSION['flash']['type'] = "error";
+            
+            // Redirect to a safe page
+            redirect('dashboard/maintenance');
             return;
         }
-
-        // Get property information from URL parameters
-        $property_id = $_GET['property_id'] ?? null;
-        $property_name = $_GET['property_name'] ?? '';
-        $service_type = $_GET['type'] ?? $type;
-        $cost_per_hour = $_GET['cost_per_hour'] ?? '';
-
-        // Fetch property image if property_id is provided
-        $propertyImage = null;
-        if ($property_id) {
-            $imageModel = new PropertyImageModel();
-            $images = $imageModel->where(['property_id' => $property_id]);
-            if (!empty($images)) {
-                $propertyImage = $images[0]->image_url;
-            }
-        }
-
-        $this->view('owner/serviceRequest', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? '',
-            'success_message' => $_SESSION['success_message'] ?? '',
-            'type' => $service_type,
-            'property_id' => $property_id,
-            'property_name' => $property_name,
-            'property_image' => $propertyImage,
-            'cost_per_hour' => $cost_per_hour,
-        ]);
-
-        // Clear session messages after displaying
-        unset($_SESSION['success_message']);
-        unset($_SESSION['errors']);
-        unset($_SESSION['status']);
     }
 
     public function profile()
