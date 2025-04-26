@@ -2578,25 +2578,206 @@ class Agent
     }
 
     // Service Applications - Page to view and manage service provider applications
-
+    
     public function serviceApplications() {
-        $serviceApplication = new ServiceApplication();
-        $applications = $serviceApplication->findAll();
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
         
-        // Group applications by service
-        $applicationsByService = [];
-        if (!empty($applications)) {
-            foreach ($applications as $application) {
-                if (!isset($applicationsByService[$application->service_id])) {
-                    $applicationsByService[$application->service_id] = [];
+        // Get current page for pagination
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $items_per_page = 9;
+        $offset = ($page - 1) * $items_per_page;
+        
+        // Get status filter
+        $selected_status = isset($_GET['status']) ? $_GET['status'] : 'all';
+        
+        // Create instances of the required models
+        $serviceApplication = new ServiceApplication();
+        $services = new Services();
+        $user = new User();
+        
+        // Get applications with proper filtering
+        if ($selected_status !== 'all') {
+            $applications = $serviceApplication->where(['status' => $selected_status]);
+        } else {
+            $applications = $serviceApplication->findAll();
+        }
+        
+        // Count total records for pagination
+        $total_records = is_array($applications) ? count($applications) : 0;
+        $total_pages = ceil($total_records / $items_per_page);
+        
+        // Prepare the enhanced applications array with additional details
+        $enhancedApplications = [];
+        
+        if (is_array($applications) && !empty($applications)) {
+            // Only process the required page of results
+            $pagedApplications = array_slice($applications, $offset, $items_per_page);
+            
+            foreach ($pagedApplications as $application) {
+                // Get service details
+                $service = $services->first(['service_id' => $application->service_id]);
+                
+                // Get provider details
+                $provider = $user->first(['pid' => $application->service_provider_id]);
+                
+                if ($service && $provider) {
+                    // Create an enhanced application object with all required details
+                    $enhancedApp = clone $application;
+                    $enhancedApp->service_name = $service->name;
+                    $enhancedApp->cost_per_hour = $service->cost_per_hour;
+                    $enhancedApp->provider_name = $provider->fname . ' ' . $provider->lname;
+                    $enhancedApp->provider_contact = $provider->contact;
+                    
+                    $enhancedApplications[] = $enhancedApp;
                 }
-                $applicationsByService[$application->service_id][] = $application;
             }
         }
         
+        // Load the view with data
         $this->view('agent/serviceApplications', [
-            'applicationsByService' => $applicationsByService
+            'applications' => $enhancedApplications,
+            'current_page' => $page,
+            'total_pages' => $total_pages,
+            'selected_status' => $selected_status
         ]);
+    }
+
+    // View application details
+
+    public function viewApplicationDetails($service_id = null, $provider_id = null) {
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+        
+        if (!$service_id || !$provider_id) {
+            $_SESSION['flash']['msg'] = "Invalid application details";
+            $_SESSION['flash']['type'] = "error";
+            redirect('agent/serviceApplications');
+            return;
+        }
+        
+        // Get application details
+        $serviceApplication = new ServiceApplication();
+        $application = $serviceApplication->first([
+            'service_id' => $service_id,
+            'service_provider_id' => $provider_id
+        ]);
+        
+        if (!$application) {
+            $_SESSION['flash']['msg'] = "Application not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('agent/serviceApplications');
+            return;
+        }
+        
+        // Get service details
+        $services = new Services();
+        $service = $services->getServiceById($service_id);
+        
+        if (!$service) {
+            $_SESSION['flash']['msg'] = "Service not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('agent/serviceApplications');
+            return;
+        }
+        
+        // Get provider details
+        $userModel = new User();
+        $provider = $userModel->first(['pid' => $provider_id]);
+        
+        if (!$provider) {
+            $_SESSION['flash']['msg'] = "Service provider not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('agent/serviceApplications');
+            return;
+        }
+        
+        // Load the view with data
+        $this->view('agent/viewApplicationDetails', [
+            'application' => $application,
+            'service' => $service,
+            'provider' => $provider
+        ]);
+    }
+
+    // Update application status
+
+    public function updateApplicationStatus($service_id = null, $provider_id = null, $status = null) {
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+        
+        if (!$service_id || !$provider_id || !$status) {
+            $_SESSION['flash']['msg'] = "Invalid action parameters";
+            $_SESSION['flash']['type'] = "error";
+            redirect('agent/serviceApplications');
+            return;
+        }
+        
+        // Validate status
+        if (!in_array($status, ['Approved', 'Rejected', 'Pending'])) {
+            $_SESSION['flash']['msg'] = "Invalid status value";
+            $_SESSION['flash']['type'] = "error";
+            redirect('agent/serviceApplications');
+            return;
+        }
+        
+        // Get application
+        $serviceApplication = new ServiceApplication();
+        $application = $serviceApplication->first([
+            'service_id' => $service_id,
+            'service_provider_id' => $provider_id
+        ]);
+        
+        if (!$application) {
+            $_SESSION['flash']['msg'] = "Application not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('agent/serviceApplications');
+            return;
+        }
+        
+        // Update status
+        $updateData = [
+            'status' => $status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $result = $serviceApplication->update(
+            ['service_id' => $service_id, 'service_provider_id' => $provider_id], 
+            $updateData
+        );
+        
+        if ($result) {
+            // Create notification for service provider
+            $notificationModel = new NotificationModel();
+            $notificationData = [
+                'user_id' => $provider_id,
+                'title' => "Service Application " . $status,
+                'message' => "Your application to provide " . $application->service_name . " services has been " . strtolower($status) . ".",
+                'color' => $status === 'Approved' ? 'Notification_green' : ($status === 'Rejected' ? 'Notification_red' : 'Notification_blue'),
+                'is_read' => 0,
+                'link' => ROOT . '/serviceprovider/checkApplicationStatus/' . $service_id,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            
+            $notificationModel->insert($notificationData);
+            
+            $_SESSION['flash']['msg'] = "Application status updated successfully to " . $status;
+            $_SESSION['flash']['type'] = "success";
+        } else {
+            $_SESSION['flash']['msg'] = "Failed to update application status";
+            $_SESSION['flash']['type'] = "error";
+        }
+        
+        redirect('agent/viewApplicationDetails/' . $service_id . '/' . $provider_id);
     }
 
 }
