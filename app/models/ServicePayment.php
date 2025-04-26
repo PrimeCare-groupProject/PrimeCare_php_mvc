@@ -95,11 +95,11 @@ class ServicePayment{
     }
 }
 
-$paymentData = [
-    'service_id' => $serviceId,
-    'amount' => $total_amount,
-    'payment_date' => date('Y-m-d H:i:s'),
-    'invoice_number' => $invoice_number,
-    'created_at' => date('Y-m-d H:i:s')
-    // service_provider_id and serviceType are set by createPayment()
-];
+// $paymentData = [
+//     'service_id' => $serviceId,
+//     'amount' => $total_amount,
+//     'payment_date' => date('Y-m-d H:i:s'),
+//     'invoice_number' => $invoice_number,
+//     'created_at' => date('Y-m-d H:i:s')
+//     // service_provider_id and serviceType are set by createPayment()
+// ];

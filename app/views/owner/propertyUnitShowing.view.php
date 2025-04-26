@@ -176,7 +176,7 @@
                 <div class='PL__contacts-section'>
                     <div class='PL__contact'>
                         <div class='rating-big'>
-                            <button class='primary-btn'>Make Payment</button>
+                            <button class='primary-btn' onclick="window.location.href='<?= ROOT ?>/dashboard/payRest/<?= $property->property_id ?>'">Make Payment</button>
                         </div>
                     </div>
                     <div class='PL__pricing'>

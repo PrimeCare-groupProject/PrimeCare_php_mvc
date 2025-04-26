@@ -54,7 +54,7 @@
         </div>
     </a>
 
-    <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement/requestapproval">
+    <!-- <a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement/requestapproval">
         <div class="MM__cards">
             <div class="MM__text">
                 <h2>Change Requests</h2>
@@ -63,7 +63,7 @@
                 <img src="<?= ROOT ?>/assets/images/BookProperty.jpg" alt="Property Management" class="MM__img">
             </div>
         </div>
-    </a>
+    </a> -->
 
 </div>
 

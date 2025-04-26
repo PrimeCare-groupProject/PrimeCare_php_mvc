@@ -765,3 +765,94 @@ a .management-card .management-icon img {
 .AA__btn-confirm:hover {
     background-color: #4338ca;
 }
+
+
+/** finance tab */
+/* 
+.selection_line {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.selection_line-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    position: relative;
+}
+
+.selection_line-item:hover {
+    background-color: #f5f5f5;
+}
+
+.selection_line-item.active {
+    font-weight: bold;
+}
+
+.selection_line-item.active:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #3498db;
+}
+
+
+.selection_line-content-item {
+    display: none;
+}
+
+.selection_line-content-item.active {
+    display: block;
+} */
+/* Tab Navigation Styling */
+.OFR__selection_line {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 2px solid #e0e0e0;
+    margin: 0 0 20px 0;
+    background-color: #f9f9f9;
+    font-family: 'Outfit', sans-serif;
+}
+
+.OFR__selection_line-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    position: relative;
+    text-align: center;
+    font-size: 18px;
+    background-color: var(--white-color);
+    color: var(--primary-color);
+    border: none;
+}
+
+.OFR__selection_line-item:hover {
+    background-color: #f0f0f0;
+}
+
+.OFR__selection_line-item.OFR__active {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border-radius: 10px;
+    border: none;
+}
+
+/* Content Container Styling */
+.OFR__selection_line-content {
+    margin: 0;
+    padding: 0;
+}
+
+/* Content Item Styling */
+.OFR__selection_line-content-item {
+    display: none;
+    padding: 0;
+}
+
+.OFR__selection_line-content-item.OFR__active {
+    display: block;
+}
