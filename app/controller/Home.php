@@ -144,4 +144,9 @@ class Home
             return;
         }
     }
+
+    public function policies()
+    {
+        $this->view('policies');
+    }
 }
