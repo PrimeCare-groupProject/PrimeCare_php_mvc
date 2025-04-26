@@ -2743,41 +2743,43 @@ class Agent
             redirect('agent/serviceApplications');
             return;
         }
-        
-        // Update status
-        $updateData = [
+    
+        // Instead of updating directly, delete and reinsert with new status
+
+        $data = [
+            'service_id' => $service_id,
+            'service_provider_id' => $provider_id,
+            'proof' => $application->proof,
             'status' => $status,
+            'created_at' => $application->created_at,
             'updated_at' => date('Y-m-d H:i:s')
         ];
         
-        $result = $serviceApplication->update(
-            ['service_id' => $service_id, 'service_provider_id' => $provider_id], 
-            $updateData
-        );
+        // Delete the old record
+        $serviceApplication->delete($service_id, 'service_id', [
+            'service_provider_id' => $provider_id
+        ]);
         
-        if ($result) {
-            // Create notification for service provider
-            $notificationModel = new NotificationModel();
-            $notificationData = [
-                'user_id' => $provider_id,
-                'title' => "Service Application " . $status,
-                'message' => "Your application to provide " . $application->service_name . " services has been " . strtolower($status) . ".",
-                'color' => $status === 'Approved' ? 'Notification_green' : ($status === 'Rejected' ? 'Notification_red' : 'Notification_blue'),
-                'is_read' => 0,
-                'link' => ROOT . '/serviceprovider/checkApplicationStatus/' . $service_id,
-                'created_at' => date('Y-m-d H:i:s')
-            ];
-            
-            $notificationModel->insert($notificationData);
-            
-            $_SESSION['flash']['msg'] = "Application status updated successfully to " . $status;
-            $_SESSION['flash']['type'] = "success";
-        } else {
-            $_SESSION['flash']['msg'] = "Failed to update application status";
-            $_SESSION['flash']['type'] = "error";
-        }
+        // Insert the new record with updated status
+        $result = $serviceApplication->insert($data);
         
-        redirect('agent/viewApplicationDetails/' . $service_id . '/' . $provider_id);
+        // Create notification for service provider
+        $notificationModel = new NotificationModel();
+        $notificationData = [
+            'user_id' => $provider_id,
+            'title' => "Service Application " . $status,
+            'message' => "Your application to provide services has been " . strtolower($status) . ".",
+            'color' => $status === 'Approved' ? 'Notification_green' : ($status === 'Rejected' ? 'Notification_red' : 'Notification_blue'),
+            'is_read' => 0,
+            'link' => ROOT . '/serviceprovider/checkApplicationStatus/' . $service_id,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $notificationModel->insert($notificationData);
+        
+        $_SESSION['flash']['msg'] = "Application status updated successfully to " . $status;
+        $_SESSION['flash']['type'] = "success";
+        
+        redirect('dashboard/viewApplicationDetails/' . $service_id . '/' . $provider_id);
     }
-
 }
