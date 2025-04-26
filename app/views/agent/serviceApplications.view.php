@@ -1,7 +1,7 @@
 <?php require_once 'agentHeader.view.php'; ?>
 
 <div class="user_view-menu-bar">
-    <a href='<?= ROOT ?>/agent/serviceManagement'><img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons"></a>
+    <a href='<?= ROOT ?>/dashboard/serviceManagement'><img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons"></a>
     <h2>Service Provider Applications</h2>
     
     <div class="filter-container">
@@ -28,7 +28,7 @@
             <i class="fas fa-clipboard-list no-data-icon"></i>
             <p>No service applications found.</p>
             <?php if ($selected_status != 'all'): ?>
-                <a href="<?= ROOT ?>/agent/serviceApplications?status=all" class="view-all-btn">
+                <a href="<?= ROOT ?>/dashboard/serviceApplications?status=all" class="view-all-btn">
                     View All Applications
                 </a>
             <?php endif; ?>
@@ -70,12 +70,12 @@
                     
                     <?php if ($application->status === 'Pending'): ?>
                     <div class="action-buttons">
-                        <button class="approve-btn" onclick="approveApplication('<?= $application->service_id ?>', '<?= $application->service_provider_id ?>')">
+                        <a href="<?= ROOT ?>/dashboard/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Approved" class="approve-btn">
                             <i class="fas fa-check"></i> Approve
-                        </button>
-                        <button class="reject-btn" onclick="rejectApplication('<?= $application->service_id ?>', '<?= $application->service_provider_id ?>')">
+                        </a>
+                        <a href="<?= ROOT ?>/dashboard/updateApplicationStatus/<?= $application->service_id ?>/<?= $application->service_provider_id ?>/Rejected" class="reject-btn">
                             <i class="fas fa-times"></i> Reject
-                        </button>
+                        </a>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -88,26 +88,13 @@
 <?php if ($total_pages > 1): ?>
 <div class="pagination">
     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-        <a href="<?= ROOT ?>/agent/serviceApplications?page=<?= $i ?>&status=<?= $selected_status ?>" 
+        <a href="<?= ROOT ?>/dashboard/serviceApplications?page=<?= $i ?>&status=<?= $selected_status ?>" 
            class="<?= $i == $current_page ? 'active' : '' ?>">
            <?= $i ?>
         </a>
     <?php endfor; ?>
 </div>
 <?php endif; ?>
-
-<!-- Confirmation Modal -->
-<div id="confirmationModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h3 id="modal-title">Confirm Action</h3>
-        <p id="modal-message"></p>
-        <div class="modal-actions">
-            <button id="cancel-btn" onclick="closeModal()">Cancel</button>
-            <button id="confirm-btn">Confirm</button>
-        </div>
-    </div>
-</div>
 
 <style>
     /* Filter styles */
@@ -364,6 +351,8 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
     }
     
     .approve-btn {
@@ -417,137 +406,13 @@
         background-color: #4e6ef7;
         color: white;
     }
-    
-    /* Modal styles */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .modal.active {
-        display: flex;
-    }
-    
-    .modal-content {
-        background-color: white;
-        border-radius: 10px;
-        padding: 25px;
-        width: 400px;
-        max-width: 90%;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        position: relative;
-    }
-    
-    .close-modal {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 24px;
-        color: #999;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    
-    .close-modal:hover {
-        color: #333;
-    }
-    
-    #modal-title {
-        margin-top: 0;
-        margin-bottom: 15px;
-    }
-    
-    #modal-message {
-        margin-bottom: 25px;
-    }
-    
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-    }
-    
-    #cancel-btn, #confirm-btn {
-        padding: 8px 20px;
-        border-radius: 5px;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-    }
-    
-    #cancel-btn {
-        background-color: #f5f5f5;
-        color: #333;
-    }
-    
-    #confirm-btn {
-        background-color: #4e6ef7;
-        color: white;
-    }
-    
-    #cancel-btn:hover {
-        background-color: #e0e0e0;
-    }
-    
-    #confirm-btn:hover {
-        background-color: #3a56cc;
-    }
 </style>
 
 <script>
     // Filter applications by status
     function filterApplications() {
         const status = document.getElementById('statusFilter').value;
-        window.location.href = `<?= ROOT ?>/agent/serviceApplications?status=${status}`;
-    }
-    
-    // Approval confirmation
-    function approveApplication(serviceId, providerId) {
-        const modal = document.getElementById('confirmationModal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const confirmBtn = document.getElementById('confirm-btn');
-        
-        modalTitle.textContent = 'Approve Application';
-        modalMessage.textContent = 'Are you sure you want to approve this service provider application?';
-        
-        confirmBtn.style.backgroundColor = '#4caf50';
-        confirmBtn.onclick = function() {
-            window.location.href = `<?= ROOT ?>/agent/updateApplicationStatus/${serviceId}/${providerId}/Approved`;
-        };
-        
-        modal.classList.add('active');
-    }
-    
-    // Rejection confirmation
-    function rejectApplication(serviceId, providerId) {
-        const modal = document.getElementById('confirmationModal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const confirmBtn = document.getElementById('confirm-btn');
-        
-        modalTitle.textContent = 'Reject Application';
-        modalMessage.textContent = 'Are you sure you want to reject this service provider application?';
-        
-        confirmBtn.style.backgroundColor = '#f44336';
-        confirmBtn.onclick = function() {
-            window.location.href = `<?= ROOT ?>/agent/updateApplicationStatus/${serviceId}/${providerId}/Rejected`;
-        };
-        
-        modal.classList.add('active');
-    }
-    
-    // Close modal
-    function closeModal() {
-        document.getElementById('confirmationModal').classList.remove('active');
+        window.location.href = `<?= ROOT ?>/dashboard/serviceApplications?status=${status}`;
     }
 </script>
 
