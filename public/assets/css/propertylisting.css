@@ -253,6 +253,24 @@ body {
     justify-content: space-between;
 }
 
+.PL_property-card-home a {
+    overflow: hidden;
+}
+.truncate {
+    white-space: nowrap;       /* Prevent text from wrapping */
+    overflow: hidden;          /* Hide overflowed text */
+    text-overflow: ellipsis;   /* Show ellipsis (...) when truncated */
+    width: 300px;             /* Set a fixed width (required) */
+  }
+
+.multiline-truncate {
+    display: -webkit-box;           /* Required for old browsers */
+    -webkit-line-clamp: 3;         /* Number of lines to show */
+    -webkit-box-orient: vertical;  /* Vertical text flow */
+    overflow: hidden;            /* Hide overflow */
+    text-overflow: ellipsis;     /* Show ellipsis */
+  }
+  
 .PL_property-card-home {
     display: flex;
     flex-direction: column;
@@ -289,8 +307,8 @@ body {
 }
 
 .property-card-image {
-    width: 350px;
-    height: auto;
+    /* width: 350px; */
+    height: 250px;
     overflow: hidden;
     /* border-radius: 15px; */
     object-fit: contain;

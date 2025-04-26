@@ -58,6 +58,7 @@
                     <li><a href="<?= ROOT ?>/dashboard/repairlisting"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li>
                     <!--<li><a href="<?= ROOT ?>/dashboard/addlogs"><button class="btn"><img src="<?= ROOT ?>/assets/images/logs.png" alt="">Logs</button></a></li>-->
                     <li><a href="<?= ROOT ?>/dashboard/repairRequests"><button class="btn"><i class="fa-solid fa-envelope-open-text"></i>Repair Requests</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/externalServices"><button class="btn" style="text-align: left;"><i class="fa-solid fa-handshake"></i> External Service Requests</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/earnings"><button class="btn"><i class="fa-solid fa-money-check-dollar"></i>Earnings</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i> Profile</button></a></li>
                 </ul>

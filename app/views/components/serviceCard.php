@@ -57,9 +57,28 @@
                     <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Service ID:</label>
                     <span style="color: #333; font-size: 15px;"><?= $serviceLog->service_id ?? 'N/A' ?></span>
                 </div>
+                <!-- Replace the original Price display with this -->
                 <div style="flex: 1; min-width: 250px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
-                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Price:</label>
-                    <span style="color: #2c7be5; font-weight: 700; font-size: 18px;"><?= number_format(($serviceLog->cost_per_hour ?? 0) * ($serviceLog->total_hours ?? 0), 2) ?> LKR</span>
+                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Total Price:</label>
+                    <?php
+                        $serviceCost = $serviceLog->total_cost ?? 0;
+                        $serviceCharge = $serviceCost * 0.10;
+                        $totalPrice = $serviceCost + $serviceCharge;
+                    ?>
+                    <span style="color: #2c7be5; font-weight: 700; font-size: 18px;">LKR <?= number_format($totalPrice, 2) ?></span>
+                    <div style="font-size: 12px; color: #777; margin-top: 4px;">(Includes 10% service charge)</div>
+                </div>
+            </div>
+            
+            <!-- Service Charge Row -->
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 15px;">
+                <div style="flex: 1; min-width: 250px; margin-right: 20px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
+                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Service Cost:</label>
+                    <span style="color: #333; font-size: 15px;">LKR <?= number_format($serviceLog->total_cost ?? 0, 2) ?></span>
+                </div>
+                <div style="flex: 1; min-width: 250px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
+                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Service Charge (10%):</label>
+                    <span style="color: #f39c12; font-weight: 600; font-size: 15px;">LKR <?= number_format(($serviceLog->total_cost ?? 0) * 0.10, 2) ?></span>
                 </div>
             </div>
             
@@ -104,7 +123,11 @@
             <!-- Payment Button -->
             <?php if (strtolower($serviceLog->status ?? '') === 'done'): ?>
             <div style="margin-top: 15px; display: flex; justify-content: flex-end; padding-top: 15px; border-top: 1px solid #eee;">
-                <a href="<?= ROOT ?>/dashboard/payment/<?= $serviceLog->service_id ?>" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); color: white; padding: 12px 25px; border-radius: 30px; text-decoration: none; transition: all 0.2s; font-weight: 600; box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);" onmouseover="this.style.backgroundColor='#218838'; this.style.color='white'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 8px rgba(40, 167, 69, 0.3)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 6px rgba(40, 167, 69, 0.2)';">
+                <?php
+                    $serviceCharge = ($serviceLog->total_cost ?? 0) * 0.10;
+                    $paymentUrl = ROOT . "/dashboard/payment/" . $serviceLog->service_id . "?service_charge=" . $serviceCharge;
+                ?>
+                <a href="<?= $paymentUrl ?>" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); color: white; padding: 12px 25px; border-radius: 30px; text-decoration: none; transition: all 0.2s; font-weight: 600; box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);" onmouseover="this.style.backgroundColor='#218838'; this.style.color='white'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 8px rgba(40, 167, 69, 0.3)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 6px rgba(40, 167, 69, 0.2)';">
                     Proceed to Payment <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
                 </a>
             </div>

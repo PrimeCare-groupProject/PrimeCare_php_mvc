@@ -7,23 +7,36 @@
     height: calc(90% - 40px);
 }
 
-.listing-table-for-customer-payments {
+.listing-table-for-customer-payments ,
+.listing-table-for-salary-payments {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
     font-family: "Outfit", sans-serif;
 }
 
-.listing-table-for-customer-payments tr .first{
+.listing-table-for-customer-payments tr .first ,
+.listing-table-for-salary-payments tr .first{
     border-radius: 10px 0 0 10px;
     
 }
-.listing-table-for-customer-payments tr .last{
+.listing-table-for-customer-payments tr .last,
+.listing-table-for-salary-payments tr .last{
     border-radius: 0 10px 10px 0;
     
 }
+
+.listing-table-for-customer-payments tr:hover,
+.listing-table-for-salary-payments tr:hover {
+    cursor: pointer;
+    background-color: var(--background-color);
+    transition: background-color 0.3s;
+}
+
 .listing-table-for-customer-payments th,
-.listing-table-for-customer-payments td {
+.listing-table-for-customer-payments td,
+.listing-table-for-salary-payments th,
+.listing-table-for-salary-payments td {
     text-align: center;
     width: 150px;
     /* Set the fixed width */
@@ -41,7 +54,8 @@
     font-family: "Outfit", sans-serif;
 }
 
-.listing-table-for-customer-payments th {
+.listing-table-for-customer-payments th ,
+.listing-table-for-salary-payments th{
     background-color: var(--background-color);
     font-weight: 600;
 }

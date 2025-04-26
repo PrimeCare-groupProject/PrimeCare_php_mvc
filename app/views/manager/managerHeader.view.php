@@ -55,7 +55,11 @@
             <div class="user_view-sidemenu">
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"> <i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/managementhome"><button class="btn"><i class="fa-solid fa-list-check"></i> Managements</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome/employeemanagement"><button class="btn"><i class="fa-solid fa-user-tie"></i>Employees</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement"><button class="btn"><i class="fa-solid fa-building"></i>Property</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome/employeeListing"><button class="btn"><i class="fa-solid fa-coins"></i>Salary</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome/agentmanagement"><button class="btn"><i class="fa-solid fa-users"></i>Agent</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome/financeView"><button class="btn"><i class="fa-solid fa-file-invoice-dollar"></i>Finance</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/contacts"><button class="btn"><i class="fa-solid fa-address-book"></i>Contacts</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i> Profile</button></a></li>
                 </ul>

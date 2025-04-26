@@ -156,6 +156,23 @@ function old_select(string $key, mixed $value, mixed $default = '', string $mode
 }
 
 /**
+ * Returns the old date value of a form field after refresh.
+ *
+ * @param string $key The key of the form field.
+ * @param mixed $default The default value if the key is not set.
+ * @param string $mode The request method ('post' or 'get').
+ * @return mixed The old date value of the form field.
+ */
+function old_date(string $key, mixed $default = '', string $mode = 'post'): mixed
+{
+    $POST = ($mode == 'post') ? $_POST : $_GET;
+    if (isset($POST[$key])) {
+        return $POST[$key];
+    }
+    return $default;
+}
+
+/**
  * Converts dates into a user-readable format.
  *
  * @param string $date The date string to be formatted.
@@ -215,22 +232,24 @@ function get_img($image_url = "", $type = 'user')
         return $image_url;
     }
     // Otherwise, assume it's a file name and construct the path
-    $relPath =  "assets/images/uploads/" . ($type == 'property' ? 'property_image/' : 'profile_pictures/') . $image_url;
-    $filePath =  ROOT . DIRECTORY_SEPARATOR . $relPath;
+    // $relPath =  "assets". DIRECTORY_SEPARATOR ."images". DIRECTORY_SEPARATOR ."uploads". DIRECTORY_SEPARATOR . ($type == 'property' ? 'property_images' : 'profile_pictures') . DIRECTORY_SEPARATOR . $image_url;
+    // $filePath =  ROOT . DIRECTORY_SEPARATOR . $relPath. DIRECTORY_SEPARATOR ;
+    $relPath = "assets". DIRECTORY_SEPARATOR ."images". DIRECTORY_SEPARATOR ."uploads". DIRECTORY_SEPARATOR . ($type == 'property' ? 'property_images' : 'profile_pictures') . DIRECTORY_SEPARATOR . $image_url;
+    $filePath = ROOT . DIRECTORY_SEPARATOR . $relPath;
     if (file_exists($relPath)) {
         return $filePath;
     }
     // Return a default image if the file doesn't exist
     if ($type == 'user') {
-        return ROOT . "/assets/images/user.png";
+        return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "user.png";
     } else if ($type == 'property') {
-        return ROOT . "/assets/images/property.png";
+        return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "hero.png";
     }
     if (empty($image_url)) {
         if ($type == 'user') {
-            return ROOT . "/assets/images/user.png";
+            return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "user.png";
         } else if ($type == 'property') {
-            return ROOT . "/assets/images/property.png";
+            return ROOT . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "hero.png";
         }
     }
 }
@@ -511,10 +530,10 @@ function enqueueNotification($message, $title = 'Notification', $link = '', $col
             enqueue(['notification_id' => $notification->notification_id], $queue);
         }
 
-        show($queue); 
+        //show($queue); 
         $queue = array_reverse($queue); // Reverse the queue to maintain order
 
-        while (count($queue) > 10) {
+        while (count($queue) > Notification_count) {
             $popped = dequeue($queue);
             //show("Dequeued: " . $popped); 
             $notificationModel->delete($popped, 'notification_id');
@@ -548,3 +567,168 @@ function dequeue(&$array)
 // Notification_red
 // Notification_grey
 // Notification_orange
+
+
+function findAdvancePrice(float $price): float
+{
+    if ($price <= 0) {
+        return 0.0;
+    }
+    if ($price < 100000) {
+        $advance = ($price) * (5 * ADVANCE_PERCENTAGE / 100);
+        return round($advance, 2);
+    }
+    $advance = ($price) * (ADVANCE_PERCENTAGE / 100);
+    return round($advance, 2);
+}
+
+
+function getImageByUserID($user_id, $type = 'user')
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        return get_img($user->image_url, $type);
+    }
+    return get_img('', $type); // Return default image if user not found
+}
+
+function getUserDetails($user_id)
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        return $user;
+    }
+    return null; // Return null if user not found
+}
+
+function getPropertyRatings($property_id)
+{
+    $reviewsModel = new ReviewsProperty();
+    $ratings = $reviewsModel->where(['property_id' => $property_id]);
+
+    if ($ratings) {
+        $totalRating = 0;
+        $totalReviews = count($ratings);
+        foreach ($ratings as $review) {
+            $totalRating += $review->rating;
+        }
+        return $totalReviews > 0 ? round($totalRating / $totalReviews, 2) : 0; // Return average rating rounded to 2 decimal places
+    }
+    return 0; // Return 0 if no ratings found
+}
+
+function getPaidStatusOfAgent($agent_id, $month)
+{
+    $agentSalaryModel = new SalaryPayment;
+    $salary = $agentSalaryModel->first(['employee_id' => $agent_id, 'paid_month' => $month]);
+    if ($salary) {
+        return 1;
+    }
+    return 0; // Return 0 if no salary record found
+}
+
+function getRole($user_id)
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        switch ($user->user_lvl) {
+            case 1:
+                return 'Owner';
+            case 2:
+                return 'Service Provider';
+            case 3:
+                return 'Agent';
+            case 4:
+                return 'Manager';
+            default:
+                return 'Customer'; 
+        }
+    }
+    return 'Not Found';
+}
+
+function getMonthRange($month)
+{
+    $date = DateTime::createFromFormat('Y-m', $month);
+    if ($date) {
+        $start = $date->format('Y-m-01'); // First day of month
+        $end = $date->format('Y-m-t');    // Last day of month (t = days in month)
+        return "$start to $end";
+    }
+    return 'Invalid Date';
+}
+
+
+function checkSalaryReminder($manager_id)
+{
+    $today = date('Y-m-d');
+    $currentMonth = date('Y-m');
+    $day = date('d');
+
+    // Only on the 10th
+    if ($day != SALARY_REMINDER_DAY) {
+        return;
+    }
+
+    // Check if notification already exists for this month
+    $notificationModel = new NotificationModel(); // Assuming you have a Notification model
+    $existing = $notificationModel->first([
+        'user_id' => $manager_id,
+        'title' => 'Salary Payment Reminder ' . $currentMonth,
+    ]);
+
+    if ($existing) {
+        return; // Already sent for this month
+    }
+
+    // Otherwise, enqueue the reminder
+    enqueueNotification(
+        "Salary Payment Reminder " . $currentMonth,
+        "Please process salary payments for agents for " . date('F Y') . ".",
+        'dashboard/managementhome/employeeListing', // Link to salary area
+        'Notification_orange',
+        $manager_id
+    );
+}
+
+
+function getTransactionType($type)
+{
+    switch ($type) {
+        case 'rent_income':
+            return 'Rent Income';
+        case 'salary_payment':
+            return 'Salary Payment';
+        case 'service_fee':
+            return 'Service Fee';
+        default:
+            return 'Unknown';
+    }
+}
+
+function getReferenceType($type)
+{
+    switch ($type) {
+        case 'property':
+            return 'Property';
+        case 'service':
+            return 'Service';
+        case 'employee':
+            return 'Employee';
+        default:
+            return 'Other';
+    }
+}
+
+function getUserName($user_id)
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        return $user->fname . ' ' . $user->lname;
+    }
+    return 'Unknown User'; // Return default name if user not found
+}

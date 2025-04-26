@@ -109,7 +109,7 @@ class Property
     }
 
     // update
-    public function update($propertyId)
+    public function updateN($propertyId)
     {
         $property = new PropertyModel;
 
@@ -402,8 +402,8 @@ class Property
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         //show($propertyUnit);
 
-        $review = new ReviewModel;
-        $reviews = $review->findAll();
+        $review = new ReviewsProperty;
+        $reviews = $review->where(['property_id' => $propertyId]);
 
         $this->view('customer/propertyUnit', ['property' => $propertyUnit , 'reviews' => $reviews]);
     }

@@ -2,157 +2,146 @@
 
 <div class="user_view-menu-bar">
     <div class="gap"></div>
-    <h2>Bookings</h2>
-    <div class="flex-bar">
+    <h2>Bookings Request</h2>
+    <div class="flex-bar" style="gap: 0px;">	
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Anything...">
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
-        <div class="tooltip-container">
+        <div class="tooltip-container" style="margin-left: 10px;">
             <a href='<?= ROOT ?>/dashboard/bookings/history'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/assignment.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">History</span>
         </div>
+        <div class="tooltip-container">
+            <a href='<?= ROOT ?>/dashboard/bookings/bookingremoval'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/delete.png" alt="Add" class="navigate-icons"></button></a>
+            <span class="tooltip-text">Approve Removal</span>
+        </div>
     </div>
 </div>
-<div class="listing-the-property">
-    <div class="property-listing-grid1">
-        <?php if (!empty($bookings)): ?>
-            <?php foreach ($bookings as $booking): ?>
-                <?php foreach ($images as $image): ?>
-                <?php if ($booking->property_id == $image->property_id): ?>
-                <div class="compact-booking-card">
-                    <img class="compact-card__img" src="<?= ROOT ?>/assets/images/uploads/property_images/<?= $image->image_url ?>" alt="Property">
-                    <div class="compact-card__content">
-                        <h4 class="compact-card__title"><?= $booking->name?></h4>
-                        <div class="compact-card__details">
-                            <div class="compact-detail">
-                                <span class="compact-icon">💰</span>
-                                <span><?= $booking->price?> LKR</span>
-                            </div>
-                            <div class="compact-detail">
-                                <span class="compact-icon">📅</span>
-                                <span><?= $booking->renting_period?> months</span>
-                            </div>
+
+<div class="OC__property_container">
+    <?php if (!empty($orders) && !is_bool($orders)): ?>
+        <?php foreach ($orders as $order): ?>
+            <?php
+                // Get the first image from property_images, or use default if not set
+                $images = isset($order->property_images) ? explode(',', $order->property_images) : [];
+                $firstImage = !empty($images[0]) ? trim($images[0]) : '';
+                $imgSrc = get_img($firstImage, 'property');
+            ?>
+            <div class="OC__property_card">
+                <div class="image-section">
+                    <a href="<?= ROOT ?>/property/propertyUnit/<?= esc($order->property_id) ?>">
+                        <img src="<?= $imgSrc ?>" alt="Property">
+                    </a>
+                </div>
+                <div class="info-section">
+                    <div class="info-header">Booking Details</div>
+                    <div class="info-grid" style="gap: 10px;">
+                        <div class="info-row">
+                            <span class="info-label">Booking ID</span>
+                            <span class="info-value"><?= esc($order->booking_id) ?></span>
                         </div>
-                        <a href="<?=ROOT?>/dashboard/bookings/bookingaccept/<?= $booking->booking_id ?>">
-                            <button class="compact-card__btn">Update</button>
-                        </a>
+                        <div class="info-row">
+                            <span class="info-label">Property ID</span>
+                            <span class="info-value"><?= esc($order->property_id) ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Owner ID</span>
+                            <span class="info-value"><?= esc($order->person_id) ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Agent ID</span>
+                            <span class="info-value"><?= esc($order->agent_id ?? '-') ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Start Date</span>
+                            <span class="info-value"><?= esc($order->start_date) ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">End Date</span>
+                            <span class="info-value"><?= esc($order->end_date ?? '-') ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Duration</span>
+                            <span class="info-value"><?= esc($order->duration) ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Type</span>
+                            <span class="info-value"><?= esc($order->rental_period) ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Rental Price (LKR)</span>
+                            <span class="info-value"><?= esc($order->rental_price) ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Total Amount (LKR)</span>
+                            <span class="info-value"><?= esc($order->total_amount) ?></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Payment Status</span>
+                            <span class="payment-status <?= strtolower($order->payment_status) === 'paid' ? 'paid-status' : 'unpaid-status' ?>">
+                                <?= esc($order->payment_status) ?>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Booking Status</span>
+                            <span class="info-value"><?= esc($order->booking_status) ?></span>
+                        </div>
+                    </div>
+                    <div class="button-group" style="justify-content: right;">
+                        <?php if (
+                            strtolower($order->booking_status) === 'cancelled' ||
+                            strtolower($order->booking_status) === 'completed'
+                        ): ?>
+                            <!-- No buttons shown if cancelled or completed -->
+                        <?php elseif (strtolower($order->booking_status) === 'pending'): ?>
+                            <form method="POST" action="<?= ROOT ?>/dashboard/confirmBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
+                                <button type="submit" class="primary-btn green-solid">Confirm</button>
+                            </form>
+                            <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
+                                <button type="submit" class="primary-btn red-solid">Cancel</button>
+                            </form>
+                        <?php elseif (strtolower($order->booking_status) === 'cancel requested'): ?>
+                            <form method="POST" action="<?= ROOT ?>/dashboard/continueBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
+                                <button type="submit" class="primary-btn green-solid">Continue Booking</button>
+                            </form>
+                            <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
+                                <button type="submit" class="primary-btn red-solid">Cancel</button>
+                            </form>
+                        <?php elseif (strtolower($order->booking_status) === 'confirmed'): ?>
+                            <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
+                                <button type="submit" class="primary-btn red-solid">Cancel</button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <?php endif; ?>
-                <?php endforeach; ?>
-            <?php endforeach; ?> 
-        <?php else: ?>
-            <p>No Booking found.</p>
-        <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p class="booking-empty" style="text-align:center; padding: 15px">No Booking Request found.</p>
+    <?php endif; ?>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancelModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.2); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:24px 32px; border-radius:10px; box-shadow:0 2px 16px rgba(0,0,0,0.15); min-width:260px; text-align:center;">
+        <p style="margin-bottom:18px;">Are you sure you want to leave/cancel this booking?</p>
+        <form id="cancelForm" method="POST" style="display:inline;">
+            <button type="submit" class="primary-btn red-solid" style="margin-right:10px;">Yes, Cancel</button>
+            <button type="button" class="btn green" onclick="closeCancelModal()">No</button>
+        </form>
     </div>
 </div>
 
-<!-- Pagination Buttons -->
-<div class="pagination">
-        <button class="prev-page"><img src="<?= ROOT ?>/assets/images/left-arrow.png" alt="Previous"></button>
-        <span class="current-page">1</span>
-        <button class="next-page"><img src="<?= ROOT ?>/assets/images/right-arrow.png" alt="Next"></button>
-</div>
-
-<style>
- /* Booking Cards Grid */
-/* Compact Booking Cards Grid */
-.property-listing-grid1 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
+<script>
+function openCancelModal(actionUrl) {
+    document.getElementById('cancelModal').style.display = 'flex';
+    document.getElementById('cancelForm').action = actionUrl;
 }
-
-/* Compact Card Styling */
-.compact-booking-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: all 0.3s ease;
+function closeCancelModal() {
+    document.getElementById('cancelModal').style.display = 'none';
 }
+</script>
 
-.compact-booking-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.compact-card__img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
-
-.compact-card__content {
-    padding: 1rem;
-}
-
-.compact-card__title {
-    font-size: 1.1rem;
-    color: #333;
-    margin: 0 0 0.8rem 0;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.compact-card__details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.compact-detail {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: #555;
-}
-
-.compact-icon {
-    font-size: 1rem;
-}
-
-.compact-card__btn {
-    width: 100%;
-    padding: 0.5rem;
-    background: #4a6bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.compact-card__btn:hover {
-    background: #3a5bef;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 900px) {
-    .property-listing-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .property-listing-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .compact-booking-card {
-        max-width: 300px;
-        margin: 0 auto;
-    }
-}
-</style>
 
 <?php require_once 'agentFooter.view.php'; ?>

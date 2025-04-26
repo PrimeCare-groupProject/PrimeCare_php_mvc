@@ -17,11 +17,11 @@
 
 <body>
     <?php
-        $flash = $_SESSION['flash'] ?? null;
-        // Show flash messages
-        if(isset($flash)){
-            flash_message($flash['msg'] , $flash['type']);
-        }
+    $flash = $_SESSION['flash'] ?? null;
+    // Show flash messages
+    if (isset($flash)) {
+        flash_message($flash['msg'], $flash['type']);
+    }
     ?>
 
     <!-- Header Section -->
@@ -35,6 +35,7 @@
                     <li><a href="#team">Team</a></li>
                     <li><a href="#logs">Logs</a></li>
                     <li><a href="#contactus">Contact Us</a></li>
+                    <li><a href="http://localhost/php_mvc_backend/public/home/policies">Policy</a></li>
                     <li>
                         <?php
                         if (isset($_SESSION['user'])) {
@@ -75,7 +76,10 @@
                     <?php $properties = array_slice($properties, 0, 4); ?>
                     <?php foreach ($properties as $property): ?>
                         <div class="PL_property-card" style="height: auto;">
-                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= ROOT ?>/assets/images/uploads/property_images/<?= explode(',', $property->property_images)[0] ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
+                            <?php
+                            $images = explode(',', $property->property_images);
+                            ?>
+                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= get_img($images[0] , 'property') ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
                             <div class="content-section-of-card">
                                 <div class="address" style="padding: 0;">
                                     <?= $property->address ?>
@@ -139,15 +143,15 @@
                     <?php foreach ($services as $service): ?>
                         <div class="service-slide">
                             <div class="PL_property-card-home" style="height: 350px;">
-                                <a href="<?= ROOT ?>/"><img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="property" class="property-card-image"></a>
-                                <div class="content-section-of-card">
-                                    <div class="address-home">
+                                <a href="<?= ROOT ?>/"><img src="<?= ROOT ?>/<?= $service->service_img ?>" alt="property" class="property-card-image" style="height:230px;"></a>
+                                <div class="content-section-of-card" style="height: 130px;">
+                                    <div class="address-home truncate">
                                         <?= $service->name ?>
                                     </div>
                                     <!-- <div class="price" style="color: var(--green-color);">
                                         <?= $service->cost_per_hour ?>
                                     </div> -->
-                                    <div class="name" style="justify-items: flex-end;">
+                                    <div class="name multiline-truncate" style="justify-items: flex-end;">
                                         <?= $service->description ?>
                                     </div>
                                 </div>
@@ -480,7 +484,7 @@
             document.querySelector('.loader-container').style.display = '';
             //onclick="displayLoader()"
         }
-        
+
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', displayLoader);
         });

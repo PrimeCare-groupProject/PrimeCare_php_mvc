@@ -5,8 +5,8 @@
     <h2>inventory</h2>
     <div class="flex-bar">
         <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search Anything...">
-            <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
+            <input type="text" class="search-input" placeholder="Search Anything..." id="inventory-search">
+            <button class="search-btn" id="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
         <div class="tooltip-container">
             <a href='<?= ROOT ?>/dashboard/inventory/newinventory'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/plus.png" alt="Add" class="navigate-icons"></button></a>
@@ -19,14 +19,14 @@
         <thead>
             <tr>
                 <th onclick="sortTable(0)">Inventory ID ⬆⬇</th>
-                <th>Inventory Name</th>
+                <th onclick="sortTable(1)">Inventory Name ⬆⬇</th>
                 <th onclick="sortTable(2)">Property ID ⬆⬇</th>
-                <th>Property Name</th>
+                <th onclick="sortTable(3)">Property Name ⬆⬇</th>
                 <th onclick="sortTable(4)">Price ⬆⬇</th>
                 <th onclick="sortTable(5)">Date ⬆⬇</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="inventory-table-body">
             <?php if (!empty($inventories)) : ?>
                 <?php foreach ($inventories as $inventory) : ?>
                     <tr onclick="window.location.href='<?= ROOT ?>/dashboard/inventory/editinventory/<?= $inventory->inventory_id ?>'">
@@ -68,6 +68,7 @@
 <script>
     // Track sorting state for each column
     const sortStates = Array(6).fill(null); // null = unsorted, 'asc' = ascending, 'desc' = descending
+    let originalRows = []; // Store original rows for search functionality
     
     function sortTable(columnIndex) {
         const table = document.querySelector(".inventory-table");
@@ -123,8 +124,86 @@
         });
         
         // Re-append sorted rows
+        tbody.innerHTML = '';
         rows.forEach(row => tbody.appendChild(row));
     }
+
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('inventory-search');
+        const searchBtn = document.getElementById('search-btn');
+        const tableBody = document.getElementById('inventory-table-body');
+        
+        // Store original rows
+        originalRows = Array.from(tableBody.querySelectorAll('tr'));
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            
+            if (searchTerm === '') {
+                // If search is empty, restore original rows
+                tableBody.innerHTML = '';
+                originalRows.forEach(row => tableBody.appendChild(row.cloneNode(true)));
+                return;
+            }
+            
+            // Filter rows
+            const filteredRows = originalRows.filter(row => {
+                // Skip the empty state row if present
+                if (row.cells.length === 1) return false;
+                
+                const cells = row.cells;
+                for (let i = 0; i < cells.length; i++) {
+                    const cellText = cells[i].textContent.toLowerCase();
+                    if (cellText.includes(searchTerm)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            
+            // Update table
+            tableBody.innerHTML = '';
+            if (filteredRows.length > 0) {
+                filteredRows.forEach(row => tableBody.appendChild(row.cloneNode(true)));
+            } else {
+                // Show "no results" message
+                tableBody.innerHTML = `
+                    <tr style="height: 240px; background-color: #f8f9fa;">
+                        <td colspan="6" style="text-align: center; vertical-align: middle; padding: 0;">
+                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0;">
+                                <div style="margin-bottom: 15px; opacity: 0.5;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                </div>
+                                <h3 style="font-size: 16px; color: #555; margin: 0; font-weight: 500;">No matching items found</h3>
+                                <p style="font-size: 14px; color: #777; margin: 8px 0 0 0; max-width: 400px;">
+                                    No inventory items match your search for "${searchTerm}".
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Event listeners
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Add debounce for better performance
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 300);
+        });
+    });
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>

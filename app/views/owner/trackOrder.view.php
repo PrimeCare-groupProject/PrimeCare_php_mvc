@@ -157,7 +157,7 @@
                                                                 </div>
                                                                 <div class="meta-item">
                                                                     <span class="meta-label">Cost:</span>
-                                                                    <span class="meta-value">LKR <?= number_format($log->cost_per_hour * $log->total_hours, 2) ?></span>
+                                                                    <span class="meta-value">LKR <?= number_format($log->total_cost, 2) ?></span>
                                                                 </div>
                                                                 <?php if ($log->total_hours): ?>
                                                                     <div class="meta-item">

@@ -453,7 +453,7 @@
 
 
 
-        <h3 class="form-headers">Photos*</h3>
+        <!-- <h3 class="form-headers">Photos*</h3>
 
         <label class="input-label">Upload Property Images (Max 6)*</label>
         <div class="owner-addProp-file-upload">
@@ -467,8 +467,9 @@
         </div>
 
         <div id="uploaded-files" class="owner-addProp-uploaded-files">
-            <!-- Uploaded files will be displayed here -->
-        </div>
+        </div> -->
+
+        <hr>
 
         <div class="items-inline">
             <input type="checkbox" name="terms" required />
