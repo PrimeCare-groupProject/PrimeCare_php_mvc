@@ -62,7 +62,7 @@
 
     <div class="" style="display: flex; flex-direction: row;">
         <!-- Left side: Profile Picture and User Info -->
-        <div class="profile-details" style="position: absolute; top: 5vh;">
+        <div class="profile-details" style="position: absolute; top: 5vh; left:0vw;">
             <!-- Hidden file input -->
             <input type="file" id="profile_picture" class="input-file" name="profile_picture" style="display: none;" hidden>
 
@@ -108,8 +108,8 @@
                     <p class="status-message" style="position: absolute; right: 40px; text-align: right; margin-bottom:-20px; color: var(--red-color);">Account removal ongoing</p>
                 <?php endif; ?>
 
-                <div class="errors" 
                 <h5 class="editText" id="editText" style="position: absolute; left: 20vw; display: none;">click profile picture to edit !</h5>
+                <div class="errors" 
                     style="display: <?= !empty($_SESSION['errors']) || !empty($_SESSION['status']) ? 'block' : 'none'; ?>; 
                             background-color: <?= !empty($errors) ? '#f8d7da' : (!empty($status) ? '#b5f9a2' : '#f8d7da'); ?>;">
                     <?php if (!empty($_SESSION['errors'])): ?>
@@ -119,10 +119,10 @@
                     <?php endif; ?>
                 </div>
                 <div class="input-group-aligned" style="margin-top: 18vh;">
-                    <button type="button" class="primary-btn" id="edit-button">Edit</button>
-                    <button type="button" class="secondary-btn" id="cancel-button" style="display: none;">Cancel</button>
-                    <button type="button" class="secondary-btn red" id="delete-button">Remove Account</button>
-                    <button type="submit" class="primary-btn" id="save-button" style="display: none;">Save</button>
+                    <button type="button" class="primary-btn" id="edit-button" onclick="() => {enableEditMode()}">Edit</button>
+                    <button type="button" class="secondary-btn" id="cancel-button" onclick="cancelEdit();" style="display: none;">Cancel</button>
+                    <button type="button" class="secondary-btn red" id="delete-button" onclick="showDeleteDialog();">Remove Account</button>
+                    <button type="submit" class="primary-btn" id="save-button" onclick="prepareFormSubmission();" style="display: none;">Save</button>
                 </div>
 
 
@@ -151,16 +151,15 @@
             </div>
         </div>
         <div class="input-group-aligned">
-            <button type="button" class="secondary-btn green" id="cancel-delete-button">No</button>
+            <button type="button" class="secondary-btn green" id="cancel-delete-button" onclick="hideDeleteDialog();">No</button>
             <button type="submit" class="secondary-btn red">Delete</button>
         </div>
     </div>
 </form>
 
 
-
 <script>
-    // Logic for enabling fields on "Edit", handling "Save" and "Cancel"
+
     const editButton = document.getElementById('edit-button');
     const saveButton = document.getElementById('save-button');
     const cancelButton = document.getElementById('cancel-button');
@@ -175,103 +174,112 @@
     const errorAlert = document.querySelector('.errors');
 
     const initialFormValues = {};
+    const profilePicture = profilePicturePreview
+
     formFields.forEach(field => {
         initialFormValues[field.id] = field.value;
-    });
-    
+    });//save form values initaily to reset when cancel button is clicked
 
     // Handle profile picture click to trigger the file input
     profilePicturePreview.addEventListener('click', () => {
         if (!profilePicturePreview.classList.contains('editable')) return;
-        profilePictureInput.click();
+        profilePictureInput.click(); // Simulate click on the hidden input
         profilePicturePreview.style.cursor = 'pointer';
     });
 
-    // Handle profile picture change and preview 
+        // Handle profile picture change and preview 
     profilePictureInput.addEventListener('change', (event) => {
         const file = event.target.files[0];    
         if (file) {
+            // Check if the file type is one of the allowed image types (JPEG, PNG, GIF)
             const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB in bytes
 
             if (!allowedMimeTypes.includes(file.type)) {
-                profilePictureInput.value = '';
+                // alert('Invalid file type! Please upload an image (JPEG, PNG, or GIF).');
+                profilePictureInput.value = ''; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'Invalid file type! Please upload an image (JPEG, PNG, or GIF).';
-                errorAlert.innerHTML = '';
+                errorAlert.innerHTML = ''; // Clear previous errors
                 errorAlert.appendChild(error);
                 errorAlert.style.display = 'block';
+
             } else if (file.size > maxSizeInBytes) {
-                profilePictureInput.value = '';
+                // alert('File size exceeds 2 MB! Please upload a smaller image.');
+                profilePictureInput = profilePicture; // Clear the input if file type is invalid
                 const error = document.createElement('p');
                 error.textContent = 'File size exceeds 2 MB! Please upload a smaller image.';
-                errorAlert.innerHTML = '';
+                errorAlert.innerHTML = ''; // Clear previous errors
                 errorAlert.appendChild(error);
                 errorAlert.style.display = 'block';
+                
             } else {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    profilePicturePreview.src = e.target.result;
+                    profilePicturePreview.src = e.target.result; // Update the image preview
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(file); // Read the file as a data URL for image preview
             }
         }
     });
 
-    // Handle form submission
+        // Handle form submission
     document.getElementById('profile-edit-form').addEventListener('submit', function (event) {
-        // Enable all fields before submitting
+        // Enable all fields before submitting, as they might be disabled
         formFields.forEach(field => field.disabled = false);
-        // Let the form submit naturally from here
+        
+        // Submit form using the browser's default submission method
+        this.submit();
     });
-
-    // Enable form fields and profile picture edit when "Edit" button is clicked
+    
+        // Enable form fields and profile picture edit when "Edit" button is clicked
     editButton.addEventListener('click', () => {
         formFields.forEach(field => {
-            if (field.id !== 'nic') { // Prevent the NIC field from being editable
+            if (field.id !== 'nic') { // Prevent the email field from being editable
                 field.disabled = false;
             }
-        });
-        profilePicturePreview.classList.add('editable');
+        }); // Enable input fields
+        profilePicturePreview.classList.add('editable'); // Indicate the picture is editable
         editButton.style.display = 'none';
         removeButton.style.display = 'none';
         saveButton.style.display = 'block';
-        cancelButton.style.display = 'block';
-        editText.style.display = 'block';
-        profilePicturePreview.style.cursor = 'pointer';
+        cancelButton.style.display = 'block'; // Show Cancel button
+        editText.style.display = 'block'; // Show Cancel button
     });
 
-    cancelButton.addEventListener('click', () => {
+  
+    
+    cancelButton.addEventListener('click', () => {// Add logic for the Cancel button
+        // Reset form fields to their initial values
         formFields.forEach(field => {
             field.value = initialFormValues[field.id];
-            field.disabled = true;
+            field.disabled = true; // Disable fields again
         });
+        // console.log(initialFormValues);
+        // Hide Save and Cancel buttons, show Edit button
         saveButton.style.display = 'none';
         cancelButton.style.display = 'none';
         editButton.style.display = 'block';
         removeButton.style.display = 'block';
-        editText.style.display = 'none';
+        editText.style.display = 'none'; // Show Cancel button
         errorAlert.style.display = 'none';
+
+        // Remove editable state from profile picture
         profilePicturePreview.classList.remove('editable');
         profilePicturePreview.style.cursor = 'default';
-        // Reset profile picture preview if changed
-        if (profilePictureInput.value) {
-            profilePicturePreview.src = "<?= get_img($user->image_url)?>";
-            profilePictureInput.value = '';
-        }
     });
 
     removeButton.addEventListener('click', () => {
         dialogContainer.style.display = 'block';
-        blurBackground.classList.add('blurred-background');
+        blurBackground.classList.add('blurred-background'); // Add blur class
     });
 
     cancelDeleteButton.addEventListener('click', () => {
         dialogContainer.style.display = 'none';
-        blurBackground.classList.remove('blurred-background');
+        blurBackground.classList.remove('blurred-background'); // Remove blur class
     });
-</script>
 
+</script>
 <?php 
 // Display the uploaded file's name
 // if (isset($_FILES['profile_picture'])) {
