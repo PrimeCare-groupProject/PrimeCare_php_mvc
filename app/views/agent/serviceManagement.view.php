@@ -93,7 +93,7 @@
             </div>
         </a>
 
-        <a href="<?= ROOT ?>/agent/serviceApplications">
+        <a href="<?= ROOT ?>/dashboard/serviceApplications">
             <div class="MM__cards">
                 <div class="MM__text">
                     <h2>Service Applications</h2>
