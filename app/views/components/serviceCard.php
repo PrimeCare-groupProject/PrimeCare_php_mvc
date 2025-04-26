@@ -82,18 +82,6 @@
                 </div>
             </div>
             
-            <!-- Date and Time Row -->
-            <div style="display: flex; flex-wrap: wrap; margin-bottom: 15px;">
-                <div style="flex: 1; min-width: 250px; margin-right: 20px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
-                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Date:</label>
-                    <span style="color: #333; font-size: 15px;"><?= isset($serviceLog->date) ? date('Y/m/d', strtotime($serviceLog->date)) : 'N/A' ?></span>
-                </div>
-                <div style="flex: 1; min-width: 250px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
-                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Time:</label>
-                    <span style="color: #333; font-size: 15px;"><?= isset($serviceLog->date) ? date('h:i A', strtotime($serviceLog->date)) : 'N/A' ?></span>
-                </div>
-            </div>
-            
             <!-- Provider and Property Row -->
             <div style="display: flex; flex-wrap: wrap; margin-bottom: 15px;">
                 <div style="flex: 1; min-width: 250px; margin-right: 20px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
@@ -105,6 +93,20 @@
                     <span style="color: #333; font-size: 15px;"><?= $serviceLog->property_name ?? 'Unknown Property' ?></span>
                 </div>
             </div>
+            
+            <!-- Date and Time Row -->
+            <div style="display: flex; flex-wrap: wrap; margin-bottom: 15px;">
+                <div style="flex: 1; min-width: 250px; margin-right: 20px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
+                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Date:</label>
+                    <span style="color: #333; font-size: 15px;"><?= isset($serviceLog->date) ? date('Y/m/d', strtotime($serviceLog->date)) : 'N/A' ?></span>
+                </div>
+                <!-- <div style="flex: 1; min-width: 250px; margin-bottom: 10px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
+                    <label style="font-weight: 600; color: #555; margin-right: 8px; font-size: 14px;">Time:</label>
+                    <span style="color: #333; font-size: 15px;"><?= isset($serviceLog->date) ? date('h:i A', strtotime($serviceLog->date)) : 'N/A' ?></span>
+                </div> -->
+            </div>
+            
+
             
             <!-- Description -->
             <div style="margin-bottom: 15px; background-color: #f9f9f9; padding: 12px 15px; border-radius: 8px;">
