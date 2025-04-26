@@ -33,3 +33,7 @@
   define('PAYHERE_URL', 'https://sandbox.payhere.lk/pay/checkout'); 
   define('Notification_count' , 10);
   define('MANAGER_ID' , 63);
+
+  define('AGENT_BASIC_SALARY' , 20000);
+  define('AGENT_INCREMENT' , 1000); 
+  define('SALARY_REMINDER_DAY' , 10);
