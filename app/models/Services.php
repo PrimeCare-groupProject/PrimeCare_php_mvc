@@ -41,7 +41,7 @@ class Services {
      * @return array Matching services
      */
     public function searchByName($searchTerm) {
-        return $this->query("SELECT * FROM $this->table WHERE name LIKE ?", ["%$searchTerm%"]);
+        return $this->where(['name' => "%$searchTerm%"], 'LIKE');
     }
 
     public function __get($property) {

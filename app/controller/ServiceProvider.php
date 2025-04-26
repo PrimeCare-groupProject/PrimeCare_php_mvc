@@ -1611,4 +1611,181 @@ public function serviceOverview() {
         redirect('home');
         exit;
     }
+
+
+    // Display application form for a service
+
+    public function applyForService($service_id = null) {
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+        
+        if (!$service_id) {
+            $_SESSION['flash']['msg'] = "No service selected";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/repairListing');
+            return;
+        }
+        
+        // Get service details
+        $services = new Services();
+        $service = $services->getServiceById($service_id);
+        
+        if (!$service) {
+            $_SESSION['flash']['msg'] = "Service not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/repairListing');
+            return;
+        }
+        
+        // Check if already applied
+        $serviceApplication = new ServiceApplication();
+        $existingApplication = $serviceApplication->first([
+            'service_id' => $service_id,
+            'service_provider_id' => $_SESSION['user']->pid
+        ]);
+        
+        if ($existingApplication) {
+            // Redirect to check status page if already applied
+            redirect('serviceprovider/checkApplicationStatus/' . $service_id);
+            return;
+        }
+        
+        $this->view('serviceProvider/serviceApplication', [
+            'service' => $service
+        ]);
+    }
+
+    // Process service application
+
+    public function submitServiceApplication() {
+        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+            redirect('serviceprovider/repairListing');
+            return;
+        }
+        
+        $service_id = $_POST['service_id'] ?? null;
+        
+        if (!$service_id) {
+            $_SESSION['flash']['msg'] = "Service ID is required";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/repairListing');
+            return;
+        }
+        
+        // Enhanced proof document validation
+        if (!isset($_FILES['proof_document']) || 
+            $_FILES['proof_document']['error'] === UPLOAD_ERR_NO_FILE || 
+            $_FILES['proof_document']['size'] == 0) {
+            
+            $_SESSION['flash']['msg'] = "Proof document is required. Please upload a valid file.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/applyForService/' . $service_id);
+            return;
+        }
+        
+        // Handle file upload
+        $uploadError = null;
+        $filePath = null;
+        
+        if ($_FILES['proof_document']['error'] === 0) {
+            $uploadDir = 'uploads/service_applications/';
+            
+            // Create directory if it doesn't exist
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            
+            $fileName = uniqid('proof_') . '_' . basename($_FILES['proof_document']['name']);
+            $filePath = $uploadDir . $fileName;
+            
+            $fileType = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            
+            // Validate file type
+            if (!in_array($fileType, ['pdf', 'jpg', 'jpeg', 'png'])) {
+                $uploadError = "Only PDF, JPG, JPEG, and PNG files are allowed.";
+            } else if ($_FILES['proof_document']['size'] > 5000000) { // 5MB limit
+                $uploadError = "File size cannot exceed 5MB.";
+            } else if (!move_uploaded_file($_FILES['proof_document']['tmp_name'], $filePath)) {
+                $uploadError = "Failed to upload file.";
+            }
+        } else {
+            $uploadError = "Error uploading file. Please try again.";
+        }
+        
+        if ($uploadError) {
+            $_SESSION['flash']['msg'] = $uploadError;
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/applyForService/' . $service_id);
+            return;
+        }
+        
+        // Save application
+        $serviceApplication = new ServiceApplication();
+        $data = [
+            'service_id' => $service_id,
+            'service_provider_id' => $_SESSION['user']->pid,
+            'proof' => $filePath,
+            'status' => 'Pending',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        if ($serviceApplication->validate($data) && $serviceApplication->insert($data)) {
+            $_SESSION['flash']['msg'] = "Your application has been submitted successfully.";
+            $_SESSION['flash']['type'] = "success";
+            redirect('serviceprovider/checkApplicationStatus/' . $service_id);
+        } else {
+            $_SESSION['flash']['msg'] = "Failed to submit application. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/applyForService/' . $service_id);
+        }
+    }
+
+    // Check application status
+
+    public function checkApplicationStatus($service_id = null) {
+        // Check if user is logged in
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
+            redirect('login');
+            return;
+        }
+        
+        if (!$service_id) {
+            $_SESSION['flash']['msg'] = "No service selected";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/repairListing');
+            return;
+        }
+        
+        // Get service details
+        $services = new Services();
+        $service = $services->getServiceById($service_id);
+        
+        if (!$service) {
+            $_SESSION['flash']['msg'] = "Service not found";
+            $_SESSION['flash']['type'] = "error";
+            redirect('serviceprovider/repairListing');
+            return;
+        }
+        
+        // Get application details
+        $serviceApplication = new ServiceApplication();
+        $application = $serviceApplication->first([
+            'service_id' => $service_id,
+            'service_provider_id' => $_SESSION['user']->pid
+        ]);
+        
+        if (!$application) {
+            // No application found, redirect to apply page
+            redirect('serviceprovider/applyForService/' . $service_id);
+            return;
+        }
+        
+        $this->view('serviceProvider/applicationStatus', [
+            'service' => $service,
+            'application' => $application
+        ]);
+    }
 }

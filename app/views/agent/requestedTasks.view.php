@@ -145,8 +145,10 @@
             foreach ($services as $service) {
                 // Find the current provider image if a provider is selected
                 $currentProviderImage = null;
-                if (!empty($service->service_provider_id)) {
-                    foreach ($data['service_providers'] as $provider) {
+                $serviceProviders = $data['providers_by_service'][$service->service_id] ?? [];
+                
+                if (!empty($service->service_provider_id) && !empty($serviceProviders)) {
+                    foreach ($serviceProviders as $provider) {
                         if ($provider->pid == $service->service_provider_id) {
                             $currentProviderImage = $provider->image_url;
                             break;
@@ -154,8 +156,8 @@
                     }
                 }
                 // Default to first provider's image if no match found
-                if (empty($currentProviderImage) && !empty($data['service_providers'])) {
-                    $currentProviderImage = $data['service_providers'][0]->image_url;
+                if (empty($currentProviderImage) && !empty($serviceProviders)) {
+                    $currentProviderImage = $serviceProviders[0]->image_url;
                 }
                 
                 // Determine property image path
@@ -219,13 +221,24 @@
                                     <span class="input-label-aligend1"><strong>Service Provider:</strong></span>
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->service_id ?>)">
-                                            <?php foreach($data['service_providers'] as $provider): ?>
-                                                <option value="<?= $provider->pid ?>" 
-                                                    data-image="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $provider->image_url ?>"
-                                                    <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?>>
-                                                    <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
-                                                </option>
-                                            <?php endforeach; ?>
+                                        <?php 
+                                        // Get the appropriate provider list for this specific service
+                                        $serviceProviders = $data['providers_by_service'][$service->service_id] ?? [];
+                                        
+                                        if (!empty($serviceProviders)):
+                                            foreach($serviceProviders as $provider): 
+                                        ?>
+                                            <option value="<?= $provider->pid ?>" 
+                                                data-image="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $provider->image_url ?>"
+                                                <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?>>
+                                                <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
+                                            </option>
+                                        <?php 
+                                            endforeach;
+                                        else:
+                                        ?>
+                                            <option value="">No approved providers available</option>
+                                        <?php endif; ?>
                                         </select>
                                         <img id="providerImage_<?= $service->service_id ?>" 
                                              src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $currentProviderImage ?? 'Agent.png' ?>" 

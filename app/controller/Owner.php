@@ -1043,64 +1043,105 @@ class Owner
 
     public function serviceRequest($type = '')
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Handle form submission here
-            $data = [
-                'service_type' => $_POST['service_type'],
-                'date' => $_POST['date'],
-                'property_id' => $_POST['property_id'],
-                'property_name' => $_POST['property_name'],
-                'status' => $_POST['status'],
-                'service_description' => $_POST['service_description'],
-                'cost_per_hour' => $_POST['cost_per_hour'],
-                'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
-            ];
-
-            // Add service request to database
-            $service = new ServiceLog();
-            if ($service->insert($data)) {
-                $_SESSION['status'] = "Service request submitted successfully";
-                $_SESSION['success_message'] = "Request sent successfully!";
-            } else {
-                $_SESSION['errors'][] = "Failed to submit service request";
+        try {
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                // Check if the user has completed tasks with total cost exceeding 20,000 LKR
+                $serviceLog = new ServiceLog();
+                $completedServices = $serviceLog->where([
+                    'requested_person_id' => $_SESSION['user']->pid,
+                    'status' => 'Done'
+                ]);
+                
+                // Calculate total cost of completed services
+                $totalCompletedCost = 0;
+                if (!empty($completedServices)) {
+                    foreach ($completedServices as $service) {
+                        $totalCompletedCost += ($service->total_cost ?? 0);
+                    }
+                }
+                
+                // If total cost exceeds 20,000 LKR, show error message and prevent submission
+                if ($totalCompletedCost > 20000) {
+                    $_SESSION['flash']['msg'] = "You have unpaid completed services totaling LKR " . number_format($totalCompletedCost, 2) . 
+                        ". Please make payments for your existing completed services before requesting new services.";
+                    $_SESSION['flash']['type'] = "error";
+                    
+                    // Redirect back to the form with the error message
+                    redirect('dashboard/maintenance');
+                    return;
+                }
+                
+                // Handle form submission here
+                $data = [
+                    'service_type' => $_POST['service_type'] ?? '',
+                    'date' => $_POST['date'] ?? '',
+                    'property_id' => $_POST['property_id'] ?? 0,
+                    'property_name' => $_POST['property_name'] ?? '',
+                    'status' => $_POST['status'] ?? 'Pending',
+                    'service_description' => $_POST['service_description'] ?? '',
+                    'cost_per_hour' => $_POST['cost_per_hour'] ?? 0,
+                    'requested_person_id' => $_POST['requested_person_id'] ?? $_SESSION['user']->pid
+                ];
+        
+                // Add service request to database
+                $service = new ServiceLog();
+                if ($service->insert($data)) {
+                    $_SESSION['status'] = "Service request submitted successfully";
+                    $_SESSION['success_message'] = "Request sent successfully!";
+                } else {
+                    $_SESSION['flash']['msg'] = "Failed to submit service request. Please try again.";
+                    $_SESSION['flash']['type'] = "error";
+                }
+        
+                redirect('dashboard/serviceRequest');
+                return;
             }
-
-            redirect('dashboard/serviceRequest');
+        
+            // Get property information from URL parameters
+            $property_id = $_GET['property_id'] ?? null;
+            $property_name = $_GET['property_name'] ?? '';
+            $service_type = $_GET['type'] ?? $type;
+            $cost_per_hour = $_GET['cost_per_hour'] ?? '';
+        
+            // Fetch property image if property_id is provided
+            $propertyImage = null;
+            if ($property_id) {
+                $imageModel = new PropertyImageModel();
+                $images = $imageModel->where(['property_id' => $property_id]);
+                if (!empty($images)) {
+                    $propertyImage = $images[0]->image_url;
+                }
+            }
+        
+            $this->view('owner/serviceRequest', [
+                'user' => $_SESSION['user'],
+                'errors' => $_SESSION['errors'] ?? [],
+                'status' => $_SESSION['status'] ?? '',
+                'success_message' => $_SESSION['success_message'] ?? '',
+                'type' => $service_type,
+                'property_id' => $property_id,
+                'property_name' => $property_name,
+                'property_image' => $propertyImage,
+                'cost_per_hour' => $cost_per_hour,
+            ]);
+        
+            // Clear session messages after displaying
+            unset($_SESSION['success_message']);
+            unset($_SESSION['errors']);
+            unset($_SESSION['status']);
+            
+        } catch (Exception $e) {
+            // Log the error (optional)
+            error_log("Service request error: " . $e->getMessage());
+            
+            // Set flash message
+            $_SESSION['flash']['msg'] = "An error occurred while processing your request. Please try again or contact support.";
+            $_SESSION['flash']['type'] = "error";
+            
+            // Redirect to a safe page
+            redirect('dashboard/maintenance');
             return;
         }
-
-        // Get property information from URL parameters
-        $property_id = $_GET['property_id'] ?? null;
-        $property_name = $_GET['property_name'] ?? '';
-        $service_type = $_GET['type'] ?? $type;
-        $cost_per_hour = $_GET['cost_per_hour'] ?? '';
-
-        // Fetch property image if property_id is provided
-        $propertyImage = null;
-        if ($property_id) {
-            $imageModel = new PropertyImageModel();
-            $images = $imageModel->where(['property_id' => $property_id]);
-            if (!empty($images)) {
-                $propertyImage = $images[0]->image_url;
-            }
-        }
-
-        $this->view('owner/serviceRequest', [
-            'user' => $_SESSION['user'],
-            'errors' => $_SESSION['errors'] ?? [],
-            'status' => $_SESSION['status'] ?? '',
-            'success_message' => $_SESSION['success_message'] ?? '',
-            'type' => $service_type,
-            'property_id' => $property_id,
-            'property_name' => $property_name,
-            'property_image' => $propertyImage,
-            'cost_per_hour' => $cost_per_hour,
-        ]);
-
-        // Clear session messages after displaying
-        unset($_SESSION['success_message']);
-        unset($_SESSION['errors']);
-        unset($_SESSION['status']);
     }
 
     public function profile()
@@ -2450,6 +2491,358 @@ class Owner
         redirect('dashboard/propertyListing');
     }
 
+
+    public function servicePayment($status){
+        // Get parameters from the URL
+        $order_id = $_GET['order_id'] ?? null;
+        $amount = $_GET['amount'] ?? null;
+        $service_id = $_GET['service_id'] ?? null;
+        
+        // Validate required parameters
+        if (!$order_id || !$amount || !$service_id) {
+            $_SESSION['flash']['msg'] = "Invalid payment information.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/maintenance');
+            return;
+        }
+        
+        // Check payment status
+        if ($status === 'success') {
+            // Get service details
+            $serviceLog = new ServiceLog();
+            $service = $serviceLog->first(['service_id' => $service_id]);
+            
+            if (!$service) {
+                $_SESSION['flash']['msg'] = "Service not found.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/maintenance');
+                return;
+            }
+            
+            // Find existing payment record or create new one
+            $servicePayment = new ServicePayment();
+            $existingPayment = $servicePayment->first(['service_id' => $service_id, 'invoice_number' => $order_id]);
+            
+            if ($existingPayment) {
+                // Update existing payment record
+                $servicePayment->update($existingPayment->payment_id, [
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s')
+                ], 'payment_id');
+                
+                $paymentId = $existingPayment->payment_id;
+            } else {
+                // Create new payment record
+                $paymentData = [
+                    'service_id' => $service_id,
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'invoice_number' => $order_id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'service_provider_id' => $service->service_provider_id ?? null,
+                    'serviceType' => 'regular',
+                    'person_id' => $_SESSION['user']->pid  
+                ];
+                
+                $paymentId = $servicePayment->insert($paymentData);
+            }
+            
+            // Get property details for invoice
+            $propertyModel = new Property();
+            $property = $propertyModel->first(['property_id' => $service->property_id]);
+            
+            // Get service provider details if available
+            $providerName = "PrimeCare Service";
+            if ($service->service_provider_id) {
+                $userModel = new User();
+                $provider = $userModel->first(['pid' => $service->service_provider_id]);
+                if ($provider) {
+                    $providerName = trim(($provider->fname ?? '') . ' ' . ($provider->lname ?? ''));
+                }
+            }
+            
+            if ($paymentId) {
+                // Update service status to Paid
+                $serviceLog->update($service_id, [
+                    'status' => 'Paid'
+                ], 'service_id');
+                
+                // Send notifications
+                enqueueNotification(
+                    'Payment Success', 
+                    'Your payment of LKR ' . number_format($amount, 2) . ' for service #' . $service_id . ' has been processed successfully.', 
+                    '', 
+                    'Notification_green'
+                );
+                
+                // Notify service provider if available
+                if ($service->service_provider_id) {
+                    enqueueNotification(
+                        'Payment Received', 
+                        'Payment of LKR ' . number_format($amount, 2) . ' for service #' . $service_id . ' has been received.', 
+                        ROOT . '/dashboard/serviceRequests', 
+                        'Notification_green',
+                        $service->service_provider_id
+                    );
+                }
+                
+                // Show payment success page with popup and invoice download
+                $this->view('owner/paymentSuccess', [
+                    'user' => $_SESSION['user'],
+                    'service' => $service,
+                    'property' => $property,
+                    'amount' => $amount,
+                    'order_id' => $order_id,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'provider_name' => $providerName
+                ]);
+                return;
+            } else {
+                // Payment record creation failed
+                $_SESSION['flash']['msg'] = "Payment successful, but failed to update records.";
+                $_SESSION['flash']['type'] = "warning";
+            }
+        } else {
+            // Payment failed or cancelled
+            $_SESSION['flash']['msg'] = "Payment was not successful. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+            
+            // Send notification about failed payment
+            enqueueNotification(
+                'Payment Failed', 
+                'Your payment for service #' . $service_id . ' was not successful.', 
+                '', 
+                'Notification_red'
+            );
+        }
+        
+        // Redirect to maintenance page
+        redirect('dashboard/maintenance');
+    }
+    
+    
+    // Generate HTML for the invoice
+
+    private function generateInvoiceHTML($service, $payment, $property, $providerName) {
+        // Format dates for display
+        $paymentDate = date('Y-m-d', strtotime($payment->payment_date));
+        $serviceDate = date('Y-m-d', strtotime($service->date));
+        
+        // Start the HTML output based on the provided template
+        $html = '<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Service Payment Invoice</title>
+            <style>
+                * {
+                    font-family: Arial, sans-serif;
+                }
+                
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                .GR__report-container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+                
+                .GR__report-header {
+                    display: flex;
+                    flex-direction: column;
+                    border-bottom: 2px solid #4e6ef7;
+                    padding-bottom: 20px;
+                    margin-bottom: 20px;
+                }
+                
+                .GR__title-area {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+                
+                .GR__logo img {
+                    height: 80px;
+                    width: auto;
+                }
+                
+                .GR__company-info p {
+                    margin: 5px 0;
+                    font-size: 14px;
+                }
+                
+                .GR__report-title h1 {
+                    color: #4e6ef7;
+                    margin: 0;
+                    font-size: 24px;
+                }
+                
+                .GR__meta-info {
+                    display: flex;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                }
+                
+                .GR__meta-field {
+                    margin-bottom: 10px;
+                    flex-basis: 30%;
+                }
+                
+                .GR__meta-field label {
+                    display: block;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                    font-size: 12px;
+                    color: #555;
+                }
+                
+                .GR__meta-field span {
+                    display: block;
+                    font-size: 14px;
+                }
+                
+                .invoice-content {
+                    margin-top: 30px;
+                }
+                
+                .invoice-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                
+                .invoice-table th,
+                .invoice-table td {
+                    padding: 12px;
+                    border: 1px solid #ddd;
+                    text-align: left;
+                }
+                
+                .invoice-table th {
+                    background-color: #f8f9fa;
+                    font-weight: bold;
+                    color: #333;
+                }
+                
+                .invoice-total {
+                    margin-top: 30px;
+                    text-align: right;
+                }
+                
+                .invoice-total h3 {
+                    display: inline-block;
+                    margin-right: 20px;
+                }
+                
+                .invoice-footer {
+                    margin-top: 50px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ddd;
+                    font-size: 12px;
+                    color: #777;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="GR__report-container">
+                <div class="GR__report-header">
+                    <div class="GR__title-area">
+                        <div class="GR__logo">
+                            <img src="' . ROOT . '/assets/images/logo.png" alt="Company Logo">
+                        </div>
+                        <div class="GR__company-info">
+                            <p>No 9 , Marine drive,<br>Bambalapitiya</p>
+                            <p>primeCare@gmail.com ✉</p>
+                            <p>011-1234567 ☎</p>
+                        </div>
+                    </div>
+        
+                    <div class="GR__title-area">
+                        <div class="GR__report-title">
+                            <h1>Service Payment Invoice</h1>
+                        </div>
+                    </div>
+        
+                    <div class="GR__meta-info">
+                        <div class="GR__meta-field">
+                            <label>Invoice #</label>
+                            <span>' . $payment->invoice_number . '</span>
+                        </div>
+                        <div class="GR__meta-field">
+                            <label>Payment Date</label>
+                            <span>' . $paymentDate . '</span>
+                        </div>
+                        <div class="GR__meta-field">
+                            <label>Service ID</label>
+                            <span>' . $service->service_id . '</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="invoice-content">
+                    <h2>Invoice Details</h2>
+                    
+                    <div class="GR__meta-info">
+                        <div class="GR__meta-field">
+                            <label>Property</label>
+                            <span>' . ($property->name ?? 'N/A') . '</span>
+                        </div>
+                        <div class="GR__meta-field">
+                            <label>Property Address</label>
+                            <span>' . ($property->address ?? 'N/A') . '</span>
+                        </div>
+                        <div class="GR__meta-field">
+                            <label>Service Provider</label>
+                            <span>' . $providerName . '</span>
+                        </div>
+                    </div>
+                    
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Description</th>
+                                <th>Service Date</th>
+                                <th>Rate</th>
+                                <th>Hours</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>' . ($service->service_type ?? 'Service') . '</td>
+                                <td>' . ($service->service_description ?? 'N/A') . '</td>
+                                <td>' . $serviceDate . '</td>
+                                <td>Rs. ' . number_format($service->cost_per_hour, 2) . '</td>
+                                <td>' . $service->total_hours . '</td>
+                                <td>Rs. ' . number_format($payment->amount, 2) . '</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="invoice-total">
+                        <h3>Total Amount:</h3>
+                        <strong>Rs. ' . number_format($payment->amount, 2) . '</strong>
+                    </div>
+                </div>
+                
+                <div class="invoice-footer">
+                    <p>Thank you for your business! This is a computer-generated invoice and does not require a signature.</p>
+                    <p>For any questions, please contact customer service at 011-1234567 or primeCare@gmail.com</p>
+                </div>
+            </div>
+        </body>
+        </html>';
+        
+        return $html;
+    }
+
     public function payRest($property_id)
     {
         $property = new Property;
@@ -2544,9 +2937,4 @@ class Owner
     }
 
 
-    public function servicePayment($status)
-    {
-        // status = 'success' or 'failed'
-        //as get request order_id , amount , service_id
-    }
 }

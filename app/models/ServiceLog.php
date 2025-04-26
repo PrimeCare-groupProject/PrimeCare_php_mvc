@@ -60,9 +60,9 @@ class ServiceLog {
         }
 
         // Validate status
-        $validStatuses = ['Done', 'Pending', 'Ongoing'];
+        $validStatuses = ['Done', 'Pending', 'Ongoing', 'Rejected', 'Paid'];
         if (empty($data['status']) || !in_array($data['status'], $validStatuses)) {
-            $this->errors['status'] = 'Valid status is required (Done, Pending, or Ongoing)';
+            $this->errors['status'] = 'Valid status is required (Done, Pending, Rejected, Paid or Ongoing)';
         }
 
         // Service provider ID can be null, but if provided must be numeric

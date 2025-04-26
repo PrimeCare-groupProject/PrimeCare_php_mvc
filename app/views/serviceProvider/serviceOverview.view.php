@@ -1,8 +1,29 @@
 <?php require 'serviceproviderHeader.view.php' ?>
 
+<!-- Update the user_view-menu-bar section -->
 <div class="user_view-menu-bar">
     <a href='<?= ROOT ?>/serviceprovider/repairListing'><img src="<?= ROOT ?>/assets/images/backButton.png" alt="back" class="navigate-icons"></a>
     <h2>Service Details</h2>
+    
+    <?php 
+    // Check if the user has already applied for this service
+    $serviceApplication = new ServiceApplication();
+    $alreadyApplied = $serviceApplication->hasApplied($service->service_id, $_SESSION['user']->pid);
+    
+    if (!$alreadyApplied): 
+    ?>
+        <div class="action-btn-container">
+            <a href="<?= ROOT ?>/serviceprovider/applyForService/<?= $service->service_id ?>" class="apply-service-btn">
+                <i class="fas fa-clipboard-check"></i> Apply for this Service
+            </a>
+        </div>
+    <?php else: ?>
+        <div class="action-btn-container">
+            <a href="<?= ROOT ?>/serviceprovider/checkApplicationStatus/<?= $service->service_id ?>" class="check-status-btn">
+                <i class="fas fa-clipboard-list"></i> Check Application Status
+            </a>
+        </div>
+    <?php endif; ?>
 </div>
 
 <div class="service-overview-container">
@@ -351,20 +372,83 @@
         font-style: italic;
     }
     
-    /* Media queries for responsiveness */
+    /* Improved menu bar layout */
+    .user_view-menu-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+    
+    /* Button container positioning */
+    .action-btn-container {
+        margin-left: auto;
+    }
+    
+    /* Enhanced button styles */
+    .apply-service-btn, .check-status-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        letter-spacing: 0.3px;
+    }
+    
+    .apply-service-btn {
+        background: linear-gradient(135deg, #FFA000, #FFD600);
+        color: white;
+        border: none;
+    }
+    
+    .apply-service-btn:hover {
+        background: linear-gradient(135deg, #FFD600, #FFA000);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .check-status-btn {
+        background: linear-gradient(135deg, #FFA000, #FF8F00);
+        color: white;
+        border: none;
+    }
+    
+    .check-status-btn:hover {
+        background: linear-gradient(135deg, #FF8F00, #FF6F00);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .apply-service-btn i, .check-status-btn i {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+    
+    /* Responsive adjustments */
     @media (max-width: 768px) {
-        .service-content {
+        .user_view-menu-bar {
             flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
         }
         
-        .service-image-container {
-            margin-right: 0;
-            margin-bottom: 20px;
-            flex: 0 0 auto;
+        .action-btn-container {
+            margin-left: 0;
+            width: 100%;
         }
         
-        .tasks-container {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        .apply-service-btn, .check-status-btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
         }
     }
 </style>
