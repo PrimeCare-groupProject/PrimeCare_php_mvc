@@ -33,10 +33,10 @@
                         ?>
                         <img src="<?= $imagePath ?>" alt="<?= htmlspecialchars($service->name) ?>">
                         
-                        <!-- Temporary debug info -->
+                        <!-- Temporary debug info
                         <div style="font-size: 10px; color: #888; position: absolute; bottom: 0; background: rgba(255,255,255,0.7); padding: 2px; width: 100%;">
                             Image: <?= $debug_img ?>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="property-details">
                         <div class="profile-details-items">
