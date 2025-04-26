@@ -1,5 +1,4 @@
 <?php
-// filepath: d:\Xampp\htdocs\php_mvc_backend\app\models\ServiceApplication.php
 
 class ServiceApplication {
     use Model;
@@ -27,10 +26,26 @@ class ServiceApplication {
         
         if(empty($data['service_id'])) {
             $this->errors['service_id'] = "Service ID is required";
+        } else {
+            // Verify that the service exists in services table (not serviceLog)
+            $serviceModel = new Services();
+            $service = $serviceModel->getServiceById($data['service_id']);
+            
+            if (!$service) {
+                $this->errors['service_id'] = "The selected service does not exist";
+            }
         }
         
         if(empty($data['service_provider_id'])) {
             $this->errors['service_provider_id'] = "Service provider ID is required";
+        } else {
+            // Verify the service provider exists
+            $person = new User();
+            $provider = $person->first(['pid' => $data['service_provider_id']]);
+            
+            if (!$provider) {
+                $this->errors['service_provider_id'] = "The selected service provider does not exist";
+            }
         }
         
         if(empty($data['proof'])) {
@@ -48,11 +63,7 @@ class ServiceApplication {
     }
     
     /**
-     * Check if a service provider already applied for a service
-     *
-     * @param int $service_id Service ID
-     * @param int $provider_id Service provider ID
-     * @return bool True if already applied, false otherwise
+     * Check if service provider already applied for a service
      */
     public function hasApplied($service_id, $provider_id) {
         $application = $this->first([
