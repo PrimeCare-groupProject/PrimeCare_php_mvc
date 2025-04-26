@@ -693,3 +693,42 @@ function checkSalaryReminder($manager_id)
         $manager_id
     );
 }
+
+
+function getTransactionType($type)
+{
+    switch ($type) {
+        case 'rent_income':
+            return 'Rent Income';
+        case 'salary_payment':
+            return 'Salary Payment';
+        case 'service_fee':
+            return 'Service Fee';
+        default:
+            return 'Unknown';
+    }
+}
+
+function getReferenceType($type)
+{
+    switch ($type) {
+        case 'property':
+            return 'Property';
+        case 'service':
+            return 'Service';
+        case 'employee':
+            return 'Employee';
+        default:
+            return 'Other';
+    }
+}
+
+function getUserName($user_id)
+{
+    $userModel = new User();
+    $user = $userModel->where(['pid' => $user_id])[0];
+    if ($user) {
+        return $user->fname . ' ' . $user->lname;
+    }
+    return 'Unknown User'; // Return default name if user not found
+}
