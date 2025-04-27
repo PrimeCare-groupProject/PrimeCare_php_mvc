@@ -1,7 +1,8 @@
 <?php require_once 'customerHeader.view.php'; ?>
 
 <div class="user_view-menu-bar" style="margin-bottom: 15px;">
-    <div class="gap"></div>
+    <!-- <div class="gap"></div> -->
+    <a href="javascript:history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
     <h2>My Service Requests</h2>
     <div class="flex-bar">
         <span style="color: var(--dark-grey-color)">Total Expenses:</span>
