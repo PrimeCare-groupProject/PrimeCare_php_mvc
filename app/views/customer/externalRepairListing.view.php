@@ -91,7 +91,7 @@
                         <p class="property-description">
                             <?= $service->description ?>
                         </p>
-                        <p class="service-cost">$<?= number_format($service->cost_per_hour, 2) ?> per hour</p>
+                        <p class="service-cost">LKR <?= number_format($service->cost_per_hour, 2) ?> per hour</p>
                     </div>
                 </div>
             <?php endforeach; ?>
