@@ -722,13 +722,8 @@ class Agent
                 $this->editTasks($c, $d);
                 break;
             default:
-                $service = new ServiceLog;
-                $services = new Services;
-                $tasks = $services->selecttwotables(
-                    $service->table,
-                    'service_id',
-                    'services_id',
-                );
+                $task = new ServiceLog;
+                $tasks = $task->findAll();
                 $this->view('agent/tasks', ['tasks' => $tasks]);
                 break;
         }
@@ -740,10 +735,13 @@ class Agent
         $pro = new Property();
         $properties = $property ->selecttwotables($pro->table,
                                                 'property_id',
-                                                'property_id',);
+                                                'property_id',);    
+        $serpro1 = new User();
+        $serpro = $serpro1->where(['user_lvl' => 2]);
         $service = new Services();
         $services = $service->findAll();
-        $this->view('agent/newtask', ['properties' => $properties,'services' => $services]);
+        //show($serpro);
+        $this->view('agent/newtask', ['properties' => $properties,'services' => $services,'serpro' => $serpro]);
     }
 
     public function editTasks($c, $d)
@@ -751,7 +749,10 @@ class Agent
         $service_id = $c;
         $task = new ServiceLog;
         $tasks = $task->where(['service_id' => $service_id])[0];
-        $this->view('agent/edittasks', ['tasks' => $tasks]);
+        $service = new Services;
+        $services = $service->findAll();
+
+        $this->view('agent/edittasks', ['tasks' => $tasks,'services' => $services]);
     }
 
     public function taskRemoval()
