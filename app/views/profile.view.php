@@ -286,7 +286,7 @@
     // show($_FILES['profile_picture'] ?? "null");
     // show( $_POST );
     // show( $user );
-    show( $_SESSION);
+    // show( $_SESSION);
 // }
 // show(get_img($user->image_url));
 ?>
