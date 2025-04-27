@@ -2494,5 +2494,136 @@ class Customer
         // Redirect to service requests page
         redirect('dashboard/serviceRequests');
     }
+
+    public function externalServicePayment($status) {
+        // Get parameters from the URL
+        $order_id = $_GET['order_id'] ?? null;
+        $amount = $_GET['amount'] ?? null;
+        $service_id = $_GET['service_id'] ?? null;
+        
+        // Validate required parameters
+        if (!$order_id || !$amount || !$service_id) {
+            $_SESSION['flash']['msg'] = "Invalid payment information.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/externalMaintenance');
+            return;
+        }
+        
+        // Check payment status
+        if ($status === 'success') {
+            // Get service details
+            $externalService = new ExternalService();
+            $service = $externalService->first(['id' => $service_id]);
+            
+            if (!$service) {
+                $_SESSION['flash']['msg'] = "Service not found.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/externalMaintenance');
+                return;
+            }
+            
+            // Find existing payment record or create new one - USE NEW MODEL
+            $externalServicePayment = new ExternalServicePayment();
+            $existingPayment = $externalServicePayment->first(['external_service_id' => $service_id, 'invoice_number' => $order_id]);
+            
+            if ($existingPayment) {
+                // Update existing payment record
+                $externalServicePayment->update($existingPayment->payment_id, [
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s')
+                ], 'payment_id');
+                
+                $paymentId = $existingPayment->payment_id;
+            } else {
+                // Create new payment record
+                $paymentData = [
+                    'external_service_id' => $service_id, // Change: service_id -> external_service_id
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'invoice_number' => $order_id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'service_provider_id' => $service->service_provider_id ?? null,
+                    'person_id' => $_SESSION['user']->pid,
+                    'payment_status' => 'Completed'
+                ];
+                
+                $paymentId = $externalServicePayment->insert($paymentData);
+            }
+            
+            // Create property object for external services
+            $property = (object) [
+                'name' => $service->property_name ?? 'External Property',
+                'address' => $service->property_address ?? 'N/A'
+            ];
+            
+            // Get service provider details if available
+            $providerName = "PrimeCare Service";
+            if ($service->service_provider_id) {
+                $userModel = new User();
+                $provider = $userModel->first(['pid' => $service->service_provider_id]);
+                if ($provider) {
+                    $providerName = trim(($provider->fname ?? '') . ' ' . ($provider->lname ?? ''));
+                }
+            }
+            
+            if ($paymentId) {
+                // Update service status to Paid
+                $externalService->update($service_id, [
+                    'status' => 'Paid',
+                ], 'id');
+                
+                // Send notifications
+                enqueueNotification(
+                    'Payment Success', 
+                    'Your payment of LKR ' . number_format($amount, 2) . ' for external service #' . $service_id . ' has been processed successfully.', 
+                    '', 
+                    'Notification_green'
+                );
+                
+                // Notify service provider if available
+                if ($service->service_provider_id) {
+                    enqueueNotification(
+                        'Payment Received', 
+                        'Payment of LKR ' . number_format($amount, 2) . ' for external service #' . $service_id . ' has been received.', 
+                        ROOT . '/dashboard/externalServices', 
+                        'Notification_green',
+                        $service->service_provider_id
+                    );
+                }
+                
+                // Show payment success page with popup and invoice download
+                $this->view('customer/paymentSuccessExternal', [
+                    'user' => $_SESSION['user'],
+                    'service' => $service,
+                    'property' => $property,
+                    'amount' => $amount,
+                    'order_id' => $order_id,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'provider_name' => $providerName,
+                    'service_type' => 'external' // Add service type for the invoice template
+                ]);
+                return;
+            } else {
+                // Payment record creation failed
+                $_SESSION['flash']['msg'] = "Payment successful, but failed to update records.";
+                $_SESSION['flash']['type'] = "warning";
+            }
+        } else {
+            // Payment failed or cancelled
+            $_SESSION['flash']['msg'] = "Payment was not successful. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+            
+            // Send notification about failed payment
+            enqueueNotification(
+                'Payment Failed', 
+                'Your payment for external service #' . $service_id . ' was not successful.', 
+                '', 
+                'Notification_red'
+            );
+        }
+        
+        // Redirect to external maintenance page
+        redirect('dashboard/externalMaintenance');
+    }
     
 }
