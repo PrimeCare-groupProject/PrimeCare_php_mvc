@@ -469,6 +469,25 @@ CREATE TABLE external_services (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+--Exteranla service Payments
+CREATE TABLE `external_service_payments` (
+  `payment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `external_service_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `payment_date` datetime DEFAULT NULL,
+  `invoice_number` varchar(50) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `service_provider_id` int(11) DEFAULT NULL,
+  `person_id` int(11) DEFAULT NULL,
+  `payment_status` varchar(50) DEFAULT 'Completed',
+  PRIMARY KEY (`payment_id`),
+  KEY `external_service_id` (`external_service_id`),
+  KEY `service_provider_id` (`service_provider_id`),
+  KEY `person_id` (`person_id`),
+  CONSTRAINT `external_service_payments_ibfk_1` FOREIGN KEY (`external_service_id`) REFERENCES `external_services` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `external_service_payments_ibfk_2` FOREIGN KEY (`service_provider_id`) REFERENCES `person` (`pid`) ON DELETE SET NULL,
+  CONSTRAINT `external_service_payments_ibfk_3` FOREIGN KEY (`person_id`) REFERENCES `person` (`pid`) ON DELETE SET NULL
+);
 -- Table structure for table `services`
 --
 

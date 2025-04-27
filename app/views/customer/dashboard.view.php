@@ -1351,7 +1351,7 @@
         <div class="card-header">
             <h3>Current Rental Property</h3>
             <?php if (isset($currentProperty) && $currentProperty): ?>
-                <a href="<?= ROOT ?>/dashboard/search" class="action-button">
+                <a href="<?= ROOT ?>/propertylisting/showlisting" class="action-button">
                     <i class="fas fa-search" style="margin-right: 6px;"></i>Search for more...
                 </a>
             <?php endif; ?>
@@ -1526,7 +1526,7 @@
                 <i class="fas fa-home"></i>
                 <h3>No Current Rental</h3>
                 <p>You don't have any active rentals at the moment.</p>
-                <a href="<?= ROOT ?>/properties" class="action-button primary-button">Browse Properties</a>
+                <a href="<?= ROOT ?>/propertylisting/showlisting" class="action-button primary-button">Browse Properties</a>
             </div>
         <?php endif; ?>
     </div>

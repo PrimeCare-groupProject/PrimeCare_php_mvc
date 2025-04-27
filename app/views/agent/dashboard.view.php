@@ -7,7 +7,7 @@
 
 <div class="agent-dashboard-container">
     <!-- Stats Row -->
-    <<div class="agent-stats-row">
+    <div class="agent-stats-row">
         <!-- Properties -->
         <div class="agent-stat-card agent-property-card">
             <div class="agent-card-icon">
