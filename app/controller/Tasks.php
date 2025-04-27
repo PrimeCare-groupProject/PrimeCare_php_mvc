@@ -13,7 +13,8 @@ class Tasks {
                 'property_id' => $_POST['property_id'],
                 'property_name' => $_POST['property_name'],
                 'cost_per_hour' => $_POST['cost_per_hour'],
-                'total_hours' => $_POST['total_hours']
+                'total_hours' => $_POST['total_hours'],
+                'service_provider_id' => $_POST['service_provider_id'],
             ];
 
             // Check if files are uploaded

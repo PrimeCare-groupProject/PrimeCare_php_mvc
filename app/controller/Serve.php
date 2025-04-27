@@ -188,7 +188,6 @@ class Serve{
                     'status' => $_POST['status'],
                     'service_provider_id' => $_POST['service_provider_id'],
                     'total_cost' => $_POST['total_cost'],
-                    'service_description' => $_POST['service_description']
             ];
             $service = new ServiceLog;
             $res = $service->update($_POST['service_id'], $arr, 'service_id');
