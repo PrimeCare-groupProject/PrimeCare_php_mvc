@@ -149,6 +149,23 @@ class Home
         }
     }
 
+    public function externalrequest()
+    {
+
+        // Check if user is logged in
+        if(isset($_SESSION['user'])) {
+            if($_SESSION['user']->user_lvl == 0) {
+                redirect('dashboard/requestService');
+            } else {
+            $_SESSION['customerView'] = 1;
+                redirect('dashboard/requestService');
+            }
+        } else {
+            $_SESSION['redirect_url'] = $_GET['url'] ;
+            redirect('login');
+        }
+    }
+
     public function policies()
     {
         $this->view('policies');

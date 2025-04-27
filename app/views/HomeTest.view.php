@@ -135,7 +135,7 @@
 
     <section class="home-property-listing">
         <div class="search-box" style="align-self: flex-end; border-radius: 40px 0 0 40px;">
-            <a href="<?= ROOT ?>/dashboard/externalRepairListing">Pick a Service</a>
+            <a href="<?= ROOT ?>/home/externalrequest">Pick a Service</a>
             <p>Services</p>
         </div>
         <div class="service-listing-slider">
