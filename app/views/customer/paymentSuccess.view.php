@@ -94,7 +94,7 @@ function printInvoice() {
     // Create a new window for the invoice
     var invoiceWindow = window.open('', '_blank');
     
-    // Generate invoice HTML
+    // Generate invoice HTML with proper variable handling
     var invoiceHTML = `
     <!DOCTYPE html>
     <html lang="en">
@@ -193,7 +193,7 @@ function printInvoice() {
                     <p>PrimeCare Services</p>
                 </div>
                 <div>
-                    <img src="${ROOT}/assets/images/logo.png" alt="PrimeCare Logo" style="height: 60px;">
+                    <img src="<?= ROOT ?>/assets/images/logo.png" alt="PrimeCare Logo" style="height: 60px;">
                 </div>
             </div>
             
@@ -201,11 +201,11 @@ function printInvoice() {
                 <div class="invoice-details-row">
                     <div>
                         <div class="invoice-details-label">Invoice Number:</div>
-                        <div>${order_id}</div>
+                        <div>${'<?= $order_id ?>'}</div>
                     </div>
                     <div>
                         <div class="invoice-details-label">Date:</div>
-                        <div>${new Date('${payment_date}').toLocaleDateString()}</div>
+                        <div>${new Date('<?= $payment_date ?>').toLocaleDateString()}</div>
                     </div>
                 </div>
                 
@@ -238,14 +238,14 @@ function printInvoice() {
                             <td>${'<?= $service->service_type ?>'}</td>
                             <td>${'<?= $property->name ?? "N/A" ?>'}</td>
                             <td>${new Date('<?= $service->date ?>').toLocaleDateString()}</td>
-                            <td>LKR ${parseFloat($,{amount}).toFixed(2)}</td>
+                            <td>LKR ${parseFloat('<?= $amount ?>').toFixed(2)}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
             <div class="invoice-total">
-                Total Amount: LKR ${parseFloat($,{amount}).toFixed(2)}
+                Total Amount: LKR ${parseFloat('<?= $amount ?>').toFixed(2)}
             </div>
             
             <div class="invoice-footer">
@@ -263,6 +263,8 @@ function printInvoice() {
     
     // Write the HTML to the new window
     invoiceWindow.document.write(invoiceHTML);
+    
+    // Necessary to properly load the document before printing
     invoiceWindow.document.close();
 }
 </script>
