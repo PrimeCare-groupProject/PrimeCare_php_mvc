@@ -71,6 +71,24 @@
             </div>
 
             <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const toggleSidebarBtn = document.querySelector('.toggle-sidebar-btn');
+                    const sidebar = document.querySelector('.user_view-sidemenu');
+
+                    toggleSidebarBtn.addEventListener('click', function() {
+                        sidebar.classList.toggle('active');
+                    });
+
+                    // Close sidebar when clicking outside
+                    document.addEventListener('click', function(event) {
+                        if (!sidebar.contains(event.target) && !toggleSidebarBtn.contains(event.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    });
+                });
+            </script>
+            
+            <script>
                 const BASE_URL = "<?= ROOT ?>";
             </script>
 
