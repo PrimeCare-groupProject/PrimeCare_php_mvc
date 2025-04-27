@@ -77,7 +77,23 @@
 
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+
+    // Initialize delete functionality
+    let deleteServiceId = null;
+
+    function confirmDelete(serviceId) {
+        deleteServiceId = serviceId;
+        document.getElementById('deletePopup').style.display = 'flex';
+        document.body.classList.add('popup-active');
+    }
+
+    function closePopup() {
+        deleteServiceId = null;
+        document.getElementById('deletePopup').style.display = 'none';
+        document.body.classList.remove('popup-active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
     // Constants and variables
     const searchInput = document.querySelector('.search-input');
     const searchBtn = document.querySelector('.search-btn');
@@ -205,21 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleSearchKeyup(e) {
         if (e.key === 'Enter') performSearch();
-    }
-
-    // Initialize delete functionality
-    let deleteServiceId = null;
-
-    function confirmDelete(serviceId) {
-        deleteServiceId = serviceId;
-        document.getElementById('deletePopup').style.display = 'flex';
-        document.body.classList.add('popup-active');
-    }
-
-    function closePopup() {
-        deleteServiceId = null;
-        document.getElementById('deletePopup').style.display = 'none';
-        document.body.classList.remove('popup-active');
     }
 
     document.getElementById('confirmDelete').addEventListener('click', function() {
