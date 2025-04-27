@@ -538,8 +538,8 @@ class Agent
                         // Convert ongoing_count to array if false (no services)
                         $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
                         
-                        // Add provider if they have less than 4 ongoing services
-                        if (count($ongoing_count) < 4) {
+                        // Add provider if they have less than or equal to 4 ongoing services
+                        if (count($ongoing_count) <= 4) {
                             $filtered_providers[] = $provider;
                         }
                     }
@@ -1322,7 +1322,12 @@ class Agent
 
     public function newinventory()
     {
-        $this->view('agent/newinventory');
+        $property = new agentAssignment;
+        $pro = new Property();
+        $properties = $property ->selecttwotables($pro->table,
+                                                'property_id',
+                                                'property_id',);
+        $this->view('agent/newinventory', ['properties' => $properties]);
     }
 
     public function editinventory($c)
