@@ -41,7 +41,7 @@ class Agent
         $totalServiceProviders = $userModel->getTotalCountWhere(['user_lvl' => 2]);
 
         // Fetch total repair requests
-       /* $repairModel = new ProblemReport();
+        /* $repairModel = new ProblemReport();
         $totalRepairRequests = $repairModel->getTotalCountWhere(['agent_id' => $_SESSION['user']->pid]);*/
 
         // Fetch total bookings
@@ -432,15 +432,15 @@ class Agent
         // Get pending services from service log
         $service = new ServiceLog();
         $services = $service->where(['status' => 'Pending']);
-    
+
         // Get available service providers
         $user = new User();
         $service_providers = $user->where(['user_lvl' => 2]);
-        
+
         // Get all services from services table for name matching
         $services_model = new Services();
         $all_services = $services_model->getAllServices();
-        
+
         // Create mapping from service type name to service_id
         $service_type_to_id = [];
         if ($all_services) {
@@ -448,44 +448,44 @@ class Agent
                 $service_type_to_id[strtolower($service_item->name)] = $service_item->service_id;
             }
         }
-        
+
         // Get approved service provider applications
         $serviceApplication = new ServiceApplication();
         $approved_applications = $serviceApplication->where(['status' => 'Approved']);
-        
+
         // Create mapping from service_id to array of approved provider IDs
         $approved_providers_by_service = [];
         if ($approved_applications) {
             foreach ($approved_applications as $application) {
                 $service_id = $application->service_id;
                 $provider_id = $application->service_provider_id;
-                
+
                 if (!isset($approved_providers_by_service[$service_id])) {
                     $approved_providers_by_service[$service_id] = [];
                 }
-                
+
                 $approved_providers_by_service[$service_id][] = $provider_id;
             }
         }
-        
+
         // Process services and create filtered provider lists
         $data = [
             'services' => $services,
             'providers_by_service' => [],
             'service_providers' => $service_providers // Keep for backward compatibility
         ];
-        
+
         if ($services) {
             foreach ($services as $service_item) {
                 // Process property images
                 if (!empty($service_item->property_id)) {
                     $property = new Property();
                     $propertyData = $property->first(['property_id' => $service_item->property_id]);
-                    
+
                     if ($propertyData) {
                         $propertyImage = new PropertyImageModel();
                         $images = $propertyImage->where(['property_id' => $service_item->property_id]);
-                        
+
                         if ($images && is_array($images) && !empty($images) && !empty($images[0]->image_url)) {
                             $service_item->property_image = $images[0]->image_url;
                         } else {
@@ -497,7 +497,7 @@ class Agent
                 } else {
                     $service_item->property_image = 'listing_alt.jpg';
                 }
-                
+
                 // Match service_type from serviceLog with service names in services table
                 $matched_service_id = null;
                 if (!empty($service_item->service_type)) {
@@ -508,55 +508,59 @@ class Agent
                     } else {
                         // Try partial match
                         foreach ($service_type_to_id as $name => $id) {
-                            if (strpos($service_type_lower, $name) !== false || 
-                                strpos($name, $service_type_lower) !== false) {
+                            if (
+                                strpos($service_type_lower, $name) !== false ||
+                                strpos($name, $service_type_lower) !== false
+                            ) {
                                 $matched_service_id = $id;
                                 break;
                             }
                         }
                     }
                 }
-                
+
                 // Get approved providers for this service type
                 $approved_provider_ids = [];
                 if ($matched_service_id && isset($approved_providers_by_service[$matched_service_id])) {
                     $approved_provider_ids = $approved_providers_by_service[$matched_service_id];
                 }
-                
+
                 // Filter providers by approval status and task count
                 $filtered_providers = [];
                 foreach ($service_providers as $provider) {
                     if (in_array($provider->pid, $approved_provider_ids)) {
                         $provider->image_url = $provider->image_url ?? 'Agent.png';
-                        
+
                         // Count ongoing services for this provider
                         $ongoing_count = $service->where([
                             'service_provider_id' => $provider->pid,
                             'status' => 'Ongoing'
                         ]);
-                        
+
                         // Convert ongoing_count to array if false (no services)
                         $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
+
                         
                         // Add provider if they have less than or equal to 4 ongoing services
                         if (count($ongoing_count) <= 4) {
+
                             $filtered_providers[] = $provider;
                         }
                     }
                 }
-                
+
                 // Store filtered providers for this service
                 $data['providers_by_service'][$service_item->service_id] = $filtered_providers;
             }
         }
-    
+
         // Handle service provider assignment when accept button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['service_id'])) {
             $service_id = $_POST['service_id'];
-            
+
             // Get the selected service provider from the dropdown
             $provider_id = $_POST['service_provider_select'] ?? null;
-    
+
             if (empty($provider_id)) {
                 // New validation: Check if a provider is selected
                 $_SESSION['flash'] = [
@@ -566,16 +570,16 @@ class Agent
             } else {
                 // Create a new ServiceLog instance to ensure it's a model with where() method
                 $serviceModel = new ServiceLog();
-                
+
                 // Check again if provider hasn't exceeded limit
                 $ongoing_services = $serviceModel->where([
                     'service_provider_id' => $provider_id,
                     'status' => 'Ongoing'
                 ]);
-    
+
                 // Convert to empty array if false
                 $ongoing_services = $ongoing_services === false ? [] : $ongoing_services;
-    
+
                 if (count($ongoing_services) >= 4) {
                     $_SESSION['flash'] = [
                         'msg' => "This service provider has reached their maximum service limit",
@@ -587,53 +591,53 @@ class Agent
                         'service_provider_id' => $provider_id,
                         'status' => 'Ongoing'
                     ], 'service_id');
-    
+
                     if ($result) {
                         // Get service details to include in notification
                         $serviceDetails = $serviceModel->first(['service_id' => $service_id]);
-                        
+
                         // Create notification for the service provider
                         $notificationModel = new NotificationModel();
                         $notificationData = [
                             'user_id' => $provider_id,
                             'title' => "New Task Assignment",
-                            'message' => "You have been assigned a new " . 
-                                        ($serviceDetails->service_type ?? "maintenance") . 
-                                        " task for property " . 
-                                        ($serviceDetails->property_name ?? "ID: " . $serviceDetails->property_id),
+                            'message' => "You have been assigned a new " .
+                                ($serviceDetails->service_type ?? "maintenance") .
+                                " task for property " .
+                                ($serviceDetails->property_name ?? "ID: " . $serviceDetails->property_id),
                             'link' => "/php_mvc_backend/public/dashboard/repairRequests",
-                            'color' => 'Notification_green', 
+                            'color' => 'Notification_green',
                             'is_read' => 0,
                             'created_at' => date('Y-m-d H:i:s')
                         ];
-                        
+
                         // Insert notification for service provider
                         $notificationModel->insert($notificationData);
-    
+
                         // Create notification for property owner
                         if (!empty($serviceDetails->property_id)) {
                             // Get property owner ID from property table
                             $propertyModel = new Property();
                             $propertyDetails = $propertyModel->first(['property_id' => $serviceDetails->property_id]);
-                            
+
                             if (!empty($propertyDetails->person_id)) {
                                 $notificationModel = new NotificationModel();
                                 $ownerNotificationData = [
                                     'user_id' => $propertyDetails->person_id, // Use person_id from property table
                                     'title' => "Service Request Accepted",
-                                    'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
-                                                " service request has been accepted and assigned to a service provider.",
+                                    'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") .
+                                        " service request has been accepted and assigned to a service provider.",
                                     'link' => "/php_mvc_backend/public/dashboard/maintenance",
                                     'color' => 'Notification_green',
                                     'is_read' => 0,
                                     'created_at' => date('Y-m-d H:i:s')
                                 ];
-                                
+
                                 // Insert notification for property owner
                                 $notificationModel->insert($ownerNotificationData);
                             }
                         }
-                        
+
                         $_SESSION['flash'] = [
                             'msg' => "Service request accepted and assigned successfully",
                             'type' => "success"
@@ -646,48 +650,48 @@ class Agent
                     }
                 }
             }
-            
+
             redirect('dashboard/requestedTasks');
             exit; // Prevent further execution
         }
-    
+
         // Handle service request deletion when decline button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
             $service_id = $_POST['delete_service_id'];
-    
+
             // Update the service request status to "Rejected" instead of deleting
             $result = $service->update($service_id, [
                 'status' => 'Rejected'
             ], 'service_id');
-    
+
             if ($result) {
                 // Get service details to include in notification
                 $serviceDetails = $service->first(['service_id' => $service_id]);
-                
+
                 // Create notification for property owner about rejection
                 if (!empty($serviceDetails->property_id)) {
                     // Get property owner ID from property table
                     $propertyModel = new Property();
                     $propertyDetails = $propertyModel->first(['property_id' => $serviceDetails->property_id]);
-                    
+
                     if (!empty($propertyDetails->person_id)) {
                         $notificationModel = new NotificationModel();
                         $ownerNotificationData = [
                             'user_id' => $propertyDetails->person_id, // Use person_id from property table
                             'title' => "Service Request Declined",
-                            'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
-                                        " service request has been declined. Please contact support for more information.",
+                            'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") .
+                                " service request has been declined. Please contact support for more information.",
                             'link' => "/php_mvc_backend/public/dashboard/maintenance",
                             'color' => 'Notification_red',
                             'is_read' => 0,
                             'created_at' => date('Y-m-d H:i:s')
                         ];
-                        
+
                         // Insert notification for property owner
                         $notificationModel->insert($ownerNotificationData);
                     }
                 }
-                
+
                 $_SESSION['flash'] = [
                     'msg' => "Service request declined successfully",
                     'type' => "success"
@@ -698,11 +702,11 @@ class Agent
                     'type' => "error"
                 ];
             }
-    
+
             redirect('dashboard/requestedTasks');
-            exit; 
+            exit;
         }
-    
+
         $this->view('agent/requestedTasks', $data);
     }
 
@@ -857,12 +861,12 @@ class Agent
                 $uploadDir = 'uploads/preinspections/';
                 $fileName = uniqid() . '_' . basename($_FILES['property_document']['name']);
                 $uploadFile = $uploadDir . $fileName;
-            
+
                 // Make sure directory exists
                 if (!file_exists($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
-            
+
                 if (move_uploaded_file($_FILES['property_document']['tmp_name'], $uploadFile)) {
                     $data['document_path'] = $uploadFile;
                 } else {
@@ -874,14 +878,14 @@ class Agent
                     return;
                 }
             }
-            
+
             // show($data);
             // echo $preInspection->isValidForRegister($data);
             if ($res) {
                 if ($property->agent_id == $_SESSION['user']->pid && $preInspection->isValidForRegister($data)) {
                     $isActive = $propertyModel->update($propertyID, ['status' => 'Active'], 'property_id');
                     $message_to_owner = $preInspection->messages['recommendation'] ?? null;
-                    if(!$message_to_owner){
+                    if (!$message_to_owner) {
                         $message_to_owner = 'And No recommendation provided.';
                     }
                     if ($isActive) {
@@ -889,7 +893,7 @@ class Agent
                             'msg' => "Pre-Inspection submitted successfully!",
                             'type' => "success"
                         ];
-                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID . $message_to_owner , ROOT . '/dashboard/propertylisting/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
+                        enqueueNotification('Pre-Inspection submitted', 'Open to Rent your Property ID : ' . $propertyID . $message_to_owner, ROOT . '/dashboard/propertylisting/propertyunitowner/' . $propertyID, 'Notification_green', $property->person_id);
                         enqueueNotification('Pre-Inspection submitted', 'Pre-Inspection has been submitted on Property ID : ' . $propertyID, ROOT . '/dashboard/property/propertyView/' . $propertyID, 'Notification_green');
                     } else {
                         $_SESSION['flash'] = [
@@ -898,15 +902,15 @@ class Agent
                         ];
                         enqueueNotification('Failed to update property status', 'Failed to update property status on Property ID : ' . $propertyID, '', 'Notification_red');
                     }
-                } else{
+                } else {
                     $message = $preInspection->getValidationMessages();
                     $message_to_owner = $preInspection->messages['recommendation'] ?? null;
                     $_SESSION['flash'] = [
                         'msg' => $message,
                         'type' => "error"
                     ];
-                    enqueueNotification('Pre-Inspection validation failed', 'Pre-Inspection validation failed on Property ID : ' . $propertyID . '. ' . $message_to_owner , '', 'Notification_red' , $property->person_id);
-                    enqueueNotification('Pre-Inspection validation failed', $message , '', 'Notification_orange' , $property->person_id);
+                    enqueueNotification('Pre-Inspection validation failed', 'Pre-Inspection validation failed on Property ID : ' . $propertyID . '. ' . $message_to_owner, '', 'Notification_red', $property->person_id);
+                    enqueueNotification('Pre-Inspection validation failed', $message, '', 'Notification_orange', $property->person_id);
                 }
             } else {
                 $_SESSION['flash'] = [
@@ -1155,7 +1159,7 @@ class Agent
     public function showMyProperties()
     {
         $property = new PropertyConcat;
-        $properties = $property->where(['agent_id' => $_SESSION['user']->pid] , ['status' => 'Inactive']);
+        $properties = $property->where(['agent_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
         $this->view('agent/property/showMyProperties', ['properties' => $properties]);
     }
 
@@ -1207,7 +1211,7 @@ class Agent
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
         //show($propertyUnit);
 
-        $this->view('agent/propertyUnit', ['property' => $propertyUnit ]);
+        $this->view('agent/propertyUnit', ['property' => $propertyUnit]);
     }
 
     public function ContactSupport($b = '', $c = '', $d = '')
@@ -1222,7 +1226,7 @@ class Agent
                 $problemReportView = new ProblemReportView();
                 $problemReport = new ProblemReport();
                 $problemReportImage = new problemReportImage;
-                
+
                 // Handle status update POST
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_id'], $_POST['new_status'])) {
                     $report_id = (int)$_POST['report_id'];
@@ -1253,7 +1257,7 @@ class Agent
                             // Optionally fetch property name if needed
                             $propertyDetails = $property->where(['property_id' => $report->property_id])[0] ?? null;
                             $propertyName = $propertyDetails ? $propertyDetails->name : 'Unknown Property';
-                            
+
                             // Fetch images for this report using ProblemReportImage
                             $images = [];
                             $imageRows = $problemReportImage->getImagesByReport($report->report_id);
@@ -1322,9 +1326,9 @@ class Agent
                 $this->editinventory($c);
                 break;
             default:
-            $invent = new InventoryModel;
-            $inventories = $invent->findAll();
-            $this->view('agent/inventory',['inventories' => $inventories]); 
+                $invent = new InventoryModel;
+                $inventories = $invent->findAll();
+                $this->view('agent/inventory', ['inventories' => $inventories]);
                 break;
         }
     }
@@ -1378,11 +1382,11 @@ class Agent
         }
     }
 
-    public function tenents( $c = '', $d = '')
+    public function tenents($c = '', $d = '')
     {
         switch ($c) {
             case 'edittenents':
-                $this->edittenents($c,$d);
+                $this->edittenents($c, $d);
                 break;
 
             case 'addtenents':
@@ -1398,37 +1402,38 @@ class Agent
                 /*echo "<pre>";
                 print_r($images);
                 echo "</pre>";*/
-                $this->view('agent/tenents',['bookings'=> $bookings,'persons' => $persons, 'properties' => $properties]);
+                $this->view('agent/tenents', ['bookings' => $bookings, 'persons' => $persons, 'properties' => $properties]);
                 break;
         }
     }
 
-    public function edittenents( $c = '', $d = '')
+    public function edittenents($c = '', $d = '')
     {
-                
+
         $book = new BookingModel;
         $property = new Property;
-        $person = new User; 
+        $person = new User;
         $pid = $book->where(['booking_id' => $d],)[0];
         $image1 = new PropertyImageModel;
-        $images = $image1->findAll(); 
-        $bookings = $book->selecthreetables($property->table,
-                                            'property_id', 
-                                            'property_id', 
-                                            $person->table,
-                                            'customer_id', 
-                                            'pid',
-                                            'booking_id',
-                                            $d,
-                                            'AND',
-                                            'customer_id',
-                                            $pid->customer_id
-                                            );
+        $images = $image1->findAll();
+        $bookings = $book->selecthreetables(
+            $property->table,
+            'property_id',
+            'property_id',
+            $person->table,
+            'customer_id',
+            'pid',
+            'booking_id',
+            $d,
+            'AND',
+            'customer_id',
+            $pid->customer_id
+        );
         //$this->view('agent/showhistory',['bookings'=> $bookings,'images' => $images]);
-                /*echo "<pre>";
+        /*echo "<pre>";
                 print_r($images);
                 echo "</pre>";*/
-                $this->view('agent/edittenents',['bookings'=> $bookings ,'images' => $images]);
+        $this->view('agent/edittenents', ['bookings' => $bookings, 'images' => $images]);
     }
 
     public function serviceProviders($c, $d)
@@ -2199,20 +2204,20 @@ class Agent
                 $BookingOrders = new BookingOrders();
                 $PropertyConcat = new PropertyConcat();
                 $User = new User();
-                
+
                 // Get all properties managed by this agent
                 $properties = $PropertyConcat->where(['agent_id' => $_SESSION['user']->pid]);
                 $properties = is_array($properties) ? $properties : [];
                 $propertyIds = array_map(function ($property) {
                     return $property->property_id;
                 }, $properties);
-                
+
                 $allBookings = [];
                 if (!empty($propertyIds)) {
                     // Get all bookings for these properties with status accepted or rejected
                     foreach ($propertyIds as $propertyId) {
                         $bookings = $BookingOrders->where(['property_id' => $propertyId]);
-                        
+
                         if (!empty($bookings)) {
                             foreach ($bookings as $booking) {
                                 // Only include accepted or rejected bookings
@@ -2228,7 +2233,7 @@ class Agent
                                     // Format rental period to include units
                                     $rentalPeriod = strtolower($booking->rental_period ?? '');
                                     $duration = $booking->duration ?? '';
-                                    
+
                                     // Combine period type with duration to show units properly
                                     $formattedRentalPeriod = '';
                                     if (!empty($duration) && !empty($rentalPeriod)) {
@@ -2292,7 +2297,8 @@ class Agent
         $this->view('agent/showhistory', ['bookings' => $bookings, 'images' => $images]);
     }
 
-    public function confirmBooking($bookingId) {
+    public function confirmBooking($bookingId)
+    {
         $BookingOrders = new BookingOrders();
         $booking = $BookingOrders->findById($bookingId);
         if ($booking && strtolower($booking->booking_status) === 'pending') {
@@ -2303,19 +2309,20 @@ class Agent
                 $booking->end_date,
                 'Confirmed'
             );
-            
+
             // Update agent_id to current session user
             $BookingOrders->update($bookingId, [
                 'agent_id' => $_SESSION['user']->pid
             ]);
-            
+
             $_SESSION['flash']['msg'] = "Booking confirmed.";
             $_SESSION['flash']['type'] = "success";
         }
         redirect('dashboard/bookings');
     }
 
-    public function cancelBooking($bookingId) {
+    public function cancelBooking($bookingId)
+    {
         $BookingOrders = new BookingOrders();
         $booking = $BookingOrders->findById($bookingId);
         if (!$booking) {
@@ -2336,7 +2343,7 @@ class Agent
             if ($_SESSION['user']->user_lvl == 3) {
                 $BookingOrders->update($bookingId, [
                     'agent_id' => $_SESSION['user']->pid,
-                ],'booking_id');
+                ], 'booking_id');
             }
             $_SESSION['flash']['msg'] = "Booking cancelled.";
             $_SESSION['flash']['type'] = "success";
@@ -2344,7 +2351,8 @@ class Agent
         redirect('dashboard/bookings/bookingremoval');
     }
 
-    public function continueBooking($bookingId) {
+    public function continueBooking($bookingId)
+    {
         $BookingOrders = new BookingOrders();
         $booking = $BookingOrders->findById($bookingId);
         if ($booking && strtolower($booking->booking_status) === 'cancel requested') {
@@ -2369,7 +2377,8 @@ class Agent
         exit;
     }
 
-    public function bookingRemoval(){
+    public function bookingRemoval()
+    {
         $BookingOrders = new BookingOrders();
         $property = new PropertyConcat();
 
@@ -2398,7 +2407,6 @@ class Agent
         $this->view('agent/bookingRemoval', [
             'orders' => $pendingOrders
         ]);
-        
     }
 
     // public function reportGen($property_id)
@@ -2464,7 +2472,7 @@ class Agent
                 // Get property images from service_images JSON field
                 if (!empty($service->service_images)) {
                     $images = json_decode($service->service_images, true);
-                    
+
                     // Assign the first image to the service object if available
                     if (is_array($images) && !empty($images)) {
                         // Store the actual image URL from the JSON array
@@ -2494,7 +2502,7 @@ class Agent
             if ($provider_id) {
                 // Create a new ExternalService instance to ensure it's a model with where() method
                 $serviceModel = new ExternalService();
-                
+
                 // Check again if provider hasn't exceeded limit
                 $ongoing_services = $serviceModel->where([
                     'service_provider_id' => $provider_id,
@@ -2516,22 +2524,22 @@ class Agent
                     if ($result) {
                         // Get service details to include in notification
                         $serviceDetails = $serviceModel->first(['id' => $service_id]);
-                        
+
                         // Create notification for the service provider
                         $notificationModel = new NotificationModel();
                         $notificationData = [
                             'user_id' => $provider_id,
                             'title' => "New External Service Assignment",
-                            'message' => "You have been assigned a new " . 
-                                        ($serviceDetails->service_type ?? "external service") . 
-                                        " task at " . 
-                                        ($serviceDetails->property_address ?? "location not specified"),
+                            'message' => "You have been assigned a new " .
+                                ($serviceDetails->service_type ?? "external service") .
+                                " task at " .
+                                ($serviceDetails->property_address ?? "location not specified"),
                             'link' => "/php_mvc_backend/public/dashboard/externalServices",
-                            'color' => 'Notification_green', 
+                            'color' => 'Notification_green',
                             'is_read' => 0,
                             'created_at' => date('Y-m-d H:i:s')
                         ];
-                        
+
                         // Insert notification for service provider
                         $notificationModel->insert($notificationData);
 
@@ -2541,18 +2549,18 @@ class Agent
                             $customerNotificationData = [
                                 'user_id' => $serviceDetails->requested_person_id,
                                 'title' => "External Service Request Accepted",
-                                'message' => "Your " . ($serviceDetails->service_type ?? "service") . 
-                                            " request has been accepted and assigned to a service provider.",
+                                'message' => "Your " . ($serviceDetails->service_type ?? "service") .
+                                    " request has been accepted and assigned to a service provider.",
                                 'link' => "/php_mvc_backend/public/dashboard/requestService",
                                 'color' => 'Notification_green',
                                 'is_read' => 0,
                                 'created_at' => date('Y-m-d H:i:s')
                             ];
-                            
+
                             // Insert notification for the customer
                             $notificationModel->insert($customerNotificationData);
                         }
-                        
+
                         $_SESSION['flash']['msg'] = "External service request accepted and assigned successfully";
                         $_SESSION['flash']['type'] = "success";
                         redirect('dashboard/externalServiceRequests');
@@ -2583,21 +2591,21 @@ class Agent
             if ($result) {
                 // Get service details to include in notification
                 $serviceDetails = $externalService->first(['id' => $service_id]);
-                
+
                 // Create notification for customer about rejection
                 if (!empty($serviceDetails->requested_person_id)) {
                     $notificationModel = new NotificationModel();
                     $customerNotificationData = [
                         'user_id' => $serviceDetails->requested_person_id,
                         'title' => "External Service Request Declined",
-                        'message' => "Your " . ($serviceDetails->service_type ?? "service") . 
-                                    " request has been declined. Please contact support for more information.",
+                        'message' => "Your " . ($serviceDetails->service_type ?? "service") .
+                            " request has been declined. Please contact support for more information.",
                         'link' => "/php_mvc_backend/public/dashboard/requestService",
                         'color' => 'Notification_red',
                         'is_read' => 0,
                         'created_at' => date('Y-m-d H:i:s')
                     ];
-                    
+
                     // Insert notification for the customer
                     $notificationModel->insert($customerNotificationData);
                 }
@@ -2622,11 +2630,11 @@ class Agent
         // Get pending counts for different service types
         $serviceLog = new ServiceLog();
         $externalService = new ExternalService();
-        
+
         // Count pending maintenance tasks
         $pendingTasks = $serviceLog->where(['status' => 'Pending']);
         $pendingTasksCount = is_array($pendingTasks) ? count($pendingTasks) : 0;
-        
+
         // Count completed (Done) tasks
         $completedTasks = $serviceLog->where(['status' => 'Done']);
         $completedTasksCount = is_array($completedTasks) ? count($completedTasks) : 0;
@@ -2637,11 +2645,11 @@ class Agent
 
         // Total of Done and Paid tasks
         $tasksCount = $completedTasksCount + $paidTasksCount;
-        
+
         // Count pending external service requests
         $externalRequests = $externalService->where(['status' => 'pending']);
         $externalRequestsCount = is_array($externalRequests) ? count($externalRequests) : 0;
-        
+
         $this->view('agent/serviceRequests', [
             'user' => $_SESSION['user'],
             'pendingTasksCount' => $pendingTasksCount,
@@ -2652,68 +2660,71 @@ class Agent
 
     // Service Management - Main page with navigation cards
 
-    public function serviceManagement() {
+    public function serviceManagement()
+    {
         $this->view('agent/serviceManagement');
     }
 
     // Service Listing - Page to view and manage available services
 
-    public function serviceListing() {
+    public function serviceListing()
+    {
         $services = new Services();
         $allServices = $services->findAll();
-        
+
         $this->view('agent/serviceListing', [
             'services' => $allServices
         ]);
     }
 
     // Service Applications - Page to view and manage service provider applications
-    
-    public function serviceApplications() {
+
+    public function serviceApplications()
+    {
         // Check if user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
             redirect('login');
             return;
         }
-        
+
         // Get current page for pagination
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $items_per_page = 9;
         $offset = ($page - 1) * $items_per_page;
-        
+
         // Get status filter
         $selected_status = isset($_GET['status']) ? $_GET['status'] : 'all';
-        
+
         // Create instances of the required models
         $serviceApplication = new ServiceApplication();
         $services = new Services();
         $user = new User();
-        
+
         // Get applications with proper filtering
         if ($selected_status !== 'all') {
             $applications = $serviceApplication->where(['status' => $selected_status]);
         } else {
             $applications = $serviceApplication->findAll();
         }
-        
+
         // Count total records for pagination
         $total_records = is_array($applications) ? count($applications) : 0;
         $total_pages = ceil($total_records / $items_per_page);
-        
+
         // Prepare the enhanced applications array with additional details
         $enhancedApplications = [];
-        
+
         if (is_array($applications) && !empty($applications)) {
             // Only process the required page of results
             $pagedApplications = array_slice($applications, $offset, $items_per_page);
-            
+
             foreach ($pagedApplications as $application) {
                 // Get service details
                 $service = $services->first(['service_id' => $application->service_id]);
-                
+
                 // Get provider details
                 $provider = $user->first(['pid' => $application->service_provider_id]);
-                
+
                 if ($service && $provider) {
                     // Create an enhanced application object with all required details
                     $enhancedApp = clone $application;
@@ -2721,12 +2732,12 @@ class Agent
                     $enhancedApp->cost_per_hour = $service->cost_per_hour;
                     $enhancedApp->provider_name = $provider->fname . ' ' . $provider->lname;
                     $enhancedApp->provider_contact = $provider->contact;
-                    
+
                     $enhancedApplications[] = $enhancedApp;
                 }
             }
         }
-        
+
         // Load the view with data
         $this->view('agent/serviceApplications', [
             'applications' => $enhancedApplications,
@@ -2738,56 +2749,57 @@ class Agent
 
     // View application details
 
-    public function viewApplicationDetails($service_id = null, $provider_id = null) {
+    public function viewApplicationDetails($service_id = null, $provider_id = null)
+    {
         // Check if user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
             redirect('login');
             return;
         }
-        
+
         if (!$service_id || !$provider_id) {
             $_SESSION['flash']['msg'] = "Invalid application details";
             $_SESSION['flash']['type'] = "error";
             redirect('agent/serviceApplications');
             return;
         }
-        
+
         // Get application details
         $serviceApplication = new ServiceApplication();
         $application = $serviceApplication->first([
             'service_id' => $service_id,
             'service_provider_id' => $provider_id
         ]);
-        
+
         if (!$application) {
             $_SESSION['flash']['msg'] = "Application not found";
             $_SESSION['flash']['type'] = "error";
             redirect('agent/serviceApplications');
             return;
         }
-        
+
         // Get service details
         $services = new Services();
         $service = $services->getServiceById($service_id);
-        
+
         if (!$service) {
             $_SESSION['flash']['msg'] = "Service not found";
             $_SESSION['flash']['type'] = "error";
             redirect('agent/serviceApplications');
             return;
         }
-        
+
         // Get provider details
         $userModel = new User();
         $provider = $userModel->first(['pid' => $provider_id]);
-        
+
         if (!$provider) {
             $_SESSION['flash']['msg'] = "Service provider not found";
             $_SESSION['flash']['type'] = "error";
             redirect('agent/serviceApplications');
             return;
         }
-        
+
         // Load the view with data
         $this->view('agent/viewApplicationDetails', [
             'application' => $application,
@@ -2798,20 +2810,21 @@ class Agent
 
     // Update application status
 
-    public function updateApplicationStatus($service_id = null, $provider_id = null, $status = null) {
+    public function updateApplicationStatus($service_id = null, $provider_id = null, $status = null)
+    {
         // Check if user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
             redirect('login');
             return;
         }
-        
+
         if (!$service_id || !$provider_id || !$status) {
             $_SESSION['flash']['msg'] = "Invalid action parameters";
             $_SESSION['flash']['type'] = "error";
             redirect('agent/serviceApplications');
             return;
         }
-        
+
         // Validate status
         if (!in_array($status, ['Approved', 'Rejected', 'Pending'])) {
             $_SESSION['flash']['msg'] = "Invalid status value";
@@ -2819,21 +2832,21 @@ class Agent
             redirect('agent/serviceApplications');
             return;
         }
-        
+
         // Get application
         $serviceApplication = new ServiceApplication();
         $application = $serviceApplication->first([
             'service_id' => $service_id,
             'service_provider_id' => $provider_id
         ]);
-        
+
         if (!$application) {
             $_SESSION['flash']['msg'] = "Application not found";
             $_SESSION['flash']['type'] = "error";
             redirect('agent/serviceApplications');
             return;
         }
-    
+
         // Instead of updating directly, delete and reinsert with new status
 
         $data = [
@@ -2844,15 +2857,15 @@ class Agent
             'created_at' => $application->created_at,
             'updated_at' => date('Y-m-d H:i:s')
         ];
-        
+
         // Delete the old record
         $serviceApplication->delete($service_id, 'service_id', [
             'service_provider_id' => $provider_id
         ]);
-        
+
         // Insert the new record with updated status
         $result = $serviceApplication->insert($data);
-        
+
         // Create notification for service provider
         $notificationModel = new NotificationModel();
         $notificationData = [
@@ -2864,12 +2877,143 @@ class Agent
             'link' => ROOT . '/serviceprovider/checkApplicationStatus/' . $service_id,
             'created_at' => date('Y-m-d H:i:s')
         ];
-        
+
         $notificationModel->insert($notificationData);
-        
+
         $_SESSION['flash']['msg'] = "Application status updated successfully to " . $status;
         $_SESSION['flash']['type'] = "success";
-        
+
         redirect('dashboard/viewApplicationDetails/' . $service_id . '/' . $provider_id);
     }
+
+
+    public function finance($c = '', $d = '')
+    {
+        switch ($c) {
+            case 'financeview':
+                $this->financeview($d);
+                break;
+            case 'financeOverview':
+                $this->view('agent/finance/financeOverview');
+                break;
+            case 'payslip':
+                $this->payslip();
+                break;
+            default:
+                $salaryModel = new SalaryPayment();
+                $salary = $salaryModel->where(['employee_id' => $_SESSION['user']->pid]);
+                $salary = is_array($salary) ? $salary : [];
+
+                $AgentAssignModel = new agentAssignment;
+                $agentAssignment = $AgentAssignModel->where(['agent_id' => $_SESSION['user']->pid]);
+                $agentAssignment = is_array($agentAssignment) ? $agentAssignment : [];
+
+                $this->view('agent/finance/finance', [
+                    'salary' => $salary,
+                    'agentAssignment' => $agentAssignment,
+                    'salaryChartData' => $this->getSalaryChartData($salary),
+                    'propertyAssignmentData' => $this->getPropertyAssignmentData($agentAssignment)
+                ]);
+                break;
+        }
+    }
+
+    private function getSalaryChartData($salary)
+    {
+        $chartData = [];
+
+        foreach ($salary as $payment) {
+            $month = $payment->paid_month;
+            $amount = $payment->salary_amount;
+
+            $chartData[] = [
+                'month' => $month,
+                'amount' => (float) $amount,
+            ];
+        }
+
+        return $chartData;
+    }
+
+    private function getPropertyAssignmentData($agentAssignment)
+    {
+        $propertyCounts = [
+            'pending' => 0,
+            'approved' => 0,
+            'pre_inspection_pass' => 0,
+            'pre_inspection_failed' => 0
+        ];
+
+        foreach ($agentAssignment as $assignment) {
+            if ($assignment->property_status === 'pending') {
+                $propertyCounts['pending']++;
+            } elseif ($assignment->property_status === 'approved') {
+                $propertyCounts['approved']++;
+            }
+
+            if ($assignment->pre_inspection === 'pass') {
+                $propertyCounts['pre_inspection_pass']++;
+            } elseif ($assignment->pre_inspection === 'failed') {
+                $propertyCounts['pre_inspection_failed']++;
+            }
+        }
+
+        return $propertyCounts;
+    }
+
+
+    public function payslip()
+    {
+        $agent_id = $_SESSION['user']->pid;
+        $month = $_GET['month'] ?? date('Y-m');
+        $salaryModel = new SalaryPayment();
+        $salary = $salaryModel->where(['employee_id' => $agent_id, 'paid_month' => $month])[0];
+        if (empty($salary)) {
+            $_SESSION['flash']['msg'] = "No payslip found for the selected month.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/finance');
+            return;
+        }
+
+        $agentModel = new AgentModel();
+        $agent = $agentModel->where(['pid' => $agent_id, 'assign_month' => $month])[0];
+
+        $this->view('agent/finance/payslip', [
+            'salary' => $salary,
+            'month' => $month,
+            'agent' => $agent
+        ]);
+    }
+
+    public function financeview()
+    {
+        $salaryModel = new SalaryPayment();
+        $salary = $salaryModel->where(['employee_id' => $_SESSION['user']->pid]);
+        $salary = is_array($salary) ? $salary : [];
+        $this->view('agent/finance/finance', [
+            'salary' => $salary
+        ]);
+    }
+
+    public function salaryPayemts($a = '', $b = '')
+    {
+        switch ($a) {
+            case 'paymentview':
+                $this->paymentview($b);
+                break;
+            default:
+                $this->view('agent/spListing');
+                break;
+        }
+    }
+
+    public function paymentview($d)
+    {
+        $property = new PropertyConcat;
+        $property = $property->where(['property_id' => $d, 'agent_id' => $_SESSION['user']->pid])[0];
+        $this->view('agent/paymentview', [
+            'property' => $property
+        ]); 
+    }
+
 }

@@ -65,6 +65,26 @@
         </div>
     </section>
 
+    <script>
+        const navLinks = document.getElementById("navlinks");
+
+        function showMenu() {
+            navLinks.style.right = "0";
+        }
+
+        function hideMenu() {
+            navLinks.style.right = "-100%";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const menuIcon = document.querySelector(".menu-icon");
+            const closeIcon = document.querySelector(".close-icon");
+
+            menuIcon.addEventListener("click", showMenu);
+            closeIcon.addEventListener("click", hideMenu);
+        });
+    </script>
+
     <section class="home-property-listing">
         <div class="search-box" style="align-self: flex-start; border-radius: 0 40px 40px 0;">
             <p>Properties</p>
@@ -79,7 +99,7 @@
                             <?php
                             $images = explode(',', $property->property_images);
                             ?>
-                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= get_img($images[0] , 'property') ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
+                            <a href="<?= ROOT ?>/propertyListing/showListingDetail/<?= $property->property_id ?>"><img src="<?= get_img($images[0], 'property') ?>" alt="property" class="property-card-image" style="overflow: hidden;"></a>
                             <div class="content-section-of-card">
                                 <div class="address" style="padding: 0;">
                                     <?= $property->address ?>

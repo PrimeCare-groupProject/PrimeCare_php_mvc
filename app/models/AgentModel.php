@@ -1,6 +1,6 @@
 <?php
 
-class Agent
+class AgentModel
 {
     use Model;
 
