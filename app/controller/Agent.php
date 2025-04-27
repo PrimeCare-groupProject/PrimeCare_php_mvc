@@ -751,8 +751,10 @@ class Agent
         $tasks = $task->where(['service_id' => $service_id])[0];
         $service = new Services;
         $services = $service->findAll();
+        $serpro1 = new User();
+        $serpro = $serpro1->where(['user_lvl' => 2]);
 
-        $this->view('agent/edittasks', ['tasks' => $tasks,'services' => $services]);
+        $this->view('agent/edittasks', ['tasks' => $tasks,'services' => $services,'serpro' => $serpro]);
     }
 
     public function taskRemoval()

@@ -106,6 +106,13 @@
         serviceProviderIdField.value = serviceProviderDropdown.value; // Set the Service Provider ID to the selected value
     }
 
+    function updatePropertyId() {
+    const propertyDropdown = document.getElementById('property_name');
+    const propertyIdField = document.getElementById('property_id');
+    console.log("Selected Property ID:", propertyDropdown.value); // Debugging log
+    propertyIdField.value = propertyDropdown.value; // Set the property ID to the selected value
+}
+
     function previewImages(event) {
         const files = event.target.files;
         const container = document.getElementById('image-preview-container');

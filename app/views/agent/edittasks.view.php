@@ -13,6 +13,9 @@
             <!-- Hidden field for service_id -->
             <input type="hidden" name="service_id" value="<?=  $tasks->service_id ?>">
 
+            <input type="hidden" name="property_id" id="property_id" value="<?= $tasks->property_id ?>">
+            <input type="hidden" name="property_name" id="property_name" value="<?= $tasks->property_name ?>">
+
             <label class="input-label">Service Type</label>
             <select name="service_type" class="input-field" required>
                 <option value="" disabled>Select Service Type</option>
@@ -37,15 +40,23 @@
         </div>
         <div class="owner-addProp-form-right">
             
-
-            <label class="input-label">Service Provider Id</label>
-            <input type="text" name="service_provider_id" value="<?= $tasks->service_provider_id ?>" class="input-field" required>
+        <label class="input-label">Service Provider Name:</label>
+            <select name="service_provider_name" id="service_provider_name" class="input-field" onchange="updateServiceProviderId()" required>
+                <option value="" disabled selected>Select Service Provider</option>
+                <?php if (!empty($serpro)): ?>
+                    <?php foreach ($serpro as $provider): ?>
+                        <option value="<?= $provider->pid ?>"><?= $provider->fname ?> <?= $provider->lname ?></option>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <option value="" disabled>No Service Providers Available</option>
+                <?php endif; ?>
+            </select>
+            
+            <label class="input-label">Service Provider ID:</label>
+            <input type="text" name="service_provider_id" id="service_provider_id" placeholder="Service Provider ID" class="input-field" readonly required>
 
             <label class="input-label">Total Cost</label>
             <input type="text" name="total_cost" value="<?= $tasks->total_cost ?>" class="input-field" required>
-                        
-            <label class="input-label">Service Description</label>
-            <textarea name="service_description" class="input-field1" required><?= $tasks->service_description ?></textarea>
 
             <div class="buttons-to-right">
                 <button type="submit" class="primary-btn">Save</button>
@@ -62,6 +73,13 @@
 <?php endif; ?>
 
 <script>
+
+    // Function to update the Service Provider ID field based on the selected Service Provider Name
+    function updateServiceProviderId() {
+        const serviceProviderDropdown = document.getElementById('service_provider_name');
+        const serviceProviderIdField = document.getElementById('service_provider_id');
+        serviceProviderIdField.value = serviceProviderDropdown.value; // Set the Service Provider ID to the selected value
+    }
 
     function updatePropertyId() {
         const propertyDropdown = document.getElementById('property_name');
