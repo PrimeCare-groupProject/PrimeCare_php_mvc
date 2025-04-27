@@ -171,9 +171,9 @@
         ?>
         <form method="post" action="https://sandbox.payhere.lk/pay/checkout" style="padding: 25px 30px;">
             <input type="hidden" name="merchant_id" value="<?= $merchant_id ?>">
-            <input type="hidden" name="return_url" value="http://localhost/php_mvc_backend/public/customer/servicePayment/success?order_id=<?= $order_id ?>&amount=<?= $amount_formatted ?>&service_id=<?= $service->service_id ?>">
-            <input type="hidden" name="cancel_url" value="http://localhost/php_mvc_backend/public/customer/servicePayment/cancel?order_id=<?= $order_id ?>&amount=<?= $amount_formatted ?>&service_id=<?= $service->service_id ?>">
-            <input type="hidden" name="notify_url" value="http://localhost/php_mvc_backend/public/customer/servicePayment/notify">
+            <input type="hidden" name="return_url" value="http://localhost/php_mvc_backend/public/dashboard/servicePayment/success?order_id=<?= $order_id ?>&amount=<?= $amount_formatted ?>&service_id=<?= $service->service_id ?>">
+            <input type="hidden" name="cancel_url" value="http://localhost/php_mvc_backend/public/ashboard/servicePayment/cancel?order_id=<?= $order_id ?>&amount=<?= $amount_formatted ?>&service_id=<?= $service->service_id ?>">
+            <input type="hidden" name="notify_url" value="http://localhost/php_mvc_backend/public/ashboard/servicePayment/notify">
             <input type="hidden" name="order_id" value="<?= $order_id ?>">
             <input type="hidden" name="items" value="Service Payment">
             <input type="hidden" name="currency" value="<?= $currency ?>">
