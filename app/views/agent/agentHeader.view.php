@@ -66,7 +66,7 @@
                     <li><a href="<?= ROOT ?>/dashboard/externalServiceRequests"><button class="btn" style="text-align: left;"><i class="fa-solid fa-handshake-angle"></i>External service requests</button></a></li> -->
                     <!-- <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/finance"><button class="btn"><i class="fa-solid fa-coins"></i>Finance</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/salaryPayemts"><button class="btn"><i class="fas fa-money-bill-wave"></i>Payment</button></a></li>
+                    <!-- <li><a href="<?= ROOT ?>/dashboard/salaryPayemts"><button class="btn"><i class="fas fa-money-bill-wave"></i>Payment</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/serviceManagement"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><i class="fa-solid fa-book"></i>Bookings</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><i class="fa-solid fa-warehouse"></i>Inventory</button></a></li>
