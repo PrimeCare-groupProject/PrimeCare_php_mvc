@@ -4,10 +4,10 @@
     <div class="gap"></div>
     <h2>Bookings Request</h2>
     <div class="flex-bar" style="gap: 0px;">	
-        <div class="search-container">
+        <!-- <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Anything...">
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
-        </div>
+        </div> -->
         <div class="tooltip-container" style="margin-left: 10px;">
             <a href='<?= ROOT ?>/dashboard/bookings/history'><button class="add-btn"><img src="<?= ROOT ?>/assets/images/assignment.png" alt="Add" class="navigate-icons"></button></a>
             <span class="tooltip-text">History</span>
@@ -30,7 +30,7 @@
             ?>
             <div class="OC__property_card">
                 <div class="image-section">
-                    <a href="<?= ROOT ?>/property/propertyUnit/<?= esc($order->property_id) ?>">
+                    <a href="<?= ROOT ?>/dashboard/property/propertyView/<?= esc($order->property_id) ?>">
                         <img src="<?= $imgSrc ?>" alt="Property">
                     </a>
                 </div>

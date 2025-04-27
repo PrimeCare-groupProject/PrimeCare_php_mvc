@@ -2127,6 +2127,9 @@ class Agent
                 $propertyIds = array_map(function ($property) {
                     return $property->property_id;
                 }, $properties);
+                // show($propertyIds);
+                // echo $_SESSION['user']->pid;
+                // die;
                 // Fetch all pending bookings for all properties
                 $pendingOrders = [];
                 foreach ($propertyIds as $propertyId) {
