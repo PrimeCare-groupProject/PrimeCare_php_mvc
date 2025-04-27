@@ -78,20 +78,21 @@
 
 <script>
 
-let deleteServiceId = null; // Global variable to store the service ID to be deleted
 
-function confirmDelete(serviceId) {
-    deleteServiceId = serviceId;
-    document.getElementById('deletePopup').style.display = 'flex';
-    document.body.classList.add('popup-active');
-}
+    let deleteServiceId = null;
 
-function closePopup() {
-    deleteServiceId = null;
-    document.getElementById('deletePopup').style.display = 'none';
-    document.body.classList.remove('popup-active');
-}
+    function confirmDelete(serviceId) {
+        deleteServiceId = serviceId;
+        document.getElementById('deletePopup').style.display = 'flex';
+        document.body.classList.add('popup-active');
+    }
 
+    function closePopup() {
+        deleteServiceId = null;
+        document.getElementById('deletePopup').style.display = 'none';
+        document.body.classList.remove('popup-active');
+    }
+  
 document.addEventListener('DOMContentLoaded', function() {
     // Constants and variables
     const searchInput = document.querySelector('.search-input');
