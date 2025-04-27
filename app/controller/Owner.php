@@ -744,29 +744,29 @@ class Owner
         $this->view('owner/financeReport', $viewData);
     }
 
-    public function tenants()
-    {
-        $user = new User();
-        $userData = $user->where(['pid' => $_SESSION['user']->pid])[0];
+    // public function tenants()
+    // {
+    //     $user = new User();
+    //     $userData = $user->where(['pid' => $_SESSION['user']->pid])[0];
 
-        $property = new PropertyConcat;
-        $properties = $property->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
+    //     $property = new PropertyConcat;
+    //     $properties = $property->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Inactive']);
 
-        //$booking = new BookingModel();
-        //$bookings = $booking->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Active']);
-        $bookings = [];
-        $tenantDetails = [];
+    //     //$booking = new BookingModel();
+    //     //$bookings = $booking->where(['person_id' => $_SESSION['user']->pid], ['status' => 'Active']);
+    //     $bookings = [];
+    //     $tenantDetails = [];
 
 
-        $viewData = [
-            'user' => $userData,
-            'tenantDetails' => $tenantDetails,
-            'properties' => $properties,
-            'bookings' => $bookings
-        ];
+    //     $viewData = [
+    //         'user' => $userData,
+    //         'tenantDetails' => $tenantDetails,
+    //         'properties' => $properties,
+    //         'bookings' => $bookings
+    //     ];
 
-        $this->view('owner/tenants', $viewData);
-    }
+    //     $this->view('owner/tenants', $viewData);
+    // }
 
     private function addProperty()
     {
@@ -2241,6 +2241,12 @@ class Owner
             redirect('property/propertyListing');
         } elseif ($property->status == 'Active') {
             $deleteRequest = new DeleteRequests;
+            $isExisting = $deleteRequest->where(['property_id' => $propertyId, 'request_status' => 'Pending']);
+            if ($isExisting) {
+                $_SESSION['flash']['msg'] = "Property deletion request already exists!";
+                $_SESSION['flash']['type'] = "error";
+                redirect('property/propertyListing');
+            }
             $ownerId = $property->person_id;
             $agentId = $property->agent_id;
             $deleteRequest->insert([

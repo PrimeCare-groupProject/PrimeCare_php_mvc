@@ -38,7 +38,7 @@
     </div>
 </div> -->
 <!-- delete account -->
-<div class="tooltip-container" style="position: absolute; top: 210px; right: 1px; z-index:1;">
+<div class="tooltip-container" style="position: absolute; top: 210px; right: 5px; z-index:1;">
     <form action="<?= ROOT ?>/resetPassword" method="post" style="display: inline;">
         <input type="hidden" name="email_submission" value="1">
         <input type="hidden" name="email" value="<?= esc($user->email) ?>">
@@ -286,7 +286,7 @@
     // show($_FILES['profile_picture'] ?? "null");
     // show( $_POST );
     // show( $user );
-    show( $_SESSION);
+    // show( $_SESSION);
 // }
 // show(get_img($user->image_url));
 ?>

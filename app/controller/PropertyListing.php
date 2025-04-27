@@ -319,6 +319,7 @@ class propertyListing
         ]);
     }
 
+    // property listing
     public function bookProperty()
     {
         if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
@@ -418,11 +419,14 @@ class propertyListing
             $booking_id = $BookingOrders->createBooking($bookingData);
 
             if ($booking_id) {
+                // Create a notification for successful booking
+                enqueueNotification('Booking Request Created', 'Your booking request has been submitted and is awaiting approval.', '', 'Notification_green');
                 $_SESSION['flash']['msg'] = "Your booking has been successfully created!";
                 $_SESSION['flash']['type'] = "success";
                 redirect('dashboard/occupiedProperties');
                 return;
             } else {
+                enqueueNotification('Booking Unsuccessful', 'Your booking request could not be processed. Please check the details and try again.', '', 'Notification_red');
                 $error_message = "Your booking was declined. Try again!";
                 // Check if there are any specific errors from the model
                 if (!empty($BookingOrders->errors)) {

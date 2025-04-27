@@ -60,7 +60,7 @@
                     <!-- <li><a href="<?= ROOT ?>/dashboard/listing"><button class="btn"><i class="fa-solid fa-house-chimney"></i>Property Listing</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/maintenance"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Maintenance</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/financereport"><button class="btn"><i class="fa-solid fa-coins"></i>Finance Report</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/tenants"><button class="btn"><i class="fa-solid fa-users"></i>Tenants</button></a></li>
+                    <!-- <li><a href="<?= ROOT ?>/dashboard/tenants"><button class="btn"><i class="fa-solid fa-users"></i>Tenants</button></a></li> -->
                     <li><a href="<?= ROOT ?>/dashboard/showReviews"><button class="btn"><i class="fa-solid fa-square-poll-vertical"></i>Reviews</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/profile" data-section="profile"><button class="btn"><i class="fa-solid fa-user"></i>Profile</button></a></li>
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
