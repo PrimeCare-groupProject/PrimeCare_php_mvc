@@ -46,9 +46,9 @@ body {
 }
 
 .agent-list {
-    overflow-y: auto; 
-    max-height: calc(100vh - 40px); 
-    padding: 10px; 
+    overflow-y: auto;
+    max-height: calc(100vh - 40px);
+    padding: 10px;
 }
 
 .agent-card {
@@ -58,10 +58,13 @@ body {
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px; /* Reduced margin */
-    width: calc(100% - 40px); /* Adjust width to fit container */
-    position: relative; 
+    margin-bottom: 10px;
+    /* Reduced margin */
+    width: calc(100% - 40px);
+    /* Adjust width to fit container */
+    position: relative;
 }
+
 .agent-details,
 .agent-info {
     display: flex;
@@ -75,7 +78,7 @@ body {
 .agent-img {
     position: absolute;
     bottom: 20px;
-    right: 20px; 
+    right: 20px;
     width: 150px;
     height: 150px;
     border-radius: 50%;
@@ -83,8 +86,10 @@ body {
 }
 
 .agent-remove {
-    align-self: flex-start; /* Keep it on the left */
-    width: 100px; /* Adjust width */
+    align-self: flex-start;
+    /* Keep it on the left */
+    width: 100px;
+    /* Adjust width */
 }
 
 .remove-btn {
@@ -95,9 +100,10 @@ body {
     border-radius: 5px;
     cursor: pointer;
     position: absolute;
-    width: 150px; /* Match the width to the image */
+    width: 150px;
+    /* Match the width to the image */
     top: 20px;
-    right: 20px; 
+    right: 20px;
 }
 
 
@@ -169,7 +175,7 @@ hr {
     padding-left: 20px;
 }
 
-.user_view-sidemenu ul li a{
+.user_view-sidemenu ul li a {
     text-decoration: none;
 
 }
@@ -183,21 +189,21 @@ hr {
 }
 
 
-.user_view-sidemenu ul li a button img{
+.user_view-sidemenu ul li a button img {
     width: 20px;
     height: 20px;
     margin-right: 10px;
     align-self: center;
 }
 
-.user_view-sidemenu ul li a button i
- {
+.user_view-sidemenu ul li a button i {
     margin-top: 3px;
     width: 20px;
     height: 20px;
     margin-right: 10px;
     align-self: center;
 }
+
 .user_view-menu-bar {
     display: flex;
     flex-direction: row;
@@ -211,11 +217,11 @@ hr {
     background-color: var(--white-color);
 }
 
-.full-width-for-content{
+.full-width-for-content {
     width: 100% !important;
 }
 
-.success-msg-container{
+.success-msg-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -356,9 +362,12 @@ hr {
     flex-direction: row;
     justify-content: space-between;
     gap: 20px;
-    width: 85%; /* Reduce width for better centering */
-    margin: 0px auto; /* Adjusted margin for better spacing */
-    padding: 30px; /* Increased padding for breathing space */
+    width: 85%;
+    /* Reduce width for better centering */
+    margin: 0px auto;
+    /* Adjusted margin for better spacing */
+    padding: 30px;
+    /* Increased padding for breathing space */
     align-items: center;
 }
 
@@ -366,8 +375,10 @@ hr {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 25%; /* Adjusted width for balance */
-    text-align: center; /* Ensure text is centered */
+    width: 25%;
+    /* Adjusted width for balance */
+    text-align: center;
+    /* Ensure text is centered */
     padding: 30px;
     background-color: var(--white-color);
     border-radius: 12px;
@@ -375,14 +386,14 @@ hr {
 }
 
 .profile-details img {
-    width: 100%; 
-    height: auto; 
-    max-width: 220px; 
-    max-height: 220px; 
-    min-width: 150px; 
-    min-height: 150px; 
-    border-radius: 50%; 
-    object-fit: cover; 
+    width: 100%;
+    height: auto;
+    max-width: 220px;
+    max-height: 220px;
+    min-width: 150px;
+    min-height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
     aspect-ratio: 1 / 1;
 }
 
@@ -392,9 +403,9 @@ hr {
     margin: 0 0 5px;
     color: #333;
     margin-top: 20px;
-  }
-  
-  .profile-role {
+}
+
+.profile-role {
     display: inline-block;
     font-size: 14px;
     font-weight: 500;
@@ -403,13 +414,14 @@ hr {
     padding: 5px 12px;
     background-color: rgba(255, 160, 0, 0.1);
     border-radius: 20px;
-  }
+}
 
 .profile-edit-form {
     display: flex;
     flex-direction: column;
     width: 60%;
-    padding: 40px; /* Adjusted padding for form */
+    padding: 40px;
+    /* Adjusted padding for form */
     background-color: var(--white-color);
     border-radius: 12px;
     box-shadow: var(--box-shadow);
@@ -423,8 +435,8 @@ hr {
     margin-bottom: 5px;
 }
 
-textarea .input-field{
-    font-family: "outfit" , sans-serif;
+textarea .input-field {
+    font-family: "outfit", sans-serif;
 }
 
 .input-field {
@@ -444,7 +456,7 @@ textarea .input-field{
     outline: none;
 }
 
-.blue-input-field{
+.blue-input-field {
     background-color: var(--white-color) !important;
     color: var(--link-color);
     border: 1px solid var(--link-color) !important;
@@ -453,7 +465,7 @@ textarea .input-field{
     font-weight: 500;
 }
 
-.blue-input-field-solid{
+.blue-input-field-solid {
     background-color: var(--link-color) !important;
     color: var(--white-color);
     border: 1px solid var(--link-color) !important;
@@ -625,7 +637,7 @@ textarea .input-field{
     color: var(--dark-grey-color);
 }
 
-.property-card{
+.property-card {
     cursor: pointer;
 }
 
@@ -657,21 +669,21 @@ textarea .input-field{
     padding: 20px;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
-  }
-  
-  /* Header styling */
-  .dialog-header {
+}
+
+/* Header styling */
+.dialog-header {
     font-size: 18px;
     font-weight: 500;
     margin-bottom: 16px;
-  }
-  
-  .dialog-header strong {
+}
+
+.dialog-header strong {
     font-weight: 700;
-  }
-  
-  /* Warning box styling */
-  .warning-box {
+}
+
+/* Warning box styling */
+.warning-box {
     display: flex;
     align-items: start;
     background-color: rgba(var(--red-color-rgb), 0.20);
@@ -679,49 +691,52 @@ textarea .input-field{
     border-radius: 4px;
     padding: 10px;
     margin-bottom: 20px;
-  }
-  
-  .warning-icon {
-    color: rgba(val(--red-color),0.2);
+}
+
+.warning-icon {
+    color: rgba(val(--red-color), 0.2);
     font-size: 20px;
     margin-right: 10px;
-  }
-  
-  .warning-text {
+}
+
+.warning-text {
     font-size: 14px;
     color: #333;
-  }
-  
-  /* Class to blur the content */
+}
+
+/* Class to blur the content */
 .blurred-background {
-    filter: blur(5px); /* Adjust the blur amount as needed */
-    transition: filter 0.3s ease; /* Smooth transition for the blur effect */
-  }
-  
-.profile-id{
+    filter: blur(5px);
+    /* Adjust the blur amount as needed */
+    transition: filter 0.3s ease;
+    /* Smooth transition for the blur effect */
+}
+
+.profile-id {
     font-size: 20px;
     color: var(--dark-grey-color);
     margin-bottom: 5px;
     margin-top: -10px;
 }
- 
-.gap{
+
+.gap {
     width: 2vw;
 }
 
-.PL__filter_container{
+.PL__filter_container {
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
 
-.toggle_wrapper{
+.toggle_wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     justify-items: center;
     height: auto;
 }
+
 /* Container to center the toggle */
 .toggle-button {
     display: flex;
@@ -729,10 +744,10 @@ textarea .input-field{
     justify-content: center;
     height: inherit;
     font-family: Arial, sans-serif;
-  }
+}
 
-  /* Outer toggle track */
-  .toggle-track {
+/* Outer toggle track */
+.toggle-track {
     position: relative;
     width: 45px;
     height: 20px;
@@ -741,10 +756,10 @@ textarea .input-field{
     cursor: pointer;
     transition: background-color 1s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
+}
 
-  /* Inner toggle knob */
-  .toggle-knob {
+/* Inner toggle knob */
+.toggle-knob {
     content: "";
     position: absolute;
     top: -3px;
@@ -757,15 +772,105 @@ textarea .input-field{
     transition: transform 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     border: none;
-  }
+}
 
-  /* Active state styles */
-  .toggle-track.activeToggle {
-    transition: background-color 0.5s ease; /* Increased transition time to 2 seconds */
+/* Active state styles */
+.toggle-track.activeToggle {
+    transition: background-color 0.5s ease;
+    /* Increased transition time to 2 seconds */
     background-color: var(--primary-color);
-    }
+}
 
-  .toggle-track.activeToggle .toggle-knob {
+.toggle-track.activeToggle .toggle-knob {
     transition: transform 0.3s ease;
     transform: translateX(24px);
-  }
+}
+
+
+/** mobile responsive */
+/* Media query for small screens */
+@media (max-width: 768px) {
+    .user_view-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .header-line {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+    }
+
+    .header-logo-png {
+        margin: 0 auto;
+        width: 150px;
+    }
+
+    .user_view-sidemenu {
+        display: none;
+        /* Hide sidebar by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--white-color);
+        z-index: 10;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .user_view-sidemenu.active {
+        display: flex;
+        /* Show sidebar when active */
+        flex-direction: column;
+        background-color: var(--white-color);
+    }
+
+    .toggle-sidebar-btn {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 20;
+    }
+
+    .user_view-content_section {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .property-listing-grid {
+        grid-template-columns: repeat(1, 1fr);
+        /* Single column for small screens */
+    }
+
+    .profile-container {
+        flex-direction: column;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .profile-details,
+    .profile-edit-form {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .agent-card {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .agent-img {
+        position: static;
+        margin-bottom: 10px;
+    }
+
+    .remove-btn {
+        position: static;
+        width: auto;
+        margin-top: 10px;
+    }
+}

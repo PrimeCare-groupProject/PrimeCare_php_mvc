@@ -2977,4 +2977,26 @@ class Agent
             'salary' => $salary
         ]);
     }
+
+    public function salaryPayemts($a = '', $b = '')
+    {
+        switch ($a) {
+            case 'paymentview':
+                $this->paymentview($b);
+                break;
+            default:
+                $this->view('agent/spListing');
+                break;
+        }
+    }
+
+    public function paymentview($d)
+    {
+        $property = new PropertyConcat;
+        $property = $property->where(['property_id' => $d, 'agent_id' => $_SESSION['user']->pid])[0];
+        $this->view('agent/paymentview', [
+            'property' => $property
+        ]); 
+    }
+
 }

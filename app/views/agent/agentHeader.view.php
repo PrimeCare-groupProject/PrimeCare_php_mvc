@@ -46,7 +46,7 @@
                         <input type="submit" name="toggle_btn" value="1" hidden>
                     </div>
                 </div>
-                
+
                 <?php require __DIR__ . '/../components/notificationComponent.view.php'; ?>
 
                 <a href="<?= ROOT ?>/dashboard/profile"><img src="<?= get_img($_SESSION['user']->image_url) ?>" alt="" class="header-profile-picture"></a>
@@ -65,7 +65,8 @@
                     <li><a href="<?= ROOT ?>/dashboard/requestedTasks"><button class="btn"><i class="fa-solid fa-inbox"></i>Requested Tasks</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/externalServiceRequests"><button class="btn" style="text-align: left;"><i class="fa-solid fa-handshake-angle"></i>External service requests</button></a></li> -->
                     <!-- <li><a href="<?= ROOT ?>/dashboard/services"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li> -->
-                    <li><a href="<?= ROOT ?>/dashboard/finance"><button class="btn"><i class="fa-solid fa-coins"></i>Finance</button></a></li> 
+                    <li><a href="<?= ROOT ?>/dashboard/finance"><button class="btn"><i class="fa-solid fa-coins"></i>Finance</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/salaryPayemts"><button class="btn"><i class="fas fa-money-bill-wave"></i>Payment</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/serviceManagement"><button class="btn"><i class="fa-solid fa-screwdriver-wrench"></i>Services</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/bookings"><button class="btn"><i class="fa-solid fa-book"></i>Bookings</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/inventory"><button class="btn"><i class="fa-solid fa-warehouse"></i>Inventory</button></a></li>
@@ -161,6 +162,24 @@
 
                 document.querySelectorAll('a').forEach(link => {
                     link.addEventListener('click', displayLoader);
+                });
+            </script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const toggleSidebarBtn = document.querySelector('.toggle-sidebar-btn');
+                    const sidebar = document.querySelector('.user_view-sidemenu');
+
+                    toggleSidebarBtn.addEventListener('click', function() {
+                        sidebar.classList.toggle('active');
+                    });
+
+                    // Close sidebar when clicking outside
+                    document.addEventListener('click', function(event) {
+                        if (!sidebar.contains(event.target) && !toggleSidebarBtn.contains(event.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    });
                 });
             </script>
 
