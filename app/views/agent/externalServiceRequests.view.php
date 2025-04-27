@@ -144,10 +144,13 @@
         } else {
             $serviceCount = 1; // Initialize service counter
             foreach ($services as $service) {
+                // Get filtered providers specific to this service
+                $filteredProviders = $data['providers_by_service'][$service->id] ?? [];
+                
                 // Find the current provider image if a provider is selected
                 $currentProviderImage = null;
                 if (!empty($service->service_provider_id)) {
-                    foreach ($data['service_providers'] as $provider) {
+                    foreach ($filteredProviders as $provider) {
                         if ($provider->pid == $service->service_provider_id) {
                             $currentProviderImage = $provider->image_url;
                             break;
@@ -155,13 +158,12 @@
                     }
                 }
                 // Default to first provider's image if no match found
-                if (empty($currentProviderImage) && !empty($data['service_providers'])) {
-                    $currentProviderImage = $data['service_providers'][0]->image_url;
+                if (empty($currentProviderImage) && !empty($filteredProviders)) {
+                    $currentProviderImage = $filteredProviders[0]->image_url;
                 }
                 
                 // Get property images (decode JSON)
-                $propertyImages = json_decode($service->service_images ?? '[]', true);
-                $propertyImage = !empty($propertyImages) ? $propertyImages[0] : 'listing_alt.jpg'; // First image or default
+                $propertyImage = $service->property_image ?? 'listing_alt.jpg';
                 ?>
                 <div class="external-service" data-date="<?= $service->date ?>">
                     <div class="preInspection-header">
@@ -170,7 +172,7 @@
                             <form method="POST">
                                 <input type="hidden" name="service_id" value="<?= $service->id ?>">
                                 <input type="hidden" name="service_provider_select" value="">
-                                <button type="submit" class="accept-btn" onclick="submitForm(this.form)">Accept</button>
+                                <button type="submit" class="accept-btn" onclick="submitForm(this.form)" <?= empty($filteredProviders) ? 'disabled' : '' ?>>Accept</button>
                             </form>
 
                             <form method="POST">
@@ -219,20 +221,26 @@
                                 <div class="input-group-aligned">
                                     <span class="input-label-aligend1"><strong>Service Provider:</strong></span>
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->id ?>)">
-                                            <?php foreach($data['service_providers'] as $provider): ?>
-                                                <option value="<?= $provider->pid ?>" 
-                                                    data-image="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $provider->image_url ?>"
-                                                    <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?>>
-                                                    <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <img id="providerImage_<?= $service->id ?>" 
-                                             src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $currentProviderImage ?? 'Agent.png' ?>" 
-                                             alt="Service Provider" 
-                                             class="provider-image"
-                                             onerror="this.src='<?= ROOT ?>/assets/images/Agent.png'">
+                                        <?php if (empty($filteredProviders)): ?>
+                                            <div class="no-provider-message">
+                                                <p>No approved service providers available for this service type.</p>
+                                            </div>
+                                        <?php else: ?>
+                                            <select name="service_provider" class="input-field2" onchange="updateProviderImage(this, <?= $service->id ?>)">
+                                                <?php foreach($filteredProviders as $provider): ?>
+                                                    <option value="<?= $provider->pid ?>" 
+                                                        data-image="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $provider->image_url ?>"
+                                                        <?= ($service->service_provider_id == $provider->pid) ? 'selected' : '' ?>>
+                                                        <?= $provider->fname . ' ' . $provider->lname ?> (ID: <?= $provider->pid ?>)
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <img id="providerImage_<?= $service->id ?>" 
+                                                 src="<?= ROOT ?>/assets/images/uploads/profile_pictures/<?= $currentProviderImage ?? 'Agent.png' ?>" 
+                                                 alt="Service Provider" 
+                                                 class="provider-image"
+                                                 onerror="this.src='<?= ROOT ?>/assets/images/Agent.png'">
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -316,11 +324,6 @@ function submitForm(form) {
   transition: transform 0.3s ease;
 }
 
-/* .preInspection-header{
-    background-color: white;
-    border-radius: 15px;
-} */
-
 .zoom-on-hover:hover {
   transform: scale(1.1);
 }
@@ -392,7 +395,6 @@ function submitForm(form) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  /* border: 2px solid #1e7e34; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -403,6 +405,12 @@ function submitForm(form) {
   background-color: #218838;
 }
 
+.accept-btn:disabled {
+  background-color: #8BC34A;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .decline-btn {
   max-width: 200px;
   min-width: 150px;
@@ -411,7 +419,6 @@ function submitForm(form) {
   color: var(--white-color);
   font-size: 16px;
   font-weight: 500;
-  /* border: 2px solid #c82333; */
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -422,7 +429,17 @@ function submitForm(form) {
   background-color: #bd2130;
 }
 
-/* Adding status badge styling */
+.no-provider-message {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+/* Status badge styling */
 .status-badge {
   display: inline-block;
   padding: 5px 10px;

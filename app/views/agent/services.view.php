@@ -78,7 +78,7 @@
 
 <script>
 
-    // Initialize delete functionality
+
     let deleteServiceId = null;
 
     function confirmDelete(serviceId) {
@@ -92,8 +92,8 @@
         document.getElementById('deletePopup').style.display = 'none';
         document.body.classList.remove('popup-active');
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
+  
+document.addEventListener('DOMContentLoaded', function() {
     // Constants and variables
     const searchInput = document.querySelector('.search-input');
     const searchBtn = document.querySelector('.search-btn');
@@ -229,6 +229,7 @@
         }
     });
 });
+
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>

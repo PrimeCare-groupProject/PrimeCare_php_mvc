@@ -1169,49 +1169,6 @@ class Customer
     }
 
 
-    public function payRegularService($serviceId = null)
-    {
-        if (!$serviceId) {
-            $_SESSION['flash']['msg'] = "Invalid service selected for payment.";
-            $_SESSION['flash']['type'] = "error";
-            redirect('dashboard/maintenance');
-        }
-        
-        // Get the service details
-        $serviceLog = new ServiceLog();
-        $service = $serviceLog->first(['service_id' => $serviceId]);
-        
-        // Check if service exists and belongs to the current user
-        if (!$service || $service->tenant_id != $_SESSION['user']->pid) {
-            $_SESSION['flash']['msg'] = "You don't have permission to pay for this service.";
-            $_SESSION['flash']['type'] = "error";
-            redirect('dashboard/maintenance');
-        }
-        
-        // Check if service is in the right status (Done but not paid)
-        if ($service->status !== 'Done') {
-            $_SESSION['flash']['msg'] = "This service is not ready for payment.";
-            $_SESSION['flash']['type'] = "error";
-            redirect('dashboard/maintenance');
-        }
-        
-        // Calculate all costs
-        $service_cost = $service->cost ?? 0;
-        $service_charge = $service_cost * 0.10; // 10% service charge
-        $total_amount = $service_cost + $service_charge;
-        
-        // Pass data to view
-        $data = [
-            'title' => "Pay for Regular Service",
-            'service' => $service,
-            'service_cost' => $service_cost,
-            'service_charge' => $service_charge,
-            'total_amount' => $total_amount
-        ];
-        
-        $this->view('customer/payRegularService', $data);
-    }
-
 
     public function completeExternalPayment($serviceId = null)
     {
@@ -1319,12 +1276,12 @@ class Customer
         
         // Create payment record using our enhanced method
         $servicePayment = new ServicePayment();
-        $invoice_number = $servicePayment->generateInvoiceNumber();
+        // $invoice_number = $servicePayment->generateInvoiceNumber();
         $paymentData = [
             'service_id' => $serviceId,
             'amount' => $total_amount,
             'payment_date' => date('Y-m-d H:i:s'),
-            'invoice_number' => $invoice_number,
+            // 'invoice_number' => $invoice_number,
             'created_at' => date('Y-m-d H:i:s')
         ];
         
@@ -1435,7 +1392,7 @@ class Customer
             'service_id' => $serviceId,
             'amount' => $total_amount,
             'payment_date' => date('Y-m-d H:i:s'),
-            'invoice_number' => $servicePayment->generateInvoiceNumber(),
+            // 'invoice_number' => $servicePayment->generateInvoiceNumber(),
             'payment_method' => $paymentMethod,
             // 'payment_proof' => $paymentProofPath,
             'status' => 'completed',
@@ -1539,12 +1496,12 @@ class Customer
             
             // Create payment record
             $servicePayment = new ServicePayment();
-            $invoice_number = $servicePayment->generateInvoiceNumber();
+            // $invoice_number = $servicePayment->generateInvoiceNumber();
             $paymentData = [
                 'service_id' => $serviceId,
                 'amount' => $total_amount,
                 'payment_date' => date('Y-m-d H:i:s'),
-                'invoice_number' => $invoice_number,
+                // 'invoice_number' => $invoice_number,
                 'created_at' => date('Y-m-d H:i:s')
             ];
             
@@ -2365,6 +2322,382 @@ class Customer
         // Clear session messages after displaying
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
+    }
+
+    public function payRegularService($serviceId = null)
+    {
+        if (!$serviceId) {
+            $_SESSION['flash']['msg'] = "Invalid service selected for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/serviceRequests');
+        }
+        
+        // Get the service details
+        $serviceLog = new ServiceLog();
+        $service = $serviceLog->first(['service_id' => $serviceId]);
+        
+        // Check if service exists and belongs to the current user
+        if (!$service || $service->requested_person_id != $_SESSION['user']->pid) {
+            $_SESSION['flash']['msg'] = "You don't have permission to pay for this service.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/serviceRequests');
+        }
+        
+        // Check if service is in the right status (Done but not paid)
+        if ($service->status !== 'Done') {
+            $_SESSION['flash']['msg'] = "This service is not ready for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/serviceRequests');
+        }
+        
+        // Calculate all costs
+        $service_cost = $service->total_cost ?? 0;
+        $service_charge = $service_cost * 0.10; // 10% service charge
+        $total_amount = $service_cost + $service_charge;
+        
+        // Pass data to view
+        $data = [
+            'title' => "Pay for Regular Service",
+            'service' => $service,
+            'service_cost' => $service_cost,
+            'service_charge' => $service_charge,
+            'total_amount' => $total_amount
+        ];
+        
+        $this->view('customer/payRegularService', $data);
+    }
+    
+    public function servicePayment($status){
+        // Get parameters from the URL
+        $order_id = $_GET['order_id'] ?? null;
+        $amount = $_GET['amount'] ?? null;
+        $service_id = $_GET['service_id'] ?? null;
+        
+        // Validate required parameters
+        if (!$order_id || !$amount || !$service_id) {
+            $_SESSION['flash']['msg'] = "Invalid payment information.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/serviceRequests');
+            return;
+        }
+        
+        // Check payment status
+        if ($status === 'success') {
+            // Get service details
+            $serviceLog = new ServiceLog();
+            $service = $serviceLog->first(['service_id' => $service_id]);
+            
+            if (!$service) {
+                $_SESSION['flash']['msg'] = "Service not found.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/serviceRequests');
+                return;
+            }
+            
+            // Find existing payment record or create new one
+            $servicePayment = new ServicePayment();
+            $existingPayment = $servicePayment->first(['service_id' => $service_id, 'invoice_number' => $order_id]);
+            
+            if ($existingPayment) {
+                // Update existing payment record
+                $servicePayment->update($existingPayment->payment_id, [
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s')
+                ], 'payment_id');
+                
+                $paymentId = $existingPayment->payment_id;
+            } else {
+                // Create new payment record
+                $paymentData = [
+                    'service_id' => $service_id,
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'invoice_number' => $order_id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'service_provider_id' => $service->service_provider_id ?? null,
+                    'serviceType' => 'regular',
+                    'person_id' => $_SESSION['user']->pid  
+                ];
+                
+                $paymentId = $servicePayment->insert($paymentData);
+            }
+            
+            // Get property details for invoice
+            $propertyModel = new PropertyConcat();
+            $property = $propertyModel->first(['property_id' => $service->property_id]);
+            
+            // Get service provider details if available
+            $providerName = "PrimeCare Service";
+            if ($service->service_provider_id) {
+                $userModel = new User();
+                $provider = $userModel->first(['pid' => $service->service_provider_id]);
+                if ($provider) {
+                    $providerName = trim(($provider->fname ?? '') . ' ' . ($provider->lname ?? ''));
+                }
+            }
+            
+            if ($paymentId) {
+                // Update service status to Paid
+                $serviceLog->update($service_id, [
+                    'status' => 'Paid'
+                ], 'service_id');
+                
+                // Send notifications
+                enqueueNotification(
+                    'Payment Success', 
+                    'Your payment of LKR ' . number_format($amount, 2) . ' for service #' . $service_id . ' has been processed successfully.', 
+                    '', 
+                    'Notification_green'
+                );
+                
+                // Notify service provider if available
+                if ($service->service_provider_id) {
+                    enqueueNotification(
+                        'Payment Received', 
+                        'Payment of LKR ' . number_format($amount, 2) . ' for service #' . $service_id . ' has been received.', 
+                        ROOT . '/dashboard/serviceRequests', 
+                        'Notification_green',
+                        $service->service_provider_id
+                    );
+                }
+                
+                // Show payment success page with popup and invoice download
+                $this->view('customer/paymentSuccess', [
+                    'user' => $_SESSION['user'],
+                    'service' => $service,
+                    'property' => $property,
+                    'amount' => $amount,
+                    'order_id' => $order_id,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'provider_name' => $providerName
+                ]);
+                return;
+            } else {
+                // Payment record creation failed
+                $_SESSION['flash']['msg'] = "Payment successful, but failed to update records.";
+                $_SESSION['flash']['type'] = "warning";
+            }
+        } else {
+            // Payment failed or cancelled
+            $_SESSION['flash']['msg'] = "Payment was not successful. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+            
+            // Send notification about failed payment
+            enqueueNotification(
+                'Payment Failed', 
+                'Your payment for service #' . $service_id . ' was not successful.', 
+                '', 
+                'Notification_red'
+            );
+        }
+        
+        // Redirect to service requests page
+        redirect('dashboard/serviceRequests');
+    }
+
+    public function externalServicePayment($status) {
+        // Get parameters from the URL
+        $order_id = $_GET['order_id'] ?? null;
+        $amount = $_GET['amount'] ?? null;
+        $service_id = $_GET['service_id'] ?? null;
+        
+        // Validate required parameters
+        if (!$order_id || !$amount || !$service_id) {
+            $_SESSION['flash']['msg'] = "Invalid payment information.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/externalMaintenance');
+            return;
+        }
+        
+        // Check payment status
+        if ($status === 'success') {
+            // Get service details
+            $externalService = new ExternalService();
+            $service = $externalService->first(['id' => $service_id]);
+            
+            if (!$service) {
+                $_SESSION['flash']['msg'] = "Service not found.";
+                $_SESSION['flash']['type'] = "error";
+                redirect('dashboard/externalMaintenance');
+                return;
+            }
+            
+            // Find existing payment record or create new one - USE NEW MODEL
+            $externalServicePayment = new ExternalServicePayment();
+            $existingPayment = $externalServicePayment->first(['external_service_id' => $service_id, 'invoice_number' => $order_id]);
+            
+            if ($existingPayment) {
+                // Update existing payment record
+                $externalServicePayment->update($existingPayment->payment_id, [
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s')
+                ], 'payment_id');
+                
+                $paymentId = $existingPayment->payment_id;
+            } else {
+                // Create new payment record
+                $paymentData = [
+                    'external_service_id' => $service_id, // Change: service_id -> external_service_id
+                    'amount' => $amount,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'invoice_number' => $order_id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'service_provider_id' => $service->service_provider_id ?? null,
+                    'person_id' => $_SESSION['user']->pid,
+                    'payment_status' => 'Completed'
+                ];
+                
+                $paymentId = $externalServicePayment->insert($paymentData);
+            }
+            
+            // Create property object for external services
+            $property = (object) [
+                'name' => $service->property_name ?? 'External Property',
+                'address' => $service->property_address ?? 'N/A'
+            ];
+            
+            // Get service provider details if available
+            $providerName = "PrimeCare Service";
+            if ($service->service_provider_id) {
+                $userModel = new User();
+                $provider = $userModel->first(['pid' => $service->service_provider_id]);
+                if ($provider) {
+                    $providerName = trim(($provider->fname ?? '') . ' ' . ($provider->lname ?? ''));
+                }
+            }
+            
+            if ($paymentId) {
+                // Update service status to Paid
+                $externalService->update($service_id, [
+                    'status' => 'Paid',
+                ], 'id');
+                
+                // Send notifications
+                enqueueNotification(
+                    'Payment Success', 
+                    'Your payment of LKR ' . number_format($amount, 2) . ' for external service #' . $service_id . ' has been processed successfully.', 
+                    '', 
+                    'Notification_green'
+                );
+                
+                // Notify service provider if available
+                if ($service->service_provider_id) {
+                    enqueueNotification(
+                        'Payment Received', 
+                        'Payment of LKR ' . number_format($amount, 2) . ' for external service #' . $service_id . ' has been received.', 
+                        ROOT . '/dashboard/externalServices', 
+                        'Notification_green',
+                        $service->service_provider_id
+                    );
+                }
+                
+                // Show payment success page with popup and invoice download
+                $this->view('customer/paymentSuccessExternal', [
+                    'user' => $_SESSION['user'],
+                    'service' => $service,
+                    'property' => $property,
+                    'amount' => $amount,
+                    'order_id' => $order_id,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'provider_name' => $providerName,
+                    'service_type' => 'external' // Add service type for the invoice template
+                ]);
+                return;
+            } else {
+                // Payment record creation failed
+                $_SESSION['flash']['msg'] = "Payment successful, but failed to update records.";
+                $_SESSION['flash']['type'] = "warning";
+            }
+        } else {
+            // Payment failed or cancelled
+            $_SESSION['flash']['msg'] = "Payment was not successful. Please try again.";
+            $_SESSION['flash']['type'] = "error";
+            
+            // Send notification about failed payment
+            enqueueNotification(
+                'Payment Failed', 
+                'Your payment for external service #' . $service_id . ' was not successful.', 
+                '', 
+                'Notification_red'
+            );
+        }
+        
+        // Redirect to external maintenance page
+        redirect('dashboard/externalMaintenance');
+    }
+
+    public function maintenanceHub($b='')
+    {
+        // Check if user is logged in
+        if (!isset($_SESSION['user'])) {
+            redirect('login');
+            return;
+        }
+        switch($b){
+            case 'serviceRequests' : 
+                $this->serviceRequests();
+                break;
+            case 'externalMaintenance' : 
+                $this->externalMaintenance();
+                break;
+        }
+        
+        // Get user ID
+        $userId = $_SESSION['user']->pid;
+        
+        // Initialize models for gathering maintenance statistics
+        $serviceRequestModel = new ServiceLog();
+        $externalServiceModel = new ExternalService();
+        
+        // Fetch regular service requests counts
+        $regularServices = $serviceRequestModel->where(['requested_person_id' => $userId]);
+        $regularPendingCount = 0;
+        $regularCompletedCount = 0;
+        $regularRequiresPayment = 0;
+        
+        if ($regularServices) {
+            foreach ($regularServices as $service) {
+                $status = strtolower($service->status ?? '');
+                if ($status === 'pending' || $status === 'ongoing') {
+                    $regularPendingCount++;
+                } elseif ($status === 'done') {
+                    $regularRequiresPayment++;
+                } elseif ($status === 'paid') {
+                    $regularCompletedCount++;
+                }
+            }
+        }
+        
+        // Fetch external service requests counts
+        $externalServices = $externalServiceModel->where(['requested_person_id' => $userId]);
+        $externalPendingCount = 0;
+        $externalCompletedCount = 0;
+        $externalRequiresPayment = 0;
+        
+        if ($externalServices) {
+            foreach ($externalServices as $service) {
+                $status = strtolower($service->status ?? '');
+                if ($status === 'pending') {
+                    $externalPendingCount++;
+                } elseif ($status === 'done') {
+                    $externalRequiresPayment++;
+                } elseif ($status === 'paid') {
+                    $externalCompletedCount++;
+                }
+            }
+        }
+        
+        $this->view('customer/maintenanceHub', [
+            'user' => $_SESSION['user'],
+            'regularPendingCount' => $regularPendingCount,
+            'regularCompletedCount' => $regularCompletedCount,
+            'regularRequiresPayment' => $regularRequiresPayment,
+            'regularTotalCount' => count($regularServices ?: []),
+            'externalPendingCount' => $externalPendingCount,
+            'externalCompletedCount' => $externalCompletedCount,
+            'externalRequiresPayment' => $externalRequiresPayment,
+            'externalTotalCount' => count($externalServices ?: [])
+        ]);
     }
     
 }

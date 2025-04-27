@@ -68,7 +68,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= ROOT ?>/dashboard/externalMaintenance" data-section="externalMaintenance">
+                        <!-- <a href="<?= ROOT ?>/dashboard/externalMaintenance" data-section="externalMaintenance">
                             <button class="btn" style="text-align: left;"><i class="fa-solid fa-clipboard-check"></i>Track External Repairs</button>
                         </a>
                     </li>
@@ -76,6 +76,13 @@
                         <a href="<?= ROOT ?>/dashboard/serviceRequests" class="<?= $page == 'serviceRequests' ? 'active' : '' ?>">
                             <button class="btn" style="text-align: left;">
                                 <i class="fas fa-clipboard-list"></i>Occupied property service Requests
+                            </button>
+                        </a>
+                    </li> -->
+                    <li>
+                        <a href="<?= ROOT ?>/dashboard/maintenanceHub" class="<?= $page == 'maintenanceHub' ? 'active' : '' ?>">
+                            <button class="btn" style="text-align: left;">
+                                <i class="fas fa-clipboard-list"></i>Maintenance Hub
                             </button>
                         </a>
                     </li>
