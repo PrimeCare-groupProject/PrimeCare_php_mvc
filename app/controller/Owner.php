@@ -2241,6 +2241,12 @@ class Owner
             redirect('property/propertyListing');
         } elseif ($property->status == 'Active') {
             $deleteRequest = new DeleteRequests;
+            $isExisting = $deleteRequest->where(['property_id' => $propertyId, 'request_status' => 'Pending']);
+            if ($isExisting) {
+                $_SESSION['flash']['msg'] = "Property deletion request already exists!";
+                $_SESSION['flash']['type'] = "error";
+                redirect('property/propertyListing');
+            }
             $ownerId = $property->person_id;
             $agentId = $property->agent_id;
             $deleteRequest->insert([

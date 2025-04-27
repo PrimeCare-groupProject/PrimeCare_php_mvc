@@ -1211,8 +1211,8 @@ class Agent
         $this->view('agent/propertyUnit', ['property' => $propertyUnit ]);
     }
 
-    public function ContactSupport($b = '', $c = '', $d = '')
-    {
+    // agent
+    public function ContactSupport($b = '', $c = '', $d = ''){
         switch ($b) {
             case 'propertyunit':
                 $this->propertyUnit($c);
@@ -1231,9 +1231,55 @@ class Agent
                     // Only allow valid statuses
                     $allowed = ['pending', 'in_progress', 'resolved'];
                     if (in_array($new_status, $allowed)) {
-                        $problemReport->update($report_id, ['status' => $new_status], 'report_id');
-                        $_SESSION['flash']['msg'] = "Status updated!";
-                        $_SESSION['flash']['type'] = "success";
+                        $result = $problemReport->update($report_id, ['status' => $new_status], 'report_id');
+                        if (!$result){
+                            $_SESSION['flash']['msg'] = "Failed to update status.";
+                            $_SESSION['flash']['type'] = "error";
+                        } else {
+                            $_SESSION['flash']['msg'] = "Status updated successfully!";
+                            $_SESSION['flash']['type'] = "success";
+                            
+                            // Get report details for notification
+                            $reportDetails = $problemReport->first(['report_id' => $report_id]);
+                            if ($reportDetails) {
+                                // Get property details
+                                $propertyDetails = $property->first(['property_id' => $reportDetails->property_id]);
+                                $propertyName = $propertyDetails ? $propertyDetails->name : 'Property #' . $reportDetails->property_id;
+                                
+                                // Get status label for notification
+                                $statusLabel = $new_status;
+                                if ($new_status == 'in_progress') {
+                                    $statusLabel = 'In Progress';
+                                } else {
+                                    $statusLabel = ucfirst($new_status);
+                                }
+                                
+                                // Set notification color based on status
+                                $notificationColor = 'Notification_blue';
+                                if ($new_status == 'resolved') {
+                                    $notificationColor = 'Notification_green';
+                                } elseif ($new_status == 'in_progress') {
+                                    $notificationColor = 'Notification_orange';
+                                }
+                                
+                                // Create notification for property owner
+                                enqueueNotification(
+                                    'Support Request Updated', 
+                                    'Your support request for ' . $propertyName . ' is now ' . $statusLabel, 
+                                    ROOT . '/dashboard/maintenance/viewReport/' . $report_id, 
+                                    $notificationColor, 
+                                    $reportDetails->person_id
+                                );
+                                
+                                // Create notification for admin about the status change
+                                enqueueNotification(
+                                    'Support Request Updated', 
+                                    'Support request #' . $report_id . ' for ' . $propertyName . ' has been updated to ' . $statusLabel, 
+                                    ROOT . '/admin/support/viewReport/' . $report_id, 
+                                    $notificationColor
+                                );
+                            }
+                        }
                     } else {
                         $_SESSION['flash']['msg'] = "Invalid status.";
                         $_SESSION['flash']['type'] = "error";
