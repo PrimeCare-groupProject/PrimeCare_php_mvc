@@ -2418,31 +2418,49 @@ class Agent
     {
         $externalService = new ExternalService();
         $services = $externalService->where(['status' => 'pending']);
-
-        // Get available service providers (user_lvl = 2) with their image URLs
+    
+        // Get available service providers
         $user = new User();
         $service_providers = $user->where(['user_lvl' => 2]);
-
-        // Filter out service providers who already have 4 or more ongoing services
-        $filtered_providers = [];
-        foreach ($service_providers as $provider) {
-            $provider->image_url = $provider->image_url ?? 'Agent.png';
-
-            // Count ongoing services for this provider
-            $ongoing_count = $externalService->where([
-                'service_provider_id' => $provider->pid,
-                'status' => 'ongoing'
-            ]);
-
-            // Convert ongoing_count to array if false (no services)
-            $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
-
-            // Add provider if they have less than 4 ongoing services
-            if (count($ongoing_count) < 4) {
-                $filtered_providers[] = $provider;
+        
+        // Get all services from services table for name matching
+        $services_model = new Services();
+        $all_services = $services_model->getAllServices();
+        
+        // Create mapping from service type name to service_id
+        $service_type_to_id = [];
+        if ($all_services) {
+            foreach ($all_services as $service_item) {
+                $service_type_to_id[strtolower($service_item->name)] = $service_item->service_id;
             }
         }
-
+        
+        // Get approved service provider applications
+        $serviceApplication = new ServiceApplication();
+        $approved_applications = $serviceApplication->where(['status' => 'Approved']);
+        
+        // Create mapping from service_id to array of approved provider IDs
+        $approved_providers_by_service = [];
+        if ($approved_applications) {
+            foreach ($approved_applications as $application) {
+                $service_id = $application->service_id;
+                $provider_id = $application->service_provider_id;
+                
+                if (!isset($approved_providers_by_service[$service_id])) {
+                    $approved_providers_by_service[$service_id] = [];
+                }
+                
+                $approved_providers_by_service[$service_id][] = $provider_id;
+            }
+        }
+        
+        // Process services and create filtered provider lists
+        $data = [
+            'services' => $services,
+            'providers_by_service' => [],
+            'service_providers' => $service_providers // Keep for backward compatibility
+        ];
+    
         // Process property images for each service (decode JSON)
         if ($services) {
             foreach ($services as $service) {
@@ -2461,22 +2479,70 @@ class Agent
                 } else {
                     $service->property_image = 'listing_alt.jpg';
                 }
+                
+                // Match service_type with service names in services table
+                $matched_service_id = null;
+                if (!empty($service->service_type)) {
+                    // Try direct match first
+                    $service_type_lower = strtolower($service->service_type);
+                    if (isset($service_type_to_id[$service_type_lower])) {
+                        $matched_service_id = $service_type_to_id[$service_type_lower];
+                    } else {
+                        // Try partial match
+                        foreach ($service_type_to_id as $name => $id) {
+                            if (strpos($service_type_lower, $name) !== false || 
+                                strpos($name, $service_type_lower) !== false) {
+                                $matched_service_id = $id;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Get approved providers for this service type
+                $approved_provider_ids = [];
+                if ($matched_service_id && isset($approved_providers_by_service[$matched_service_id])) {
+                    $approved_provider_ids = $approved_providers_by_service[$matched_service_id];
+                }
+                
+                // Filter providers by approval status and task count
+                $filtered_providers = [];
+                foreach ($service_providers as $provider) {
+                    if (in_array($provider->pid, $approved_provider_ids)) {
+                        $provider->image_url = $provider->image_url ?? 'Agent.png';
+                        
+                        // Count ongoing services for this provider
+                        $ongoing_count = $externalService->where([
+                            'service_provider_id' => $provider->pid,
+                            'status' => 'ongoing'
+                        ]);
+                        
+                        // Convert ongoing_count to array if false (no services)
+                        $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
+                        
+                        // Add provider if they have less than or equal to 4 ongoing services
+                        if (count($ongoing_count) <= 4) {
+                            $filtered_providers[] = $provider;
+                        }
+                    }
+                }
+                
+                // Store filtered providers for this service
+                $data['providers_by_service'][$service->id] = $filtered_providers;
             }
         }
-
-        $data = [
-            'services' => $services,
-            'service_providers' => $filtered_providers
-        ];
-
+    
         // Handle service provider assignment when accept button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['service_id'])) {
             $service_id = $_POST['service_id'];
-
+    
             // Get the selected service provider from the dropdown
-            $provider_id = $_POST['service_provider_select'];
-
-            if ($provider_id) {
+            $provider_id = $_POST['service_provider_select'] ?? null;
+    
+            if (empty($provider_id)) {
+                $_SESSION['flash']['msg'] = "Please select a service provider before accepting the task";
+                $_SESSION['flash']['type'] = "error";
+            } else {
                 // Create a new ExternalService instance to ensure it's a model with where() method
                 $serviceModel = new ExternalService();
                 
@@ -2485,19 +2551,20 @@ class Agent
                     'service_provider_id' => $provider_id,
                     'status' => 'ongoing'
                 ]);
-
+    
                 // Convert to empty array if false
                 $ongoing_services = $ongoing_services === false ? [] : $ongoing_services;
-
+    
                 if (count($ongoing_services) >= 4) {
-                    $_SESSION['error'] = "This service provider has reached their maximum service limit";
+                    $_SESSION['flash']['msg'] = "This service provider has reached their maximum service limit";
+                    $_SESSION['flash']['type'] = "error";
                 } else {
                     // Update service with assigned provider and change status to ongoing
                     $result = $serviceModel->update($service_id, [
                         'service_provider_id' => $provider_id,
                         'status' => 'ongoing'
                     ]);
-
+    
                     if ($result) {
                         // Get service details to include in notification
                         $serviceDetails = $serviceModel->first(['id' => $service_id]);
@@ -2519,7 +2586,7 @@ class Agent
                         
                         // Insert notification for service provider
                         $notificationModel->insert($notificationData);
-
+    
                         // Create notification for customer who requested the service
                         if (!empty($serviceDetails->requested_person_id)) {
                             $notificationModel = new NotificationModel();
@@ -2540,31 +2607,26 @@ class Agent
                         
                         $_SESSION['flash']['msg'] = "External service request accepted and assigned successfully";
                         $_SESSION['flash']['type'] = "success";
-                        redirect('dashboard/externalServiceRequests');
-                        exit; // Add exit here to prevent further execution
                     } else {
                         $_SESSION['flash']['msg'] = "Failed to update service request";
                         $_SESSION['flash']['type'] = "error";
                     }
                 }
-            } else {
-                $_SESSION['flash']['msg'] = "Please select a service provider";
-                $_SESSION['flash']['type'] = "error";
             }
-
+    
             redirect('dashboard/externalServiceRequests');
             exit; // Add exit here to prevent further execution
         }
-
+    
         // Handle service request deletion when decline button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
             $service_id = $_POST['delete_service_id'];
-
+    
             // Update the service request status to "rejected" instead of deleting
             $result = $externalService->update($service_id, [
                 'status' => 'rejected'
             ]);
-
+    
             if ($result) {
                 // Get service details to include in notification
                 $serviceDetails = $externalService->first(['id' => $service_id]);
@@ -2588,17 +2650,15 @@ class Agent
                 }
                 $_SESSION['flash']['msg'] = "External service request declined successfully";
                 $_SESSION['flash']['type'] = "success";
-                redirect('dashboard/externalServiceRequests');
-                exit; // Add exit here to prevent further execution
             } else {
                 $_SESSION['flash']['msg'] = "Failed to decline external service request";
                 $_SESSION['flash']['type'] = "error";
             }
-
+    
             redirect('dashboard/externalServiceRequests');
             exit; // Add exit here to prevent further execution
         }
-
+    
         $this->view('agent/externalServiceRequests', $data);
     }
 
