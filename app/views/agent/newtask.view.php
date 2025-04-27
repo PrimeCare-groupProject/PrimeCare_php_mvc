@@ -39,6 +39,21 @@
             <label class="input-label">Total Hours</label>
             <input type="text" name="total_hours" placeholder="Total Hours" class="input-field" required>
 
+            <label class="input-label">Service Provider Name:</label>
+            <select name="service_provider_name" id="service_provider_name" class="input-field" onchange="updateServiceProviderId()" required>
+                <option value="" disabled selected>Select Service Provider</option>
+                <?php if (!empty($serpro)): ?>
+                    <?php foreach ($serpro as $provider): ?>
+                        <option value="<?= $provider->pid ?>"><?= $provider->fname ?> <?= $provider->lname ?></option>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <option value="" disabled>No Service Providers Available</option>
+                <?php endif; ?>
+            </select>
+
+            <label class="input-label">Service Provider ID:</label>
+            <input type="text" name="service_provider_id" id="service_provider_id" placeholder="Service Provider ID" class="input-field" readonly required>
+
             <label class="input-label">Upload Service Image</label>
                 <div class="owner-addProp-file-upload">
                     <input type="file" name="service_images[]" id="service_images" class="input-field" multiple accept=".png, .jpg, .jpeg" data-max-files="6" onchange="previewImages(event)" required>
@@ -84,14 +99,13 @@
 <?php endif; ?>
 
 <script>
-
-     // Function to update the Property ID field based on the selected Property Name
-     function updatePropertyId() {
-        const propertyDropdown = document.getElementById('property_name');
-        const propertyIdField = document.getElementById('property_id');
-        propertyIdField.value = propertyDropdown.value; // Set the property ID to the selected value
+    // Function to update the Service Provider ID field based on the selected Service Provider Name
+    function updateServiceProviderId() {
+        const serviceProviderDropdown = document.getElementById('service_provider_name');
+        const serviceProviderIdField = document.getElementById('service_provider_id');
+        serviceProviderIdField.value = serviceProviderDropdown.value; // Set the Service Provider ID to the selected value
     }
-    
+
     function previewImages(event) {
         const files = event.target.files;
         const container = document.getElementById('image-preview-container');
