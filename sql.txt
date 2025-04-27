@@ -428,7 +428,173 @@ END%%
 
 DELIMITER ;
 
+DELIMITER $$
+CREATE TRIGGER `newPersonNotification` AFTER INSERT ON `person` 
+FOR EACH ROW 
+BEGIN
+    DECLARE notification_title VARCHAR(100);
+    DECLARE notification_message VARCHAR(255);
+    DECLARE user_type VARCHAR(20);
+    
+    -- Determine user type based on user_lvl
+    CASE NEW.user_lvl
+        WHEN 0 THEN SET user_type = 'Customer';
+        WHEN 1 THEN SET user_type = 'Property Owner';
+        WHEN 2 THEN SET user_type = 'Service Provider';
+        WHEN 3 THEN SET user_type = 'Agent';
+        WHEN 4 THEN SET user_type = 'Manager';
+        ELSE SET user_type = 'User';
+    END CASE;
+    
+    -- Notification for the new user
+    INSERT INTO notifications (user_id, title, message, color, link)
+    VALUES (
+        NEW.pid,
+        'Welcome to PrimeCare!',
+        CONCAT('Your ', user_type, ' account has been successfully created. Welcome ', NEW.fname, '!'),
+        'Notification_green',
+        CONCAT('http://localhost/php_mvc_backend/public/dashboard/profile/', NEW.pid)
+    );
+END$$
+DELIMITER ;
 
+DELIMITER $$
+CREATE TRIGGER `personUpdateNotification` AFTER UPDATE ON `person`
+FOR EACH ROW 
+BEGIN
+    DECLARE user_type VARCHAR(20);
+    
+    -- Determine user type
+    CASE NEW.user_lvl
+        WHEN 0 THEN SET user_type = 'Customer';
+        WHEN 1 THEN SET user_type = 'Property Owner';
+        WHEN 2 THEN SET user_type = 'Service Provider';
+        WHEN 3 THEN SET user_type = 'Agent';
+        WHEN 4 THEN SET user_type = 'Manager';
+        ELSE SET user_type = 'User';
+    END CASE;
+    
+    -- Account Status Change Notifications
+    IF NEW.AccountStatus != OLD.AccountStatus THEN
+        -- Approved Update (4)
+        IF NEW.AccountStatus = 4 THEN
+            INSERT INTO notifications (user_id, title, message, color)
+            VALUES (
+                NEW.pid,
+                'Update Approved',
+                CONCAT('Your ', user_type, ' profile changes have been approved.'),
+                'Notification_green'
+            );
+            
+        -- Pending Update (2)
+        ELSEIF NEW.AccountStatus = 2 THEN
+            -- Notification to admins
+            INSERT INTO notifications (user_id, title, message, color)
+            SELECT 
+                pid,
+                'Update Request Pending',
+                CONCAT(user_type, ' ', NEW.fname, ' ', NEW.lname, ' has requested profile changes.'),
+                'Notification_orange'
+            FROM person WHERE user_lvl = 4;
+            
+        -- Rejected Update (3)
+        ELSEIF NEW.AccountStatus = 3 THEN
+            INSERT INTO notifications (user_id, title, message, color)
+            VALUES (
+                NEW.pid,
+                'Update Rejected',
+                CONCAT('Your ', user_type, ' profile changes were rejected. Please contact support.'),
+                'Notification_red'
+            );
+            
+        -- Account Blocked (-1)
+        ELSEIF NEW.AccountStatus = -1 THEN
+            INSERT INTO notifications (user_id, title, message, color)
+            VALUES (
+                NEW.pid,
+                'Account Blocked',
+                'Your account has been temporarily blocked. Contact support for details.',
+                'Notification_red'
+            );
+            
+        -- Deletion Pending (-2)
+        ELSEIF NEW.AccountStatus = -2 THEN
+            -- Notification to admins
+            INSERT INTO notifications (user_id, title, message, color)
+            SELECT 
+                pid,
+                'Deletion Request',
+                CONCAT(user_type, ' ', NEW.fname, ' ', NEW.lname, ' requested account deletion.'),
+                'Notification_orange'
+            FROM person WHERE user_lvl = 4;
+            
+        -- Deletion Rejected (-3)
+        ELSEIF NEW.AccountStatus = -3 THEN
+            INSERT INTO notifications (user_id, title, message, color)
+            VALUES (
+                NEW.pid,
+                'Deletion Rejected',
+                'Your account deletion request was rejected.',
+                'Notification_blue'
+            );
+            
+        -- Account Activated (1)
+        ELSEIF NEW.AccountStatus = 1 THEN
+            INSERT INTO notifications (user_id, title, message, color)
+            VALUES (
+                NEW.pid,
+                'Account Activated',
+                CONCAT('Your ', user_type, ' account is now active.'),
+                'Notification_green'
+            );
+        END IF;
+    END IF;
+    
+    -- Password Change Notification
+    IF NEW.password != OLD.password THEN
+        INSERT INTO notifications (user_id, title, message, color)
+        VALUES (
+            NEW.pid,
+            'Password Changed',
+            'Your password was updated successfully.',
+            'Notification_blue'
+        );
+    END IF;
+    
+    -- Profile Update Notification (when not part of status change)
+    IF (NEW.fname != OLD.fname OR NEW.lname != OLD.lname OR 
+        NEW.email != OLD.email OR NEW.contact != OLD.contact) AND
+        NEW.AccountStatus != 2 THEN
+        INSERT INTO notifications (user_id, title, message, color)
+        VALUES (
+            NEW.pid,
+            'Profile Updated',
+            'Your profile information was updated.',
+            'Notification_blue'
+        );
+    END IF;
+    
+    -- User Level Change Notification
+    IF NEW.user_lvl != OLD.user_lvl THEN
+        INSERT INTO notifications (user_id, title, message, color)
+        VALUES (
+            NEW.pid,
+            'Role Changed',
+            CONCAT('Your account type has been changed to ', user_type, '.'),
+            'Notification_blue'
+        );
+        
+        -- Also notify admin
+        INSERT INTO notifications (user_id, title, message, color)
+        SELECT 
+            pid,
+            'User Role Changed',
+            CONCAT(user_type, ' ', NEW.fname, ' ', NEW.lname, ' has been assigned a new role.'),
+            'Notification_orange'
+        FROM person WHERE user_lvl = 4 LIMIT 1;
+    END IF;
+END$$
+DELIMITER ;
 
 CREATE TABLE reviewsProperty (
     review_id INT AUTO_INCREMENT PRIMARY KEY,

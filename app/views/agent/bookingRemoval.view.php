@@ -5,12 +5,12 @@
         <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
     </a>
     <h2>Bookings Removal</h2>
-    <div class="flex-bar" style="gap: 0px;">	
+    <!-- <div class="flex-bar" style="gap: 0px;">	
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Anything...">
             <button class="search-btn"><img src="<?= ROOT ?>/assets/images/search.png" alt="Search" class="small-icons"></button>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <div class="OC__property_container">
@@ -24,7 +24,7 @@
             ?>
             <div class="OC__property_card">
                 <div class="image-section">
-                    <a href="<?= ROOT ?>/property/propertyUnit/<?= esc($order->property_id) ?>">
+                    <a href="<?= ROOT ?>/dashboard/property/propertyView/<?= esc($order->property_id) ?>">
                         <img src="<?= $imgSrc ?>" alt="Property">
                     </a>
                 </div>
@@ -90,17 +90,17 @@
                             <!-- No buttons shown if cancelled or completed -->
                         <?php elseif (strtolower($order->booking_status) === 'pending'): ?>
                             <form method="POST" action="<?= ROOT ?>/dashboard/confirmBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn green-solid">Accept cancellation</button>
+                                <button type="submit" class="primary-btn green-solid">Accept</button>
                             </form>
                             <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn red-solid">Terminate Booking</button>
+                                <button type="submit" class="primary-btn red-solid">Decline</button>
                             </form>
                         <?php elseif (strtolower($order->booking_status) === 'cancel requested'): ?>
                             <form method="POST" action="<?= ROOT ?>/dashboard/continueBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn green-solid">Accept cancellation</button>
+                                <button type="submit" class="primary-btn green-solid">Accept</button>
                             </form>
                             <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">
-                                <button type="submit" class="primary-btn red-solid">Terminate Booking</button>
+                                <button type="submit" class="primary-btn red-solid">Decline</button>
                             </form>
                         <?php elseif (strtolower($order->booking_status) === 'confirmed'): ?>
                             <form method="POST" action="<?= ROOT ?>/dashboard/cancelBooking/<?= esc($order->booking_id) ?>" style="display:inline;">

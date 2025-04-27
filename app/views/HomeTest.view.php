@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="<?= ROOT ?>">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/HomeTest.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
@@ -134,7 +135,7 @@
 
     <section class="home-property-listing">
         <div class="search-box" style="align-self: flex-end; border-radius: 40px 0 0 40px;">
-            <a href="<?= ROOT ?>/Home/serviceListing">Pick a Service</a>
+            <a href="<?= ROOT ?>/dashboard/externalRepairListing">Pick a Service</a>
             <p>Services</p>
         </div>
         <div class="service-listing-slider">

@@ -3,9 +3,7 @@
 <div class="user_view-menu-bar">
     <div class="flex-bar-space-between-row">
         <div class="left-content">
-            <a href='<?= ROOT ?>/dashboard/property'>
-                <button class="back-btn"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
-            </a>
+            <button class="back-btn" onclick="history.back()"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></button>
             <h2><?= $property->name ?></h2>
         </div>
         <div class="right-content">

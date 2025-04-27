@@ -335,7 +335,7 @@
                 }
                 if (!checkOutInput.value) {
                     const tomorrow = new Date();
-                    tomorrow.setDate(today.getDate() + 1);
+                    tomorrow.setMonth(today.getMonth() + 1);
                     checkOutInput.value = tomorrow.toISOString().split('T')[0];
                 }
 
@@ -393,6 +393,7 @@
                     }
                 });
             });
+            
             function scrollDivToTop() {
                 const div = document.getElementById("filterSidebar");
                 div.scrollTo({ top: 0, behavior: "smooth" }); // Smooth scroll

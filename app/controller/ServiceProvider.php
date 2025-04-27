@@ -495,7 +495,6 @@ class ServiceProvider {
             redirect('dashboard/profile');
             exit;
         }
-        $user = new UserChangeDetails();
 
         if (!$user->validate($_POST)) {
             $validationErrors = [];
@@ -510,6 +509,9 @@ class ServiceProvider {
             redirect('dashboard/profile');
             exit;
         }
+        
+        $user = new UserChangeDetails();
+
         // Check if profile picture is uploaded
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
             $profilePicture = $_FILES['profile_picture'];
