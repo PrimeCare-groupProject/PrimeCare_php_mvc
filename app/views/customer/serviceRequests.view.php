@@ -213,7 +213,7 @@
                         <!-- Payment button for completed services -->
                         <?php if (strtolower($serviceLog->status ?? '') === 'done'): ?>
                         <div class="service-actions">
-                            <a href="<?= ROOT ?>/customer/payRegularService/<?= $serviceLog->service_id ?>" class="payment-button">
+                            <a href="<?= ROOT ?>/dashboard/payRegularService/<?= $serviceLog->service_id ?>" class="payment-button">
                                 <i class="fas fa-credit-card"></i> Proceed to Pay
                             </a>
                         </div>
