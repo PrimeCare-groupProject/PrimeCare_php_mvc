@@ -10,18 +10,28 @@
 <form method="POST" action="<?= ROOT ?>/tasks/create" enctype="multipart/form-data">
     <div class="owner-addProp-container">
         <div class="owner-addProp-form-left">
-            <label class="input-label">Task Type</label>
-            <input type="text" name="service_type" placeholder="Type of task" class="input-field" required>
+        <label class="input-label">Task Type</label>
+        <select name="service_type" id="service_type" class="input-field" required>
+            <option value="" disabled selected>Select Task Type</option>
+            <?php foreach ($services as $service): ?>
+                <option value="<?= $service->name ?>"><?= $service->name ?></option>
+            <?php endforeach; ?>
+        </select>
             
             <label class="input-label">Date</label>
             <input type="date" name="date" placeholder="date" class="input-field" required>
             <!--<textarea name="description" placeholder="Write About task" class="input-field" required></textarea>-->
 
-            <label class="input-label">Property ID</label>
-            <input type="text" name="property_id" placeholder="Property_ID" class="input-field" required>
+            <label class="input-label">Property Name:</label>
+            <select name="property_name" id="property_name" class="input-field" onchange="updatePropertyId()" required>
+                <option value="" disabled selected>Select Property</option>
+                <?php foreach ($properties as $property): ?>
+                    <option value="<?= $property->property_id ?>"><?= $property->name ?></option>
+                <?php endforeach; ?>
+            </select>
 
-            <label class="input-label">Property Name</label>
-            <input type="text" name="property_name" placeholder="Property_Name" class="input-field" required>
+            <label class="input-label">Property ID:</label>
+            <input type="text" name="property_id" id="property_id" placeholder="Property ID" class="input-field" readonly required>
 
             <label class="input-label">Cost Per Hour</label>
             <input type="text" name="cost_per_hour" placeholder="Cost Per Hour" class="input-field" required>
@@ -74,6 +84,14 @@
 <?php endif; ?>
 
 <script>
+
+     // Function to update the Property ID field based on the selected Property Name
+     function updatePropertyId() {
+        const propertyDropdown = document.getElementById('property_name');
+        const propertyIdField = document.getElementById('property_id');
+        propertyIdField.value = propertyDropdown.value; // Set the property ID to the selected value
+    }
+    
     function previewImages(event) {
         const files = event.target.files;
         const container = document.getElementById('image-preview-container');

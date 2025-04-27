@@ -710,7 +710,7 @@ class Agent
     {
         switch ($b) {
             case 'newtask':
-                $this->newTask();
+                $this->newTask($c,$d);
                 break;
             case 'delete':
                 $service_id = (int)$c;
@@ -734,9 +734,16 @@ class Agent
         }
     }
 
-    public function newTask()
+    public function newTask($c,$d)
     {
-        $this->view('agent/newtask');
+        $property = new agentAssignment;
+        $pro = new Property();
+        $properties = $property ->selecttwotables($pro->table,
+                                                'property_id',
+                                                'property_id',);
+        $service = new Services();
+        $services = $service->findAll();
+        $this->view('agent/newtask', ['properties' => $properties,'services' => $services]);
     }
 
     public function editTasks($c, $d)
