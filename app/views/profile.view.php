@@ -56,7 +56,7 @@
         <p class="input-label" style="position:absolute; top: 10px; right: 12px;"> NIC : <?= esc($user->nic) ?> </p>
     </div>
     <div class="profile-banner" style="width: calc(100% - 10px); height: 61vh; background-color: #fff; margin: 6px 5px; border-radius: 8px;">
-        <p class="input-label" style="position:absolute; top: 10px; right: 12px;"> NIC : <?= esc($user->nic) ?> </p>
+        <!-- <p class="input-label" style="position:absolute; top: 10px; right: 12px;"> NIC :  </p> -->
     </div>
     
 
@@ -286,7 +286,7 @@
     // show($_FILES['profile_picture'] ?? "null");
     // show( $_POST );
     // show( $user );
-    // show( $_SESSION);
+    show( $_SESSION);
 // }
 // show(get_img($user->image_url));
 ?>

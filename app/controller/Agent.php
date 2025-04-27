@@ -292,7 +292,6 @@ class Agent
             redirect('dashboard/profile');
             exit;
         }
-        $user = new UserChangeDetails();
 
         if (!$user->validate($_POST)) {
             $validationErrors = [];
@@ -307,6 +306,8 @@ class Agent
             redirect('dashboard/profile');
             exit;
         }
+        $user = new UserChangeDetails();
+
         // Check if profile picture is uploaded
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
             $profilePicture = $_FILES['profile_picture'];
@@ -2295,7 +2296,7 @@ class Agent
             // Update agent_id to current session user
             $BookingOrders->update($bookingId, [
                 'agent_id' => $_SESSION['user']->pid
-            ]);
+            ],'booking_id');
             
             $_SESSION['flash']['msg'] = "Booking confirmed.";
             $_SESSION['flash']['type'] = "success";

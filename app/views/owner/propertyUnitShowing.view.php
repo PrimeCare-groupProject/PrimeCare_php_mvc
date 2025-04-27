@@ -5,7 +5,9 @@
     <div class="flex-bar-space-between-row">
         <div class="left-content">
 
-            <a href="<?= ROOT ?>/dashboard/propertyListing"><img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons"></a>
+            <a href="javascript:void(0)" onclick="history.back()">
+                <img src="<?= ROOT ?>/assets/images/backButton.png" alt="Back" class="navigate-icons">
+            </a>
 
             <div>
                 <h2><?= $property->name ?></h2>
