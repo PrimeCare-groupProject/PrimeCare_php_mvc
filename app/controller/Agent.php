@@ -1322,7 +1322,12 @@ class Agent
 
     public function newinventory()
     {
-        $this->view('agent/newinventory');
+        $property = new agentAssignment;
+        $pro = new Property();
+        $properties = $property ->selecttwotables($pro->table,
+                                                'property_id',
+                                                'property_id',);
+        $this->view('agent/newinventory', ['properties' => $properties]);
     }
 
     public function editinventory($c)
