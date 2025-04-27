@@ -36,7 +36,7 @@
         </div>
     </a>
 
-    <a href="<?= ROOT ?>/dashboard/maintenanceHub/externalMai/maintenanceHubntenance">
+    <a href="<?= ROOT ?>/dashboard/maintenanceHub/externalMaintenance">
         <div class="MM__cards">
             <div class="MM__text">
                 <h2>External Maintenance</h2>
