@@ -2625,5 +2625,79 @@ class Customer
         // Redirect to external maintenance page
         redirect('dashboard/externalMaintenance');
     }
+
+    public function maintenanceHub($b='')
+    {
+        // Check if user is logged in
+        if (!isset($_SESSION['user'])) {
+            redirect('login');
+            return;
+        }
+        switch($b){
+            case 'serviceRequests' : 
+                $this->serviceRequests();
+                break;
+            case 'externalMaintenance' : 
+                $this->externalMaintenance();
+                break;
+        }
+        
+        // Get user ID
+        $userId = $_SESSION['user']->pid;
+        
+        // Initialize models for gathering maintenance statistics
+        $serviceRequestModel = new ServiceLog();
+        $externalServiceModel = new ExternalService();
+        
+        // Fetch regular service requests counts
+        $regularServices = $serviceRequestModel->where(['requested_person_id' => $userId]);
+        $regularPendingCount = 0;
+        $regularCompletedCount = 0;
+        $regularRequiresPayment = 0;
+        
+        if ($regularServices) {
+            foreach ($regularServices as $service) {
+                $status = strtolower($service->status ?? '');
+                if ($status === 'pending' || $status === 'ongoing') {
+                    $regularPendingCount++;
+                } elseif ($status === 'done') {
+                    $regularRequiresPayment++;
+                } elseif ($status === 'paid') {
+                    $regularCompletedCount++;
+                }
+            }
+        }
+        
+        // Fetch external service requests counts
+        $externalServices = $externalServiceModel->where(['requested_person_id' => $userId]);
+        $externalPendingCount = 0;
+        $externalCompletedCount = 0;
+        $externalRequiresPayment = 0;
+        
+        if ($externalServices) {
+            foreach ($externalServices as $service) {
+                $status = strtolower($service->status ?? '');
+                if ($status === 'pending') {
+                    $externalPendingCount++;
+                } elseif ($status === 'done') {
+                    $externalRequiresPayment++;
+                } elseif ($status === 'paid') {
+                    $externalCompletedCount++;
+                }
+            }
+        }
+        
+        $this->view('customer/maintenanceHub', [
+            'user' => $_SESSION['user'],
+            'regularPendingCount' => $regularPendingCount,
+            'regularCompletedCount' => $regularCompletedCount,
+            'regularRequiresPayment' => $regularRequiresPayment,
+            'regularTotalCount' => count($regularServices ?: []),
+            'externalPendingCount' => $externalPendingCount,
+            'externalCompletedCount' => $externalCompletedCount,
+            'externalRequiresPayment' => $externalRequiresPayment,
+            'externalTotalCount' => count($externalServices ?: [])
+        ]);
+    }
     
 }
