@@ -1169,49 +1169,6 @@ class Customer
     }
 
 
-    public function payRegularService($serviceId = null)
-    {
-        if (!$serviceId) {
-            $_SESSION['flash']['msg'] = "Invalid service selected for payment.";
-            $_SESSION['flash']['type'] = "error";
-            redirect('dashboard/serviceRequests');
-        }
-        
-        // Get the service details
-        $serviceLog = new ServiceLog();
-        $service = $serviceLog->first(['service_id' => $serviceId]);
-        
-        // Check if service exists and belongs to the current user
-        if (!$service || $service->requested_person_id != $_SESSION['user']->pid) {
-            $_SESSION['flash']['msg'] = "You don't have permission to pay for this service.";
-            $_SESSION['flash']['type'] = "error";
-            redirect('dashboard/serviceRequests');
-        }
-        
-        // Check if service is in the right status (Done but not paid)
-        if ($service->status !== 'Done') {
-            $_SESSION['flash']['msg'] = "This service is not ready for payment.";
-            $_SESSION['flash']['type'] = "error";
-            redirect('dashboard/serviceRequests');
-        }
-        
-        // Calculate all costs
-        $service_cost = $service->total_cost ?? 0;
-        $service_charge = $service_cost * 0.10; // 10% service charge
-        $total_amount = $service_cost + $service_charge;
-        
-        // Pass data to view
-        $data = [
-            'title' => "Pay for Regular Service",
-            'service' => $service,
-            'service_cost' => $service_cost,
-            'service_charge' => $service_charge,
-            'total_amount' => $total_amount
-        ];
-        
-        $this->view('customer/payRegularService', $data);
-    }
-
 
     public function completeExternalPayment($serviceId = null)
     {
@@ -2367,6 +2324,49 @@ class Customer
         unset($_SESSION['status']);
     }
 
+    public function payRegularService($serviceId = null)
+    {
+        if (!$serviceId) {
+            $_SESSION['flash']['msg'] = "Invalid service selected for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/serviceRequests');
+        }
+        
+        // Get the service details
+        $serviceLog = new ServiceLog();
+        $service = $serviceLog->first(['service_id' => $serviceId]);
+        
+        // Check if service exists and belongs to the current user
+        if (!$service || $service->requested_person_id != $_SESSION['user']->pid) {
+            $_SESSION['flash']['msg'] = "You don't have permission to pay for this service.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/serviceRequests');
+        }
+        
+        // Check if service is in the right status (Done but not paid)
+        if ($service->status !== 'Done') {
+            $_SESSION['flash']['msg'] = "This service is not ready for payment.";
+            $_SESSION['flash']['type'] = "error";
+            redirect('dashboard/serviceRequests');
+        }
+        
+        // Calculate all costs
+        $service_cost = $service->total_cost ?? 0;
+        $service_charge = $service_cost * 0.10; // 10% service charge
+        $total_amount = $service_cost + $service_charge;
+        
+        // Pass data to view
+        $data = [
+            'title' => "Pay for Regular Service",
+            'service' => $service,
+            'service_cost' => $service_cost,
+            'service_charge' => $service_charge,
+            'total_amount' => $total_amount
+        ];
+        
+        $this->view('customer/payRegularService', $data);
+    }
+    
     public function servicePayment($status){
         // Get parameters from the URL
         $order_id = $_GET['order_id'] ?? null;
