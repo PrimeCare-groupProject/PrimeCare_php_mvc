@@ -77,6 +77,21 @@
 
 
 <script>
+
+let deleteServiceId = null; // Global variable to store the service ID to be deleted
+
+function confirmDelete(serviceId) {
+    deleteServiceId = serviceId;
+    document.getElementById('deletePopup').style.display = 'flex';
+    document.body.classList.add('popup-active');
+}
+
+function closePopup() {
+    deleteServiceId = null;
+    document.getElementById('deletePopup').style.display = 'none';
+    document.body.classList.remove('popup-active');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Constants and variables
     const searchInput = document.querySelector('.search-input');
@@ -207,27 +222,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') performSearch();
     }
 
-    // Initialize delete functionality
-    let deleteServiceId = null;
-
-    function confirmDelete(serviceId) {
-        deleteServiceId = serviceId;
-        document.getElementById('deletePopup').style.display = 'flex';
-        document.body.classList.add('popup-active');
-    }
-
-    function closePopup() {
-        deleteServiceId = null;
-        document.getElementById('deletePopup').style.display = 'none';
-        document.body.classList.remove('popup-active');
-    }
-
     document.getElementById('confirmDelete').addEventListener('click', function() {
         if (deleteServiceId !== null) {
             window.location.href = "<?= ROOT ?>/dashboard/services/delete/" + deleteServiceId;
         }
     });
 });
+
 </script>
 
 <?php require_once 'agentFooter.view.php'; ?>

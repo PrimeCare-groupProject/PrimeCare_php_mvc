@@ -34,7 +34,7 @@
             <div class="field-group">
                 <div class="field-group">
                     <label class="service-card-label">ID:</label>
-                    <span class="service-card-field"><?= esc($groupedMessage->personDetails->pid) ?></span>
+                    <span class="service-card-field">MEM<?= esc($groupedMessage->personDetails->pid) ?></span>
                 </div>
                 <div class="field-group">
                     <label class="service-card-label">Date:</label>
@@ -69,7 +69,7 @@
                 <input type="hidden" name="email" value="<?= esc($groupedMessage->personDetails->email) ?>">
                 <input type="hidden" name="complete" value="0" class="complete-input">
                 
-                <div class="input-group-aligned">
+                <div class="input-group-aligned" style="justify-content: right;">
                     <button type="button" class="secondary-btn green" id="complete-button">Complete</button>
                     <button type="button" class="secondary-btn red" id="cancel-button" style="display: none;">Cancel</button>
                         

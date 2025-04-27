@@ -1319,12 +1319,12 @@ class Customer
         
         // Create payment record using our enhanced method
         $servicePayment = new ServicePayment();
-        $invoice_number = $servicePayment->generateInvoiceNumber();
+        // $invoice_number = $servicePayment->generateInvoiceNumber();
         $paymentData = [
             'service_id' => $serviceId,
             'amount' => $total_amount,
             'payment_date' => date('Y-m-d H:i:s'),
-            'invoice_number' => $invoice_number,
+            // 'invoice_number' => $invoice_number,
             'created_at' => date('Y-m-d H:i:s')
         ];
         
@@ -1435,7 +1435,7 @@ class Customer
             'service_id' => $serviceId,
             'amount' => $total_amount,
             'payment_date' => date('Y-m-d H:i:s'),
-            'invoice_number' => $servicePayment->generateInvoiceNumber(),
+            // 'invoice_number' => $servicePayment->generateInvoiceNumber(),
             'payment_method' => $paymentMethod,
             // 'payment_proof' => $paymentProofPath,
             'status' => 'completed',
@@ -1539,12 +1539,12 @@ class Customer
             
             // Create payment record
             $servicePayment = new ServicePayment();
-            $invoice_number = $servicePayment->generateInvoiceNumber();
+            // $invoice_number = $servicePayment->generateInvoiceNumber();
             $paymentData = [
                 'service_id' => $serviceId,
                 'amount' => $total_amount,
                 'payment_date' => date('Y-m-d H:i:s'),
-                'invoice_number' => $invoice_number,
+                // 'invoice_number' => $invoice_number,
                 'created_at' => date('Y-m-d H:i:s')
             ];
             

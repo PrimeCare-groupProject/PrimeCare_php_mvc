@@ -20,7 +20,8 @@
         }
     }
 ?>
-<div class="user_view-menu-bar">
+
+<!-- <div class="user_view-menu-bar">
     <div class="gap"></div>
     <h2>Profile</h2>
     <div class="flex-bar">
@@ -35,76 +36,107 @@
             <span class="tooltip-text">Change password</span>
         </div>
     </div>
+</div> -->
+<!-- delete account -->
+<div class="tooltip-container" style="position: absolute; top: 210px; right: 1px; z-index:1;">
+    <form action="<?= ROOT ?>/resetPassword" method="post" style="display: inline;">
+        <input type="hidden" name="email_submission" value="1">
+        <input type="hidden" name="email" value="<?= esc($user->email) ?>">
+        <button type="submit" class="add-btn">
+            <i class="fa-solid fa-unlock-keyhole"></i>
+        </button>
+    </form>
+    <span class="tooltip-text">Change password</span>
 </div>
 
-<form id="profile-edit-form" class="profile-container lur-overlay" method="post" enctype="multipart/form-data">
-    <!-- Left side: Profile Picture and User Info -->
-    <div class="profile-details">
-        <!-- Hidden file input -->
-        <input type="file" id="profile_picture" class="input-file" name="profile_picture" style="display: none;" hidden>
-
-        <!-- Profile picture that will act as input -->
-        <img src="<?= get_img($user->image_url)?>" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
-
-        <!-- User details -->
-        <h2 class="profile-name"><?= $user->fname .' '. $user->lname ?></h2>
-        <p class="profile-role ">PID - <?= $user->pid ?></p>
+<form id="profile-edit-form" class="profile-banner-container" method="post" enctype="multipart/form-data" style="position: relative; width: 100%; overflow:hidden;">
+    <!-- profile banner -->
+    <div class="profile-banner">
+        <img src="<?= ROOT ?>/assets/images/ProfileBanner.jpg" style="width: calc(100% - 10px); object-fit: cover; height: 160px; background-color: #ddd; margin: 6px 5px; border-radius: 8px;" alt="">
+        <p class="input-label" style="position:absolute; top: 10px; right: 12px;"> NIC : <?= esc($user->nic) ?> </p>
     </div>
+    <div class="profile-banner" style="width: calc(100% - 10px); height: 61vh; background-color: #fff; margin: 6px 5px; border-radius: 8px;">
+        <p class="input-label" style="position:absolute; top: 10px; right: 12px;"> NIC : <?= esc($user->nic) ?> </p>
+    </div>
+    
 
-    <!-- Right side: Editable Form -->
-    <div class="profile-edit-form">
-        <div>
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label for="first-name" class="input-label">First name</label>
-                    <input type="text" id="first-name" name="fname" class="input-field" value="<?= esc($user->fname) ?>" disabled>
-                </div>
-                <div class="input-group-group">
-                    <label for="last-name" class="input-label">Last name</label>
-                    <input type="text" id="last-name" name="lname" class="input-field" value="<?= esc($user->lname) ?>" disabled>
-                </div>
-            </div>
-            <div class="input-group">
-                <div class="input-group-group">
-                    <label for="contact-number" class="input-label">Contact number</label>
-                    <input type="text" id="contact-number" class="input-field" name="contact" value="<?= esc($user->contact) ?>" disabled>
-                </div>
-                <div class="input-group-group">
-                    <label for="nic" class="input-label">NIC</label>
-                    <input type="text" id="nic" class="input-field" name="nic" value="<?= esc($user->nic) ?>" disabled>
-                </div>
-            </div>
-            <div class="input-group-group">
-                <label for="email" class="input-label">Email</label>
-                <input type="email" id="email" class="input-field" name="email" value="<?= esc($user->email) ?>" disabled>
-            </div>
-            <div class="input-group-aligned">
-                <button type="button" class="primary-btn" id="edit-button">Edit</button>
-                <button type="button" class="secondary-btn" id="cancel-button" style="display: none;">Cancel</button>
-                    
-                <button type="button" class="secondary-btn red" id="delete-button">Remove Account</button>
-                <button type="submit" class="primary-btn" id="save-button" style="display: none;">Save</button>
-            </div>
+    <div class="" style="display: flex; flex-direction: row;">
+        <!-- Left side: Profile Picture and User Info -->
+        <div class="profile-details" style="position: absolute; top: 5vh; left:0vw;">
+            <!-- Hidden file input -->
+            <input type="file" id="profile_picture" class="input-file" name="profile_picture" style="display: none;" hidden>
 
-            <h5 class="editText" id="editText" style="display: none;">click profile picture to edit !</h5>
-            <div class="errors" 
-                style="display: <?= !empty($_SESSION['errors']) || !empty($_SESSION['status']) ? 'block' : 'none'; ?>; 
-                        background-color: <?= !empty($errors) ? '#f8d7da' : (!empty($status) ? '#b5f9a2' : '#f8d7da'); ?>;">
-                <?php if (!empty($_SESSION['errors'])): ?>
-                    <p><?= $errors[0] ?? '' ?></p>
-                <?php elseif (!empty($_SESSION['status'])): ?>
-                    <p><?= $status ;  ?></p>
-                <?php endif; ?>
-            </div>
+            <!-- Profile picture that will act as input -->
+            <img src="<?= get_img($user->image_url)?>" alt="Profile Picture" class="profile-picture" id="profile-picture-preview">
 
+            <!-- User details -->
+            <h2 class="profile-name"><?= $user->fname .' '. $user->lname ?></h2>
+            <p class="profile-role">PID - <?= $user->pid ?></p>
         </div>
-        <?php if ($_SESSION['user']->AccountStatus == 2): ?>
-            <p class="status-message" style="text-align: right; margin-bottom:-20px; color: var(--primary-color);">Pending details change request</p>
-        <?php elseif ($_SESSION['user']->AccountStatus == -2): ?>
-            <p class="status-message" style="text-align: right; margin-bottom:-20px; color: var(--red-color);">Account removal ongoing</p>
-        <?php endif; ?>
+
+        <!-- Right side: Editable Form -->
+        <div class="profile-edit-form" style="position: absolute; left: 20vw; top: 160px;">
+            <div>
+                <div class="input-group">
+                    <div class="input-group-group">
+                        <label for="first-name" class="input-label">First name</label>
+                        <input type="text" id="first-name" name="fname" class="input-field" value="<?= esc($user->fname) ?>" disabled>
+                    </div>
+                    <div class="input-group-group">
+                        <label for="last-name" class="input-label">Last name</label>
+                        <input type="text" id="last-name" name="lname" class="input-field" value="<?= esc($user->lname) ?>" disabled>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-group-group">
+                        <label for="contact-number" class="input-label">Contact number</label>
+                        <input type="text" id="contact-number" class="input-field" name="contact" value="<?= esc($user->contact) ?>" disabled>
+                    </div>
+                    <div class="input-group-group">
+                        <label for="nic" class="input-label">NIC</label>
+                        <input type="text" id="nic" class="input-field" name="nic" value="<?= esc($user->nic) ?>" disabled>
+                    </div>
+                </div>
+                <div class="input-group-group">
+                    <label for="email" class="input-label">Email</label>
+                    <input type="email" id="email" class="input-field" name="email" value="<?= esc($user->email) ?>" disabled>
+                </div>
+
+                <?php if ($_SESSION['user']->AccountStatus == 2): ?>
+                    <p class="status-message" style="position: absolute; right: 40px; text-align: right; margin-bottom:-20px; color: var(--primary-color);">Pending details change request</p>
+                <?php elseif ($_SESSION['user']->AccountStatus == -2): ?>
+                    <p class="status-message" style="position: absolute; right: 40px; text-align: right; margin-bottom:-20px; color: var(--red-color);">Account removal ongoing</p>
+                <?php endif; ?>
+
+                <h5 class="editText" id="editText" style="position: absolute; left: 20vw; display: none;">click profile picture to edit !</h5>
+                <div class="errors" 
+                    style="display: <?= !empty($_SESSION['errors']) || !empty($_SESSION['status']) ? 'block' : 'none'; ?>; 
+                            background-color: <?= !empty($errors) ? '#f8d7da' : (!empty($status) ? '#b5f9a2' : '#f8d7da'); ?>;">
+                    <?php if (!empty($_SESSION['errors'])): ?>
+                        <p><?= $errors[0] ?? '' ?></p>
+                    <?php elseif (!empty($_SESSION['status'])): ?>
+                        <p><?= $status ;  ?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="input-group-aligned" style="margin-top: 18vh;">
+                    <button type="button" class="primary-btn" id="edit-button" onclick="() => {enableEditMode()}">Edit</button>
+                    <button type="button" class="secondary-btn" id="cancel-button" onclick="cancelEdit();" style="display: none;">Cancel</button>
+                    <button type="button" class="secondary-btn red" id="delete-button" onclick="showDeleteDialog();">Remove Account</button>
+                    <button type="submit" class="primary-btn" id="save-button" onclick="prepareFormSubmission();" style="display: none;">Save</button>
+                </div>
+
+
+            </div>
+            
+        </div>
     </div>
+    
 </form>
+
+<!-- <form id="profile-edit-form" class="profile-container lur-overlay" method="post" enctype="multipart/form-data">
+    
+</form> -->
+
 <form id="delete-account-form" method="post" >
     <input type="hidden" name="delete_account" value="1">
     <div class="dialog-container" style="display:none">
@@ -119,13 +151,14 @@
             </div>
         </div>
         <div class="input-group-aligned">
-            <button type="button" class="secondary-btn green" id="cancel-delete-button">No</button>
+            <button type="button" class="secondary-btn green" id="cancel-delete-button" onclick="hideDeleteDialog();">No</button>
             <button type="submit" class="secondary-btn red">Delete</button>
         </div>
     </div>
 </form>
+
+
 <script>
-    // Logic for enabling fields on "Edit", handling "Save" and "Cancel"
 
     const editButton = document.getElementById('edit-button');
     const saveButton = document.getElementById('save-button');
@@ -247,14 +280,13 @@
     });
 
 </script>
-
 <?php 
 // Display the uploaded file's name
 // if (isset($_FILES['profile_picture'])) {
     // show($_FILES['profile_picture'] ?? "null");
     // show( $_POST );
     // show( $user );
-    show( $_SESSION);
+    // show( $_SESSION);
 // }
 // show(get_img($user->image_url));
 ?>

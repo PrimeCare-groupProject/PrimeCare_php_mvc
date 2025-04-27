@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/login.css">
     <link rel="icon" href="<?= ROOT ?>/assets/images/p.png" type="image">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/flash_messages.css">
+    <link rel="stylesheet" href="<?= ROOT ?>/assets/css/loader.css">
 
     <title>PrimeCare</title>
 </head>
@@ -19,7 +20,9 @@
     ?>
     <div class="login-container">
         <div class="login-form">
-            <img class="login-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
+            <a href="/php_mvc_backend/public/home">
+                <img class="signup-form__logo" src="<?= ROOT ?>/assets/images/logo.png" alt="Property Management Agency Logo">
+            </a>
             <div class="login-form__welcome-text">
                 <h4><?php 
                     if(!isset($confirmed)){
@@ -89,4 +92,6 @@
     });
 
 </script>
+<script src="<?= ROOT ?>/assets/js/loader.js"></script>
+
 </html>

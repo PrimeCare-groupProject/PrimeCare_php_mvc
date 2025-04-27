@@ -281,11 +281,49 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadedFilesContainer.innerHTML = '';
         
         if (this.files.length > 0) {
+            // Validate file types first
+            const validFiles = [];
+            const invalidFiles = [];
+            
+            for (let i = 0; i < this.files.length; i++) {
+                const file = this.files[i];
+                // Check if file is a valid image type
+                if (file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png') {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
+            }
+            
+            // Show error message if invalid files were detected
+            if (invalidFiles.length > 0) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'upload-error-message';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Invalid file type(s): ${invalidFiles.join(', ')}<br>Only JPG, JPEG, and PNG files are allowed.`;
+                uploadedFilesContainer.appendChild(errorDiv);
+                
+                // If no valid files, clear file input and return
+                if (validFiles.length === 0) {
+                    fileInput.value = ''; // Clear the file input
+                    return;
+                }
+            }
+            
+            // Update selectedFiles with only valid files
+            selectedFiles = validFiles;
+            
+            // Create a new DataTransfer object to update file input with only valid files
+            const dataTransfer = new DataTransfer();
+            validFiles.forEach(file => {
+                dataTransfer.items.add(file);
+            });
+            fileInput.files = dataTransfer.files;
+            
             // Show progress container
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
             percentageText.textContent = '0%';
-            
+
             // Track files
             selectedFiles = Array.from(this.files);
             
@@ -311,8 +349,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
             
             // Process each file
-            for (let i = 0; i < this.files.length; i++) {
-                const file = this.files[i];
+            for (let i = 0; i < validFiles.length; i++) {
+                const file = validFiles[i];
                 createFilePreview(file, i);
             }
         }
@@ -447,10 +485,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
     
-    // Drag and drop functionality
+    // Drag and drop functionality 
     uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
-        this.style.backgroundColor = '#fef9e7'; 
+        this.style.backgroundColor = '#fef9e7';
         this.style.borderColor = '#f1c40f';     
     });
 
@@ -465,8 +503,8 @@ document.addEventListener('DOMContentLoaded', function() {
         this.style.backgroundColor = '';
         this.style.borderColor = '';
         
-        // Trigger file input change with the dropped files
-        fileInput.files = e.dataTransfer.files;
+        // Update file input with only valid files
+        fileInput.files = dataTransfer.files;
         
         // Manually trigger change event
         const event = new Event('change');
@@ -580,8 +618,39 @@ uploadArea.addEventListener('drop', function(e) {
     uploadArea.style.backgroundColor = '';
     uploadArea.style.borderColor = '';
     
-    // Trigger file input change with the dropped files
-    fileInput.files = e.dataTransfer.files;
+    const droppedFiles = e.dataTransfer.files;
+    
+    // Validate file types
+    const validFiles = [];
+    const invalidFiles = [];
+    
+    for (let i = 0; i < droppedFiles.length; i++) {
+        const file = droppedFiles[i];
+        if (file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png') {
+            validFiles.push(file);
+        } else {
+            invalidFiles.push(file.name);
+        }
+    }
+    
+    // If all files are invalid, show error and return
+    if (validFiles.length === 0 && invalidFiles.length > 0) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'upload-error-message';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Invalid file type(s): ${invalidFiles.join(', ')}<br>Only JPG, JPEG, and PNG files are allowed.`;
+        uploadedFilesContainer.innerHTML = ''; // Clear existing content
+        uploadedFilesContainer.appendChild(errorDiv);
+        return;
+    }
+    
+    // Create a new DataTransfer object to update file input with only valid files
+    const dataTransfer = new DataTransfer();
+    validFiles.forEach(file => {
+        dataTransfer.items.add(file);
+    });
+    
+    // Update file input with only valid files
+    fileInput.files = dataTransfer.files;
     
     // Manually trigger change event
     const event = new Event('change');
@@ -649,11 +718,30 @@ document.getElementById('logForm').addEventListener('submit', function(event) {
         return false;
     }
     
-    // Let the form submit naturally - no need to add hidden inputs
+    // Validate file types
+    const fileInput = document.getElementById('property_image');
+    if (fileInput.files.length > 0) {
+        const invalidFiles = [];
+        
+        // Check each file for valid type
+        for (let i = 0; i < fileInput.files.length; i++) {
+            const file = fileInput.files[i];
+            if (!(file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png')) {
+                invalidFiles.push(file.name);
+            }
+        }
+        
+        // Show error if invalid files are found
+        if (invalidFiles.length > 0) {
+            alert('Invalid file type(s): ' + invalidFiles.join(', ') + '\nOnly JPG, JPEG, and PNG files are allowed.');
+            event.preventDefault();
+            return false;
+        }
+    }
+    
     // The clicked button will include its own name/value in the form data
 });
 
-// Add this to your existing JavaScript
 function saveChanges() {
     // Update the hidden input with final list of images to remove
     document.getElementById('images-to-remove-input').value = Array.from(imagesToRemove).join(',');
@@ -701,6 +789,25 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+
+.upload-error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border-left: 4px solid #e74c3c;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+}
+
+.upload-error-message i {
+    color: #e74c3c;
+    font-size: 18px;
+}
 /* Error message styling */
 .error-message {
     background-color: #f8d7da;
@@ -1164,7 +1271,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .save-tbtn:hover {
     background-color: #f39c12;
     color: white;
-}
+    }
 
 .earnings-display {
     position: relative;
@@ -1517,6 +1624,232 @@ document.addEventListener('DOMContentLoaded', function() {
     transform: scale(1.1);
     background: rgba(192, 57, 43, 0.95);
 }
-</style>
+
+/* Add these styles for image removal functionality */
+.remove-image-btn {
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid #e74c3c !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    z-index: 100 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+
+.remove-image-btn i {
+    color: #e74c3c !important;
+    font-size: 14px !important;
+}
+
+.marked-for-removal {
+    border: 2px solid #e74c3c;
+    opacity: 0.6;
+}
+
+.marked-for-removal img {
+    filter: grayscale(50%);
+}
+
+.selected-images-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.remove-selected-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.remove-selected-btn:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+
+.remove-selected-btn:disabled {
+    background-color: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* New styles for uploaded images display */
+.uploaded-file-preview {
+    display: flex;
+    flex-direction: column; /* Changed to column layout */
+    padding: 15px;
+    margin-bottom: 12px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    border-top: 3px solid #f1c40f; /* Changed from border-left to border-top */
+    position: relative;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s forwards;
+    width: 100%;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.preview-image-container {
+    width: 100%;
+    height: 180px; /* Make image taller */
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 0;
+    margin-bottom: 12px; /* Add margin below image */
+    flex-shrink: 0;
+    background-color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.file-icon {
+    font-size: 32px;
+    color: #666;
+}
+
+.file-info {
+    display: flex;
+    justify-content: space-between; /* Put filename and size side by side */
+    width: 100%;
+    padding-top: 8px;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 40px);
+}
+
+.file-size {
+    color: #777;
+    font-size: 12px;
+}
+
+.remove-upload-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px; /* Position at top instead of middle */
+    transform: none; /* Remove the Y translation */
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.8;
+    transition: all 0.2s;
+}
+
+.remove-upload-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: #c0392b;
+}
+
+.file-removing {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.3s ease;
+}
+
+.existing-images-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+@media (max-width: 992px) {
+    .existing-images-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 items per row on smaller screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .existing-images-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 items per row on mobile */
+    }
+}
+
+.existing-image {
+    position: relative !important;
+    height: 150px !important; /* Increased height for better visibility */
+    width: 100% !important; /* Take full width */
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
+    border: 2px solid transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+.existing-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.existing-image:hover img {
+    transform: scale(1.05);
+}
+
+.existing-image button {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(231, 76, 60, 0.85);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 10;
+}
+
+.existing-image:hover button {
+    opacity: 1;
+}
+
+.existing-image button:hover {
+    transform: scale(1.1);
+    background: rgba(192, 57, 43, 0.95);
+}
+yle>
 
 <?php require 'serviceproviderFooter.view.php' ?>

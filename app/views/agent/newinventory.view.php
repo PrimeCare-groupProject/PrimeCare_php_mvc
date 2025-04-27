@@ -50,11 +50,16 @@
             <label class="input-label">Seller Address:</label>
             <input type="text" name="seller_address" placeholder="Enter the Seller Address" class="input-field" required>
 
-            <label class="input-label">Property ID:</label>
-            <input type="text" name="property_id" placeholder="Enter the Property ID" class="input-field" required>
-
             <label class="input-label">Property Name:</label>
-            <input type="text" name="property_name" placeholder="Enter the Property Name" class="input-field" required>
+            <select name="property_name" id="property_name" class="input-field" onchange="updatePropertyId()" required>
+                <option value="" disabled selected>Select Property</option>
+                <?php foreach ($properties as $property): ?>
+                    <option value="<?= $property->property_id ?>"><?= $property->name ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <label class="input-label">Property ID:</label>
+            <input type="text" name="property_id" id="property_id" placeholder="Property ID" class="input-field" readonly required>
 
             <div class="buttons-to-right">
                 <button type="submit" class="primary-btn">Submit</button>
@@ -71,6 +76,14 @@
 <?php endif; ?>
 
 <script>
+
+    // Function to update the Property ID field based on the selected Property Name
+    function updatePropertyId() {
+        const propertyDropdown = document.getElementById('property_name');
+        const propertyIdField = document.getElementById('property_id');
+        propertyIdField.value = propertyDropdown.value; // Set the property ID to the selected value
+    }
+
     function previewImages(event) {
         const files = event.target.files;
         const container = document.getElementById('image-preview-container');

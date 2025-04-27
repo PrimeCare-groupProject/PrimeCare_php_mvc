@@ -14,16 +14,17 @@
             <input type="hidden" name="service_id" value="<?=  $tasks->service_id ?>">
 
             <label class="input-label">Service Type</label>
-            <input type="text" name="service_type" value="<?= $tasks->service_type?>" class="input-field" required>
+            <select name="service_type" class="input-field" required>
+                <option value="" disabled>Select Service Type</option>
+                <?php foreach ($services as $service): ?>
+                    <option value="<?= $service->service_type ?>" <?= $service->name == $tasks->service_type ? 'selected' : '' ?>>
+                        <?= $service->name ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
             <label class="input-label">Date</label>
             <input type="text" name="date" value="<?= $tasks->date ?>" class="input-field" required>
-            
-            <label class="input-label">Property ID</label>
-            <input type="text" name="propertyID" value="<?= $tasks->property_id ?>" class="input-field" required>
-            
-            <label class="input-label">Property Name</label>
-            <input type="text" name="property_name" value="<?= $tasks->property_name ?>" class="input-field" required>
             
             <label class="input-label">Cost Per Hour (LKR)</label>
             <input type="text" name="cost_per_hour" value="<?= $tasks->cost_per_hour ?>" class="input-field" required>
@@ -31,10 +32,11 @@
             <label class="input-label">Total Hours</label>
             <input type="text" name="total_hours" value="<?= $tasks->total_hours ?>" class="input-field" required>
 
-        </div>
-        <div class="owner-addProp-form-right">
             <label class="input-label">Status</label>
             <input type="text" name="status" value="<?= $tasks->status ?>" class="input-field" required>
+        </div>
+        <div class="owner-addProp-form-right">
+            
 
             <label class="input-label">Service Provider Id</label>
             <input type="text" name="service_provider_id" value="<?= $tasks->service_provider_id ?>" class="input-field" required>
@@ -60,6 +62,21 @@
 <?php endif; ?>
 
 <script>
+
+    function updatePropertyId() {
+        const propertyDropdown = document.getElementById('property_name');
+        const propertyIdField = document.getElementById('property_id');
+        console.log("Selected Property ID:", propertyDropdown.value); // Debugging log
+        propertyIdField.value = propertyDropdown.value; // Set the property ID to the selected value
+    }
+
+    // Function to update the Property ID field based on the selected Property Name
+    function updatePropertyId() {
+        const propertyDropdown = document.getElementById('property_name');
+        const propertyIdField = document.getElementById('property_id');
+        propertyIdField.value = propertyDropdown.value; // Set the property ID to the selected value
+    }
+    
     function previewNewImage(event) {
         const currentImage = document.getElementById('current-service-image'); // Reference to the current image element
 

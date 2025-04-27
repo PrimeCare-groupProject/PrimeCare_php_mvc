@@ -540,8 +540,10 @@ class Agent
                         // Convert ongoing_count to array if false (no services)
                         $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
 
-                        // Add provider if they have less than 4 ongoing services
-                        if (count($ongoing_count) < 4) {
+                        
+                        // Add provider if they have less than or equal to 4 ongoing services
+                        if (count($ongoing_count) <= 4) {
+
                             $filtered_providers[] = $provider;
                         }
                     }
@@ -712,7 +714,7 @@ class Agent
     {
         switch ($b) {
             case 'newtask':
-                $this->newTask();
+                $this->newTask($c,$d);
                 break;
             case 'delete':
                 $service_id = (int)$c;
@@ -724,21 +726,26 @@ class Agent
                 $this->editTasks($c, $d);
                 break;
             default:
-                $service = new ServiceLog;
-                $services = new Services;
-                $tasks = $services->selecttwotables(
-                    $service->table,
-                    'service_id',
-                    'services_id',
-                );
+                $task = new ServiceLog;
+                $tasks = $task->findAll();
                 $this->view('agent/tasks', ['tasks' => $tasks]);
                 break;
         }
     }
 
-    public function newTask()
+    public function newTask($c,$d)
     {
-        $this->view('agent/newtask');
+        $property = new agentAssignment;
+        $pro = new Property();
+        $properties = $property ->selecttwotables($pro->table,
+                                                'property_id',
+                                                'property_id',);    
+        $serpro1 = new User();
+        $serpro = $serpro1->where(['user_lvl' => 2]);
+        $service = new Services();
+        $services = $service->findAll();
+        //show($serpro);
+        $this->view('agent/newtask', ['properties' => $properties,'services' => $services,'serpro' => $serpro]);
     }
 
     public function editTasks($c, $d)
@@ -746,7 +753,10 @@ class Agent
         $service_id = $c;
         $task = new ServiceLog;
         $tasks = $task->where(['service_id' => $service_id])[0];
-        $this->view('agent/edittasks', ['tasks' => $tasks]);
+        $service = new Services;
+        $services = $service->findAll();
+
+        $this->view('agent/edittasks', ['tasks' => $tasks,'services' => $services]);
     }
 
     public function taskRemoval()
@@ -1324,7 +1334,12 @@ class Agent
 
     public function newinventory()
     {
-        $this->view('agent/newinventory');
+        $property = new agentAssignment;
+        $pro = new Property();
+        $properties = $property ->selecttwotables($pro->table,
+                                                'property_id',
+                                                'property_id',);
+        $this->view('agent/newinventory', ['properties' => $properties]);
     }
 
     public function editinventory($c)

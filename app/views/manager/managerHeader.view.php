@@ -55,7 +55,7 @@
             <div class="user_view-sidemenu">
                 <ul>
                     <li><a href="<?= ROOT ?>/dashboard"><button class="btn"> <i class="fa-solid fa-gauge"></i> Dashboard</button></a></li>
-                    <li><a href="<?= ROOT ?>/dashboard/managementhome/employeemanagement"><button class="btn"><i class="fa-solid fa-user-tie"></i>Profile</button></a></li>
+                    <li><a href="<?= ROOT ?>/dashboard/managementhome/employeemanagement"><button class="btn"><i class="fa-solid fa-user-tie"></i>Employees</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/managementhome/propertymanagement"><button class="btn"><i class="fa-solid fa-building"></i>Property</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/managementhome/employeeListing"><button class="btn"><i class="fa-solid fa-coins"></i>Salary</button></a></li>
                     <li><a href="<?= ROOT ?>/dashboard/managementhome/agentmanagement"><button class="btn"><i class="fa-solid fa-users"></i>Agent</button></a></li>
