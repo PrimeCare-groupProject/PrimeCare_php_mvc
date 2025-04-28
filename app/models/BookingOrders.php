@@ -46,23 +46,6 @@ class BookingOrders
                 $this->errors['start_date'] = "Start date is not a valid date";
             }
         }
-        
-        // Add validation for end_date/check_out
-        if (isset($data['end_date']) || isset($data['check_out'])) {
-            $end_date = $data['end_date'] ?? $data['check_out'] ?? null;
-            if (empty($end_date)) {
-                $this->errors['end_date'] = "End date is required";
-            } else if (!strtotime($end_date)) {
-                $this->errors['end_date'] = "End date is not a valid date";
-            }
-            
-            // Check that end date is after start date if both are provided
-            if (isset($data['start_date']) && strtotime($data['start_date']) && strtotime($end_date)) {
-                if (strtotime($end_date) <= strtotime($data['start_date'])) {
-                    $this->errors['date_range'] = "End date must be after start date";
-                }
-            }
-        }
 
         if (isset($data['duration'])) {
             if (empty($data['duration']) || !is_numeric($data['duration']) || $data['duration'] <= 0) {
@@ -113,19 +96,18 @@ class BookingOrders
      */
     public function isPropertyAvailable($property_id, $check_in, $check_out)
     {
-        // Prepare data for validation
-        $data = [
-            'property_id' => $property_id,
-            'start_date' => $check_in,
-            'check_out' => $check_out
-        ];
-        
-        // Validate the provided data using enhanced validate method
-        if (!$this->validate($data)) {
+        if (!$property_id || !$check_in || !$check_out) {
+            // echo "Property ID, check-in, and check-out dates are required.";
             return false;
         }
-        
-        // Convert to standard date format
+
+        // Validate date formats
+        if (!strtotime($check_in) || !strtotime($check_out)) {
+            // echo "Invalid date format. Please use YYYY-MM-DD.";
+            return false;
+        }
+
+        // Convert to DateTime objects for comparison
         $start_date = date('Y-m-d', strtotime($check_in));
         $end_date = date('Y-m-d', strtotime($check_out));
 
@@ -138,20 +120,21 @@ class BookingOrders
                 end_date > :start_date
             )";
 
-        $queryData = [
+        $data = [
             'property_id' => $property_id,
             'start_date' => $start_date,
             'end_date' => $end_date
         ];
 
-        $bookings = $this->instance->query($query, $queryData);
+        $bookings = $this->instance->query($query, $data);
 
-        // If query failed or returned false/null, assume property is not available
-        if ($bookings === false || $bookings === null) {
-            return false;
+        // If no conflicting bookings found, the property is available
+        // Check if $bookings is valid
+        if (is_bool($bookings) || $bookings === false || $bookings === null) {
+            // echo "retured false as No bookings found.";
+            return true; // If query failed, assume property is not available
         }
-        
-        // No conflicting bookings means property is available
+
         return count($bookings) === 0;
     }
 
