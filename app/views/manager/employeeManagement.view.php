@@ -6,6 +6,19 @@
     </a>
     <h2>Profile Management </h2>
     <div class="flex-bar">
+        <form class="search-container" method="GET" >
+            <input 
+                type="text" 
+                class="search-input" 
+                name="maxAge" 
+                value="<?= isset($_GET['maxAge']) ? esc($_GET['maxAge']) : "" ?>" 
+                placeholder="Max age ..."
+            >
+            
+            <button class="search-btn" type="submit">
+                <img src="<?= ROOT ?>/assets/images/search.png" alt="Search Icon" class="small-icons">
+            </button>
+        </form>
         <form class="search-container" method="GET">
             <input 
                 type="text" 
@@ -31,6 +44,7 @@
                         <th style='max-width: 20%;'>Name</th>
                         <th style='max-width: 30%;'>Email</th>
                         <th style='max-width: 60px'>NIC</th>
+                        <th style='max-width: 20px'>Age</th>
                         <th style='min-width: 60px;' class="sortable" id="user-type-header">
                             User Type
                             <img src="<?= ROOT ?>/assets/images/sort.png" alt="sort">
@@ -52,6 +66,7 @@
                             echo "<td><input type='text' name='name' value='{$user->fname} {$user->lname}' disabled></td>";
                             echo "<td><input type='email' name='email' value='{$user->email}' disabled></td>";
                             echo "<td><input type='text' name='nic' value='{$user->nic}' disabled></td>";
+                            echo "<td><input type='text' name='age' value='{$user->age}' disabled></td>";
                             echo '<td><button class=" ';
                             switch ($user->user_lvl) {
                                 case 4: echo 'manager_button">Manager'; break;
@@ -147,24 +162,22 @@
 </div>
 
 <script>
-    // Form elements
     const searchUserForm = document.getElementById('searchUserForm');
     const formContainer = document.getElementById('formContainer');
     const findUserForm = document.getElementById('find-user');
     const loaderContainer = document.querySelector('.loader-container');
 
-    // Popup form fields
     const popupId = document.getElementById('popup-id');
     const popupFname = document.getElementById('popup-fname');
     const popupLname = document.getElementById('popup-lname');
     const popupEmail = document.getElementById('popup-email');
     const popupNic = document.getElementById('popup-nic');
+    const popupAge = document.getElementById('popup-age');
     const popupProfilePic = document.getElementById('popup-profile-pic');
     const popupStatus = document.getElementById('popup-status');
     const popupResetCode = document.getElementById('popup-reset-code');
     const popupContact = document.getElementById('popup-contact');
 
-    // Buttons
     const blockBtn = document.getElementById('block-btn');
     const unblockBtn = document.getElementById('unblock-btn');
     const editBtn = document.getElementById('edit-btn');
@@ -178,17 +191,15 @@
 
     function showUserDetailBox(row) {
         const cells = row.querySelectorAll('td');
+        console.log(cells);
         
-        // Get values from table cells
         popupId.value = cells[0].querySelector('input').value;
         
-        // Split name into first and last name
         const fullName = cells[1].querySelector('input').value;
         const names = fullName.split(' ');
         popupFname.value = names[0];
         popupLname.value = names[1] || '';
         
-        // Get other values
         popupEmail.value = cells[2].querySelector('input').value;
         popupNic.value = cells[3].querySelector('input').value;
         popupProfilePic.src = cells[5].querySelector('img').src;
@@ -197,7 +208,6 @@
         popupResetCode.value = cells[7].querySelector('input').value;
         popupContact.value = cells[8].querySelector('input').value;
         
-        // Show form and blur background
         searchUserForm.style.display = 'block';
         formContainer.classList.add('blurred-background');
         
@@ -233,7 +243,6 @@
     }
 
     function makeEditable() {
-        // Save initial data
         initialData = {
             pid: popupId.value,
             fname: popupFname.value,
@@ -245,14 +254,12 @@
             contact: popupContact.value
         };
 
-        // Enable editing
         document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
             if (field.id !== 'popup-id' && field.id !== 'popup-status') {
                 field.disabled = false;
             }
         });
 
-        // Toggle buttons
         const accountStatus = popupStatus.value;
 
         editBtn.style.display = 'none';
@@ -273,7 +280,6 @@
     }
 
     function cancelChanges() {
-        // Restore initial values
         popupId.value = initialData.pid;
         popupFname.value = initialData.fname;
         popupLname.value = initialData.lname;
@@ -283,7 +289,6 @@
         popupResetCode.value = initialData.resetCode;
         popupContact.value = initialData.contact;
 
-        // Disable editing
         document.querySelectorAll('#searchUserForm .input-field').forEach(field => {
             field.disabled = true;
         });
@@ -396,7 +401,6 @@
         }
     }
 
-    // Sorting functions
     function sortTableByDate(isAscending) {
         const rows = Array.from(document.querySelectorAll('.listing-table-for-customer-payments tbody tr'));
         rows.sort((a, b) => {
@@ -423,7 +427,6 @@
         loaderContainer.style.display = '';
     }
 
-    // Event Listeners
     document.getElementById('date-header').addEventListener('click', () => {
         sortTableByDate(isDateAscending);
         isDateAscending = !isDateAscending;

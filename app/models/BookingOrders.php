@@ -10,6 +10,7 @@ class BookingOrders
         'person_id',
         'agent_id',
         'start_date',
+        'end_date',
         'duration',
         'rental_period',
         'rental_price',

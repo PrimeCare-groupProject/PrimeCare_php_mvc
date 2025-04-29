@@ -8,19 +8,16 @@ class Login {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = new User;
 
-            // Validate and sanitize user input
             $email = trim($_POST['email'] ?? '');
             $password = trim($_POST['password'] ?? '');
 
             if (empty($email) || empty($password)) {
                 $_SESSION['flash']['msg'] = 'Email and password are required.';
                 $_SESSION['flash']['type'] = 'error';
-                // $user->errors['auth'] = 'Email and password are required.';
                 $this->view('login', ['user' => $user]);
                 return;
             }
 
-            // Fetch the user from the database
             $result = $user->first(['email' => $email], []);
 
             if ($result) {
@@ -96,21 +93,17 @@ class Login {
                     // $user->errors['auth'] = 'Invalid email or password.';
                 }
             } else {
-                // User not found
                 $_SESSION['flash'] = [
                     'msg' => "Invalid credentials.",
                     'type' => "error"
                 ];
-                // $user->errors['auth'] = 'Invalid credentials.';
             }
 
-            // Display login page with errors
             $this->view('login', ['user' => $user]);
         } else {
-            // Display login page
             if (isset($_SESSION['success'])) {
                 $this->view('login', ['success' => $_SESSION['success']]);
-                unset($_SESSION['success']); // Clear the success message
+                unset($_SESSION['success']); 
             } else {
                 $this->view('login');
             }

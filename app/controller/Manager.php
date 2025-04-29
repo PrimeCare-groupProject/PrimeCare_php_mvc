@@ -1,4 +1,3 @@
-<!-- ManagerDashboard -->
 <?php
 defined('ROOTPATH') or exit('Access denied');
 
@@ -63,12 +62,10 @@ class Manager
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            // Validate and sanitize personal details
             $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
             if (!$email) {
                 $_SESSION['flash']['msg'] = "Invalid email format.";
                 $_SESSION['flash']['type'] = "error";
-                // $errors['email'] = "Invalid email format.";
             }
 
             $contact = esc($_POST['contact'] ?? null);
@@ -76,26 +73,22 @@ class Manager
             $lname = esc($_POST['lname'] ?? null);
             $nic = esc($_POST['nic'] ?? null);
 
-            // echo "checking if user exist <br>";
             $resultUser = $user->first(['email' => $email], []);
             $nicUser = $user->first(['nic' => $nic], []);
 
             if (($resultUser && !empty($resultUser->email)) || $nicUser && !empty($nicUser->email)) {
-                //update user class errors
                 $_SESSION['flash']['msg'] = "Email or NIC already exists.";
                 $_SESSION['flash']['type'] = "error";
-                // $errors['email'] = 'Email or NIC already exists';
                 $this->view('manager/addAgent', [
                     'user' => $resultUser,
                     'errors' => $errors,
                     'message' => ''
-                ]); // Re-render signup view with error
+                ]); 
 
-                unset($errors['email']); // Clear the error after displaying it
-                return; // Exit if email exists
+                unset($errors['email']); 
+                return; 
             }
-            //generatepassword
-            $password = bin2hex(random_bytes(4)); // Generates an 8-character password
+            $password = bin2hex(random_bytes(4)); 
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
             $personalDetails = [
@@ -104,34 +97,27 @@ class Manager
                 'lname' => $lname,
                 'email' => $email,
                 'contact' => $contact,
-                'password' => $password, // Hash the password before saving
+                'password' => $password, 
                 'confirmPassword' => $password,
                 'user_lvl' => 3,
                 'username' => $this->generateUsername($_POST['fname']),
             ];
-            // echo "validating user details<br>";
 
-            // Validate the form data
             if (!$user->validate($personalDetails)) {
-                // show($user->errors);
-                // echo "if2";
                 $_SESSION['flash']['msg'] = is_array($user->errors) ? implode("\n", $user->errors) : (string)$user->errors;
                 $_SESSION['flash']['type'] = "error";
                 $this->view('manager/addAgent', [
                     'user' => $resultUser,
-                    // 'errors' => $user->errors, 
                     'message' => ''
-                ]); // Re-render signup view with errors
+                ]); 
 
-                unset($user->errors); // Clear the error after displaying it
-                return; // Exit if validation fails
+                unset($user->errors); 
+                return; 
             }
-            // echo "user details validated:<br>";
 
             unset($personalDetails['confirmPassword']);
 
 
-            // Validate and sanitize location details
             if (!$location->validateLocation($_POST)) {
                 $_SESSION['flash']['msg'] = is_array($location->errors) ? implode("\n", $location->errors) : (string)$location->errors;
                 $_SESSION['flash']['type'] = "error";
@@ -139,54 +125,45 @@ class Manager
                     'user' => $resultUser,
                     'errors' => $errors,
                     'message' => ''
-                ]); // Re-render signup view with errors
+                ]); 
 
-                unset($location->errors); // Clear the error after displaying it
-                return; // Exit if validation fails
+                unset($location->errors); 
+                return; 
             }
 
 
-            $personalDetails['password'] = $hashedPassword; //set hashed password
-            // echo "inserting user details<br>";
-            // show($personalDetails);
+            $personalDetails['password'] = $hashedPassword; 
 
             $userStatus = $user->insert($personalDetails);
 
             if (!$userStatus) {
-                // echo "user details insertion failed<br>"; 
                 $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
                 $_SESSION['flash']['type'] = "error";
-                // $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('manager/addAgent', [
                     'user' => $resultUser,
                     'errors' => $errors,
                     'message' => ''
                 ]);
 
-                unset($errors['auth']); // Clear the error after displaying it
+                unset($errors['auth']); 
                 return;
             } else {
-                // echo "user details inserted<br>"; 
 
             }
 
-            // Validate and sanitize bank details
             $cardName = esc($_POST['cardName'] ?? null);
             $accountNo = esc($_POST['accountNo'] ?? null);
             $branch = esc($_POST['branch'] ?? null);
             $bankName = esc($_POST['bankName'] ?? null);
 
-            //location data
             $province = esc($_POST['province'] ?? null);
             $district = esc($_POST['district'] ?? null);
             $city = esc($_POST['city'] ?? null);
             $address = esc($_POST['address'] ?? null);
 
-            // echo "Inside if bank details<br>";
             if (empty($user->errors) && $userStatus) {
                 $userDetails = $user->where(['email' => $email]);
                 $userId = $userDetails[0]->pid;
-                // var_dump($userId);
                 if ($userStatus) {
 
                     if ($userId) {
@@ -201,7 +178,7 @@ class Manager
                         if (!$locationStatus) {
                             $_SESSION['flash']['msg'] = "Failed to save location details. Please try again.";
                             $_SESSION['flash']['type'] = "error";
-                            $user->delete($userId, 'pid'); // Rollback user creation
+                            $user->delete($userId, 'pid'); 
                             $this->view('manager/addAgent', [
                                 'errors' => $errors,
                                 'message' => ''
@@ -210,23 +187,19 @@ class Manager
                         }
                     }
 
-                    //check if payment details already exist
                     $paymentDetails = $payment_details->first(['pid' => $userId, 'account_no' => $accountNo]);
-                    // echo "checking if payment details exist<br>";
                     if ($paymentDetails) {
                         $user->delete($personalDetails['pid'], 'pid');
                         $_SESSION['flash']['msg'] = "Payment details already exist for this account number.";
                         $_SESSION['flash']['type'] = "error";
-                        // $errors['payment'] = "Payment details already exist for this account number.";
                         $this->view('manager/addAgent', [
                             'user' => $resultUser,
                             'errors' => $errors,
                             'message' => ''
-                        ]); // Re-render signup view with error
-                        unset($errors['payment']); // Clear the error after displaying it
-                        return; // Exit if payment details already exist
+                        ]); 
+                        unset($errors['payment']); 
+                        return; 
                     }
-                    // Save payment details
 
                     $paymentDetailStatus = $payment_details->insert([
                         'card_name' => $cardName,
@@ -236,11 +209,7 @@ class Manager
                         'pid' => $userId,
                     ]);
 
-                    // show($paymentDetailStatus);
-                    // echo "payment details inserted<br>";
-
                     if ($paymentDetailStatus) {
-                        // echo "payment done, now sending mail<br>";
                         $status = sendMail(
                             $email,
                             'Primecare Agent Registration',
@@ -260,19 +229,16 @@ class Manager
                             $message = "Agent added successfully!. Password has been sent to email";
                             $_SESSION['flash']['msg'] = $message;
                             $_SESSION['flash']['type'] = "success";
-                            // echo "mail sent<br>";
                         } else {
                             $message = "Agent added successfully!. Failed to send email. Contact Agent at {$contact}";
                             $_SESSION['flash']['msg'] = $message;
                             $_SESSION['flash']['type'] = "success";
-                            // echo "mail could not be sent<br>";
                         }
                     } else {
                         $message = "Failed to add Agent Payement Details. Please try again.";
                         $_SESSION['flash']['msg'] = $message;
                         $_SESSION['flash']['type'] = "error";
                         $user->delete($personalDetails['pid'], 'pid');
-                        // echo "payment details insertion failed<br>";
                     }
 
                     $this->view('manager/addAgent', [
@@ -291,7 +257,7 @@ class Manager
                         'message' => ''
                     ]);
 
-                    unset($errors['auth']); // Clear the error after displaying it
+                    unset($errors['auth']); 
                     return;
                 }
             }
@@ -305,7 +271,7 @@ class Manager
                 'message' => ''
             ]);
 
-            unset($errors['auth']); // Clear the error after displaying it
+            unset($errors['auth']); 
             return;
         }
 
@@ -328,14 +294,12 @@ class Manager
             if (isset($_POST['delete_account'])) {
                 $errors = [];
                 $status = '';
-                //AccountStatus
-                $userId = $_SESSION['user']->pid; // Replace with actual user ID from session
+                $userId = $_SESSION['user']->pid;
 
                 $_SESSION['flash']['msg'] = "Managers are not allowed to delete Accounts.";
                 $_SESSION['flash']['type'] = "error";
 
 
-                // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
                 redirect('dashboard/profile');
                 exit;
@@ -343,7 +307,6 @@ class Manager
                 $this->logout();
             }
             $this->handleProfileSubmission();
-            // return;
         }
         $this->view('profile', [
             'user' => $_SESSION['user'],
@@ -351,7 +314,6 @@ class Manager
             'status' => $_SESSION['status'] ?? ''
         ]);
 
-        // Clear session data after rendering the view
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
         return;
@@ -628,20 +590,17 @@ class Manager
         $salaryPaymentModel = new SalaryPayment();
         $ledgerModel = new Ledger();
 
-        // Fetch all necessary payment data
         $rentalPayments = $rentalPaymentModel->findAll() ?: [];
         $sharePayments = $sharePaymentModel->findAll() ?: [];
         $servicePayments = $servicePaymentModel->findAll() ?: [];
         $salaryPayments = $salaryPaymentModel->findAll() ?: [];
         $ledger = $ledgerModel->findAll() ?: [];
 
-        // Pre-calculate totals
         $totalRentalPayments = array_sum(array_column($rentalPayments, 'amount'));
         $totalSharePayments = array_sum(array_column($sharePayments, 'amount'));
         $totalServicePayments = array_sum(array_column($servicePayments, 'amount'));
         $totalSalaryPayments = array_sum(array_column($salaryPayments, 'salary_amount'));
 
-        // Calculate total advance and full payments separately
         $advancePayments = $sharePaymentModel->where(['payment_type' => 'advance']);
         $fullPayments = $sharePaymentModel->where(['payment_type' => 'full']);
 
@@ -802,11 +761,9 @@ class Manager
         $salaryPaymentModel = new SalaryPayment();
         $ledgerModel = new Ledger();
 
-        // Get current month and year
         $currentMonth = date('m');
         $currentYear = date('Y');
 
-        // Helper function to filter by created_at date (assuming you have a created_at field)
         $filterCurrentMonth = function ($records) use ($currentMonth, $currentYear) {
             return array_filter($records, function ($record) use ($currentMonth, $currentYear) {
                 if (!isset($record->created_at)) return false;
@@ -815,20 +772,17 @@ class Manager
             });
         };
 
-        // Fetch all necessary payment data and filter by current month
         $rentalPayments = $filterCurrentMonth($rentalPaymentModel->findAll() ?: []);
         $sharePayments = $filterCurrentMonth($sharePaymentModel->findAll() ?: []);
         $servicePayments = $filterCurrentMonth($servicePaymentModel->findAll() ?: []);
         $salaryPayments = $filterCurrentMonth($salaryPaymentModel->findAll() ?: []);
         $ledger = $filterCurrentMonth($ledgerModel->findAll() ?: []);
 
-        // Pre-calculate totals
         $totalRentalPayments = array_sum(array_column($rentalPayments, 'amount'));
         $totalSharePayments = array_sum(array_column($sharePayments, 'amount'));
         $totalServicePayments = array_sum(array_column($servicePayments, 'amount'));
         $totalSalaryPayments = array_sum(array_column($salaryPayments, 'salary_amount'));
 
-        // Calculate total advance and full payments separately
         $advancePayments = array_filter($sharePayments, function ($payment) {
             return $payment->payment_type == 'advance';
         });
@@ -1048,15 +1002,29 @@ class Manager
 
         $totalPages = ceil($countWithTerms / $limit);
         $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $offset = ($currentPage - 1) * $limit; // Corrected offset calculation
+        $offset = ($currentPage - 1) * $limit; 
 
         $user->setOffset($offset);
+
         $userlist = $user->where([], [], $searchterm);
 
         if (!empty($userlist)) {
             foreach ($userlist as $user) {
-                unset($user->password); // Remove password from result
+                unset($user->password); 
             }
+        }
+        $ageGreaterUsers = [];
+        $maxAge = 24;
+            foreach ($userlist as $user) {
+                if($user->age < $maxAge ){
+                    $ageGreaterUsers[] = $user;
+                }
+            }
+        if(count($ageGreaterUsers) > 0){
+            $userlist = $ageGreaterUsers;
+        }else {
+            $_SESSION['flash']['msg'] = "No users greather than $maxAge";
+            $_SESSION['flash']['type'] = "error";
         }
 
         $pagination = new Pagination($currentPage, $totalPages, 2);
@@ -1074,7 +1042,6 @@ class Manager
         $property = new PropertyModelTemp;
         $requests = $property->where(['request_status' => 'pending']);
         $this->view('manager/requestApproval', ['requests' => $requests]);
-        // $this->view('manager/requestApproval');
     }
 
     private function financialManagement($c = '', $d = '')
@@ -1172,7 +1139,6 @@ class Manager
         $agentModel = new Agent;
         $salaryModel = new SalaryPayment;
 
-        // Get all agents for the current month who are ACTIVE
         $agents = $agentModel->where(['AccountStatus' => 1, 'assign_month' => date('Y-m')]);
 
         if (!$agents || !is_array($agents) || count($agents) == 0) {
@@ -1186,10 +1152,9 @@ class Manager
         $failureCount = 0;
 
         foreach ($agents as $agent) {
-            // Check if already paid
             $isPaidAlready = $salaryModel->first(['employee_id' => $agent->pid, 'paid_month' => date('Y-m')]);
             if ($isPaidAlready) {
-                continue; // skip if already paid
+                continue; 
             }
 
             $salaryAmount = AGENT_BASIC_SALARY + ($agent->property_count * AGENT_INCREMENT);
@@ -1207,16 +1172,6 @@ class Manager
             if ($isPaidSuccessfully) {
                 $successCount++;
 
-                // $ledgerModel = new Ledger;
-                // $ledgerModel->insert([
-                //     'transaction_type'   => 'salary_payment',
-                //     'reference_id' => $agent->pid,
-                //     'reference_type'  => 'employee',
-                //     'amount' => $salaryAmount,
-                //     'description' => "Salary paid to Agent ID - " . $agent->pid
-                // ]);
-
-                // Notify the Agent
                 enqueueNotification(
                     "Salary Received",
                     "Your salary for " . date('F Y') . " has been credited. Amount: Rs {$salaryAmount}",
@@ -1229,7 +1184,6 @@ class Manager
             }
         }
 
-        // Notify Manager about the summary
         enqueueNotification(
             "Salary Payment Summary",
             "Salary payment completed: {$successCount} success, {$failureCount} failed for " . date('F Y') . ".",
@@ -1238,7 +1192,6 @@ class Manager
             MANAGER_ID
         );
 
-        // Flash Message
         $_SESSION['flash']['msg'] = "Salary payment completed. Success: {$successCount}, Failed: {$failureCount}.";
         $_SESSION['flash']['type'] = $failureCount == 0 ? "success" : "warning";
 
@@ -1268,7 +1221,6 @@ class Manager
             $action = $_POST['action'];
 
             if ($action === 'approve') {
-                // Set active status to 0 and user level to 0
                 $updateStatus = $user->update($pid, [
                     'AccountStatus' => -4,
                     'user_lvl' => 0
@@ -1282,7 +1234,6 @@ class Manager
                     $_SESSION['flash']['type'] = "error";
                 }
             } elseif ($action === 'reject') {
-                // Set active status to 3
                 $updateStatus = $user->update($pid, [
                     'AccountStatus' => -3,
                     'user_lvl' => 3
@@ -1316,11 +1267,9 @@ class Manager
 
         if (!empty($users)) {
             foreach ($users as $user) {
-                unset($user->password); // Remove password from result
+                unset($user->password); 
             }
         }
-        // show($users);
-        // die;
         $this->view('manager/removeAgents', [
             'paginationLinks' => $paginationLinks,
             'users' => $users ?? [],
@@ -1344,12 +1293,9 @@ class Manager
                         $userDetail = new UserChangeDetails;
                         $user = new User;
                         if ($action === 'approve') {
-                            // Handle approval logic
                             $newDetails = $userDetail->first(['pid' => $pid]);
-                            // show($newDetails);
                             if ($newDetails) {
                                 $oldUserDetails = $user->first(['pid' => $pid]);
-                                // Update database
                                 $updateStatus = $user->update($pid, [
                                     'fname' => $newDetails->fname,
                                     'lname' => $newDetails->lname,
@@ -1364,7 +1310,6 @@ class Manager
                                     $_SESSION['flash']['msg'] = "Changes approved successfully!";
                                     $_SESSION['flash']['type'] = "success";
 
-                                    // Delete the old image in the user table
                                     if ($oldUserDetails && !empty($oldUserDetails->image_url)) {
                                         $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $oldUserDetails->image_url;
                                         if (file_exists($profilePicturePath)) {
@@ -1377,7 +1322,6 @@ class Manager
                                 }
                             }
                         } elseif ($action === 'reject') {
-                            // Handle rejection logic
                             $newDetails = $userDetail->first(['pid' => $pid]);
                             $result = $userDetail->delete($pid, 'pid');
                             $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); // Rejected
@@ -1386,7 +1330,6 @@ class Manager
                                 $_SESSION['flash']['msg'] = "Changes rejected successfully!";
                                 $_SESSION['flash']['type'] = "success";
 
-                                // Delete the image in the user details table
                                 if ($newDetails && !empty($newDetails->image_url)) {
                                     $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $newDetails->image_url;
                                     if (file_exists($profilePicturePath)) {
@@ -1462,10 +1405,8 @@ class Manager
 
     public function generateAgentReport()
     {
-        // Include the library
         require_once __DIR__ . '/../library/HtmlToPdf.php';
 
-        // Define HTML and CSS
         $html = "
         <h1>Agent Report</h1>
         <p>This is a sample report for agents.</p>
@@ -1477,12 +1418,9 @@ class Manager
         b { font-weight: bold; }
         ";
 
-        // Generate PDF
         $pdfGenerator = new HtmlToPdf($html, $css, 'output/agent_report.pdf');
         $pdfGenerator->generatePdf();
 
-        // Redirect or display success message
-        echo "Agent report generated successfully!";
     }
 
     public function contacts()
@@ -1490,36 +1428,31 @@ class Manager
         $randomMessages = new RandomMessage;
         $randomPerson = new RandomPerson;
 
-        // Fetch all messages with status 1
         $messages = $randomMessages->where(['status' => 1], []);
         $groupedMessages = [];
 
         if (!empty($messages)) {
             foreach ($messages as $message) {
-                // Fetch the person details for the message
                 $personDetails = $randomPerson->first(['pid' => $message->pid]);
                 $personDetails->pid = $message->pid;
 
-                // Initialize the grouped messages for this person if not already done
                 if (!isset($groupedMessages[$message->pid])) {
                     $groupedMessages[$message->pid] = (object) [
                         'personDetails' => $personDetails,
-                        'messages' => '', // Use a string variable to store all messages
-                        'count' => 0 // Initialize count variable
+                        'messages' => '', 
+                        'count' => 0 
                     ];
                 }
                 if (substr_count($message->message, "\n") > 0) {
                     $groupedMessages[$message->pid]->count += substr_count($message->message, "\n");
                 }
-                // Append the message content to the string variable
                 $groupedMessages[$message->pid]->messages .= $message->message . "\n";
-                $groupedMessages[$message->pid]->count++; // Increment the count
+                $groupedMessages[$message->pid]->count++; 
             }
         }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['replyMessage'])) {
             $replyMessage = trim($_POST['emailMessage']);
-            // show($_POST);
             if (empty($replyMessage) && $_POST['complete'] == 0) {
                 $_SESSION['flash']['msg'] = "Reply Message should not be empty";
                 $_SESSION['flash']['type'] = "error";
@@ -1529,30 +1462,8 @@ class Manager
                     $name = trim($_POST['name']) ?? 'User';
 
 
-                    // $status = sendMail(
-                    //     $email ,
-                    //     'Primecare Respond', "
-                    //     <div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px;\">
-                    //         <h1 style=\"color: #4CAF50;\">Reply to Your Query</h1>
-                    //         <p>Hello, {$name}</p>
-                    //         <p>Thank you for reaching out to us.</p>
-                    //         <p>{$replyMessage}</p>
-                    //         <p>If you have any further questions, please feel free to reply to this email.</p>
-                    //         <br>
-                    //         <p>Best regards,<br>PrimeCare Support Team</p>
-                    //     </div>
-                    // ");
-                    // if(!$status['error']){
-                    //     $_SESSION['flash']['msg'] = "Reply sent successfully!";
-                    //     $_SESSION['flash']['type'] = "success";
-                    // } else {
-                    //     $_SESSION['flash']['msg'] = "Failed to send reply. Please try again.";
-                    //     $_SESSION['flash']['type'] = "error";
-                    // }
                 }
                 if (isset($_POST['complete']) && $_POST['complete'] == 1) {
-                    // show($_POST);
-                    // die;
                     $pid = $_POST['pid'];
                     $randomMessages->update($pid, ['status' => 0], 'pid');
                     $_SESSION['flash']['msg'] = "Message marked as complete.";
@@ -1562,7 +1473,6 @@ class Manager
             }
         }
 
-        // Pass the grouped messages to the view
         $this->view('manager/contacts', ['messages' => $groupedMessages]);
     }
 

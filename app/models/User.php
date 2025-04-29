@@ -17,7 +17,8 @@ class User {
         'user_lvl',
         'reset_code',
         'created_date',
-        'nic'
+        'nic',
+        'age'
     ];
 
     public $errors = [];
@@ -25,28 +26,24 @@ class User {
     public function validate($data) {
         $this->errors = [];
 
-        // Validate first name
         if (isset($data['fname'])) {
             if (empty($data['fname']) || !preg_match('/^[a-zA-Z]+$/', $data['fname'])) {
                 $this->errors['fname'] = 'First name is not valid';
             }
         }
 
-        // Validate last name
         if (isset($data['lname'])) {
             if (empty($data['lname']) || !preg_match('/^[a-zA-Z]+$/', $data['lname'])) {
                 $this->errors['lname'] = 'Last name is not valid';
             }
         }
 
-        // Validate NIC
         if (isset($data['nic'])) {
             if (!empty($data['nic']) && !preg_match('/^(?:\d{12}|\d{9}[xXvV])$/', $data['nic'])) {
                 $this->errors['nic'] = 'NIC is not valid';
             }
         }
 
-        // Validate email
         if (isset($data['email'])) {
             if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 $this->errors['email'] = 'Email is not valid';
@@ -73,14 +70,12 @@ class User {
             }
         }
 
-        // Validate contact (phone number)
         if (isset($data['contact'])) {
             if (empty($data['contact']) || !preg_match('/^[0-9]{10}$/', trim($data['contact']))) {
                 $this->errors['contact'] = 'Contact number should be 10 digits';
             }
         }
 
-        // Validate password
         if (isset($data['password'])) {
             if (empty($data['password']) || strlen($data['password']) < 5) {
                 $this->errors['password'] = 'Password should be at least 5 characters long';
@@ -89,41 +84,33 @@ class User {
             }
         }
 
-        // Validate image URL
         if (isset($data['image_url'])) {
             if (!empty($data['image_url']) && !filter_var($data['image_url'], FILTER_VALIDATE_URL)) {
                 $this->errors['image_url'] = 'Image URL is not valid';
             }
         }
 
-        // Validate user level
         if (isset($data['user_lvl'])) {
             if (!empty($data['user_lvl']) && !filter_var($data['user_lvl'], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 10]])) {
                 $this->errors['user_lvl'] = 'User level must be an integer between 1 and 10';
             }
         }
 
-        // Return true if no errors, otherwise false
+        if (isset($data['age'])) {
+            if (!empty($data['age']) && !filter_var($data['user_lvl'], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 100]])) {
+                $this->errors['age'] = 'Age must be a positive number more than 21';
+            }
+        }
+
         return empty($this->errors);
     }
 
-    // public function findByMultiplePids(array $pids) {
-    //     if (empty($pids)) {
-    //         return [];
-    //     }
-
-    //     $placeholders = implode(',', array_fill(0, count($pids), '?'));
-    //     $query = "SELECT * FROM {$this->table} WHERE {$this->order_column} IN ($placeholders)";
-        
-    //     return $this->instance->query($query, $pids);
-    // }
 
     public function findByMultiplePids(array $pids, array $data = []) {
         if (empty($pids)) {
             return [];
         }
     
-        // Build named parameters for the IN clause
         $inParams = [];
         foreach ($pids as $i => $pid) {
             $paramName = ":pid_" . $i;
@@ -131,7 +118,6 @@ class User {
         }
         $placeholders = implode(',', array_keys($inParams));
     
-        // Build AND conditions (named parameters)
         $andConditions = [];
         $parameters = [];
         foreach ($data as $key => $value) {
@@ -140,13 +126,11 @@ class User {
             $parameters[$paramName] = $value;
         }
     
-        // Construct the query
         $query = "SELECT * FROM {$this->table} WHERE {$this->order_column} IN ($placeholders)";
         if (!empty($andConditions)) {
             $query .= " AND " . implode(' AND ', $andConditions);
         }
     
-        // Merge all parameters (IN + AND conditions)
         $params = array_merge($inParams, $parameters);
     
         return $this->instance->query($query, $params);
@@ -159,17 +143,4 @@ class User {
         return null;
     }
 
-    // public function findAll(){//search rows depending on the data passed
-    //     $columnsString = "" . implode(", ", $this->allowedColumns) . "";
-    //     $columnsString = rtrim($columnsString, ", ");
-    //     $query = "
-    //         select $columnsString
-    //         from $this->table 
-    //         order by $this->order_column $this->order_type 
-    //         limit $this->limit 
-    //         offset $this->offset
-    //         ";
-    //     // show($query);
-    //     return $this->query($query);
-    // }
 }

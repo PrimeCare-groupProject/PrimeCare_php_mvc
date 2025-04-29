@@ -10,26 +10,6 @@ class Agent
         $this->dashboard();
     }
 
-    /*public function dashboard()
-    {
-        $serviceLog = new ServiceLog();
-        $allServices = $serviceLog->findAll();
-        $limitedServices = array_slice($allServices, 0, 4); // Get first 4 services
-
-        $services = new Services();
-        $tasks = $services->selecttwotables(
-            $serviceLog->table,
-            'service_id',
-            'services_id',
-            []
-        );
-
-        $this->view('agent/dashboard', [
-            'services' => $limitedServices,
-            'tasks' => $tasks,
-        ]);
-    }*/
-
     public function dashboard()
     {
         // Fetch total properties managed by the agent
@@ -76,7 +56,6 @@ class Agent
     {
         $user = new User();
 
-        // notifications
         if ($_SESSION['user']->AccountStatus == 3) { // reject update
             // update data
             $updateAcc = $user->update($_SESSION['user']->pid, [
@@ -136,33 +115,28 @@ class Agent
             if (isset($_POST['delete_account'])) {
                 $errors = [];
                 $status = '';
-                //AccountStatus
-                $userId = $_SESSION['user']->pid; // Replace with actual user ID from session
+                $userId = $_SESSION['user']->pid; 
 
-                // Update the user's Account Status to 0 instead od deleting accounnt
                 $updated = $user->update($userId, [
-                    'AccountStatus' => -2 //pending deletion
+                    'AccountStatus' => -2 
                 ], 'pid');
 
                 if ($updated) {
-                    $_SESSION['user']->AccountStatus = -2; // Assuming 0 indicates a deleted account
+                    $_SESSION['user']->AccountStatus = -2; 
 
                     $_SESSION['flash']['msg'] = "Deletion Request sent.Please wait for appoval.";
                     $_SESSION['flash']['type'] = "success";
                 } else {
                     $_SESSION['flash']['msg'] = "Failed to request deletion of account. Please try again.";
                     $_SESSION['flash']['type'] = "error";
-                    // $errors[] = "Failed to delete account. Please try again.";
                 }
 
-                // Store errors in session and redirect back
                 $_SESSION['errors'] = $errors;
                 redirect('dashboard/profile');
             } else if (isset($_POST['logout'])) {
                 $this->logout();
             }
             $this->handleProfileSubmission();
-            // return;
         }
         $this->view('profile', [
             'user' => $_SESSION['user'],
@@ -170,7 +144,6 @@ class Agent
             'status' => $_SESSION['status'] ?? ''
         ]);
 
-        // Clear session data after rendering the view
         unset($_SESSION['errors']);
         unset($_SESSION['status']);
         return;
@@ -182,17 +155,14 @@ class Agent
         $status = '';
         $targetFile = null;
 
-        // Get form data and sanitize inputs
         $firstName = esc($_POST['fname'] ?? null);
         $lastName = esc($_POST['lname'] ?? null);
         $contactNumber = esc($_POST['contact'] ?? null);
 
         $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
-        // Validate email
         if (!$email) {
             $errors[] = "Invalid email format.";
         } else {
-            // Optional: Check against allowed domains
             $domain = substr($email, strpos($email, '@') + 1);
 
             $allowedDomains = [
@@ -287,7 +257,6 @@ class Agent
             $errorString = implode("<br>", $errors);
             $_SESSION['flash']['msg'] = $errorString;
             $_SESSION['flash']['type'] = "error";
-            // $_SESSION['errors'] = $errors;
             $_SESSION['status'] = $status;
             redirect('dashboard/profile');
             exit;
@@ -308,25 +277,20 @@ class Agent
         }
         $user = new UserChangeDetails();
 
-        // Check if profile picture is uploaded
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
             $profilePicture = $_FILES['profile_picture'];
 
-            // if profilepicsize is larger than 4 mb set error
             if ($profilePicture['size'] > 2 *  1024 * 1024) {
                 $errors[] = "Profile picture size must be less than 2MB.";
             }
 
-            // Define the target directory and create it if it doesn't exist
             $targetDir = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR;
             if (!is_dir($targetDir)) {
                 mkdir($targetDir, 0755, true);
             }
 
-            // Define the target file name using uniqid()
             $imageFileType = strtolower(pathinfo($profilePicture['name'], PATHINFO_EXTENSION));
             $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-            // Check if the file is an image
             $validMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
             if (!in_array($profilePicture['type'], $validMimeTypes)) {
                 $errors[] = "Invalid file type. Please upload an image file.";
@@ -335,7 +299,6 @@ class Agent
             if (in_array($imageFileType, $validExtensions)) {
                 $targetFile = uniqid() . "__" .  $email . '.' . $imageFileType;
 
-                // Move the uploaded file
                 if (move_uploaded_file($profilePicture['tmp_name'], $targetDir . $targetFile)) {
                     $status = "Profile picture uploaded successfully!" . $targetFile;
                 } else {
@@ -346,19 +309,14 @@ class Agent
             }
         }
 
-        // Update user profile in the database
         if (empty($errors) && $_SESSION['user']->pid) {
             if (!isset($_SESSION['user']) || !property_exists($_SESSION['user'], 'pid')) {
                 $errors[] = "User session is not valid.";
             }
             $userId = $_SESSION['user']->pid;
             $user = new UserChangeDetails();
-            // show($user->findAll());
 
-            // Check if a record already exists for the user
             $isUserEdited = $user->first(['pid' => $userId]);
-            // var_dump($isUserEdited);
-            // Dynamically build the data array with only available fields
             $data = [];
             $data['pid'] = $userId;
 
@@ -367,16 +325,12 @@ class Agent
             if (!empty($email)) $data['email'] = $email;
             if (!empty($contactNumber)) $data['contact'] = $contactNumber;
             if (!empty($targetFile)) $data['image_url'] = $targetFile;
-            // die();
-            // If no data is provided, skip the operation
             if (empty($data)) {
                 $errors[] = "No data provided to update.<br>";
             } else {
                 if (!$isUserEdited) {
-                    // Include the pid when inserting a new record
                     $updated = $user->insert($data);
                 } else {
-                    // Update the existing record using pid as the condition
                     $dataToUpdate = [];
                     foreach ($data as $key => $value) {
                         if (isset($isUserEdited->$key) && strcmp((string)$isUserEdited->$key, (string)$value) !== 0) {
@@ -387,7 +341,7 @@ class Agent
                         $updated = $user->update($userId, $dataToUpdate, 'pid');
                         echo "Done updateing: ";
                     } else {
-                        $updated = true; // No changes needed, consider it successful
+                        $updated = true; 
                     }
                 }
             }
@@ -397,7 +351,6 @@ class Agent
                 $normalUser->update($userId, [
                     'AccountStatus' => 2
                 ], 'pid');
-                // Update the user session data
                 $_SESSION['user']->AccountStatus = 2;
                 $status = "Profile update request sent successfully! Please wait for approval.";
             } else {
@@ -405,20 +358,15 @@ class Agent
             }
         }
 
-        // Store errors or success in session and redirect
         if (!empty($errors)) {
             $errorString = implode("<br>", $errors);
             $_SESSION['flash']['msg'] = $errorString;
             $_SESSION['flash']['type'] = "error";
-            // $_SESSION['errors'] = $errors;
-            // $_SESSION['status'] = $status;
             redirect('dashboard/profile');
             exit;
         }
         $_SESSION['flash']['msg'] = $status;
         $_SESSION['flash']['type'] = "success";
-        // $_SESSION['errors'] = $errors;
-        // $_SESSION['status'] = $status;
         redirect('dashboard/profile');
         exit;
     }
@@ -430,19 +378,15 @@ class Agent
 
     public function requestedTasks()
     {
-        // Get pending services from service log
         $service = new ServiceLog();
         $services = $service->where(['status' => 'Pending']);
     
-        // Get available service providers
         $user = new User();
         $service_providers = $user->where(['user_lvl' => 2]);
         
-        // Get all services from services table for name matching
         $services_model = new Services();
         $all_services = $services_model->getAllServices();
         
-        // Create mapping from service type name to service_id
         $service_type_to_id = [];
         if ($all_services) {
             foreach ($all_services as $service_item) {
@@ -450,11 +394,9 @@ class Agent
             }
         }
         
-        // Get approved service provider applications
         $serviceApplication = new ServiceApplication();
         $approved_applications = $serviceApplication->where(['status' => 'Approved']);
         
-        // Create mapping from service_id to array of approved provider IDs
         $approved_providers_by_service = [];
         if ($approved_applications) {
             foreach ($approved_applications as $application) {
@@ -469,16 +411,14 @@ class Agent
             }
         }
         
-        // Process services and create filtered provider lists
         $data = [
             'services' => $services,
             'providers_by_service' => [],
-            'service_providers' => $service_providers // Keep for backward compatibility
+            'service_providers' => $service_providers 
         ];
         
         if ($services) {
             foreach ($services as $service_item) {
-                // Process property images
                 if (!empty($service_item->property_id)) {
                     $property = new Property();
                     $propertyData = $property->first(['property_id' => $service_item->property_id]);
@@ -499,15 +439,12 @@ class Agent
                     $service_item->property_image = 'listing_alt.jpg';
                 }
                 
-                // Match service_type from serviceLog with service names in services table
                 $matched_service_id = null;
                 if (!empty($service_item->service_type)) {
-                    // Try direct match first
                     $service_type_lower = strtolower($service_item->service_type);
                     if (isset($service_type_to_id[$service_type_lower])) {
                         $matched_service_id = $service_type_to_id[$service_type_lower];
                     } else {
-                        // Try partial match
                         foreach ($service_type_to_id as $name => $id) {
                             if (strpos($service_type_lower, $name) !== false || 
                                 strpos($name, $service_type_lower) !== false) {
@@ -518,63 +455,51 @@ class Agent
                     }
                 }
                 
-                // Get approved providers for this service type
                 $approved_provider_ids = [];
                 if ($matched_service_id && isset($approved_providers_by_service[$matched_service_id])) {
                     $approved_provider_ids = $approved_providers_by_service[$matched_service_id];
                 }
                 
-                // Filter providers by approval status and task count
                 $filtered_providers = [];
                 foreach ($service_providers as $provider) {
                     if (in_array($provider->pid, $approved_provider_ids)) {
                         $provider->image_url = $provider->image_url ?? 'Agent.png';
                         
-                        // Count ongoing services for this provider
                         $ongoing_count = $service->where([
                             'service_provider_id' => $provider->pid,
                             'status' => 'Ongoing'
                         ]);
                         
-                        // Convert ongoing_count to array if false (no services)
                         $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
                         
-                        // Add provider if they have less than or equal to 4 ongoing services
                         if (count($ongoing_count) <= 4) {
                             $filtered_providers[] = $provider;
                         }
                     }
                 }
                 
-                // Store filtered providers for this service
                 $data['providers_by_service'][$service_item->service_id] = $filtered_providers;
             }
         }
     
-        // Handle service provider assignment when accept button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['service_id'])) {
             $service_id = $_POST['service_id'];
             
-            // Get the selected service provider from the dropdown
             $provider_id = $_POST['service_provider_select'] ?? null;
     
             if (empty($provider_id)) {
-                // New validation: Check if a provider is selected
                 $_SESSION['flash'] = [
                     'msg' => "Please select a service provider before accepting the task",
                     'type' => "error"
                 ];
             } else {
-                // Create a new ServiceLog instance to ensure it's a model with where() method
                 $serviceModel = new ServiceLog();
                 
-                // Check again if provider hasn't exceeded limit
                 $ongoing_services = $serviceModel->where([
                     'service_provider_id' => $provider_id,
                     'status' => 'Ongoing'
                 ]);
     
-                // Convert to empty array if false
                 $ongoing_services = $ongoing_services === false ? [] : $ongoing_services;
     
                 if (count($ongoing_services) >= 4) {
@@ -583,17 +508,14 @@ class Agent
                         'type' => "error"
                     ];
                 } else {
-                    // Update service with assigned provider and change status to Ongoing
                     $result = $serviceModel->update($service_id, [
                         'service_provider_id' => $provider_id,
                         'status' => 'Ongoing'
                     ], 'service_id');
     
                     if ($result) {
-                        // Get service details to include in notification
                         $serviceDetails = $serviceModel->first(['service_id' => $service_id]);
                         
-                        // Create notification for the service provider
                         $notificationModel = new NotificationModel();
                         $notificationData = [
                             'user_id' => $provider_id,
@@ -608,19 +530,16 @@ class Agent
                             'created_at' => date('Y-m-d H:i:s')
                         ];
                         
-                        // Insert notification for service provider
                         $notificationModel->insert($notificationData);
     
-                        // Create notification for property owner
                         if (!empty($serviceDetails->property_id)) {
-                            // Get property owner ID from property table
                             $propertyModel = new Property();
                             $propertyDetails = $propertyModel->first(['property_id' => $serviceDetails->property_id]);
                             
                             if (!empty($propertyDetails->person_id)) {
                                 $notificationModel = new NotificationModel();
                                 $ownerNotificationData = [
-                                    'user_id' => $propertyDetails->person_id, // Use person_id from property table
+                                    'user_id' => $propertyDetails->person_id,
                                     'title' => "Service Request Accepted",
                                     'message' => "Your " . ($serviceDetails->service_type ?? "maintenance") . 
                                                 " service request has been accepted and assigned to a service provider.",
@@ -630,7 +549,6 @@ class Agent
                                     'created_at' => date('Y-m-d H:i:s')
                                 ];
                                 
-                                // Insert notification for property owner
                                 $notificationModel->insert($ownerNotificationData);
                             }
                         }
@@ -649,7 +567,7 @@ class Agent
             }
             
             redirect('dashboard/requestedTasks');
-            exit; // Prevent further execution
+            exit;
         }
     
         // Handle service request deletion when decline button is pressed
@@ -741,7 +659,6 @@ class Agent
         $serpro = $serpro1->where(['user_lvl' => 2]);
         $service = new Services();
         $services = $service->findAll();
-        //show($serpro);
         $this->view('agent/newtask', ['properties' => $properties,'services' => $services,'serpro' => $serpro]);
     }
 
@@ -835,7 +752,6 @@ class Agent
         $propertyModel = new Property;
         $property = $propertyModel->where(['property_id' => $propertyID])[0] ?? null;
 
-        //show($property);
 
         if ($property) {
             $data = [
@@ -859,7 +775,6 @@ class Agent
                 $fileName = uniqid() . '_' . basename($_FILES['property_document']['name']);
                 $uploadFile = $uploadDir . $fileName;
             
-                // Make sure directory exists
                 if (!file_exists($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
@@ -876,8 +791,6 @@ class Agent
                 }
             }
             
-            // show($data);
-            // echo $preInspection->isValidForRegister($data);
             if ($res) {
                 if ($property->agent_id == $_SESSION['user']->pid && $preInspection->isValidForRegister($data)) {
                     $isActive = $propertyModel->update($propertyID, ['status' => 'Active'], 'property_id');
@@ -1198,7 +1111,6 @@ class Agent
     {
         $property = new PropertyConcat;
         $property = $property->where(['property_id' => $property_id, 'agent_id' => $_SESSION['user']->pid])[0];
-        // show($property);
         $this->view('agent/inspectiondetails', ['property' => $property]);
     }
 
@@ -1206,12 +1118,10 @@ class Agent
     {
         $property = new PropertyConcat;
         $propertyUnit = $property->where(['property_id' => $propertyId])[0];
-        //show($propertyUnit);
 
         $this->view('agent/propertyUnit', ['property' => $propertyUnit ]);
     }
 
-    // agent
     public function ContactSupport($b = '', $c = '', $d = ''){
         switch ($b) {
             case 'propertyunit':
@@ -1224,11 +1134,9 @@ class Agent
                 $problemReport = new ProblemReport();
                 $problemReportImage = new problemReportImage;
                 
-                // Handle status update POST
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_id'], $_POST['new_status'])) {
                     $report_id = (int)$_POST['report_id'];
                     $new_status = $_POST['new_status'];
-                    // Only allow valid statuses
                     $allowed = ['pending', 'in_progress', 'resolved'];
                     if (in_array($new_status, $allowed)) {
                         $result = $problemReport->update($report_id, ['status' => $new_status], 'report_id');
@@ -1239,14 +1147,11 @@ class Agent
                             $_SESSION['flash']['msg'] = "Status updated successfully!";
                             $_SESSION['flash']['type'] = "success";
                             
-                            // Get report details for notification
                             $reportDetails = $problemReport->first(['report_id' => $report_id]);
                             if ($reportDetails) {
-                                // Get property details
                                 $propertyDetails = $property->first(['property_id' => $reportDetails->property_id]);
                                 $propertyName = $propertyDetails ? $propertyDetails->name : 'Property #' . $reportDetails->property_id;
                                 
-                                // Get status label for notification
                                 $statusLabel = $new_status;
                                 if ($new_status == 'in_progress') {
                                     $statusLabel = 'In Progress';
@@ -1254,7 +1159,6 @@ class Agent
                                     $statusLabel = ucfirst($new_status);
                                 }
                                 
-                                // Set notification color based on status
                                 $notificationColor = 'Notification_blue';
                                 if ($new_status == 'resolved') {
                                     $notificationColor = 'Notification_green';
@@ -1262,7 +1166,6 @@ class Agent
                                     $notificationColor = 'Notification_orange';
                                 }
                                 
-                                // Create notification for property owner
                                 enqueueNotification(
                                     'Support Request Updated', 
                                     'Your support request for ' . $propertyName . ' is now ' . $statusLabel, 
@@ -1271,7 +1174,6 @@ class Agent
                                     $reportDetails->person_id
                                 );
                                 
-                                // Create notification for admin about the status change
                                 enqueueNotification(
                                     'Support Request Updated', 
                                     'Support request #' . $report_id . ' for ' . $propertyName . ' has been updated to ' . $statusLabel, 
@@ -1292,16 +1194,12 @@ class Agent
                 $reports = [];
 
                 if (!empty($searchTerm)) {
-                    // Use search method if a search term is given
                     $results = $problemReport->search($searchTerm, $_SESSION['user']->pid);
-                    // Parse/format the search results for the view
                     if (!empty($results)) {
                         foreach ($results as $report) {
-                            // Optionally fetch property name if needed
                             $propertyDetails = $property->where(['property_id' => $report->property_id])[0] ?? null;
                             $propertyName = $propertyDetails ? $propertyDetails->name : 'Unknown Property';
                             
-                            // Fetch images for this report using ProblemReportImage
                             $images = [];
                             $imageRows = $problemReportImage->getImagesByReport($report->report_id);
                             if ($imageRows && is_array($imageRows)) {
@@ -1320,13 +1218,12 @@ class Agent
                                 'property_id' => $report->property_id,
                                 'status' => $report->status,
                                 'submitted_at' => $report->submitted_at,
-                                'images' => $images, // You may fetch images if needed
+                                'images' => $images, 
                                 'property_name' => $propertyName,
                             ];
                         }
                     }
                 } else {
-                    // Default: collect all reports for agent's properties
                     $propertyIds = $property->getPropertyIdsByAgent($_SESSION['user']->pid);
                     $allReports = [];
                     if (!empty($propertyIds)) {
@@ -1442,9 +1339,6 @@ class Agent
                 $bookings = $book->findAll();
                 $person1 = new User;
                 $persons = $person1->findAll();
-                /*echo "<pre>";
-                print_r($images);
-                echo "</pre>";*/
                 $this->view('agent/tenents',['bookings'=> $bookings,'persons' => $persons, 'properties' => $properties]);
                 break;
         }
@@ -1471,10 +1365,6 @@ class Agent
                                             'customer_id',
                                             $pid->customer_id
                                             );
-        //$this->view('agent/showhistory',['bookings'=> $bookings,'images' => $images]);
-                /*echo "<pre>";
-                print_r($images);
-                echo "</pre>";*/
                 $this->view('agent/edittenents',['bookings'=> $bookings ,'images' => $images]);
     }
 
@@ -1497,12 +1387,9 @@ class Agent
                             $userDetail = new UserChangeDetails;
                             $user = new User;
                             if ($action === 'approve') {
-                                // Handle approval logic
                                 $newDetails = $userDetail->first(['pid' => $pid]);
-                                // show($newDetails);
                                 if ($newDetails) {
                                     $oldUserDetails = $user->first(['pid' => $pid]);
-                                    // Update database
                                     $updateStatus = $user->update($pid, [
                                         'fname' => $newDetails->fname,
                                         'lname' => $newDetails->lname,
@@ -1517,7 +1404,6 @@ class Agent
                                         $_SESSION['flash']['msg'] = "Changes approved successfully!";
                                         $_SESSION['flash']['type'] = "success";
 
-                                        // Delete the old image in the user table
                                         if ($oldUserDetails && !empty($oldUserDetails->image_url)) {
                                             $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $oldUserDetails->image_url;
                                             if (file_exists($profilePicturePath)) {
@@ -1530,7 +1416,6 @@ class Agent
                                     }
                                 }
                             } elseif ($action === 'reject') {
-                                // Handle rejection logic
                                 $newDetails = $userDetail->first(['pid' => $pid]);
                                 $result = $userDetail->delete($pid, 'pid');
                                 $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); // Rejected
@@ -1539,7 +1424,6 @@ class Agent
                                     $_SESSION['flash']['msg'] = "Changes rejected successfully!";
                                     $_SESSION['flash']['type'] = "success";
 
-                                    // Delete the image in the user details table
                                     if ($newDetails && !empty($newDetails->image_url)) {
                                         $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $newDetails->image_url;
                                         if (file_exists($profilePicturePath)) {
@@ -1623,7 +1507,6 @@ class Agent
             $action = $_POST['action'];
 
             if ($action === 'approve') {
-                // Set active status to 0 and user level to 0
                 $updateStatus = $user->update($pid, [
                     'AccountStatus' => -4,
                     'user_lvl' => 0
@@ -1637,7 +1520,6 @@ class Agent
                     $_SESSION['flash']['type'] = "error";
                 }
             } elseif ($action === 'reject') {
-                // Set active status to 3
                 $updateStatus = $user->update($pid, [
                     'AccountStatus' => -3,
                     'user_lvl' => 1
@@ -1671,11 +1553,9 @@ class Agent
 
         if (!empty($users)) {
             foreach ($users as $user) {
-                unset($user->password); // Remove password from result
+                unset($user->password); 
             }
         }
-        // show($users);
-        // die;
         $this->view('agent/removeowners', [
             'paginationLinks' => $paginationLinks,
             'users' => $users ?? [],
@@ -1701,11 +1581,9 @@ class Agent
                             $userDetail = new UserChangeDetails;
                             $user = new User;
                             if ($action === 'approve') {
-                                // Handle approval logic
                                 $newDetails = $userDetail->first(['pid' => $pid]);
                                 if ($newDetails) {
                                     $oldUserDetails = $user->first(['pid' => $pid]);
-                                    // Update database
                                     $updateStatus = $user->update($pid, [
                                         'fname' => $newDetails->fname,
                                         'lname' => $newDetails->lname,
@@ -1720,7 +1598,6 @@ class Agent
                                         $_SESSION['flash']['msg'] = "Changes approved successfully!";
                                         $_SESSION['flash']['type'] = "success";
 
-                                        // Delete the old image in the user table
                                         if ($oldUserDetails && !empty($oldUserDetails->image_url)) {
                                             $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $oldUserDetails->image_url;
                                             if (file_exists($profilePicturePath)) {
@@ -1733,16 +1610,14 @@ class Agent
                                     }
                                 }
                             } elseif ($action === 'reject') {
-                                // Handle rejection logic
                                 $newDetails = $userDetail->first(['pid' => $pid]);
                                 $result = $userDetail->delete($pid, 'pid');
-                                $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); // Rejected
+                                $user = $user->update($pid, ['AccountStatus' => 3], 'pid'); 
 
                                 if ($result) {
                                     $_SESSION['flash']['msg'] = "Changes rejected successfully!";
                                     $_SESSION['flash']['type'] = "success";
 
-                                    // Delete the image in the user details table
                                     if ($newDetails && !empty($newDetails->image_url)) {
                                         $profilePicturePath = ".." . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "profile_pictures" . DIRECTORY_SEPARATOR . $newDetails->image_url;
                                         if (file_exists($profilePicturePath)) {
@@ -1832,39 +1707,33 @@ class Agent
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            // Validate and sanitize personal details
             $email = filter_var($_POST['email'] ?? null, FILTER_VALIDATE_EMAIL);
             if (!$email) {
                 $_SESSION['flash']['msg'] = "Invalid email format.";
                 $_SESSION['flash']['type'] = "error";
-                // $errors['email'] = "Invalid email format.";
             }
 
             $contact = esc($_POST['contact'] ?? null);
             $fname = esc($_POST['fname'] ?? null);
             $lname = esc($_POST['lname'] ?? null);
             $nic = esc($_POST['nic'] ?? null);
-
-            // echo "checking if user exist <br>";
+            $age = esc((int)($_POST['age']) ?? 21);
             $resultUser = $user->first(['email' => $email], []);
             $nicUser = $user->first(['nic' => $nic], []);
 
             if (($resultUser && !empty($resultUser->email)) || $nicUser && !empty($nicUser->email)) {
-                //update user class errors
                 $_SESSION['flash']['msg'] = "Email or NIC already exists.";
                 $_SESSION['flash']['type'] = "error";
-                // $errors['email'] = 'Email or NIC already exists';
                 $this->view('agent/addserviceprovider', [
                     'user' => $resultUser,
                     'errors' => $errors,
                     'message' => ''
-                ]); // Re-render signup view with error
+                ]); 
 
-                unset($errors['email']); // Clear the error after displaying it
-                return; // Exit if email exists
+                unset($errors['email']);
+                return; 
             }
-            //generatepassword
-            $password = bin2hex(random_bytes(4)); // Generates an 8-character password
+            $password = bin2hex(random_bytes(4)); 
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
             $personalDetails = [
@@ -1873,34 +1742,26 @@ class Agent
                 'lname' => $lname,
                 'email' => $email,
                 'contact' => $contact,
-                'password' => $password, // Hash the password before saving
+                'password' => $password, 
                 'confirmPassword' => $password,
                 'user_lvl' => 2,
-                // 'username' => $this->generateUsername($_POST['fname']),
+                'age' => $age ?? 21
             ];
-            // echo "validating user details<br>";
 
-            // Validate the form data
             if (!$user->validate($personalDetails)) {
-                // show($user->errors);
-                // echo "if2";
                 $_SESSION['flash']['msg'] = is_array($user->errors) ? implode("\n", $user->errors) : (string)$user->errors;
                 $_SESSION['flash']['type'] = "error";
                 $this->view('agent/addserviceprovider', [
                     'user' => $resultUser,
-                    // 'errors' => $user->errors, 
                     'message' => ''
-                ]); // Re-render signup view with errors
+                ]); 
 
-                unset($user->errors); // Clear the error after displaying it
-                return; // Exit if validation fails
+                unset($user->errors); 
+                return; 
             }
-            // echo "user details validated:<br>";
-
             unset($personalDetails['confirmPassword']);
 
 
-            // Validate and sanitize location details
             if (!$location->validateLocation($_POST)) {
                 $_SESSION['flash']['msg'] = is_array($location->errors) ? implode("\n", $location->errors) : (string)$location->errors;
                 $_SESSION['flash']['type'] = "error";
@@ -1908,54 +1769,44 @@ class Agent
                     'user' => $resultUser,
                     'errors' => $errors,
                     'message' => ''
-                ]); // Re-render signup view with errors
+                ]); 
 
-                unset($location->errors); // Clear the error after displaying it
-                return; // Exit if validation fails
+                unset($location->errors); 
+                return; 
             }
 
 
-            $personalDetails['password'] = $hashedPassword; //set hashed password
-            // echo "inserting user details<br>";
-            // show($personalDetails);
-
+            $personalDetails['password'] = $hashedPassword; 
             $userStatus = $user->insert($personalDetails);
 
             if (!$userStatus) {
-                // echo "user details insertion failed<br>"; 
                 $_SESSION['flash']['msg'] = "Failed to add agent. Please try again.";
                 $_SESSION['flash']['type'] = "error";
-                // $errors['auth'] = "Failed to add agent. Please try again.";
                 $this->view('agent/addserviceprovider', [
                     'user' => $resultUser,
                     'errors' => $errors,
                     'message' => ''
                 ]);
 
-                unset($errors['auth']); // Clear the error after displaying it
+                unset($errors['auth']); 
                 return;
             } else {
-                // echo "user details inserted<br>"; 
 
             }
 
-            // Validate and sanitize bank details
             $cardName = esc($_POST['cardName'] ?? null);
             $accountNo = esc($_POST['accountNo'] ?? null);
             $branch = esc($_POST['branch'] ?? null);
             $bankName = esc($_POST['bankName'] ?? null);
 
-            //location data
             $province = esc($_POST['province'] ?? null);
             $district = esc($_POST['district'] ?? null);
             $city = esc($_POST['city'] ?? null);
             $address = esc($_POST['address'] ?? null);
 
-            // echo "Inside if bank details<br>";
             if (empty($user->errors) && $userStatus) {
                 $userDetails = $user->where(['email' => $email]);
                 $userId = $userDetails[0]->pid;
-                // var_dump($userId);
                 if ($userStatus) {
 
                     if ($userId) {
@@ -1970,7 +1821,7 @@ class Agent
                         if (!$locationStatus) {
                             $_SESSION['flash']['msg'] = "Failed to save location details. Please try again.";
                             $_SESSION['flash']['type'] = "error";
-                            $user->delete($userId, 'pid'); // Rollback user creation
+                            $user->delete($userId, 'pid'); 
                             $this->view('agent/addserviceprovider', [
                                 'errors' => $errors,
                                 'message' => ''
@@ -1979,31 +1830,19 @@ class Agent
                         }
                     }
 
-                    //check if payment details already exist
                     $paymentDetails = $payment_details->first(['pid' => $userId, 'account_no' => $accountNo]);
-                    // echo "checking if payment details exist<br>";
                     if ($paymentDetails) {
                         $user->delete($personalDetails['pid'], 'pid');
                         $_SESSION['flash']['msg'] = "Payment details already exist for this account number.";
                         $_SESSION['flash']['type'] = "error";
-                        // $errors['payment'] = "Payment details already exist for this account number.";
                         $this->view('agent/addserviceprovider', [
                             'user' => $resultUser,
                             'errors' => $errors,
                             'message' => ''
-                        ]); // Re-render signup view with error
-                        unset($errors['payment']); // Clear the error after displaying it
-                        return; // Exit if payment details already exist
+                        ]); 
+                        unset($errors['payment']); 
+                        return; 
                     }
-                    // Save payment details
-                    // echo "inserting payment details<br>";
-                    // var_dump([
-                    //     'card_name' => $cardName,
-                    //     'account_no' => $accountNo,
-                    //     'bank' => $bankName,
-                    //     'branch' => $branch,
-                    //     'pid' => $userId,
-                    // ]);
 
                     $paymentDetailStatus = $payment_details->insert([
                         'card_name' => $cardName,
@@ -2012,9 +1851,6 @@ class Agent
                         'branch' => $branch,
                         'pid' => $userId,
                     ]);
-
-                    // show($paymentDetailStatus);
-                    // echo "payment details inserted<br>";
 
                     if ($paymentDetailStatus) {
                         // echo "payment done, now sending mail<br>";
@@ -2049,7 +1885,6 @@ class Agent
                         $_SESSION['flash']['msg'] = $message;
                         $_SESSION['flash']['type'] = "error";
                         $user->delete($personalDetails['pid'], 'pid');
-                        // echo "payment details insertion failed<br>";
                     }
 
                     $this->view('agent/addserviceprovider', [
@@ -2068,7 +1903,7 @@ class Agent
                         'message' => ''
                     ]);
 
-                    unset($errors['auth']); // Clear the error after displaying it
+                    unset($errors['auth']); 
                     return;
                 }
             }
@@ -2082,7 +1917,7 @@ class Agent
                 'message' => ''
             ]);
 
-            unset($errors['auth']); // Clear the error after displaying it
+            unset($errors['auth']); 
             return;
         }
 
@@ -2105,7 +1940,6 @@ class Agent
             $action = $_POST['action'];
 
             if ($action === 'approve') {
-                // Set active status to 0 and user level to 0
                 $updateStatus = $user->update($pid, [
                     'AccountStatus' => -4,
                     'user_lvl' => 0
@@ -2119,7 +1953,6 @@ class Agent
                     $_SESSION['flash']['type'] = "error";
                 }
             } elseif ($action === 'reject') {
-                // Set active status to 3
                 $updateStatus = $user->update($pid, [
                     'AccountStatus' => -3,
                     'user_lvl' => 2
@@ -2153,11 +1986,9 @@ class Agent
 
         if (!empty($users)) {
             foreach ($users as $user) {
-                unset($user->password); // Remove password from result
+                unset($user->password); 
             }
         }
-        // show($users);
-        // die;
         $this->view('agent/spremove', [
             'paginationLinks' => $paginationLinks,
             'users' => $users ?? [],
@@ -2183,22 +2014,16 @@ class Agent
             default:
                 $BookingOrders = new BookingOrders();
                 $property = new PropertyConcat();
-                // Get all properties managed by this agent
                 $properties = $property->where(['agent_id' => $_SESSION['user']->pid]);
                 $properties = is_array($properties) ? $properties : [];
                 $propertyIds = array_map(function ($property) {
                     return $property->property_id;
                 }, $properties);
-                // show($propertyIds);
-                // echo $_SESSION['user']->pid;
-                // die;
-                // Fetch all pending bookings for all properties
                 $pendingOrders = [];
                 foreach ($propertyIds as $propertyId) {
                     $pending = $BookingOrders->getBookingsByPropertyId($propertyId);
                     if (!empty($pending)) {
                         foreach ($pending as $order) {
-                            // Optionally, attach property images/details here if needed
                             $propertyData = $property->where(['property_id' => $order->property_id]);
                             if (!empty($propertyData)) {
                                 $order->property_images = $propertyData[0]->property_images ?? null;
@@ -2250,7 +2075,6 @@ class Agent
                 $PropertyConcat = new PropertyConcat();
                 $User = new User();
                 
-                // Get all properties managed by this agent
                 $properties = $PropertyConcat->where(['agent_id' => $_SESSION['user']->pid]);
                 $properties = is_array($properties) ? $properties : [];
                 $propertyIds = array_map(function ($property) {
@@ -2259,27 +2083,21 @@ class Agent
                 
                 $allBookings = [];
                 if (!empty($propertyIds)) {
-                    // Get all bookings for these properties with status accepted or rejected
                     foreach ($propertyIds as $propertyId) {
                         $bookings = $BookingOrders->where(['property_id' => $propertyId]);
                         
                         if (!empty($bookings)) {
                             foreach ($bookings as $booking) {
-                                // Only include accepted or rejected bookings
                                 if (in_array(strtolower($booking->booking_status), ['confirmed', 'cancelled', 'completed', 'rejected'])) {
-                                    // Get property details
                                     $propertyData = $PropertyConcat->where(['property_id' => $booking->property_id]);
                                     $propertyName = !empty($propertyData) ? $propertyData[0]->name : '-';
 
-                                    // Get customer details
                                     $customer = $User->where(['pid' => $booking->person_id]);
                                     $customerName = !empty($customer) ? ($customer[0]->fname . ' ' . $customer[0]->lname) : '-';
 
-                                    // Format rental period to include units
                                     $rentalPeriod = strtolower($booking->rental_period ?? '');
                                     $duration = $booking->duration ?? '';
                                     
-                                    // Combine period type with duration to show units properly
                                     $formattedRentalPeriod = '';
                                     if (!empty($duration) && !empty($rentalPeriod)) {
                                         if ($rentalPeriod == 'monthly' || $rentalPeriod == 'monlthy') {
@@ -2297,7 +2115,6 @@ class Agent
                                         $formattedRentalPeriod = $rentalPeriod;
                                     }
 
-                                    // Add to array for view
                                     $allBookings[] = (object)[
                                         'booking_id' => $booking->booking_id,
                                         'name' => $propertyName,
@@ -2354,7 +2171,6 @@ class Agent
                 'Confirmed'
             );
             
-            // Update agent_id to current session user
             $BookingOrders->update($bookingId, [
                 'agent_id' => $_SESSION['user']->pid
             ],'booking_id');
@@ -2382,7 +2198,6 @@ class Agent
                 $booking->end_date,
                 'Cancelled'
             );
-            // Update agent_id to current session user only if user a agent
             if ($_SESSION['user']->user_lvl == 3) {
                 $BookingOrders->update($bookingId, [
                     'agent_id' => $_SESSION['user']->pid,
@@ -2423,19 +2238,16 @@ class Agent
         $BookingOrders = new BookingOrders();
         $property = new PropertyConcat();
 
-        // Get all properties managed by this agent
         $properties = $property->where(['agent_id' => $_SESSION['user']->pid]);
         $properties = is_array($properties) ? $properties : [];
         $propertyIds = array_map(function ($property) {
             return $property->property_id;
         }, $properties);
-        // Fetch all pending bookings for all properties
         $pendingOrders = [];
         foreach ($propertyIds as $propertyId) {
             $pending = $BookingOrders->getBookingsByPropertyId($propertyId, 'Cancel Requested');
             if (!empty($pending)) {
                 foreach ($pending as $order) {
-                    // Optionally, attach property images/details here if needed
                     $propertyData = $property->where(['property_id' => $order->property_id]);
                     if (!empty($propertyData)) {
                         $order->property_images = $propertyData[0]->property_images ?? null;
@@ -2451,48 +2263,19 @@ class Agent
         
     }
 
-    // public function reportGen($property_id)
-    // {
-    //     $property = new PropertyConcat;
-    //     $property = $property->where(['property_id' => $property_id, 'agent_id' => $_SESSION['user']->pid])[0];
-
-    //     $agent = new User;
-    //     $agent = $agent->where(['pid' => $_SESSION['user']->pid])[0];
-    //     // require_once APPROOT . '/libraries/fpdf/fpdf.php';
-    //     // $pdf = new FPDF();
-    //     // $pdf->AddPage();
-    //     // $pdf->SetFont('Arial', 'B', 16);
-    //     // $pdf->Cell(40, 10, 'Hello, this is a report!');
-    //     // $pdf->Output();
-    //     // $this->report('preInsp', [
-    //     //     'user' => $_SESSION['user'],
-    //     //     'property' => $property,
-    //     //     'agent' => $agent
-    //     // ]);
-
-    //     $reportHTML = $this->generatePreInspectionReport([
-    //         'property' => $property,
-    //         'agent' => $agent
-    //     ]);
-
-    //     echo $reportHTML; // Or send as response, export to PDF, etc.
-
-    // }
+   
 
     public function externalServiceRequests()
     {
         $externalService = new ExternalService();
         $services = $externalService->where(['status' => 'pending']);
     
-        // Get available service providers
         $user = new User();
         $service_providers = $user->where(['user_lvl' => 2]);
         
-        // Get all services from services table for name matching
         $services_model = new Services();
         $all_services = $services_model->getAllServices();
         
-        // Create mapping from service type name to service_id
         $service_type_to_id = [];
         if ($all_services) {
             foreach ($all_services as $service_item) {
@@ -2500,11 +2283,9 @@ class Agent
             }
         }
         
-        // Get approved service provider applications
         $serviceApplication = new ServiceApplication();
         $approved_applications = $serviceApplication->where(['status' => 'Approved']);
         
-        // Create mapping from service_id to array of approved provider IDs
         $approved_providers_by_service = [];
         if ($approved_applications) {
             foreach ($approved_applications as $application) {
@@ -2519,41 +2300,32 @@ class Agent
             }
         }
         
-        // Process services and create filtered provider lists
         $data = [
             'services' => $services,
             'providers_by_service' => [],
-            'service_providers' => $service_providers // Keep for backward compatibility
+            'service_providers' => $service_providers 
         ];
     
-        // Process property images for each service (decode JSON)
         if ($services) {
             foreach ($services as $service) {
-                // Get property images from service_images JSON field
                 if (!empty($service->service_images)) {
                     $images = json_decode($service->service_images, true);
                     
-                    // Assign the first image to the service object if available
                     if (is_array($images) && !empty($images)) {
-                        // Store the actual image URL from the JSON array
                         $service->property_image = $images[0];
                     } else {
-                        // Set default image if no property images found
                         $service->property_image = 'listing_alt.jpg';
                     }
                 } else {
                     $service->property_image = 'listing_alt.jpg';
                 }
                 
-                // Match service_type with service names in services table
                 $matched_service_id = null;
                 if (!empty($service->service_type)) {
-                    // Try direct match first
                     $service_type_lower = strtolower($service->service_type);
                     if (isset($service_type_to_id[$service_type_lower])) {
                         $matched_service_id = $service_type_to_id[$service_type_lower];
                     } else {
-                        // Try partial match
                         foreach ($service_type_to_id as $name => $id) {
                             if (strpos($service_type_lower, $name) !== false || 
                                 strpos($name, $service_type_lower) !== false) {
@@ -2564,77 +2336,63 @@ class Agent
                     }
                 }
                 
-                // Get approved providers for this service type
                 $approved_provider_ids = [];
                 if ($matched_service_id && isset($approved_providers_by_service[$matched_service_id])) {
                     $approved_provider_ids = $approved_providers_by_service[$matched_service_id];
                 }
                 
-                // Filter providers by approval status and task count
                 $filtered_providers = [];
                 foreach ($service_providers as $provider) {
                     if (in_array($provider->pid, $approved_provider_ids)) {
                         $provider->image_url = $provider->image_url ?? 'Agent.png';
                         
-                        // Count ongoing services for this provider
                         $ongoing_count = $externalService->where([
                             'service_provider_id' => $provider->pid,
                             'status' => 'ongoing'
                         ]);
                         
-                        // Convert ongoing_count to array if false (no services)
                         $ongoing_count = $ongoing_count === false ? [] : $ongoing_count;
                         
-                        // Add provider if they have less than or equal to 4 ongoing services
                         if (count($ongoing_count) <= 4) {
                             $filtered_providers[] = $provider;
                         }
                     }
                 }
                 
-                // Store filtered providers for this service
                 $data['providers_by_service'][$service->id] = $filtered_providers;
             }
         }
     
-        // Handle service provider assignment when accept button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['service_id'])) {
             $service_id = $_POST['service_id'];
     
-            // Get the selected service provider from the dropdown
             $provider_id = $_POST['service_provider_select'] ?? null;
     
             if (empty($provider_id)) {
                 $_SESSION['flash']['msg'] = "Please select a service provider before accepting the task";
                 $_SESSION['flash']['type'] = "error";
             } else {
-                // Create a new ExternalService instance to ensure it's a model with where() method
                 $serviceModel = new ExternalService();
                 
-                // Check again if provider hasn't exceeded limit
                 $ongoing_services = $serviceModel->where([
                     'service_provider_id' => $provider_id,
                     'status' => 'ongoing'
                 ]);
     
-                // Convert to empty array if false
                 $ongoing_services = $ongoing_services === false ? [] : $ongoing_services;
     
                 if (count($ongoing_services) >= 4) {
                     $_SESSION['flash']['msg'] = "This service provider has reached their maximum service limit";
                     $_SESSION['flash']['type'] = "error";
                 } else {
-                    // Update service with assigned provider and change status to ongoing
                     $result = $serviceModel->update($service_id, [
                         'service_provider_id' => $provider_id,
                         'status' => 'ongoing'
                     ]);
     
                     if ($result) {
-                        // Get service details to include in notification
                         $serviceDetails = $serviceModel->first(['id' => $service_id]);
                         
-                        // Create notification for the service provider
                         $notificationModel = new NotificationModel();
                         $notificationData = [
                             'user_id' => $provider_id,
@@ -2649,10 +2407,8 @@ class Agent
                             'created_at' => date('Y-m-d H:i:s')
                         ];
                         
-                        // Insert notification for service provider
                         $notificationModel->insert($notificationData);
     
-                        // Create notification for customer who requested the service
                         if (!empty($serviceDetails->requested_person_id)) {
                             $notificationModel = new NotificationModel();
                             $customerNotificationData = [
@@ -2666,7 +2422,6 @@ class Agent
                                 'created_at' => date('Y-m-d H:i:s')
                             ];
                             
-                            // Insert notification for the customer
                             $notificationModel->insert($customerNotificationData);
                         }
                         
@@ -2680,23 +2435,19 @@ class Agent
             }
     
             redirect('dashboard/externalServiceRequests');
-            exit; // Add exit here to prevent further execution
+            exit; 
         }
     
-        // Handle service request deletion when decline button is pressed
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_service_id'])) {
             $service_id = $_POST['delete_service_id'];
     
-            // Update the service request status to "rejected" instead of deleting
             $result = $externalService->update($service_id, [
                 'status' => 'rejected'
             ]);
     
             if ($result) {
-                // Get service details to include in notification
                 $serviceDetails = $externalService->first(['id' => $service_id]);
                 
-                // Create notification for customer about rejection
                 if (!empty($serviceDetails->requested_person_id)) {
                     $notificationModel = new NotificationModel();
                     $customerNotificationData = [
@@ -2710,7 +2461,6 @@ class Agent
                         'created_at' => date('Y-m-d H:i:s')
                     ];
                     
-                    // Insert notification for the customer
                     $notificationModel->insert($customerNotificationData);
                 }
                 $_SESSION['flash']['msg'] = "External service request declined successfully";
@@ -2721,7 +2471,7 @@ class Agent
             }
     
             redirect('dashboard/externalServiceRequests');
-            exit; // Add exit here to prevent further execution
+            exit; 
         }
     
         $this->view('agent/externalServiceRequests', $data);
@@ -2729,26 +2479,20 @@ class Agent
 
     public function serviceRequests()
     {
-        // Get pending counts for different service types
         $serviceLog = new ServiceLog();
         $externalService = new ExternalService();
         
-        // Count pending maintenance tasks
         $pendingTasks = $serviceLog->where(['status' => 'Pending']);
         $pendingTasksCount = is_array($pendingTasks) ? count($pendingTasks) : 0;
         
-        // Count completed (Done) tasks
         $completedTasks = $serviceLog->where(['status' => 'Done']);
         $completedTasksCount = is_array($completedTasks) ? count($completedTasks) : 0;
 
-        // Count paid tasks
         $paidTasks = $serviceLog->where(['status' => 'Paid']);
         $paidTasksCount = is_array($paidTasks) ? count($paidTasks) : 0;
 
-        // Total of Done and Paid tasks
         $tasksCount = $completedTasksCount + $paidTasksCount;
         
-        // Count pending external service requests
         $externalRequests = $externalService->where(['status' => 'pending']);
         $externalRequestsCount = is_array($externalRequests) ? count($externalRequests) : 0;
         
@@ -2760,13 +2504,11 @@ class Agent
         ]);
     }
 
-    // Service Management - Main page with navigation cards
 
     public function serviceManagement() {
         $this->view('agent/serviceManagement');
     }
 
-    // Service Listing - Page to view and manage available services
 
     public function serviceListing() {
         $services = new Services();
@@ -2777,55 +2519,43 @@ class Agent
         ]);
     }
 
-    // Service Applications - Page to view and manage service provider applications
     
     public function serviceApplications() {
-        // Check if user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
             redirect('login');
             return;
         }
         
-        // Get current page for pagination
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $items_per_page = 9;
         $offset = ($page - 1) * $items_per_page;
         
-        // Get status filter
         $selected_status = isset($_GET['status']) ? $_GET['status'] : 'all';
         
-        // Create instances of the required models
         $serviceApplication = new ServiceApplication();
         $services = new Services();
         $user = new User();
         
-        // Get applications with proper filtering
         if ($selected_status !== 'all') {
             $applications = $serviceApplication->where(['status' => $selected_status]);
         } else {
             $applications = $serviceApplication->findAll();
         }
         
-        // Count total records for pagination
         $total_records = is_array($applications) ? count($applications) : 0;
         $total_pages = ceil($total_records / $items_per_page);
         
-        // Prepare the enhanced applications array with additional details
         $enhancedApplications = [];
         
         if (is_array($applications) && !empty($applications)) {
-            // Only process the required page of results
             $pagedApplications = array_slice($applications, $offset, $items_per_page);
             
             foreach ($pagedApplications as $application) {
-                // Get service details
                 $service = $services->first(['service_id' => $application->service_id]);
                 
-                // Get provider details
                 $provider = $user->first(['pid' => $application->service_provider_id]);
                 
                 if ($service && $provider) {
-                    // Create an enhanced application object with all required details
                     $enhancedApp = clone $application;
                     $enhancedApp->service_name = $service->name;
                     $enhancedApp->cost_per_hour = $service->cost_per_hour;
@@ -2837,7 +2567,6 @@ class Agent
             }
         }
         
-        // Load the view with data
         $this->view('agent/serviceApplications', [
             'applications' => $enhancedApplications,
             'current_page' => $page,
@@ -2846,10 +2575,8 @@ class Agent
         ]);
     }
 
-    // View application details
 
     public function viewApplicationDetails($service_id = null, $provider_id = null) {
-        // Check if user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
             redirect('login');
             return;
@@ -2862,7 +2589,6 @@ class Agent
             return;
         }
         
-        // Get application details
         $serviceApplication = new ServiceApplication();
         $application = $serviceApplication->first([
             'service_id' => $service_id,
@@ -2876,7 +2602,6 @@ class Agent
             return;
         }
         
-        // Get service details
         $services = new Services();
         $service = $services->getServiceById($service_id);
         
@@ -2887,7 +2612,6 @@ class Agent
             return;
         }
         
-        // Get provider details
         $userModel = new User();
         $provider = $userModel->first(['pid' => $provider_id]);
         
@@ -2898,7 +2622,6 @@ class Agent
             return;
         }
         
-        // Load the view with data
         $this->view('agent/viewApplicationDetails', [
             'application' => $application,
             'service' => $service,
@@ -2906,10 +2629,8 @@ class Agent
         ]);
     }
 
-    // Update application status
 
     public function updateApplicationStatus($service_id = null, $provider_id = null, $status = null) {
-        // Check if user is logged in
         if (!isset($_SESSION['user']) || empty($_SESSION['user']->pid)) {
             redirect('login');
             return;
@@ -2922,7 +2643,6 @@ class Agent
             return;
         }
         
-        // Validate status
         if (!in_array($status, ['Approved', 'Rejected', 'Pending'])) {
             $_SESSION['flash']['msg'] = "Invalid status value";
             $_SESSION['flash']['type'] = "error";
@@ -2930,7 +2650,6 @@ class Agent
             return;
         }
         
-        // Get application
         $serviceApplication = new ServiceApplication();
         $application = $serviceApplication->first([
             'service_id' => $service_id,
@@ -2944,7 +2663,6 @@ class Agent
             return;
         }
     
-        // Instead of updating directly, delete and reinsert with new status
 
         $data = [
             'service_id' => $service_id,
@@ -2955,15 +2673,12 @@ class Agent
             'updated_at' => date('Y-m-d H:i:s')
         ];
         
-        // Delete the old record
         $serviceApplication->delete($service_id, 'service_id', [
             'service_provider_id' => $provider_id
         ]);
         
-        // Insert the new record with updated status
         $result = $serviceApplication->insert($data);
         
-        // Create notification for service provider
         $notificationModel = new NotificationModel();
         $notificationData = [
             'user_id' => $provider_id,

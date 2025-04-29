@@ -8,9 +8,7 @@
 </div>
 
 <div id="formContainer">
-    <!-- Consolidated Form -->
     <form id="addAgentForm" method="post" action="<?= ROOT ?>/dashboard/manageProviders/serviceproviders/addserviceprovider" class="form_wrapper manager_form_wrapper" >
-        <!-- Personal Details View -->
         <input type="hidden" name="add_agent" value="1">
         <div id="personalDetailsView" class="AddnewAgentform">
             <div class="subpart-name" style="margin-top: -10px;"> Personal Details </div>
@@ -40,11 +38,17 @@
                         placeholder="20020690111" value="<?= old_value('nic') ?>"required>
                 </div>
             </div>
-
-            <div class="input-group-group">
-                <label for="email" class="input-label">Email Address</label>
-                <input type="email" name="email" id="email" class="input-field" 
-                    placeholder="johndoe@gmail.com" value="<?= old_value('email') ?>" required>
+            <div class="input-group">
+                <div class="input-group-group">
+                    <label for="email" class="input-label">Email Address</label>
+                    <input type="email" name="email" id="email" class="input-field" 
+                        placeholder="johndoe@gmail.com" value="<?= old_value('email') ?>" required>
+                </div>
+                <div class="input-group-group">
+                    <label for="age" class="input-label">Age</label>
+                    <input type="text" name="age" id="email" class="input-field" 
+                        placeholder="21" value="<?= old_value('age') ?>" required>
+                </div>
             </div>
 
             <div class="subpart-name" style="margin-top: 10px;"> Location Details </div>
@@ -184,7 +188,6 @@
 
 
             <div class="input-group-aligned">
-                <!-- <button type="button" class="green btn" onclick="showSearchBox()">Add existing User</button> -->
                 <button type="button" class="primary-btn" style="margin-bottom: 10px;" onclick="showBankDetails()">Next</button>
             </div>
 
@@ -204,7 +207,6 @@
             </div>
         </div>
 
-        <!-- Bank Details View -->
         <div id="bankDetailsView" class="AddnewAgentform" style="display: none;">
             <div class="subpart-name"> Bank Details </div>
             <input type="hidden" name="find_agent" value="1">
@@ -308,16 +310,12 @@
         </div>
     </form>
     <?php 
-        // show($errors);
-        // show($message);
     ?>
 </div>
 
 <script>
-    //loader effect
     function displayLoader() {
         document.querySelector('.loader-container').style.display = '';
-        //onclick="displayLoader()"
     }
     
     document.querySelectorAll('form').forEach(form => {
@@ -385,7 +383,6 @@
         const districtSelect = document.getElementById('district');
         const citySelect = document.getElementById('city');
 
-        // Update districts based on selected province
         districtSelect.innerHTML = '<option value="" disabled selected>Select District</option>';
         if (province in districtOptions) {
             districtOptions[province].forEach(district => {
@@ -396,7 +393,6 @@
             });
         }
 
-        // Clear city dropdown
         citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
     });
 
@@ -404,7 +400,6 @@
         const district = this.value;
         const citySelect = document.getElementById('city');
 
-        // Update cities based on selected district
         citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
         if (district in cityOptions) {
             cityOptions[district].forEach(city => {
